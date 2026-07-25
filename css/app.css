@@ -45,10 +45,11 @@
 	left: -9999px;
 	top: 0;
 	z-index: 3000;
-	padding: 10px 16px;
+	min-height: 2.75rem;
+	padding: var(--mn-space-2) var(--mn-space-4);
 	background: var(--color-primary-element);
 	color: var(--color-primary-element-text);
-	border-radius: 0 0 var(--border-radius) 0;
+	border-radius: 0 0 var(--mn-radius-sm) 0;
 }
 
 .mn-skip-link:focus {
@@ -56,32 +57,32 @@
 }
 
 *:focus-visible {
-	outline: 2px solid var(--color-primary-element);
+	outline: 3px solid var(--color-primary-element);
 	outline-offset: 2px;
 }
 
 /* ── Navigation ────────────────────────────────────────────────────── */
 
 .mn-nav {
-	padding-bottom: 24px;
+	padding-bottom: var(--mn-space-5);
 }
 
 .mn-nav__brand {
 	display: flex;
-	gap: 12px;
+	gap: var(--mn-space-3);
 	align-items: flex-start;
-	padding: 20px 16px 16px;
+	padding: var(--mn-space-5) var(--mn-space-4) var(--mn-space-4);
 	border-bottom: 1px solid var(--color-border);
-	margin-bottom: 8px;
+	margin-bottom: var(--mn-space-2);
 }
 
 .mn-nav__brand-icon {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 44px;
-	height: 44px;
-	border-radius: 12px;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: var(--mn-radius-md);
 	background: var(--color-primary-element-light);
 	color: var(--color-primary-element);
 	flex-shrink: 0;
@@ -89,24 +90,24 @@
 
 .mn-nav__title {
 	margin: 0;
-	font-size: 16px;
+	font-size: var(--mn-fs-md);
 	font-weight: 700;
-	line-height: 1.3;
+	line-height: var(--mn-line-tight);
 }
 
 .mn-nav__subtitle {
-	margin: 0 0 6px;
-	font-size: 12px;
+	margin: 0 0 var(--mn-space-2);
+	font-size: var(--mn-fs-xs);
 	color: var(--color-text-maxcontrast);
 }
 
 .mn-nav__group {
-	margin-bottom: 8px;
+	margin-bottom: var(--mn-space-2);
 }
 
 .mn-nav__group-title {
-	margin: 12px 16px 4px;
-	font-size: 11px;
+	margin: var(--mn-space-3) var(--mn-space-4) var(--mn-space-1);
+	font-size: var(--mn-fs-xs);
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
@@ -171,14 +172,14 @@
 /* ── Icons ─────────────────────────────────────────────────────────── */
 
 .mn-icon {
-	width: 20px;
-	height: 20px;
+	width: var(--mn-icon-lg);
+	height: var(--mn-icon-lg);
 	vertical-align: middle;
 }
 
 .mn-icon--lg {
-	width: 28px;
-	height: 28px;
+	width: 1.75rem;
+	height: 1.75rem;
 }
 
 .mn-icon--xl {
@@ -199,12 +200,12 @@
 	gap: 16px;
 	align-items: flex-start;
 	justify-content: space-between;
-	margin: 8px 0 20px;
+	margin: var(--mn-space-2) 0 var(--mn-space-5);
 }
 
 .mn-page-header__title {
 	margin: 0;
-	font-size: clamp(20px, 3vw, 26px);
+	font-size: clamp(var(--mn-fs-xl), 3vw, 1.625rem);
 	font-weight: 700;
 	line-height: 1.25;
 }
@@ -233,7 +234,7 @@
 	justify-content: center;
 	gap: 8px;
 	min-height: 44px;
-	padding: 8px 18px;
+	padding: var(--mn-space-2) var(--mn-space-4);
 	border-radius: var(--mn-radius-md, 12px);
 	border: 1px solid transparent;
 	font-size: 14px;
@@ -363,14 +364,14 @@ textarea.mn-input {
 .mn-switch {
 	display: inline-flex;
 	align-items: center;
-	gap: 10px;
+	gap: var(--mn-space-3);
 	min-height: 44px;
 	cursor: pointer;
 }
 
 .mn-switch__input {
-	width: 18px;
-	height: 18px;
+	width: var(--mn-icon-md);
+	height: var(--mn-icon-md);
 	accent-color: var(--color-primary-element);
 	cursor: pointer;
 }
@@ -382,15 +383,15 @@ textarea.mn-input {
 .mn-checkbox {
 	display: flex;
 	align-items: flex-start;
-	gap: 10px;
+	gap: var(--mn-space-3);
 	cursor: pointer;
 	min-height: 44px;
 	padding: 8px 0;
 }
 
 .mn-checkbox input {
-	width: 18px;
-	height: 18px;
+	width: var(--mn-icon-md);
+	height: var(--mn-icon-md);
 	margin-top: 2px;
 	accent-color: var(--color-primary-element);
 	cursor: pointer;
@@ -427,7 +428,7 @@ textarea.mn-input {
 	padding: 16px;
 	margin-bottom: 16px;
 	background: var(--color-background-hover);
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 }
 
 .mn-filterbar .mn-field {
@@ -444,7 +445,7 @@ textarea.mn-input {
 .mn-card {
 	background: var(--color-main-background);
 	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 	padding: 16px;
 	box-sizing: border-box;
 }
@@ -456,7 +457,7 @@ textarea.mn-input {
 .mn-listing {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: var(--mn-space-3);
 }
 
 .mn-row {
@@ -467,7 +468,7 @@ textarea.mn-input {
 	padding: 12px 16px;
 	background: var(--color-main-background);
 	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 }
 
 .mn-row--inactive {
@@ -497,17 +498,41 @@ textarea.mn-input {
 .mn-row__meta {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 6px 10px;
+	gap: var(--mn-space-2) var(--mn-space-3);
 	align-items: center;
-	font-size: 13px;
+	font-size: var(--mn-fs-sm);
 }
 
 .mn-row__actions {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px;
+	gap: var(--mn-space-2);
 	align-items: center;
 	margin-left: auto;
+}
+
+.mn-row__actions--below {
+	margin-top: var(--mn-space-3);
+	margin-left: 0;
+}
+
+.mn-inline-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mn-space-2);
+	align-items: flex-end;
+}
+
+.mn-inline-row--center {
+	align-items: center;
+}
+
+.mn-section__title--spaced {
+	margin-top: var(--mn-space-5);
+}
+
+.mn-btn--spaced-top {
+	margin-top: var(--mn-space-2);
 }
 
 /* ── Badges (A4: text + icon + colour — never colour alone) ───────── */
@@ -515,12 +540,13 @@ textarea.mn-input {
 .mn-badge {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
-	padding: 3px 10px;
-	font-size: 12px;
+	gap: var(--mn-space-1);
+	min-height: 1.5rem;
+	padding: var(--mn-space-1) var(--mn-space-3);
+	font-size: var(--mn-fs-xs);
 	font-weight: 700;
 	line-height: 1.4;
-	border-radius: var(--mn-radius-sm, 6px);
+	border-radius: 999px;
 	background: var(--color-background-dark);
 	color: var(--color-main-text);
 	white-space: nowrap;
@@ -591,7 +617,7 @@ textarea.mn-input {
 
 .mn-bucket {
 	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 	background: var(--color-main-background);
 	overflow: hidden;
 }
@@ -693,42 +719,44 @@ textarea.mn-input {
 .mn-visit-card__actions {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px;
-	margin-top: 10px;
+	gap: var(--mn-space-2);
+	margin-top: var(--mn-space-3);
 }
 
 /* ── Sections / columns / detail ──────────────────────────────────── */
 
 .mn-section {
-	margin-top: 28px;
+	margin-top: var(--mn-space-6);
 }
 
 .mn-section__head {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 12px;
+	gap: var(--mn-space-3);
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 8px;
+	margin-bottom: var(--mn-space-2);
 }
 
 .mn-section__title {
 	margin: 0;
-	font-size: 18px;
+	font-size: var(--mn-fs-lg);
 	font-weight: 700;
+	line-height: var(--mn-line-tight);
 }
 
 .mn-section__hint {
-	margin: 0 0 12px;
-	font-size: 13.5px;
+	margin: 0 0 var(--mn-space-3);
+	font-size: var(--mn-fs-sm);
+	line-height: var(--mn-line-base);
 	color: var(--color-text-maxcontrast);
-	max-width: 72ch;
+	max-width: 60ch;
 }
 
 .mn-columns {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-	gap: 24px;
+	gap: var(--mn-space-5);
 }
 
 .mn-columns .mn-section {
@@ -736,8 +764,8 @@ textarea.mn-input {
 }
 
 .mn-breadcrumb {
-	margin-bottom: 12px;
-	font-size: 13px;
+	margin-bottom: var(--mn-space-3);
+	font-size: var(--mn-fs-sm);
 }
 
 .mn-breadcrumb__link {
@@ -790,7 +818,7 @@ textarea.mn-input {
 	padding: 48px 24px;
 	text-align: center;
 	border: 1px dashed var(--color-border-dark);
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 	color: var(--color-text-maxcontrast);
 }
 
@@ -860,7 +888,7 @@ textarea.mn-input {
 
 .mn-dialog__title {
 	margin: 0 0 8px;
-	font-size: 18px;
+	font-size: var(--mn-fs-lg);
 	font-weight: 700;
 }
 
@@ -874,10 +902,10 @@ textarea.mn-input {
 	display: flex;
 	gap: 8px;
 	align-items: flex-start;
-	padding: 10px 12px;
+	padding: var(--mn-space-3);
 	margin: 0 0 16px;
 	font-size: 13.5px;
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 	background: var(--color-primary-element-light);
 }
 
@@ -888,10 +916,10 @@ textarea.mn-input {
 
 .mn-dialog__error {
 	margin: 0 0 16px;
-	padding: 10px 12px;
+	padding: var(--mn-space-3);
 	font-size: 13.5px;
 	font-weight: 600;
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 	background: var(--color-error);
 	color: var(--color-error-text, #fff);
 }
@@ -899,9 +927,9 @@ textarea.mn-input {
 .mn-dialog__actions {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: var(--mn-space-3);
 	justify-content: flex-end;
-	margin-top: 20px;
+	margin-top: var(--mn-space-5);
 }
 
 /* ── Toasts (A7) ───────────────────────────────────────────────────── */
@@ -919,15 +947,15 @@ textarea.mn-input {
 
 .mn-toast {
 	display: flex;
-	gap: 10px;
+	gap: var(--mn-space-3);
 	align-items: flex-start;
 	padding: 12px 14px;
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 	background: var(--color-main-background);
 	color: var(--color-main-text);
 	border: 1px solid var(--color-border);
 	border-inline-start: 4px solid var(--color-primary-element);
-	box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+	box-shadow: var(--mn-shadow-md);
 	font-size: 14px;
 }
 
@@ -983,7 +1011,7 @@ textarea.mn-input {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	padding: 4px 10px;
+	padding: var(--mn-space-1) var(--mn-space-3);
 	font-size: 13px;
 	border-radius: var(--mn-radius-sm, 6px);
 	background: var(--color-background-dark);
@@ -1018,7 +1046,7 @@ textarea.mn-input {
 .mn-license-status {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px 20px;
+	gap: var(--mn-space-2) var(--mn-space-5);
 	margin: 0 0 16px;
 }
 
@@ -1044,13 +1072,13 @@ textarea.mn-input {
 	list-style: none;
 	background: var(--color-main-background);
 	border: 2px solid var(--color-border-maxcontrast, var(--color-border-dark));
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .mn-user-picker__option,
 .mn-user-picker__empty {
-	padding: 10px 12px;
+	padding: var(--mn-space-3);
 	min-height: 44px;
 	display: flex;
 	align-items: center;
@@ -1087,7 +1115,7 @@ textarea.mn-input {
 	text-align: center;
 	background: var(--color-main-background);
 	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 }
 
 .mn-denied__icon {
@@ -1096,7 +1124,7 @@ textarea.mn-input {
 
 .mn-denied__title {
 	margin: 0;
-	font-size: 20px;
+	font-size: var(--mn-fs-xl);
 	font-weight: 700;
 }
 
@@ -1112,12 +1140,12 @@ textarea.mn-input {
 .mn-skeleton {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: var(--mn-space-3);
 }
 
 .mn-skeleton__bar {
 	height: 52px;
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-md);
 	background: linear-gradient(
 		90deg,
 		var(--color-background-dark) 25%,
@@ -1171,18 +1199,18 @@ textarea.mn-input {
 	}
 
 	.mn-dialog {
-		padding: 18px;
+		padding: var(--mn-space-4);
 	}
 
 	.mn-toast-region {
-		inset-inline: 8px;
+		inset-inline: var(--mn-space-2);
 		max-width: none;
 	}
 }
 
 @media (max-width: 400px) {
 	.mn-shell {
-		padding-inline: 8px;
+		padding-inline: var(--mn-space-2);
 	}
 
 	.mn-board {

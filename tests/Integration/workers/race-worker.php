@@ -21,11 +21,22 @@ use OCA\MaintenanceCheck\Exception\NotFoundException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
 use OCA\MaintenanceCheck\Service\PlanService;
 use OCA\MaintenanceCheck\Service\VisitService;
+use OCP\IDBConnection;
 use OCP\Server;
+
+// Abort any dangling transaction on this connection before racing.
+try {
+	$db = Server::get(IDBConnection::class);
+	while ($db->inTransaction()) {
+		$db->rollBack();
+	}
+} catch (Throwable) {
+	// proceed — Server may not be ready yet in exotic bootstraps
+}
 
 $args = array_slice($argv, 1);
 if ($args === []) {
-	fwrite(STDERR, "Usage: complete-visit.php <visitId> <uid> | --schedule <planId> <dueOn>\n");
+	fwrite(STDERR, "Usage: race-worker.php <visitId> <uid> | --schedule <planId> <dueOn> | --force-delete <customerId>\n");
 	exit(1);
 }
 
@@ -38,6 +49,17 @@ try {
 			exit(1);
 		}
 		Server::get(PlanService::class)->schedule($planId, ['dueOn' => $dueOn]);
+		fwrite(STDOUT, "OK\n");
+		exit(0);
+	}
+
+	if (($args[0] ?? '') === '--force-delete') {
+		$customerId = (int)($args[1] ?? 0);
+		if ($customerId < 1) {
+			fwrite(STDOUT, "ERROR:bad_args\n");
+			exit(1);
+		}
+		Server::get(\OCA\MaintenanceCheck\Service\CustomerService::class)->delete($customerId, true);
 		fwrite(STDOUT, "OK\n");
 		exit(0);
 	}

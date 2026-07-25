@@ -16,7 +16,6 @@ use OCA\MaintenanceCheck\Service\PlanService;
 use OCA\MaintenanceCheck\Service\VisitService;
 use OCP\IDBConnection;
 use OCP\Server;
-use Test\TestCase;
 
 /**
  * Full domain lifecycle against the live database (SPEC §5, §6):
@@ -25,7 +24,7 @@ use Test\TestCase;
  *
  * @group integration
  */
-class MaintenanceLifecycleIntegrationTest extends TestCase
+class MaintenanceLifecycleIntegrationTest extends IntegrationTestCase
 {
 	private const UID = 'mn_itest_office';
 	private const MARKER = 'mn_itest_';

@@ -10,6 +10,7 @@ use OCA\MaintenanceCheck\Db\EquipmentMapper;
 use OCA\MaintenanceCheck\Db\PlanMapper;
 use OCA\MaintenanceCheck\Db\VisitMapper;
 use OCA\MaintenanceCheck\Exception\ConflictException;
+use OCA\MaintenanceCheck\Exception\NotFoundException;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
@@ -113,6 +114,16 @@ class CustomerService
 
 		$this->db->beginTransaction();
 		try {
+			// Re-check under the customer row lock (UJ-5 Alt: already deleted).
+			if (!$this->customers->lockRow($id)) {
+				throw new NotFoundException();
+			}
+			// Re-read equipment under the customer lock so a concurrent create
+			// cannot sneak equipment in after our pre-check counts.
+			$equipmentIds = $this->equipment->idsForCustomer($id);
+			// Lock plans before deleting visits so VisitService::close cannot
+			// insert a follow-up after our visit sweep (S9 × S6 race).
+			$this->plans->lockForEquipmentIds($equipmentIds);
 			$this->visits->deleteForCustomer($id);
 			$this->plans->deleteForEquipmentIds($equipmentIds);
 			foreach (array_chunk($equipmentIds, 500) as $chunk) {

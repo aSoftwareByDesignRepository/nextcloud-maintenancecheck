@@ -1,0 +1,113 @@
+# MaintenanceCheck — continuous integration
+#
+# Three stages:
+#   1. lint — fast, dependency-free checks (composer manifest, security audit, PHP syntax)
+#   2. test — PHPUnit unit suite across every PHP version the app declares (8.2–8.5)
+#   3. js   — frontend contract tests (node --test)
+#
+# The security audit runs against composer.lock and gates the test matrix, so a
+# vulnerable dependency fails the build immediately and cheaply.
+#
+# Integration tests (real DB, MySQL + PostgreSQL) and the mutation/E2E gauntlet
+# run in the Docker-based release pipeline (SPEC §14.5), not on GitHub runners.
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+    tags: ['v*']
+  pull_request:
+
+# Least privilege: CI only needs to read the repository contents.
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same ref to save runner time.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint & security audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate composer.json / composer.lock
+        run: composer validate --strict
+
+      # --locked audits the committed lock file directly (no vendor install needed).
+      # Without it, "composer audit" finds no installed packages and silently passes.
+      - name: Security audit (composer.lock)
+        run: composer audit --locked
+
+      - name: PHP syntax check
+        run: |
+          find lib tests templates -name '*.php' -print0 \
+            | xargs -0 -n1 -P4 php -l
+
+  test:
+    name: PHPUnit (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.2', '8.3', '8.4', '8.5']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ matrix.php-version }}-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            composer-${{ matrix.php-version }}-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: PHPUnit
+        run: ./vendor/bin/phpunit --testsuite unit
+
+  js:
+    name: JS contract tests (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['20', '22']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: JS tests
+        run: node --test --test-concurrency=1 tests/js/*.test.mjs

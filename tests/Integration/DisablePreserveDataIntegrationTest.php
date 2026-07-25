@@ -8,12 +8,11 @@ use OCA\MaintenanceCheck\Repair\UninstallDropTables;
 use OCP\App\IAppManager;
 use OCP\IDBConnection;
 use OCP\Migration\IOutput;
-use Test\TestCase;
 
 /**
  * Verifies disable preserves DB tables; re-enable via installApp keeps data intact.
  */
-final class DisablePreserveDataIntegrationTest extends TestCase
+final class DisablePreserveDataIntegrationTest extends IntegrationTestCase
 {
 	protected function setUp(): void
 	{

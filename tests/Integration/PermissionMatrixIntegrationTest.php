@@ -21,7 +21,6 @@ use OCP\IConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
-use Test\TestCase;
 
 /**
  * AC-3 / SPEC §3 + §14.2-I2: one HTTP-shaped assertion per P-matrix row.
@@ -31,7 +30,7 @@ use Test\TestCase;
  *
  * @group integration
  */
-final class PermissionMatrixIntegrationTest extends TestCase
+final class PermissionMatrixIntegrationTest extends IntegrationTestCase
 {
 	private const PASSWORD = 'Mn-PMatrix-9xK!zz';
 

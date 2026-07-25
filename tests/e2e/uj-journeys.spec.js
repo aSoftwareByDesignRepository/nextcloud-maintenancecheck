@@ -527,6 +527,11 @@ test.describe('UJ journeys', () => {
 		await checkbox.check()
 		await deleteBtn.click()
 		await expect(dialog).toBeHidden({ timeout: 15_000 })
+		// Successful force-delete navigates back to the customers list — wait for
+		// that navigation to settle before evaluating in the page again, or the
+		// execution context is destroyed mid-fetch (flaky on slow viewports).
+		await page.waitForURL(/\/apps\/maintenancecheck\/customers\/?($|[?#])/, { timeout: 15_000 })
+		await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 15_000 })
 
 		const gone = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}`)
 		expect([404, 409]).toContain(gone.status)

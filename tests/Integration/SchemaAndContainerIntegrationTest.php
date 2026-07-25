@@ -9,12 +9,11 @@ use OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema;
 use OCA\MaintenanceCheck\Repair\UninstallDropTables;
 use OCP\Migration\IOutput;
 use OCP\Server;
-use Test\TestCase;
 
 /**
  * @group integration
  */
-class SchemaAndContainerIntegrationTest extends TestCase
+class SchemaAndContainerIntegrationTest extends IntegrationTestCase
 {
 	protected function setUp(): void
 	{

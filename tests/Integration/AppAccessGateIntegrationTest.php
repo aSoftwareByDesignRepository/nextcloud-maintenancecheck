@@ -16,7 +16,6 @@ use OCP\IConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
-use Test\TestCase;
 
 /**
  * L2 gate + SPEC §7.1 error envelope against live config and sessions
@@ -24,7 +23,7 @@ use Test\TestCase;
  *
  * @group integration
  */
-final class AppAccessGateIntegrationTest extends TestCase
+final class AppAccessGateIntegrationTest extends IntegrationTestCase
 {
 	private const ALLOWED = 'mn_gate_allowed';
 	private const DENIED = 'mn_gate_denied';

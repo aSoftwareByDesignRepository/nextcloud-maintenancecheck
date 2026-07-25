@@ -2,7 +2,7 @@ export async function login(page, { username, password }) {
 	await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
 	// Maintenance / upgrade interstitial has no login fields — fail fast with a clear signal.
-	const maintenance = page.getByText(/maintenance mode|update is in progress|needs to be updated/i)
+	const maintenance = page.getByText(/maintenance mode|update is in progress|needs to be updated|app update required|start update/i)
 	if (await maintenance.first().isVisible({ timeout: 1500 }).catch(() => false)) {
 		throw new Error('Nextcloud is in maintenance/upgrade mode — finish `occ upgrade` before E2E')
 	}

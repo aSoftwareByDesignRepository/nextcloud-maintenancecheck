@@ -108,4 +108,33 @@ class PlanMapper extends QBMapper
 		$result->closeCursor();
 		return $row !== false;
 	}
+
+	/**
+	 * S9 force-delete: write-lock every plan under the customer's equipment so
+	 * a concurrent complete/skip cannot INSERT a follow-up visit after we have
+	 * already counted/deleted the visit set (orphan race).
+	 *
+	 * @param list<int> $equipmentIds
+	 */
+	public function lockForEquipmentIds(array $equipmentIds): void
+	{
+		if ($equipmentIds === []) {
+			return;
+		}
+		foreach (array_chunk($equipmentIds, 500) as $chunk) {
+			$qb = $this->db->getQueryBuilder();
+			$qb->select('id')->from($this->getTableName())
+				->where($qb->expr()->in(
+					'equipment_id',
+					$qb->createNamedParameter($chunk, IQueryBuilder::PARAM_INT_ARRAY),
+				))
+				->orderBy('id', 'ASC')
+				->forUpdate();
+			$result = $qb->executeQuery();
+			// Drain the cursor — the lock is the side effect we need.
+			while ($result->fetch() !== false) {
+			}
+			$result->closeCursor();
+		}
+	}
 }

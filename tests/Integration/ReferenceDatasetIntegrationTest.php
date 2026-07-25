@@ -8,14 +8,13 @@ use OCA\MaintenanceCheck\Exception\ValidationException;
 use OCA\MaintenanceCheck\Service\ReferenceDatasetSeeder;
 use OCA\MaintenanceCheck\Service\VisitService;
 use OCP\Server;
-use Test\TestCase;
 
 /**
  * N4 smoke profile + I7 pagination cap via live services.
  *
  * @group integration
  */
-final class ReferenceDatasetIntegrationTest extends TestCase
+final class ReferenceDatasetIntegrationTest extends IntegrationTestCase
 {
 	private const UID = 'mn_n4_seed_office';
 

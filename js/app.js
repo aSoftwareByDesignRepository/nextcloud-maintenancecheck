@@ -1668,7 +1668,7 @@
 			var card = el('div', { class: 'mn-card' }, [grid]);
 			detail.appendChild(card);
 			if (ctx.isOffice) {
-				var actions = el('div', { class: 'mn-row__actions', style: 'margin-top:12px' }, [
+				var actions = el('div', { class: 'mn-row__actions mn-row__actions--below' }, [
 					el('button', {
 						type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit customer'),
 						onClick: function () { customerFormDialog(current, function () { load(); }); },
@@ -2071,7 +2071,7 @@
 			var card = el('div', { class: 'mn-card' }, [grid]);
 			detail.appendChild(card);
 			if (ctx.isOffice) {
-				card.appendChild(el('div', { class: 'mn-row__actions', style: 'margin-top:12px' }, [
+				card.appendChild(el('div', { class: 'mn-row__actions mn-row__actions--below' }, [
 					el('button', {
 						type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit equipment'),
 						onClick: function () { equipmentFormDialog(current, null, load); },
@@ -2571,7 +2571,7 @@
 		});
 
 		wrap.appendChild(el('label', { class: 'mn-field__label', for: inputId, text: options.label }));
-		wrap.appendChild(el('div', { style: 'display:flex;gap:8px;align-items:center' }, [input, addButton]));
+		wrap.appendChild(el('div', { class: 'mn-inline-row mn-inline-row--center' }, [input, addButton]));
 		if (options.hint) {
 			wrap.appendChild(el('p', { class: 'mn-field__hint', text: options.hint }));
 		}
@@ -2771,8 +2771,7 @@
 
 			if (state) {
 				licenseBox.appendChild(el('button', {
-					type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact', text: tr('Remove key'),
-					style: 'margin-top:8px',
+					type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact mn-btn--spaced-top', text: tr('Remove key'),
 					onClick: function () {
 						openDialog({
 							title: tr('Remove license key'),
@@ -2801,7 +2800,7 @@
 			}
 
 			// Seats — SPEC §8.3 NC user picker
-			var seatsTitle = el('h3', { class: 'mn-section__title', style: 'font-size:15px;margin-top:20px', text: tr('Mobile seats') });
+			var seatsTitle = el('h3', { class: 'mn-section__title mn-section__title--spaced', text: tr('Mobile seats') });
 			licenseBox.appendChild(seatsTitle);
 			var seatPicker = attachUserPicker({
 				label: tr('Nextcloud user'),
@@ -2838,7 +2837,7 @@
 						});
 				},
 			});
-			licenseBox.appendChild(el('div', { style: 'display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap' }, [seatPicker.root, seatAdd]));
+			licenseBox.appendChild(el('div', { class: 'mn-inline-row' }, [seatPicker.root, seatAdd]));
 
 			var seatList = el('ul', { class: 'mn-chips', 'aria-label': tr('Assigned mobile seats') });
 			if (seats.data.length === 0) {

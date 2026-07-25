@@ -14,7 +14,6 @@ use OCA\MaintenanceCheck\Service\PlanService;
 use OCA\MaintenanceCheck\Service\VisitService;
 use OCP\IDBConnection;
 use OCP\Server;
-use Test\TestCase;
 
 /**
  * SPEC §14.2-I5 / AC-6 / N3: true parallel races via independent PHP processes
@@ -24,7 +23,7 @@ use Test\TestCase;
  * @group integration
  * @group concurrency
  */
-final class ConcurrencyRaceIntegrationTest extends TestCase
+final class ConcurrencyRaceIntegrationTest extends IntegrationTestCase
 {
 	private const UID = 'mn_race_office';
 	private const MARKER = 'mn_race_';
@@ -96,7 +95,10 @@ final class ConcurrencyRaceIntegrationTest extends TestCase
 		$this->assertSame('CONFLICT:visit_not_open', $conflicts[0]);
 
 		$open = Server::get(VisitMapper::class)->findOpenByPlan($planId);
-		$this->assertNotNull($open, 'winner must schedule exactly one follow-up');
+		$this->assertNotNull(
+			$open,
+			'winner must schedule exactly one follow-up; tokens=' . implode(',', $tokens),
+		);
 		$list = $this->visits->list(self::UID, ['planId' => (string)$planId, 'status' => 'scheduled']);
 		$this->assertSame(1, $list['total'], 'D6: never more than one open visit after parallel complete');
 	}
@@ -124,6 +126,61 @@ final class ConcurrencyRaceIntegrationTest extends TestCase
 
 		$list = $this->visits->list(self::UID, ['planId' => (string)$planId, 'status' => 'scheduled']);
 		$this->assertSame(1, $list['total'], 'parallel schedule must leave a single open visit');
+	}
+
+	/**
+	 * S9 × S6: force-delete racing a concurrent complete must not leave an
+	 * orphan follow-up visit after the customer cascade commits.
+	 */
+	public function testForceDeleteVsCompleteLeavesNoOrphanVisits(): void
+	{
+		$seed = $this->seedPlan();
+		$customerId = $this->customerIds[array_key_last($this->customerIds)];
+		$visitId = (int)$seed['openVisit']['id'];
+		$planId = (int)$seed['id'];
+
+		[$a, $b] = $this->raceTwo([
+			[(string)$visitId, self::UID],
+			['--force-delete', (string)$customerId],
+		]);
+
+		$tokens = [$a['token'], $b['token']];
+		$this->assertTrue(
+			in_array('OK', $tokens, true),
+			'at least one worker must finish cleanly; got ' . implode(',', $tokens),
+		);
+
+		// Customer must be gone (force-delete won) OR still present with a
+		// consistent visit set (complete won first). Either way: zero orphans
+		// referencing a deleted plan, and ≤ 1 open visit when the plan remains.
+		$customerGone = false;
+		try {
+			$this->customers->get($customerId);
+		} catch (NotFoundException) {
+			$customerGone = true;
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('id', 'cnt'))
+			->from(VisitMapper::TABLE)
+			->where($qb->expr()->eq('plan_id', $qb->createNamedParameter($planId, \PDO::PARAM_INT)));
+		$result = $qb->executeQuery();
+		$visitsForPlan = (int)($result->fetchOne() ?: 0);
+		$result->closeCursor();
+
+		if ($customerGone) {
+			$this->assertSame(0, $visitsForPlan, 'force-delete must remove every visit of the plan');
+			// Stop tearDown from trying to delete an already-removed customer.
+			$this->customerIds = array_values(array_filter(
+				$this->customerIds,
+				static fn (int $id): bool => $id !== $customerId,
+			));
+		} else {
+			$open = Server::get(VisitMapper::class)->findOpenByPlan($planId);
+			$this->assertNotNull($open, 'if the customer survived, complete must have left exactly one open visit');
+			$list = $this->visits->list(self::UID, ['planId' => (string)$planId, 'status' => 'scheduled']);
+			$this->assertSame(1, $list['total']);
+		}
 	}
 
 	/**

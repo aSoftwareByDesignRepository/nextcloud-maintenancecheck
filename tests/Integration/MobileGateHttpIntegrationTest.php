@@ -25,7 +25,6 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\Server;
-use Test\TestCase;
 
 /**
  * AC-15 / AC-16: license seat HTTP codes + full mobile gate ladder via
@@ -33,7 +32,7 @@ use Test\TestCase;
  *
  * @group integration
  */
-final class MobileGateHttpIntegrationTest extends TestCase
+final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 {
 	private const ADMIN = 'mn_gate_admin';
 	private const UID = 'mn_gate_http';

@@ -12,7 +12,6 @@ use OCP\IDBConnection;
 use OCP\Migration\IOutput;
 use OCP\Server;
 use ReflectionClass;
-use Test\TestCase;
 
 /**
  * AC-18: explicit removal drops every mn_* table; schema ensurer restores them.
@@ -24,7 +23,7 @@ use Test\TestCase;
  *
  * @group integration
  */
-final class LiveUninstallDropIntegrationTest extends TestCase
+final class LiveUninstallDropIntegrationTest extends IntegrationTestCase
 {
 	protected function setUp(): void
 	{

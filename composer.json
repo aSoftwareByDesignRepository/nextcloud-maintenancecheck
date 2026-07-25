@@ -42,7 +42,8 @@
 		"test:mutation:support-us": "php tests/Mutation/run-support-us-links-mutations.php",
 		"test:mutation": "composer test:mutation:interval && composer test:mutation:visits && composer test:mutation:visit-service && composer test:mutation:license && composer test:mutation:access && composer test:mutation:support-us",
 		"test:msi": "php tests/Mutation/msi-report.php",
-		"test:gauntlet": "composer test:all && composer test:js && composer test:msi",
+		"test:postgres-races": "php scripts/run-postgres-visit-races.php",
+		"test:gauntlet": "composer test:all && composer test:js && composer test:msi && composer test:postgres-races",
 		"test:a11y": "npx playwright test tests/e2e/a11y-smoke.spec.js",
 		"test:e2e": "npx playwright test"
 	},

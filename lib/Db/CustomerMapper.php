@@ -45,6 +45,22 @@ class CustomerMapper extends QBMapper
 	}
 
 	/**
+	 * S9: write-lock the customer row so concurrent force-deletes serialise
+	 * and a second caller observes not_found after the first commits.
+	 */
+	public function lockRow(int $id): bool
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id')->from($this->getTableName())
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, \PDO::PARAM_INT)))
+			->forUpdate();
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return $row !== false;
+	}
+
+	/**
 	 * S13 search: case-insensitive substring across name, customer_no, city.
 	 *
 	 * @return array{data: list<Customer>, total: int}

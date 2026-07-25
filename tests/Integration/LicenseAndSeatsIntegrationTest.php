@@ -15,7 +15,6 @@ use OCA\MaintenanceCheck\Service\MobileGateService;
 use OCA\MaintenanceCheck\Tests\Support\Mn2TestSigning;
 use OCP\IUserManager;
 use OCP\Server;
-use Test\TestCase;
 
 /**
  * Track L against the live database: apply/replace/remove MN2 keys,
@@ -25,7 +24,7 @@ use Test\TestCase;
  *
  * @group integration
  */
-final class LicenseAndSeatsIntegrationTest extends TestCase
+final class LicenseAndSeatsIntegrationTest extends IntegrationTestCase
 {
 	private const ADMIN = 'mn_lic_admin';
 
