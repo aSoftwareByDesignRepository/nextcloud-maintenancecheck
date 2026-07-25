@@ -1,0 +1,17 @@
+{
+	"name": "maintenancecheck",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:js": "node --test --test-concurrency=1 tests/js/*.test.mjs",
+		"e2e": "playwright test",
+		"test:a11y": "playwright test tests/e2e/a11y-smoke.spec.js"
+	},
+	"devDependencies": {
+		"@axe-core/playwright": "^4.10.2",
+		"@playwright/test": "^1.55.0"
+	},
+	"engines": {
+		"node": "^20.0.0 || ^22.0.0"
+	}
+}

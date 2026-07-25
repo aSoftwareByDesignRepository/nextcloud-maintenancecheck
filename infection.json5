@@ -1,0 +1,26 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infection/infection/0.29.14/resources/schema.json",
+	"source": {
+		"directories": ["lib/Service", "lib/License"],
+		"excludes": [
+			"UpgradeBackupService.php",
+			"UpgradeBackupCatalog.php",
+			"UpgradeBackupIntegrity.php",
+			"ReferenceDatasetSeeder.php",
+			"IconCatalog.php",
+			"Clock.php"
+		]
+	},
+	"timeout": 30,
+	"logs": {
+		"text": "tests/Mutation/infection.log",
+		"html": "tests/Mutation/infection.html",
+		"summaryJson": "tests/Mutation/infection-summary.json"
+	},
+	"mutators": {
+		"@default": true
+	},
+	"minMsi": 80,
+	"minCoveredMsi": 90,
+	"_comment": "Prefer `composer test:msi` (custom harness) in Docker — Infection needs full NC bootstrap for DB-backed services. Pure classes (IntervalCalculator, SeatRank, Mn2Codec, DueBoard, AccessControlService) are covered by both Infection (when available) and the targeted MSI gate."
+}

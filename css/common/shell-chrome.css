@@ -1,0 +1,516 @@
+/* Shell chrome parity with arbeitszeitcheck (prefix mn-). */
+/* ── Skip link / live regions ─────────────────────────────── */
+.mn-skip-link {
+	position: absolute;
+	left: -9999px;
+	top: var(--mn-space-2);
+	padding: var(--mn-space-2) var(--mn-space-4);
+	background: var(--color-primary-element, #0082c9);
+	color: var(--color-primary-element-text, #fff);
+	border-radius: var(--mn-radius-sm);
+	z-index: 1000;
+	font-weight: 600;
+	text-decoration: none;
+}
+.mn-skip-link:focus,
+.mn-skip-link:focus-visible {
+	left: var(--mn-space-3);
+	outline: 3px solid var(--color-primary-element-text, #fff);
+	outline-offset: 2px;
+}
+
+/* ===== Skip links (AZ parity) — CRITICAL =====
+ * The nav skip link is the first child of the flex app wrapper. Without
+ * position:absolute it becomes a full-height flex column and destroys the
+ * sidebar/content layout. Hide off-screen until :focus / :focus-visible.
+ */
+#content.app-maintenancecheck .skip-link,
+#content.app-maintenancecheck a.mn-skip-link--nav {
+	position: absolute !important;
+	left: -9999px;
+	top: var(--mn-space-2, 8px);
+	z-index: 10000;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	min-height: 44px;
+	width: max-content;
+	max-width: calc(100vw - 1rem);
+	height: auto;
+	margin: 0;
+	padding: var(--mn-space-2, 8px) var(--mn-space-4, 16px);
+	flex: none;
+	align-self: flex-start;
+	box-sizing: border-box;
+	background: var(--color-primary-element, #0082c9);
+	color: var(--color-primary-element-text, #fff);
+	border-radius: var(--mn-radius-sm, 6px);
+	font-weight: 600;
+	text-decoration: none;
+	line-height: 1.3;
+}
+#content.app-maintenancecheck .skip-link:focus,
+#content.app-maintenancecheck .skip-link:focus-visible,
+#content.app-maintenancecheck a.mn-skip-link--nav:focus,
+#content.app-maintenancecheck a.mn-skip-link--nav:focus-visible {
+	left: 6px;
+	top: 6px;
+	outline: 3px solid var(--color-primary-element-text, #fff);
+	outline-offset: 2px;
+}
+#content.app-maintenancecheck #maintenancecheck-app,
+#content.app-maintenancecheck .maintenancecheck-app {
+	position: relative;
+}
+
+/* Buttons — AZ components.css touch targets (WCAG 2.5.5) */
+#content.app-maintenancecheck .mn-btn,
+#content.app-maintenancecheck .button,
+#content.app-maintenancecheck button.button,
+#content.app-maintenancecheck a.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--mn-space-2, 0.5rem);
+	min-height: 44px;
+	min-width: 44px;
+	padding: var(--mn-space-2, 0.5rem) var(--mn-space-4, 1rem);
+	box-sizing: border-box;
+	border-radius: var(--mn-radius-sm, 6px);
+	font-weight: 600;
+	line-height: 1.3;
+	text-decoration: none;
+	cursor: pointer;
+}
+#content.app-maintenancecheck .mn-btn--sm,
+#content.app-maintenancecheck .button.small,
+#content.app-maintenancecheck .button--sm {
+	min-height: 36px;
+	min-width: 36px;
+	padding: 0.35rem 0.75rem;
+}
+/* ===== END AZ skip/btn parity ===== */
+
+/* ===== AZ table parity (prefix mn) =====
+ * Matches arbeitszeitcheck/css/common/components.css table chrome.
+ * Covers both .mn-table and legacy .table / .grid-table.
+ */
+#content.app-maintenancecheck .mn-table-wrap,
+#content.app-maintenancecheck .table-container,
+#content.app-maintenancecheck .table-responsive {
+	overflow-x: auto;
+	border: 1px solid var(--mn-border, var(--color-border));
+	border-radius: var(--mn-radius-md, 12px);
+	background-color: var(--mn-bg-card, var(--color-main-background));
+	-webkit-overflow-scrolling: touch;
+	width: 100%;
+	box-sizing: border-box;
+}
+#content.app-maintenancecheck .mn-table,
+#content.app-maintenancecheck .table,
+#content.app-maintenancecheck .grid-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--mn-fs-sm, 0.875rem);
+	margin-bottom: 0;
+}
+#content.app-maintenancecheck .mn-table thead,
+#content.app-maintenancecheck .table thead,
+#content.app-maintenancecheck .grid-table thead {
+	background-color: var(--color-background-dark, var(--mn-bg-stripe, transparent));
+}
+#content.app-maintenancecheck .mn-table th,
+#content.app-maintenancecheck .table th,
+#content.app-maintenancecheck .grid-table th {
+	padding: var(--mn-space-3, 0.75rem) var(--mn-space-4, 1rem);
+	text-align: left;
+	font-weight: 600;
+	color: var(--mn-text, var(--color-main-text));
+	border-bottom: 1px solid var(--mn-border, var(--color-border));
+	white-space: nowrap;
+	vertical-align: middle;
+	background-color: var(--color-background-dark, rgba(127, 127, 127, 0.12));
+}
+#content.app-maintenancecheck .mn-table td,
+#content.app-maintenancecheck .table td,
+#content.app-maintenancecheck .grid-table td {
+	padding: var(--mn-space-3, 0.75rem) var(--mn-space-4, 1rem);
+	border-bottom: 1px solid var(--mn-border, var(--color-border));
+	color: var(--mn-text, var(--color-main-text));
+	vertical-align: middle;
+}
+#content.app-maintenancecheck .mn-table tbody tr:last-child td,
+#content.app-maintenancecheck .table tbody tr:last-child td,
+#content.app-maintenancecheck .grid-table tbody tr:last-child td {
+	border-bottom: none;
+}
+#content.app-maintenancecheck .mn-table.table--hover tbody tr:hover,
+#content.app-maintenancecheck .mn-table--hover tbody tr:hover,
+#content.app-maintenancecheck .table--hover tbody tr:hover,
+#content.app-maintenancecheck .grid-table.table--hover tbody tr:hover {
+	background-color: var(--color-background-hover);
+}
+/* ===== END AZ table parity ===== */
+
+
+.mn-sr-only {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* ── App shell ─────────────────────────────────────────────── */
+/* Sidebar alignment: see navigation.css (canonical); keep minimal guard here too */
+#content.app-maintenancecheck #app-navigation .nav-menu a,
+#content.app-maintenancecheck #app-navigation .nav-submenu a,
+#content.app-maintenancecheck #app-navigation .nav-parent-toggle {
+	justify-content: flex-start;
+	text-align: left;
+}
+
+#app-content.mn-app {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	text-align: left;
+	min-height: 100%;
+	background: var(--mn-bg-soft);
+}
+#app-content.mn-app #app-content-wrapper.mn-shell {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	text-align: left;
+	width: 100%;
+	max-width: none;
+	margin: 0;
+	padding: var(--mn-space-5) var(--mn-space-5) var(--mn-space-7);
+	box-sizing: border-box;
+}
+#app-content.mn-app--dashboard .mn-dashboard-alerts .mn-callout {
+	margin: 0;
+}
+#app-content.mn-app #mn-main-content.mn-main {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	text-align: left;
+	gap: var(--mn-space-5);
+	outline: none;
+}
+#app-content.mn-app--admin-notifications #mn-main-content,
+#app-content.mn-app--admin-settings #mn-main-content {
+	gap: var(--mn-space-4);
+}
+#mn-main-content.mn-main:focus-visible {
+	outline: 3px solid color-mix(in srgb, var(--color-primary-element, #0082c9) 60%, transparent);
+	outline-offset: 2px;
+}
+
+/* Heading contrast in all NC themes */
+#app-content.mn-app h1,
+#app-content.mn-app h2,
+#app-content.mn-app h3 {
+	color: var(--mn-text) !important;
+	opacity: 1 !important;
+}
+
+/* ── Header / breadcrumb ───────────────────────────────────── */
+.mn-page-header {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mn-space-3);
+	margin-bottom: var(--mn-space-5);
+}
+#app-content.mn-app .mn-breadcrumb {
+	font-size: var(--mn-fs-sm);
+	line-height: var(--mn-line-tight);
+	color: var(--mn-muted);
+}
+#app-content.mn-app .mn-breadcrumb__list {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+#app-content.mn-app .mn-breadcrumb__item {
+	display: inline-flex;
+	align-items: center;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	max-width: 100%;
+}
+#app-content.mn-app .mn-breadcrumb__item:not(:last-child)::after {
+	content: '/';
+	margin-inline: var(--mn-space-2);
+	color: var(--mn-muted);
+	font-weight: 400;
+	opacity: 0.65;
+	pointer-events: none;
+	user-select: none;
+}
+#app-content.mn-app .mn-breadcrumb__link {
+	color: var(--color-primary-element, #0082c9);
+	font-weight: 600;
+	text-decoration: none;
+	border-radius: var(--mn-radius-sm);
+	padding-block: 2px;
+}
+#app-content.mn-app .mn-breadcrumb__link:hover {
+	text-decoration: underline;
+}
+#app-content.mn-app .mn-breadcrumb__link:focus-visible {
+	outline: 3px solid color-mix(in srgb, var(--color-primary-element, #0082c9) 55%, transparent);
+	outline-offset: 2px;
+}
+#app-content.mn-app .mn-breadcrumb__text {
+	color: var(--mn-muted);
+	font-weight: 500;
+}
+#app-content.mn-app .mn-breadcrumb__item--current {
+	color: var(--mn-text);
+	min-width: 0;
+}
+#app-content.mn-app .mn-breadcrumb__current {
+	font-weight: 600;
+	color: var(--mn-text);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: min(100%, 28rem);
+}
+.mn-page-header__main {
+	display: grid;
+	grid-template-columns: 56px 1fr auto;
+	gap: var(--mn-space-4);
+	align-items: start;
+}
+.mn-page-header__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 56px;
+	height: 56px;
+	border-radius: var(--mn-radius-md);
+	background: var(--mn-tint-info);
+	color: var(--color-primary-element, #0082c9);
+}
+.mn-page-header__icon-svg {
+	width: 28px;
+	height: 28px;
+	max-width: none;
+	stroke: currentColor;
+	fill: none;
+	color: inherit;
+	stroke-width: var(--mn-icon-stroke, 2);
+}
+.mn-page-header__text h1 {
+	margin: 0 0 var(--mn-space-1);
+	font-size: var(--mn-fs-2xl);
+	line-height: var(--mn-line-tight);
+}
+.mn-page-header__lead {
+	margin: 0;
+	color: var(--mn-muted);
+	font-size: var(--mn-fs-md);
+	line-height: var(--mn-line-base);
+	max-width: 60ch;
+}
+.mn-page-header__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mn-space-2);
+	align-items: center;
+	justify-content: flex-end;
+}
+
+/* ── Scope strip ───────────────────────────────────────────── */
+.mn-scope-strip {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--mn-space-2);
+	padding: var(--mn-space-2) var(--mn-space-3);
+	border: 1px solid var(--mn-border);
+	border-radius: var(--mn-radius-sm);
+	background: var(--mn-bg-card);
+	font-size: var(--mn-fs-sm);
+}
+.mn-scope-strip__label {
+	color: var(--mn-muted);
+	font-weight: 500;
+}
+.mn-scope-strip__value {
+	font-weight: 600;
+	color: var(--mn-text);
+}
+.mn-scope-strip__sep {
+	color: var(--mn-muted);
+}
+.mn-scope-strip__chip {
+	text-decoration: none;
+}
+
+/* ── Buttons (mn-btn taxonomy) ──────────────────────────────── */
+.mn-btn,
+.mn-app .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--mn-space-2);
+	min-height: 44px;
+	min-width: 44px;
+	padding: var(--mn-space-2) var(--mn-space-4);
+	border-radius: var(--mn-radius-sm);
+	font-size: var(--mn-fs-md);
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	cursor: pointer;
+	border: 1px solid transparent;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.mn-btn:focus-visible,
+.mn-app .btn:focus-visible {
+	outline: 3px solid var(--color-primary-element, #0082c9);
+	outline-offset: 2px;
+}
+.mn-btn--primary,
+.mn-app .btn--primary {
+	background: var(--color-primary-element, #0082c9);
+	color: var(--color-primary-element-text, #fff);
+}
+.mn-btn--secondary,
+.mn-app .btn--secondary {
+	background: var(--color-background-dark, #f5f5f5);
+	color: var(--mn-text);
+	border-color: var(--mn-border);
+}
+.mn-btn--danger,
+.mn-app .btn--danger {
+	background: var(--color-error, #cc4646);
+	color: var(--color-primary-text, #fff);
+}
+.mn-btn--ghost {
+	background: transparent;
+	color: var(--mn-text);
+	border-color: transparent;
+}
+.mn-btn--sm {
+	min-height: 36px;
+	padding: var(--mn-space-1) var(--mn-space-3);
+	font-size: var(--mn-fs-sm);
+}
+.mn-btn[aria-busy="true"] {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+/* Badges: css/common/badges.css (loaded after app-vanilla to override legacy rules) */
+
+/* ── Cards / callouts ──────────────────────────────────────── */
+.mn-card {
+	background: var(--mn-bg-card);
+	border: 1px solid var(--mn-border);
+	border-radius: var(--mn-radius-md);
+	padding: var(--mn-space-5);
+	box-shadow: var(--mn-shadow-sm);
+}
+#app-content.mn-app .mn-card:has(.mn-card__header),
+#app-content.mn-app .mn-card:has(.mn-card__body) {
+	padding: 0;
+}
+#app-content.mn-app .mn-card__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--mn-space-3) var(--mn-space-4);
+	padding: var(--mn-space-5);
+	border-bottom: 1px solid var(--mn-border);
+	background: var(--mn-bg-soft);
+}
+#app-content.mn-app .mn-card__header-text {
+	flex: 1 1 14rem;
+	min-width: 0;
+}
+#app-content.mn-app .mn-card__header-actions {
+	flex: 0 0 auto;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--mn-space-2);
+}
+#app-content.mn-app .mn-card__title {
+	margin: 0;
+	font-size: var(--mn-fs-lg);
+	font-weight: 600;
+	line-height: var(--mn-line-tight);
+	color: var(--mn-text);
+}
+#app-content.mn-app .mn-card__lead {
+	margin: var(--mn-space-2) 0 0;
+	max-width: 52rem;
+	font-size: var(--mn-fs-sm);
+	line-height: var(--mn-line-base);
+	color: var(--mn-muted);
+}
+#app-content.mn-app .mn-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mn-space-4);
+	padding: var(--mn-space-5);
+}
+#app-content.mn-app .mn-btn .mn-btn__icon,
+#app-content.mn-app .mn-btn .mn-icon {
+	width: var(--mn-icon-md);
+	height: var(--mn-icon-md);
+	flex-shrink: 0;
+}
+#app-content.mn-app .mn-btn--sm .mn-btn__icon,
+#app-content.mn-app .mn-btn--sm .mn-icon {
+	width: var(--mn-icon-sm);
+	height: var(--mn-icon-sm);
+}
+/* Legacy card header shim (compliance/dashboard until fully migrated) */
+#app-content.mn-app .card-header--with-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--mn-space-3) var(--mn-space-4);
+	padding: var(--mn-space-4) var(--mn-space-5);
+	margin-bottom: 0;
+	border-bottom: 1px solid var(--mn-border);
+	background: var(--mn-bg-soft);
+}
+#app-content.mn-app .card-header--with-actions .card-title {
+	margin: 0;
+	font-size: var(--mn-fs-lg);
+	font-weight: 600;
+	color: var(--mn-text);
+}
+#app-content.mn-app .card-header--with-actions .mn-btn {
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+#app-content.mn-app .mn-card + .mn-card {
+	margin-top: var(--mn-space-5);
+}
+#app-content.mn-app .compliance-dashboard__status .mn-callout {
+	margin-bottom: 0;
+}
+

@@ -1,0 +1,633 @@
+/* Auto-adapted from arbeitszeitcheck/css/common/page-patterns.css for MaintenanceCheck shell parity. Do not invent divergent layout rules here. */
+/**
+ * Shared page layout patterns (stack, grid, filters, empty states).
+ * Shell width modifiers live here; #app-content-wrapper.mn-shell in app.css sets base padding.
+ */
+
+/* ── Shell width ───────────────────────────────────────────── */
+#app-content.mn-app #app-content-wrapper.mn-shell--wide {
+	max-width: none;
+	margin-inline: 0;
+}
+
+#app-content.mn-app #app-content-wrapper.mn-shell--constrained {
+	max-width: 72rem;
+	margin-inline: auto;
+}
+
+#app-content.mn-app #app-content-wrapper.mn-shell--minimal {
+	max-width: 40rem;
+	margin-inline: auto;
+	padding: var(--mn-space-6) var(--mn-space-5);
+}
+
+/* ── Page stack (vertical rhythm inside main) ───────────────── */
+#app-content.mn-app .mn-page-stack {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: var(--mn-space-5);
+	width: 100%;
+	min-width: 0;
+}
+
+#app-content.mn-app .mn-page-stack > * {
+	margin: 0;
+}
+
+/* ── Two-column page grid (admin stats, side-by-side cards) ─── */
+#app-content.mn-app .mn-page-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--mn-space-5);
+	width: 100%;
+	min-width: 0;
+}
+
+@media (max-width: 768px) {
+	#app-content.mn-app .mn-page-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ── Legacy .section reset inside app shell ─────────────────── */
+#app-content.mn-app #mn-main-content .section {
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+#app-content.mn-app #mn-main-content .section::before {
+	display: none;
+}
+
+/* ── Filter panel (manager + compliance lists) ──────────────── */
+#app-content.mn-app .mn-filter-panel {
+	border-left: 4px solid var(--color-primary-element, #0082c9);
+}
+
+#app-content.mn-app .mn-filter-panel__head {
+	margin-bottom: var(--mn-space-4);
+}
+
+#app-content.mn-app .mn-filter-panel__head h2 {
+	margin: 0 0 var(--mn-space-2);
+	font-size: var(--mn-fs-lg);
+	font-weight: 600;
+	line-height: var(--mn-line-tight);
+}
+
+#app-content.mn-app .mn-filter-panel__intro {
+	margin: 0;
+	max-width: 65ch;
+	font-size: var(--mn-fs-sm);
+	line-height: var(--mn-line-base);
+	color: var(--mn-muted);
+}
+
+#app-content.mn-app .mn-filter-panel__form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mn-space-3);
+}
+
+#app-content.mn-app .mn-filter-grid {
+	display: grid;
+	grid-template-columns:
+		minmax(0, 1.15fr)
+		minmax(0, 1.6fr)
+		minmax(0, 1fr)
+		auto;
+	grid-template-rows: auto minmax(44px, auto);
+	column-gap: var(--mn-space-5);
+	row-gap: var(--mn-space-2);
+	align-items: stretch;
+}
+
+#app-content.mn-app .mn-filter-grid--extended {
+	grid-template-columns:
+		minmax(0, 1fr)
+		minmax(0, 1.45fr)
+		minmax(0, 0.85fr)
+		minmax(0, 0.85fr)
+		auto;
+}
+
+#app-content.mn-app .mn-filter-grid--record {
+	grid-template-columns:
+		minmax(0, 1.2fr)
+		minmax(0, 1fr)
+		minmax(0, 1fr)
+		minmax(0, 1fr)
+		auto;
+}
+
+#app-content.mn-app .mn-filter-field {
+	display: grid;
+	grid-template-rows: subgrid;
+	grid-row: span 2;
+	gap: var(--mn-space-2);
+	min-width: 0;
+}
+
+#app-content.mn-app .mn-filter-field__label {
+	font-size: var(--mn-fs-sm);
+	font-weight: 600;
+	color: var(--mn-text);
+}
+
+#app-content.mn-app .mn-filter-field__control {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	min-height: 44px;
+	min-width: 0;
+}
+
+#app-content.mn-app .mn-filter-field--dates .mn-filter-field__control {
+	min-height: 0;
+}
+
+#app-content.mn-app .mn-date-range {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: var(--mn-space-2) var(--mn-space-3);
+}
+
+#app-content.mn-app .mn-date-range__part {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mn-space-1);
+	min-width: 0;
+	flex: 1 1 8rem;
+}
+
+#app-content.mn-app .mn-date-range__sublabel {
+	font-size: var(--mn-fs-xs);
+	font-weight: 500;
+	color: var(--mn-muted);
+}
+
+#app-content.mn-app .mn-date-range__sep {
+	align-self: flex-end;
+	padding-bottom: 0.65rem;
+	color: var(--mn-muted);
+	font-size: var(--mn-fs-sm);
+}
+
+#app-content.mn-app .mn-filter-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: var(--mn-space-2);
+	grid-row: span 2;
+	align-self: end;
+}
+
+#app-content.mn-app .mn-filter-field__control .form-input[aria-invalid='true'],
+#app-content.mn-app .mn-filter-field__control .form-select[aria-invalid='true'] {
+	border-color: var(--color-error, #e9322d);
+	outline-color: var(--color-error, #e9322d);
+}
+
+@media (max-width: 1200px) {
+	#app-content.mn-app .mn-filter-grid--extended,
+	#app-content.mn-app .mn-filter-grid--record {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 768px) {
+	#app-content.mn-app .mn-filter-grid,
+	#app-content.mn-app .mn-filter-grid--extended,
+	#app-content.mn-app .mn-filter-grid--record {
+		grid-template-columns: 1fr;
+		grid-template-rows: auto;
+	}
+
+	#app-content.mn-app .mn-filter-field {
+		grid-row: auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	#app-content.mn-app .mn-filter-actions {
+		grid-row: auto;
+		width: 100%;
+		justify-content: stretch;
+	}
+
+	#app-content.mn-app .mn-filter-actions .mn-btn,
+	#app-content.mn-app .mn-filter-actions .btn {
+		flex: 1 1 auto;
+	}
+}
+
+/* ── Empty / loading states ─────────────────────────────────── */
+#app-content.mn-app .mn-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--mn-space-3);
+	padding: var(--mn-space-7) var(--mn-space-5);
+	text-align: center;
+	color: var(--mn-muted);
+}
+
+#app-content.mn-app .mn-empty-state__title {
+	margin: 0;
+	font-size: var(--mn-fs-lg);
+	font-weight: 600;
+	color: var(--mn-text);
+}
+
+#app-content.mn-app .mn-empty-state__text {
+	margin: 0;
+	max-width: 42ch;
+	font-size: var(--mn-fs-sm);
+	line-height: var(--mn-line-base);
+}
+
+#app-content.mn-app .mn-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--mn-space-3);
+	padding: var(--mn-space-6);
+	color: var(--mn-muted);
+	font-size: var(--mn-fs-sm);
+}
+
+#app-content.mn-app .mn-loading[aria-busy="true"]::before {
+	content: '';
+	width: 1.25rem;
+	height: 1.25rem;
+	border: 2px solid var(--mn-border);
+	border-top-color: var(--color-primary-element, #0082c9);
+	border-radius: 50%;
+	animation: mn-spin 0.8s linear infinite;
+}
+
+@keyframes mn-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#app-content.mn-app .mn-loading[aria-busy="true"]::before {
+		animation: none;
+		border-top-color: var(--mn-border);
+	}
+}
+
+/* Nextcloud personal settings panel (outside app shell) */
+#maintenancecheck-personal-settings.mn-nc-settings-panel {
+	max-width: 52rem;
+}
+
+#maintenancecheck-personal-settings .settings-hint {
+	max-width: 60ch;
+	line-height: var(--mn-line-base, 1.5);
+	color: var(--color-text-maxcontrast, var(--mn-muted, #666));
+}
+
+#maintenancecheck-personal-settings .settings-subheading {
+	margin: var(--mn-space-5, 1.25rem) 0 var(--mn-space-2, 0.5rem);
+	font-size: var(--mn-fs-md, 1rem);
+	font-weight: 600;
+}
+
+#maintenancecheck-personal-settings .mn-btn + .mn-btn {
+	margin-inline-start: var(--mn-space-2, 0.5rem);
+}
+
+/* Filter panel cards use mn-card header/body padding (app.css); accent bar only on .mn-filter-panel */
+
+/* ── Data tables (single convention app-wide) ─────────────────
+   Markup: .table-container > .table.table--hover
+   Legacy aliases: .table-responsive, .mn-table-wrap, .grid-table, .maintenancecheck-table
+   Actions column: .mn-table-actions-col + .mn-table-actions
+   Matrix tables: .mn-table--matrix (admin notification grids)
+   Card layout on narrow screens: .mn-table--responsive + data-label on td
+   ───────────────────────────────────────────────────────────── */
+#app-content.mn-app .table-container,
+#app-content.mn-app .table-responsive,
+#app-content.mn-app .mn-table-wrap {
+	margin: 0;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow-x: auto;
+	overflow-y: visible;
+	-webkit-overflow-scrolling: touch;
+	scroll-padding-inline-end: var(--mn-space-4, 1rem);
+}
+
+#app-content.mn-app .mn-card__body > .table-container,
+#app-content.mn-app .mn-card__body > .table-responsive,
+#app-content.mn-app .mn-card__body > .mn-table-wrap {
+	margin-block: 0;
+}
+
+#app-content.mn-app .table-container .table,
+#app-content.mn-app .table-container .grid-table,
+#app-content.mn-app .table-container .maintenancecheck-table,
+#app-content.mn-app .table-container .report-table,
+#app-content.mn-app .table-responsive .table,
+#app-content.mn-app .table-responsive .grid-table,
+#app-content.mn-app .mn-table-wrap .table,
+#app-content.mn-app .mn-table-wrap .grid-table {
+	margin-bottom: 0;
+	width: 100%;
+	table-layout: auto;
+}
+
+/* Desktop: fill available width; scroll horizontally only when columns need more space */
+@media (min-width: 769px) {
+	#app-content.mn-app .table-container .table:not(.mn-table--matrix),
+	#app-content.mn-app .table-container .grid-table:not(.mn-table--matrix),
+	#app-content.mn-app .table-container .maintenancecheck-table:not(.mn-table--matrix),
+	#app-content.mn-app .table-responsive .table:not(.mn-table--matrix),
+	#app-content.mn-app .table-responsive .grid-table:not(.mn-table--matrix),
+	#app-content.mn-app .mn-table-wrap .table:not(.mn-table--matrix),
+	#app-content.mn-app .mn-table-wrap .grid-table:not(.mn-table--matrix) {
+		width: 100%;
+		min-width: max-content;
+	}
+}
+
+#app-content.mn-app .table thead th,
+#app-content.mn-app .grid-table thead th,
+#app-content.mn-app .mn-table thead th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background-color: var(--maintenancecheck-color-table-header-background, var(--color-background-dark));
+	box-shadow: 0 1px 0 var(--maintenancecheck-color-table-border, var(--color-border));
+}
+
+#app-content.mn-app .table tbody tr:focus-within,
+#app-content.mn-app .grid-table tbody tr:focus-within {
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
+}
+
+#app-content.mn-app .table td.mn-table-empty,
+#app-content.mn-app .table td.mn-table-loading,
+#app-content.mn-app .grid-table td.mn-table-empty,
+#app-content.mn-app .grid-table td.mn-table-loading,
+#app-content.mn-app .table td.text-center:not(:only-child),
+#app-content.mn-app .grid-table td.text-center:not(:only-child) {
+	text-align: center;
+	color: var(--mn-muted, var(--color-text-maxcontrast));
+	font-size: var(--mn-fs-sm, 0.875rem);
+	padding: var(--mn-space-5, 1.25rem) var(--mn-space-4, 1rem);
+}
+
+#app-content.mn-app .table td .mn-empty-state,
+#app-content.mn-app .grid-table td .mn-empty-state {
+	padding: var(--mn-space-5, 1.25rem) var(--mn-space-3, 0.75rem);
+}
+
+#app-content.mn-app .table .mn-table-actions,
+#app-content.mn-app .grid-table .mn-table-actions,
+#app-content.mn-app .table .admin-holidays__row-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mn-space-2, 0.5rem);
+	align-items: center;
+	justify-content: flex-end;
+}
+
+/* Actions column: never shrink below button labels (avoid width:1% clipping) */
+#app-content.mn-app .table th.mn-table-actions-col,
+#app-content.mn-app .table th.actions-col,
+#app-content.mn-app .table td.actions-cell,
+#app-content.mn-app .table td.mn-table-actions-col,
+#app-content.mn-app .table td.admin-ot-audit__actions,
+#app-content.mn-app .table td.admin-tariff-rules__row-actions,
+#app-content.mn-app .table td.layer-card__history-actions,
+#app-content.mn-app .grid-table th.mn-table-actions-col,
+#app-content.mn-app .grid-table td.actions-cell,
+#app-content.mn-app .grid-table td.mn-table-actions-col {
+	text-align: right;
+	vertical-align: middle;
+	white-space: nowrap;
+	width: auto;
+	min-width: max-content;
+	max-width: none;
+	overflow: visible;
+}
+
+#app-content.mn-app .table td.actions-cell,
+#app-content.mn-app .table td.mn-table-actions-col,
+#app-content.mn-app .table td.admin-ot-audit__actions,
+#app-content.mn-app .table td.admin-tariff-rules__row-actions,
+#app-content.mn-app .table td.layer-card__history-actions,
+#app-content.mn-app .grid-table td.actions-cell,
+#app-content.mn-app .grid-table td.mn-table-actions-col {
+	display: table-cell;
+}
+
+#app-content.mn-app .table td.mn-table-actions-col .btn,
+#app-content.mn-app .table td.actions-cell .btn,
+#app-content.mn-app .table .mn-table-actions .btn,
+#app-content.mn-app .grid-table td.actions-cell .btn,
+#app-content.mn-app .grid-table .mn-table-actions .btn {
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+/* Truncated text columns — do not steal space from actions */
+#app-content.mn-app .table td.description-cell,
+#app-content.mn-app .table td.reason-cell {
+	max-width: min(20rem, 30vw);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+#app-content.mn-app .mn-table-meta {
+	margin: var(--mn-space-3, 0.75rem) 0 0;
+	font-size: var(--mn-fs-sm, 0.875rem);
+	color: var(--mn-muted, var(--color-text-maxcontrast));
+}
+
+/* Report preview + dynamic HTML tables */
+#app-content.mn-app .report-preview-content .table-container,
+#app-content.mn-app .report-preview-content .report-table {
+	margin-top: var(--mn-space-3, 0.75rem);
+}
+
+#app-content.mn-app .report-preview-content .report-table {
+	border-collapse: collapse;
+	font-size: var(--mn-fs-sm, 0.875rem);
+}
+
+#app-content.mn-app .report-preview-content .table-container .report-table {
+	margin-bottom: 0;
+}
+
+/* Notification matrices — not row lists; keep compact grid */
+#app-content.mn-app .mn-table--matrix {
+	font-size: var(--mn-fs-sm, 0.875rem);
+}
+
+#app-content.mn-app .mn-table--matrix th,
+#app-content.mn-app .mn-table--matrix td {
+	text-align: center;
+	vertical-align: middle;
+	padding: var(--mn-space-2, 0.5rem);
+}
+
+#app-content.mn-app .mn-table--matrix thead th {
+	position: static;
+	box-shadow: none;
+}
+
+@media (max-width: 768px) {
+	/* Dense list tables without card reflow: horizontal scroll */
+	#app-content.mn-app .table-container .table:not(.mn-table--matrix):not(.mn-table--responsive),
+	#app-content.mn-app .table-container .grid-table:not(.mn-table--matrix):not(.mn-table--responsive) {
+		min-width: 36rem;
+	}
+
+	#app-content.mn-app .table .mn-table-actions {
+		justify-content: flex-start;
+	}
+
+	/* Card reflow: every field + action reachable without sideways scrolling */
+	#app-content.mn-app .table-container:has(.mn-table--responsive) {
+		overflow-x: visible;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive,
+	#app-content.mn-app .table.mn-table--responsive tbody,
+	#app-content.mn-app .table.mn-table--responsive tr,
+	#app-content.mn-app .table.mn-table--responsive td {
+		display: block;
+		width: 100%;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive {
+		min-width: 0;
+		border-collapse: collapse;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody tr {
+		margin-bottom: var(--mn-space-4, 1rem);
+		padding: var(--mn-space-3, 0.75rem) var(--mn-space-4, 1rem);
+		border: 1px solid var(--mn-border, var(--color-border));
+		border-radius: var(--mn-radius-sm, 8px);
+		background: var(--mn-bg-card, var(--color-main-background));
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody tr:last-child {
+		margin-bottom: 0;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody td {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--mn-space-4, 1rem);
+		padding: var(--mn-space-2, 0.5rem) 0;
+		border-bottom: 1px solid var(--mn-border, var(--color-border));
+		text-align: right;
+		max-width: none;
+		overflow: visible;
+		white-space: normal;
+		text-overflow: clip;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody td:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody td::before {
+		content: attr(data-label);
+		flex: 0 0 auto;
+		text-align: left;
+		font-weight: 600;
+		color: var(--mn-muted, var(--color-text-maxcontrast));
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody td.description-cell,
+	#app-content.mn-app .table.mn-table--responsive tbody td.reason-cell,
+	#app-content.mn-app .table.mn-table--responsive tbody td.actions-cell,
+	#app-content.mn-app .table.mn-table--responsive tbody td.admin-ot-audit__actions,
+	#app-content.mn-app .table.mn-table--responsive tbody td.admin-tariff-rules__row-actions,
+	#app-content.mn-app .table.mn-table--responsive tbody td.layer-card__history-actions {
+		flex-direction: column;
+		align-items: stretch;
+		text-align: left;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody td.actions-cell .mn-table-actions {
+		width: 100%;
+		justify-content: stretch;
+		flex-direction: column;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody td.actions-cell .mn-table-actions .btn,
+	#app-content.mn-app .table.mn-table--responsive tbody td.actions-cell .btn,
+	#app-content.mn-app .table.mn-table--responsive tbody td.admin-ot-audit__actions .btn,
+	#app-content.mn-app .table.mn-table--responsive tbody td.admin-tariff-rules__row-actions .btn,
+	#app-content.mn-app .table.mn-table--responsive tbody td.layer-card__history-actions .btn {
+		width: 100%;
+		justify-content: center;
+		min-height: 44px;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody td.actions-cell .btn-icon {
+		width: 46px;
+		height: 46px;
+		min-width: 46px;
+		min-height: 46px;
+		align-self: flex-end;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody td[colspan] {
+		display: block;
+		justify-content: center;
+		text-align: center;
+	}
+
+	#app-content.mn-app .table.mn-table--responsive tbody td[colspan]::before {
+		content: none;
+	}
+}
+
+@media (forced-colors: active) {
+	#app-content.mn-app .table-container,
+	#app-content.mn-app .table-responsive,
+	#app-content.mn-app .mn-table-wrap {
+		border-color: CanvasText;
+	}
+
+	#app-content.mn-app .table--hover tbody tr:hover,
+	#app-content.mn-app .grid-table.table--hover tbody tr:hover {
+		background: Highlight;
+		color: HighlightText;
+	}
+}

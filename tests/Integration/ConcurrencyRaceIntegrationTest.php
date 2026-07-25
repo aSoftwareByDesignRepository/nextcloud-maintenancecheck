@@ -1,0 +1,326 @@
+<?php
+
+declare(strict_types=1);
+
+namespace OCA\MaintenanceCheck\Tests\Integration;
+
+use OCA\MaintenanceCheck\Db\VisitMapper;
+use OCA\MaintenanceCheck\Exception\ConflictException;
+use OCA\MaintenanceCheck\Exception\NotFoundException;
+use OCA\MaintenanceCheck\Service\CatalogService;
+use OCA\MaintenanceCheck\Service\CustomerService;
+use OCA\MaintenanceCheck\Service\EquipmentService;
+use OCA\MaintenanceCheck\Service\PlanService;
+use OCA\MaintenanceCheck\Service\VisitService;
+use OCP\IDBConnection;
+use OCP\Server;
+use Test\TestCase;
+
+/**
+ * SPEC §14.2-I5 / AC-6 / N3: true parallel races via independent PHP processes
+ * (fresh DB connections). Sequential tests are not enough — auditors require
+ * two overlapping completes / schedules under InnoDB row locks.
+ *
+ * @group integration
+ * @group concurrency
+ */
+final class ConcurrencyRaceIntegrationTest extends TestCase
+{
+	private const UID = 'mn_race_office';
+	private const MARKER = 'mn_race_';
+
+	private CustomerService $customers;
+	private EquipmentService $equipment;
+	private CatalogService $catalogs;
+	private PlanService $plans;
+	private VisitService $visits;
+	private IDBConnection $db;
+
+	/** @var list<int> */
+	private array $customerIds = [];
+
+	private int $equipTypeId;
+	private int $maintTypeId;
+	private string $today;
+
+	protected function setUp(): void
+	{
+		if (!class_exists(\OC::class)) {
+			$this->markTestSkipped('Nextcloud runtime required');
+		}
+		$this->customers = Server::get(CustomerService::class);
+		$this->equipment = Server::get(EquipmentService::class);
+		$this->catalogs = Server::get(CatalogService::class);
+		$this->plans = Server::get(PlanService::class);
+		$this->visits = Server::get(VisitService::class);
+		$this->db = Server::get(IDBConnection::class);
+		$this->today = Server::get(\OCA\MaintenanceCheck\Service\Clock::class)->today();
+		$this->equipTypeId = $this->ensureCatalog('equip', self::MARKER . 'et');
+		$this->maintTypeId = $this->ensureCatalog('maint', self::MARKER . 'mt');
+	}
+
+	protected function tearDown(): void
+	{
+		if (!class_exists(\OC::class)) {
+			return;
+		}
+		foreach ($this->customerIds as $id) {
+			try {
+				$this->customers->delete($id, true);
+			} catch (NotFoundException) {
+			}
+		}
+		$this->customerIds = [];
+		foreach (['mn_equip_types', 'mn_maint_types'] as $table) {
+			$qb = $this->db->getQueryBuilder();
+			$qb->delete($table)->where($qb->expr()->like('code', $qb->createNamedParameter(self::MARKER . '%')));
+			$qb->executeStatement();
+		}
+	}
+
+	public function testAc6ParallelCompletesExactlyOneWinnerAndOneFollowUp(): void
+	{
+		$seed = $this->seedPlan();
+		$visitId = (int)$seed['openVisit']['id'];
+		$planId = (int)$seed['id'];
+
+		[$a, $b] = $this->raceTwo([
+			[(string)$visitId, self::UID],
+			[(string)$visitId, self::UID],
+		]);
+
+		$tokens = [$a['token'], $b['token']];
+		$this->assertContains('OK', $tokens, 'exactly one worker must win the complete');
+		$conflicts = array_values(array_filter($tokens, static fn (string $t): bool => str_starts_with($t, 'CONFLICT:')));
+		$this->assertCount(1, $conflicts, 'loser must report a conflict');
+		$this->assertSame('CONFLICT:visit_not_open', $conflicts[0]);
+
+		$open = Server::get(VisitMapper::class)->findOpenByPlan($planId);
+		$this->assertNotNull($open, 'winner must schedule exactly one follow-up');
+		$list = $this->visits->list(self::UID, ['planId' => (string)$planId, 'status' => 'scheduled']);
+		$this->assertSame(1, $list['total'], 'D6: never more than one open visit after parallel complete');
+	}
+
+	public function testI5ParallelScheduleCreatesSingleOpenVisit(): void
+	{
+		$seed = $this->seedPlan();
+		$planId = (int)$seed['id'];
+		$visitId = (int)$seed['openVisit']['id'];
+
+		// Cancel the open visit so both workers race S14 schedule.
+		$this->visits->cancel($visitId);
+		$this->assertNull(Server::get(VisitMapper::class)->findOpenByPlan($planId));
+
+		[$a, $b] = $this->raceTwo([
+			['--schedule', (string)$planId, $this->today],
+			['--schedule', (string)$planId, $this->today],
+		]);
+
+		$tokens = [$a['token'], $b['token']];
+		$this->assertContains('OK', $tokens, 'exactly one schedule must win');
+		$conflicts = array_values(array_filter($tokens, static fn (string $t): bool => str_starts_with($t, 'CONFLICT:')));
+		$this->assertCount(1, $conflicts);
+		$this->assertSame('CONFLICT:visit_already_open', $conflicts[0]);
+
+		$list = $this->visits->list(self::UID, ['planId' => (string)$planId, 'status' => 'scheduled']);
+		$this->assertSame(1, $list['total'], 'parallel schedule must leave a single open visit');
+	}
+
+	/**
+	 * AC-15: two parallel seat assigns at limit=1 → exactly one created, one conflict.
+	 */
+	public function testParallelSeatAssignRespectsLicenseLimit(): void
+	{
+		putenv('MN_VENDOR_PUBLIC_KEY_B64=' . \OCA\MaintenanceCheck\Tests\Support\Mn2TestSigning::publicKeyB64());
+		$license = Server::get(\OCA\MaintenanceCheck\Service\LicenseService::class);
+		$seats = Server::get(\OCA\MaintenanceCheck\Db\MobileSeatMapper::class);
+		$states = Server::get(\OCA\MaintenanceCheck\Db\LicenseStateMapper::class);
+		$states->deleteAll();
+		foreach ($seats->findAllRanked() as $seat) {
+			$seats->delete($seat);
+		}
+
+		$key = \OCA\MaintenanceCheck\Tests\Support\Mn2TestSigning::signPayload([
+			'v' => 2,
+			'product' => 'maintenancecheck',
+			'customerId' => 'race-seats',
+			'issuedAt' => '2026-01-01',
+			'validUntil' => '2099-12-31',
+			'mobileSeats' => 1,
+		]);
+		$license->apply(self::UID, $key);
+
+		$um = Server::get(\OCP\IUserManager::class);
+		$u1 = 'mn_race_s1_' . bin2hex(random_bytes(3));
+		$u2 = 'mn_race_s2_' . bin2hex(random_bytes(3));
+		foreach ([$u1, $u2] as $uid) {
+			if ($um->userExists($uid)) {
+				$um->get($uid)?->delete();
+			}
+			$um->createUser($uid, 'Mn-Race-Seat-9xK!' . bin2hex(random_bytes(2)));
+		}
+
+		try {
+			[$a, $b] = $this->raceSeatAssign([
+				[self::UID, $u1],
+				[self::UID, $u2],
+			]);
+			$tokens = [$a['token'], $b['token']];
+			$created = array_values(array_filter($tokens, static fn (string $t): bool => str_starts_with($t, 'CREATED:')));
+			$conflicts = array_values(array_filter($tokens, static fn (string $t): bool => $t === 'CONFLICT:seat_limit_reached'));
+			$this->assertCount(1, $created, 'exactly one seat must be created under limit=1');
+			$this->assertCount(1, $conflicts, 'loser must hit seat_limit_reached');
+			$this->assertSame(1, $license->status()['seats']['assigned']);
+		} finally {
+			foreach ([$u1, $u2] as $uid) {
+				if ($um->userExists($uid)) {
+					$um->get($uid)?->delete();
+				}
+			}
+			$states->deleteAll();
+			foreach ($seats->findAllRanked() as $seat) {
+				$seats->delete($seat);
+			}
+			putenv('MN_VENDOR_PUBLIC_KEY_B64');
+		}
+	}
+
+	/**
+	 * @param list<list<string>> $argSets
+	 * @return list<array{token: string, code: int}>
+	 */
+	private function raceSeatAssign(array $argSets): array
+	{
+		$worker = __DIR__ . '/workers/seat-assign-worker.php';
+		$this->assertFileExists($worker);
+
+		$php = PHP_BINARY;
+		$root = getenv('NEXTCLOUD_ROOT') ?: '/var/www/html';
+		$descriptors = [
+			0 => ['pipe', 'r'],
+			1 => ['pipe', 'w'],
+			2 => ['pipe', 'w'],
+		];
+
+		$procs = [];
+		$pipes = [];
+		foreach ($argSets as $i => $args) {
+			$cmd = array_merge([$php, $worker], $args);
+			$env = array_merge($_ENV, $_SERVER, [
+				'NEXTCLOUD_ROOT' => $root,
+				'MN_VENDOR_PUBLIC_KEY_B64' => \OCA\MaintenanceCheck\Tests\Support\Mn2TestSigning::publicKeyB64(),
+			]);
+			$proc = proc_open($cmd, $descriptors, $pipeSet, null, $env);
+			$this->assertIsResource($proc, 'failed to spawn seat worker ' . $i);
+			$procs[$i] = $proc;
+			$pipes[$i] = $pipeSet;
+			fclose($pipeSet[0]);
+		}
+		usleep(50_000);
+
+		$results = [];
+		foreach ($procs as $i => $proc) {
+			$stdout = stream_get_contents($pipes[$i][1]) ?: '';
+			$stderr = stream_get_contents($pipes[$i][2]) ?: '';
+			fclose($pipes[$i][1]);
+			fclose($pipes[$i][2]);
+			$code = proc_close($proc);
+			$token = trim(explode("\n", trim($stdout))[0] ?? '');
+			if ($token === '') {
+				$this->fail("Seat worker $i produced empty stdout (exit=$code stderr=$stderr)");
+			}
+			$results[] = ['token' => $token, 'code' => $code];
+		}
+		return $results;
+	}
+
+	/**
+	 * @param list<list<string>> $argSets
+	 * @return list<array{token: string, code: int}>
+	 */
+	private function raceTwo(array $argSets): array
+	{
+		$worker = __DIR__ . '/workers/race-worker.php';
+		$this->assertFileExists($worker);
+
+		$php = PHP_BINARY;
+		$root = getenv('NEXTCLOUD_ROOT') ?: '/var/www/html';
+		$descriptors = [
+			0 => ['pipe', 'r'],
+			1 => ['pipe', 'w'],
+			2 => ['pipe', 'w'],
+		];
+
+		$procs = [];
+		$pipes = [];
+		foreach ($argSets as $i => $args) {
+			$cmd = array_merge(
+				[$php, $worker],
+				$args,
+			);
+			$env = array_merge($_ENV, $_SERVER, [
+				'NEXTCLOUD_ROOT' => $root,
+			]);
+			$proc = proc_open($cmd, $descriptors, $pipeSet, null, $env);
+			$this->assertIsResource($proc, 'failed to spawn worker ' . $i);
+			$procs[$i] = $proc;
+			$pipes[$i] = $pipeSet;
+			fclose($pipeSet[0]);
+		}
+
+		// Tiny stagger so both are overlapping under InnoDB, not purely sequential.
+		usleep(50_000);
+
+		$results = [];
+		foreach ($procs as $i => $proc) {
+			$stdout = stream_get_contents($pipes[$i][1]) ?: '';
+			$stderr = stream_get_contents($pipes[$i][2]) ?: '';
+			fclose($pipes[$i][1]);
+			fclose($pipes[$i][2]);
+			$code = proc_close($proc);
+			$token = trim(explode("\n", trim($stdout))[0] ?? '');
+			if ($token === '') {
+				$this->fail("Worker $i produced empty stdout (exit=$code stderr=$stderr)");
+			}
+			$results[] = ['token' => $token, 'code' => $code];
+		}
+		return $results;
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function seedPlan(): array
+	{
+		$customer = $this->customers->create(self::UID, [
+			'name' => self::MARKER . 'Race ' . bin2hex(random_bytes(3)),
+		]);
+		$this->customerIds[] = (int)$customer['id'];
+		$equipment = $this->equipment->create(self::UID, [
+			'label' => self::MARKER . 'Unit',
+			'customerId' => (int)$customer['id'],
+			'equipTypeId' => $this->equipTypeId,
+		]);
+		return $this->plans->create(self::UID, (int)$equipment['id'], [
+			'maintTypeId' => $this->maintTypeId,
+			'intervalUnit' => 'month',
+			'intervalCount' => 1,
+			'firstDueOn' => $this->today,
+		]);
+	}
+
+	private function ensureCatalog(string $kind, string $code): int
+	{
+		try {
+			$row = $this->catalogs->create($kind, ['code' => $code, 'name' => 'Race ' . $code]);
+		} catch (ConflictException) {
+			foreach ($this->catalogs->list($kind, '200', '0')['data'] as $entry) {
+				if ($entry['code'] === $code) {
+					return (int)$entry['id'];
+				}
+			}
+			$this->fail('Catalog vanished: ' . $code);
+		}
+		return (int)$row['id'];
+	}
+}

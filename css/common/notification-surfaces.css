@@ -1,0 +1,529 @@
+/* Adapted from arbeitszeitcheck notification-surfaces.css (mn- prefix). */
+/**
+ * Notifications: callouts, alerts, toasts, inline-notice — theme-safe (WCAG 2.1 AA).
+ * Uses NC --color-*-text / *-rgb for contrast on light, dark, and custom themes.
+ * Icon wells: semantic fill + contrasting glyph (not low-contrast outline-only).
+ */
+
+/* ── Panel accents (visible border + tint on light, dark, custom NC themes) ── */
+#app-content.mn-app .mn-callout--info:not(.mn-semantic-panel),
+.mn-nc-admin-settings .mn-callout--info,
+.modal-backdrop .mn-callout--info:not(.mn-semantic-panel),
+#app-content.mn-app .inline-notice--info,
+.modal-backdrop .inline-notice--info,
+.toast--info {
+	border-color: var(--color-primary-element, #00679e);
+	border-left-width: 5px;
+	border-left-color: var(--color-primary-element, #00679e);
+	background: var(--mn-tint-info);
+}
+
+#app-content.mn-app .mn-callout--warning:not(.mn-semantic-panel),
+.mn-nc-admin-settings .mn-callout--warning,
+.modal-backdrop .mn-callout--warning:not(.mn-semantic-panel),
+#app-content.mn-app .inline-notice--warning,
+.modal-backdrop .inline-notice--warning,
+.toast--warning,
+#app-content.mn-app .alert--warning,
+.modal-backdrop .alert--warning {
+	border-color: var(--color-warning-text, var(--color-warning, #a37200));
+	border-left-width: 5px;
+	border-left-color: var(--color-warning-text, var(--color-warning, #a37200));
+	background: var(--mn-tint-warning);
+}
+
+#app-content.mn-app .mn-callout--success:not(.mn-semantic-panel),
+.mn-nc-admin-settings .mn-callout--success,
+.modal-backdrop .mn-callout--success:not(.mn-semantic-panel),
+.toast--success,
+#app-content.mn-app .alert--success,
+.modal-backdrop .alert--success {
+	border-color: var(--color-success-text, var(--color-success, #2d7b46));
+	border-left-width: 5px;
+	border-left-color: var(--color-success-text, var(--color-success, #2d7b46));
+	background: var(--mn-tint-success);
+}
+
+#app-content.mn-app .mn-callout--danger:not(.mn-semantic-panel),
+#app-content.mn-app .mn-callout--error:not(.mn-semantic-panel),
+.mn-nc-admin-settings .mn-callout--danger,
+.mn-nc-admin-settings .mn-callout--error,
+.modal-backdrop .mn-callout--danger:not(.mn-semantic-panel),
+.modal-backdrop .mn-callout--error:not(.mn-semantic-panel),
+.toast--error,
+#app-content.mn-app .alert--error,
+.modal-backdrop .alert--error {
+	border-color: var(--color-error-text, var(--color-error, #db0606));
+	border-left-width: 5px;
+	border-left-color: var(--color-error-text, var(--color-error, #db0606));
+	background: var(--mn-tint-danger);
+}
+
+#app-content.mn-app .mn-callout--neutral:not(.mn-semantic-panel),
+.modal-backdrop .mn-callout--neutral:not(.mn-semantic-panel) {
+	border-color: var(--color-border);
+	border-left-width: 2px;
+	background: color-mix(in srgb, var(--color-main-text) 5%, var(--color-main-background));
+}
+
+/* Semantic panel panel tints: common/semantic-surfaces.css */
+
+/* ── Icon wells: pale tint + semantic stroke (same model as .mn-page-header__icon) ── */
+.mn-notif-icon-well,
+#app-content.mn-app .mn-callout__icon,
+.modal-backdrop .mn-callout__icon,
+#app-content.mn-app .alert-icon,
+.modal-backdrop .alert-icon,
+.toast-icon,
+#app-content.mn-app .inline-notice__icon,
+.modal-backdrop .inline-notice__icon,
+.mn-status-icon-well {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--mn-icon-well, 2.25rem);
+	height: var(--mn-icon-well, 2.25rem);
+	min-width: var(--mn-icon-well, 2.25rem);
+	min-height: var(--mn-icon-well, 2.25rem);
+	border-radius: var(--mn-radius-sm, 6px);
+	border: 2px solid var(--color-border);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	box-shadow: none;
+}
+
+.mn-notif-icon-well .mn-icon,
+.mn-notif-icon-well .mn-callout__icon-svg,
+.mn-notif-icon-well svg,
+#app-content.mn-app .mn-callout__icon .mn-icon,
+#app-content.mn-app .mn-callout__icon .mn-callout__icon-svg,
+#app-content.mn-app .mn-callout__icon-svg,
+.modal-backdrop .mn-callout__icon .mn-icon,
+.modal-backdrop .mn-callout__icon .mn-callout__icon-svg,
+.modal-backdrop .mn-callout__icon-svg,
+.alert-icon .mn-icon,
+.alert-icon svg,
+.toast-icon .mn-icon,
+.toast-icon svg,
+.toast-icon .toast__icon-svg,
+#app-content.mn-app .inline-notice__icon .mn-icon,
+#app-content.mn-app .inline-notice__icon .inline-notice__glyph,
+#app-content.mn-app .inline-notice__icon svg,
+.modal-backdrop .inline-notice__icon svg {
+	width: var(--mn-icon-lg, 1.375rem);
+	height: var(--mn-icon-lg, 1.375rem);
+	min-width: var(--mn-icon-lg, 1.375rem);
+	min-height: var(--mn-icon-lg, 1.375rem);
+	color: inherit;
+	stroke: currentColor;
+	fill: none;
+	opacity: 1;
+}
+
+/* Filled accent dots in IconCatalog (info / alert) */
+.mn-notif-icon-well svg circle[fill='currentColor'],
+.mn-notif-icon-well svg [fill='currentColor'],
+#app-content.mn-app .mn-callout__icon svg circle[fill='currentColor'],
+#app-content.mn-app .mn-callout__icon svg [fill='currentColor'],
+.toast-icon svg circle[fill='currentColor'],
+.toast-icon svg [fill='currentColor'] {
+	fill: currentColor;
+	stroke: none;
+}
+
+/* Variant wells — modifier class + legacy parent selectors */
+.mn-notif-icon-well--info,
+.mn-callout.mn-callout--info > .mn-callout__icon,
+.mn-callout.mn-callout--info > .mn-notif-icon-well,
+#app-content.mn-app .mn-semantic-panel--info .mn-callout__icon,
+.mn-nc-admin-settings .mn-callout--info .mn-callout__icon,
+.modal-backdrop .mn-callout--info .mn-callout__icon,
+#app-content.mn-app .alert--info .alert-icon,
+.modal-backdrop .alert--info .alert-icon,
+#app-content.mn-app .inline-notice--info .inline-notice__icon,
+.modal-backdrop .inline-notice--info .inline-notice__icon,
+.toast--info .toast-icon {
+	background: var(--mn-tint-info);
+	border-color: var(--mn-notif-fg-info);
+	color: var(--mn-notif-fg-info);
+}
+
+.mn-notif-icon-well--warning,
+.mn-callout.mn-callout--warning > .mn-callout__icon,
+.mn-callout.mn-callout--warning > .mn-notif-icon-well,
+#app-content.mn-app .mn-semantic-panel--warning .mn-callout__icon,
+.mn-nc-admin-settings .mn-callout--warning .mn-callout__icon,
+.modal-backdrop .mn-callout--warning .mn-callout__icon,
+#app-content.mn-app .alert--warning .alert-icon,
+.modal-backdrop .alert--warning .alert-icon,
+#app-content.mn-app .inline-notice--warning .inline-notice__icon,
+.modal-backdrop .inline-notice--warning .inline-notice__icon,
+.toast--warning .toast-icon {
+	background: var(--mn-tint-warning);
+	border-color: var(--mn-notif-fg-warning);
+	color: var(--mn-notif-fg-warning);
+}
+
+.mn-notif-icon-well--success,
+.mn-callout.mn-callout--success > .mn-callout__icon,
+.mn-callout.mn-callout--success > .mn-notif-icon-well,
+#app-content.mn-app .mn-semantic-panel--success .mn-callout__icon,
+.modal-backdrop .mn-callout--success .mn-callout__icon,
+#app-content.mn-app .alert--success .alert-icon,
+.modal-backdrop .alert--success .alert-icon,
+.toast--success .toast-icon {
+	background: var(--mn-tint-success);
+	border-color: var(--mn-notif-fg-success);
+	color: var(--mn-notif-fg-success);
+}
+
+.mn-notif-icon-well--danger,
+.mn-notif-icon-well--error,
+.mn-callout.mn-callout--danger > .mn-callout__icon,
+.mn-callout.mn-callout--danger > .mn-notif-icon-well,
+.mn-callout.mn-callout--error > .mn-callout__icon,
+.mn-callout.mn-callout--error > .mn-notif-icon-well,
+.mn-nc-admin-settings .mn-callout--danger .mn-callout__icon,
+.mn-nc-admin-settings .mn-callout--error .mn-callout__icon,
+.modal-backdrop .mn-callout--danger .mn-callout__icon,
+.modal-backdrop .mn-callout--error .mn-callout__icon,
+#app-content.mn-app .alert--error .alert-icon,
+.modal-backdrop .alert--error .alert-icon,
+.toast--error .toast-icon {
+	background: var(--mn-tint-danger);
+	border-color: var(--mn-notif-fg-danger);
+	color: var(--mn-notif-fg-danger);
+}
+
+.mn-notif-icon-well--neutral,
+.mn-callout.mn-callout--neutral > .mn-callout__icon,
+.mn-callout.mn-callout--neutral > .mn-notif-icon-well,
+.modal-backdrop .mn-callout--neutral .mn-callout__icon {
+	background: color-mix(in srgb, var(--color-main-text) 8%, var(--color-main-background));
+	border-color: var(--color-border-maxcontrast, var(--color-border));
+	color: var(--color-main-text);
+}
+
+#app-content.mn-app .mn-semantic-panel--success.mn-callout.auto-break-panel--disabled .mn-callout__icon {
+	background: color-mix(in srgb, var(--color-main-text) 10%, var(--color-main-background));
+	border-color: var(--color-border);
+	color: var(--color-main-text);
+}
+
+/* Body copy: main text only (AA); hints stay maxcontrast */
+#app-content.mn-app .mn-callout__title,
+.modal-backdrop .mn-callout__title,
+#app-content.mn-app .mn-callout__text,
+.modal-backdrop .mn-callout__text,
+#app-content.mn-app .alert-message,
+.modal-backdrop .alert-message,
+.toast-title,
+.toast-message,
+#app-content.mn-app .inline-notice__title,
+.modal-backdrop .inline-notice__title,
+#app-content.mn-app .inline-notice__text,
+.modal-backdrop .inline-notice__text {
+	color: var(--color-main-text);
+}
+
+#app-content.mn-app .mn-callout__hint,
+.modal-backdrop .mn-callout__hint {
+	color: var(--color-text-maxcontrast, var(--color-main-text));
+}
+
+/* ── Responsive: stack icon + body on narrow viewports ── */
+@media (max-width: 720px) {
+	#app-content.mn-app .mn-callout,
+	.modal-backdrop .mn-callout,
+	#app-content.mn-app .alert,
+	.modal-backdrop .alert,
+	#app-content.mn-app .inline-notice,
+	.modal-backdrop .inline-notice,
+	.toast {
+		flex-wrap: wrap;
+	}
+
+	#app-content.mn-app .mn-callout__icon,
+	.modal-backdrop .mn-callout__icon,
+	.toast-icon,
+	#app-content.mn-app .alert-icon,
+	.modal-backdrop .alert-icon,
+	#app-content.mn-app .inline-notice__icon,
+	.modal-backdrop .inline-notice__icon {
+		margin-bottom: var(--mn-space-1, 0.25rem);
+	}
+}
+
+@media (prefers-contrast: more) {
+	#app-content.mn-app .mn-callout:not(.mn-semantic-panel),
+	.modal-backdrop .mn-callout:not(.mn-semantic-panel),
+	.toast,
+	#app-content.mn-app .alert,
+	.modal-backdrop .alert {
+		border-width: 3px;
+	}
+
+	#app-content.mn-app .mn-callout__icon,
+	.modal-backdrop .mn-callout__icon,
+	.toast-icon,
+	#app-content.mn-app .alert-icon,
+	.modal-backdrop .alert-icon {
+		border-width: 3px;
+	}
+
+	.mn-notif-icon-well .mn-icon,
+	.mn-notif-icon-well svg,
+	#app-content.mn-app .mn-callout__icon .mn-icon,
+	#app-content.mn-app .mn-callout__icon svg {
+		stroke-width: 3;
+	}
+}
+
+/* ── Legacy inline-notice (backward compat) ───────────────── */
+#app-content.mn-app .inline-notice-section,
+.modal-backdrop .inline-notice-section {
+	padding: 0;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	margin-bottom: var(--mn-space-4, 1rem);
+}
+
+#app-content.mn-app .inline-notice,
+.modal-backdrop .inline-notice {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: var(--mn-space-3, 0.75rem) var(--mn-space-4, 1rem);
+	padding: var(--mn-space-4, 1rem) var(--mn-space-5, 1.25rem);
+	border: 2px solid var(--color-border, var(--mn-border));
+	border-radius: var(--mn-radius-md, 8px);
+	background: var(--color-main-background, var(--mn-bg));
+	box-shadow: var(--mn-shadow-sm, 0 1px 2px rgb(0 0 0 / 8%));
+	color: var(--color-main-text, var(--mn-text));
+}
+
+#app-content.mn-app .inline-notice__content,
+.modal-backdrop .inline-notice__content {
+	flex: 1 1 12rem;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--mn-space-2, 0.5rem);
+}
+
+#app-content.mn-app .inline-notice__title,
+.modal-backdrop .inline-notice__title {
+	margin: 0;
+	font-size: var(--mn-fs-lg, 1.125rem);
+	font-weight: 600;
+	line-height: var(--mn-line-tight, 1.25);
+	color: var(--color-main-text, var(--mn-text));
+}
+
+#app-content.mn-app .inline-notice__text,
+.modal-backdrop .inline-notice__text {
+	margin: 0;
+	font-size: var(--mn-fs-md, 1rem);
+	line-height: var(--mn-line-base, 1.45);
+	max-width: 65ch;
+	color: var(--color-main-text, var(--mn-text));
+}
+
+#app-content.mn-app .inline-notice__actions,
+.modal-backdrop .inline-notice__actions {
+	flex-shrink: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mn-space-2, 0.5rem);
+	margin: 0;
+}
+
+#app-content.mn-app .inline-notice__actions .mn-btn,
+#app-content.mn-app .inline-notice__actions .btn,
+.modal-backdrop .inline-notice__actions .mn-btn,
+.modal-backdrop .inline-notice__actions .btn {
+	min-height: 44px;
+	white-space: nowrap;
+}
+
+@media (max-width: 42rem) {
+	#app-content.mn-app .inline-notice,
+	.modal-backdrop .inline-notice {
+		flex-direction: column;
+	}
+
+	#app-content.mn-app .inline-notice__actions,
+	.modal-backdrop .inline-notice__actions {
+		width: 100%;
+	}
+
+	#app-content.mn-app .inline-notice__actions .mn-btn,
+	#app-content.mn-app .inline-notice__actions .btn,
+	.modal-backdrop .inline-notice__actions .mn-btn,
+	.modal-backdrop .inline-notice__actions .btn {
+		flex: 1 1 auto;
+		justify-content: center;
+	}
+}
+
+/* ── Toast container (MC parity: bottom-right) ───────────────── */
+.toast-container {
+	position: fixed;
+	bottom: calc(var(--mn-space-5, 1.5rem) + env(safe-area-inset-bottom, 0px));
+	right: calc(var(--mn-space-5, 1.5rem) + env(safe-area-inset-right, 0px));
+	top: auto;
+	z-index: var(--z-toast, 10000);
+	display: flex;
+	flex-direction: column-reverse;
+	gap: var(--mn-space-2, 0.5rem);
+	max-width: min(24rem, calc(100vw - 2rem));
+}
+
+/* ── Toast card (left accent, MC weight) ───────────────────── */
+.toast {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	gap: var(--mn-space-3, 0.75rem);
+	padding: var(--mn-space-3, 0.75rem) var(--mn-space-4, 1rem);
+	border: 1px solid var(--mn-border, var(--color-border));
+	border-left-width: 4px;
+	border-radius: var(--mn-radius-md, 12px);
+	background: var(--mn-bg-card, var(--color-main-background));
+	box-shadow: var(--mn-shadow-md, 0 8px 24px color-mix(in srgb, var(--color-main-text) 12%, transparent));
+	color: var(--color-main-text, var(--mn-text));
+	font-weight: 600;
+	max-width: 100%;
+	opacity: 0;
+	transform: translateY(0.75rem);
+	transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast--show {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+@keyframes toast-slide-in {
+	from {
+		transform: translateY(0.75rem);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.toast--removing {
+	animation: toast-slide-out 0.3s ease-in forwards;
+}
+
+@keyframes toast-slide-out {
+	from {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	to {
+		transform: translateY(0.75rem);
+		opacity: 0;
+	}
+}
+
+.toast-content {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--mn-space-1, 0.25rem);
+}
+
+.toast-title {
+	margin: 0;
+	font-size: var(--mn-fs-md, 1rem);
+	font-weight: 600;
+	line-height: var(--mn-line-tight, 1.25);
+	color: var(--color-main-text, var(--mn-text));
+}
+
+.toast-message {
+	margin: 0;
+	font-size: var(--mn-fs-md, 1rem);
+	line-height: var(--mn-line-base, 1.45);
+	color: var(--color-main-text, var(--mn-text));
+	max-width: 65ch;
+}
+
+.toast-close {
+	background: none;
+	border: none;
+	font-size: var(--mn-fs-lg, 1.25rem);
+	line-height: 1;
+	color: var(--color-main-text, var(--mn-text));
+	cursor: pointer;
+	padding: var(--mn-space-1, 0.25rem);
+	border-radius: var(--mn-radius-sm, 6px);
+	opacity: 0.85;
+	flex-shrink: 0;
+	min-width: 44px;
+	min-height: 44px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.toast-close:hover,
+.toast-close:focus-visible {
+	opacity: 1;
+	outline: 2px solid var(--color-primary-element, #00679e);
+	outline-offset: 2px;
+}
+
+@media (max-width: 42rem) {
+	.toast-container {
+		left: calc(var(--mn-space-4, 1rem) + env(safe-area-inset-left, 0px));
+		right: calc(var(--mn-space-4, 1rem) + env(safe-area-inset-right, 0px));
+		bottom: calc(var(--mn-space-4, 1rem) + env(safe-area-inset-bottom, 0px));
+		max-width: none;
+	}
+}
+
+@media (forced-colors: active) {
+	#app-content.mn-app .mn-callout,
+	.modal-backdrop .mn-callout,
+	#app-content.mn-app .alert,
+	.modal-backdrop .alert,
+	.toast,
+	#app-content.mn-app .inline-notice,
+	.modal-backdrop .inline-notice {
+		border: 2px solid CanvasText;
+		background: Canvas;
+		color: CanvasText;
+	}
+
+	#app-content.mn-app .mn-callout__icon,
+	.modal-backdrop .mn-callout__icon,
+	.toast-icon,
+	#app-content.mn-app .alert-icon,
+	.modal-backdrop .alert-icon,
+	#app-content.mn-app .inline-notice__icon,
+	.modal-backdrop .inline-notice__icon {
+		border: 2px solid CanvasText;
+		background: Canvas;
+		color: CanvasText;
+		box-shadow: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.toast,
+	.toast--removing {
+		animation: none !important;
+		transition: none !important;
+	}
+}

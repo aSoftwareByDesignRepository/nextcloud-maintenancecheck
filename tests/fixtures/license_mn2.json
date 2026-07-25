@@ -1,0 +1,14 @@
+{
+  "publicKeyB64": "x8Ekm43mhV5gYygbwnmkCA_-9DTsRSufH_OoRB6pis0",
+  "payloadB64": "eyJ2IjoyLCJwcm9kdWN0IjoibWFpbnRlbmFuY2VjaGVjayIsImN1c3RvbWVySWQiOiJ0ZXN0IiwiaXNzdWVkQXQiOiIyMDI2LTA2LTEwIiwidmFsaWRVbnRpbCI6IjIwMjctMTItMzEiLCJtb2JpbGVTZWF0cyI6NX0",
+  "signatureB64": "JXBLL3RKaGXeEQwBEn5YJp-n-yOLb2sG29XPa6biLrMh13ciM8RUC9Vz9CkAqtR_l8gcQnU373qunfHbkVx-BA",
+  "wireKey": "MN2.eyJ2IjoyLCJwcm9kdWN0IjoibWFpbnRlbmFuY2VjaGVjayIsImN1c3RvbWVySWQiOiJ0ZXN0IiwiaXNzdWVkQXQiOiIyMDI2LTA2LTEwIiwidmFsaWRVbnRpbCI6IjIwMjctMTItMzEiLCJtb2JpbGVTZWF0cyI6NX0.JXBLL3RKaGXeEQwBEn5YJp-n-yOLb2sG29XPa6biLrMh13ciM8RUC9Vz9CkAqtR_l8gcQnU373qunfHbkVx-BA",
+  "payload": {
+    "v": 2,
+    "product": "maintenancecheck",
+    "customerId": "test",
+    "issuedAt": "2026-06-10",
+    "validUntil": "2027-12-31",
+    "mobileSeats": 5
+  }
+}

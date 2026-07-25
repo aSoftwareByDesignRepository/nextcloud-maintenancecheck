@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!--
+  - SPDX-FileCopyrightText: 2026 Alexander Mäule <info@software-by-design.de>
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>maintenancecheck</id>
+	<name>MaintenanceCheck</name>
+	<name lang="de">MaintenanceCheck</name>
+	<summary>Recurring maintenance for customer equipment</summary>
+	<summary lang="de">Wiederkehrende Wartung für Kundenanlagen</summary>
+	<description><![CDATA[
+# MaintenanceCheck
+
+MaintenanceCheck keeps the equipment you service at customer sites on a clear schedule. See what is due, log the visit, and never lose the next date in a spreadsheet.
+
+- Customers and their equipment in one register
+- Maintenance plans with day / week / month / year intervals
+- Due board: overdue, today, next 7 days, later
+- Complete or skip a visit — the next due date rolls automatically
+- Full visit history per equipment
+- Office / technician roles, optional access restriction
+
+## Requirements
+
+- Nextcloud 32–34
+- PHP 8.2–8.5
+- MySQL/MariaDB or PostgreSQL
+	]]></description>
+	<description lang="de"><![CDATA[
+# MaintenanceCheck
+
+MaintenanceCheck verwaltet die Anlagen, die Sie beim Kunden warten. Fälligkeiten sehen, Einsatz dokumentieren, nächsten Termin fortschreiben — statt Excel und Zettel.
+
+- Kunden und ihre Anlagen in einem Register
+- Wartungspläne mit Tages- / Wochen- / Monats- / Jahresintervallen
+- Fälligkeitsboard: überfällig, heute, nächste 7 Tage, später
+- Einsatz abschließen oder aussetzen — der nächste Termin wird automatisch fortgeschrieben
+- Vollständige Einsatzhistorie je Anlage
+- Büro-/Techniker-Rollen, optionale Zugriffsbeschränkung
+
+## Voraussetzungen
+
+- Nextcloud 32–34
+- PHP 8.2–8.5
+- MySQL/MariaDB oder PostgreSQL
+	]]></description>
+	<version>1.0.0</version>
+	<licence>AGPL-3.0-or-later</licence>
+	<author mail="info@software-by-design.de" homepage="https://nextcloud.software-by-design.de">Alexander Mäule</author>
+	<namespace>MaintenanceCheck</namespace>
+	<category>organization</category>
+	<category>office</category>
+	<website>https://nextcloud.software-by-design.de</website>
+	<bugs>https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues</bugs>
+	<repository>https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck.git</repository>
+	<dependencies>
+		<nextcloud min-version="32" max-version="34"/>
+		<php min-version="8.2" max-version="8.5"/>
+		<database>mysql</database>
+		<database>pgsql</database>
+	</dependencies>
+	<navigations>
+		<navigation>
+			<name>MaintenanceCheck</name>
+			<route>maintenancecheck.page.due</route>
+			<icon>app.svg</icon>
+			<order>19</order>
+		</navigation>
+	</navigations>	<commands>
+		<command>OCA\MaintenanceCheck\Command\UpgradeBackupCommand</command>
+		<command>OCA\MaintenanceCheck\Command\SeedReferenceDatasetCommand</command>
+	</commands>
+
+	<repair-steps>
+		<install>
+			<step>OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema</step>
+		</install>
+		<pre-migration>
+			<step>OCA\MaintenanceCheck\Repair\BackupBeforeUpdate</step>
+		</pre-migration>
+
+		<post-migration>
+			<step>OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema</step>
+		</post-migration>
+		<uninstall>
+			<step>OCA\MaintenanceCheck\Repair\UninstallDropTables</step>
+		</uninstall>
+	</repair-steps>
+</info>

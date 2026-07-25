@@ -1,0 +1,53 @@
+{
+	"name": "software-by-design/nextcloud-maintenancecheck",
+	"description": "Recurring maintenance for customer equipment on Nextcloud",
+	"type": "project",
+	"license": "AGPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Alexander M\u00e4ule",
+			"email": "info@software-by-design.de"
+		}
+	],
+	"require": {
+		"php": ">=8.2"
+	},
+	"require-dev": {
+		"nextcloud/ocp": "^32.0 || ^33.0",
+		"phpunit/phpunit": "^9.6"
+	},
+	"autoload": {
+		"psr-4": {
+			"OCA\\MaintenanceCheck\\": "lib/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"OCA\\MaintenanceCheck\\Tests\\": "tests/",
+			"OCP\\": "vendor/nextcloud/ocp/OCP/",
+			"NCU\\": "vendor/nextcloud/ocp/NCU/"
+		}
+	},
+	"scripts": {
+		"test": "phpunit --testsuite unit",
+		"test:unit": "phpunit --testsuite unit",
+		"test:integration": "phpunit --testsuite integration",
+		"test:all": "phpunit",
+		"test:js": "node --test --test-concurrency=1 tests/js/*.test.mjs",
+		"test:mutation:interval": "php tests/Mutation/run-interval-mutations.php",
+		"test:mutation:visits": "php tests/Mutation/run-visit-rules-mutations.php",
+		"test:mutation:visit-service": "php tests/Mutation/run-visit-service-mutations.php",
+		"test:mutation:license": "php tests/Mutation/run-license-mutations.php",
+		"test:mutation:access": "php tests/Mutation/run-access-mutations.php",
+		"test:mutation:support-us": "php tests/Mutation/run-support-us-links-mutations.php",
+		"test:mutation": "composer test:mutation:interval && composer test:mutation:visits && composer test:mutation:visit-service && composer test:mutation:license && composer test:mutation:access && composer test:mutation:support-us",
+		"test:msi": "php tests/Mutation/msi-report.php",
+		"test:gauntlet": "composer test:all && composer test:js && composer test:msi",
+		"test:a11y": "npx playwright test tests/e2e/a11y-smoke.spec.js",
+		"test:e2e": "npx playwright test"
+	},
+	"config": {
+		"optimize-autoloader": true,
+		"sort-packages": true
+	}
+}

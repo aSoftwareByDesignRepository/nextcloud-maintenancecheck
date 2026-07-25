@@ -1,0 +1,164 @@
+/**
+ * Contract tests for the pure client helpers in js/app.js.
+ *
+ * The JS interval math MUST match lib/Service/IntervalCalculator.php
+ * (SPEC §6.1, clamp semantics S2) — the vectors below mirror
+ * tests/Unit/Service/IntervalCalculatorTest.php exactly.
+ */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const source = await readFile(join(root, 'js', 'app.js'), 'utf8');
+
+// Execute the IIFE in this module's global scope; app.js bails out before any
+// DOM access when `document` is undefined and exports MnApp on globalThis.
+(0, eval)(source);
+const MnApp = globalThis.MnApp;
+
+test('MnApp is exported with all pure helpers', () => {
+	assert.ok(MnApp, 'globalThis.MnApp missing');
+	for (const fn of ['isValidYmd', 'addInterval', 'formatDate', 'statusMeta', 'bucketMeta', 'intervalLabel']) {
+		assert.equal(typeof MnApp[fn], 'function', `MnApp.${fn} missing`);
+	}
+});
+
+test('addInterval matches the PHP spec vectors (parity with IntervalCalculator)', () => {
+	const vectors = [
+		['2026-03-15', 'day', 10, '2026-03-25'],
+		['2026-01-31', 'day', 1, '2026-02-01'],
+		['2026-12-31', 'day', 1, '2027-01-01'],
+		['2028-02-28', 'day', 1, '2028-02-29'],
+		['2027-02-28', 'day', 1, '2027-03-01'],
+		['2026-03-02', 'week', 1, '2026-03-09'],
+		['2026-01-05', 'week', 4, '2026-02-02'],
+		['2026-12-28', 'week', 1, '2027-01-04'],
+		['2026-03-15', 'month', 1, '2026-04-15'],
+		['2026-01-31', 'month', 1, '2026-02-28'],
+		['2028-01-31', 'month', 1, '2028-02-29'],
+		['2026-01-30', 'month', 1, '2026-02-28'],
+		['2026-03-31', 'month', 1, '2026-04-30'],
+		['2026-08-31', 'month', 1, '2026-09-30'],
+		['2026-01-31', 'month', 2, '2026-03-31'],
+		['2026-11-15', 'month', 2, '2027-01-15'],
+		['2026-12-31', 'month', 1, '2027-01-31'],
+		['2026-05-14', 'month', 12, '2027-05-14'],
+		['2026-01-15', 'month', 25, '2028-02-15'],
+		['2026-06-10', 'year', 1, '2027-06-10'],
+		['2028-02-29', 'year', 1, '2029-02-28'],
+		['2028-02-29', 'year', 4, '2032-02-29'],
+	];
+	for (const [date, unit, count, expected] of vectors) {
+		assert.equal(
+			MnApp.addInterval(date, unit, count),
+			expected,
+			`${date} + ${count} ${unit}`,
+		);
+	}
+});
+
+test('addInterval rejects invalid input with null', () => {
+	assert.equal(MnApp.addInterval('banana', 'day', 1), null);
+	assert.equal(MnApp.addInterval('2026-02-30', 'day', 1), null);
+	assert.equal(MnApp.addInterval('2026-01-15', 'fortnight', 1), null);
+	assert.equal(MnApp.addInterval(null, 'day', 1), null);
+});
+
+test('isValidYmd strict shape and real-date checks', () => {
+	assert.equal(MnApp.isValidYmd('2026-01-05'), true);
+	assert.equal(MnApp.isValidYmd('2028-02-29'), true);
+	assert.equal(MnApp.isValidYmd('2027-02-29'), false);
+	assert.equal(MnApp.isValidYmd('2026-13-01'), false);
+	assert.equal(MnApp.isValidYmd('2026-01-00'), false);
+	assert.equal(MnApp.isValidYmd('2026-1-05'), false);
+	assert.equal(MnApp.isValidYmd('2026/01/05'), false);
+	assert.equal(MnApp.isValidYmd(''), false);
+	assert.equal(MnApp.isValidYmd(20260105), false);
+});
+
+test('statusMeta maps every visit status to label, badge class, and A4 icon', () => {
+	assert.deepEqual(MnApp.statusMeta('scheduled'), { label: 'Scheduled', badge: 'mn-badge--scheduled', icon: 'calendar' });
+	assert.deepEqual(MnApp.statusMeta('done'), { label: 'Done', badge: 'mn-badge--done', icon: 'check' });
+	assert.deepEqual(MnApp.statusMeta('skipped'), { label: 'Skipped', badge: 'mn-badge--skipped', icon: 'skip' });
+	assert.deepEqual(MnApp.statusMeta('cancelled'), { label: 'Cancelled', badge: 'mn-badge--cancelled', icon: 'x' });
+	// Unknown statuses degrade gracefully — never crash the render path.
+	assert.deepEqual(MnApp.statusMeta('weird'), { label: 'weird', badge: '', icon: null });
+});
+
+test('bucketMeta covers all four S8 buckets with A4 icons', () => {
+	assert.equal(MnApp.bucketMeta('overdue').title, 'Overdue');
+	assert.equal(MnApp.bucketMeta('today').title, 'Due today');
+	assert.equal(MnApp.bucketMeta('next7').title, 'Next 7 days');
+	assert.equal(MnApp.bucketMeta('later').title, 'Later (up to 30 days)');
+	assert.equal(MnApp.bucketMeta('overdue').badge, 'mn-badge--overdue');
+	assert.equal(MnApp.bucketMeta('overdue').icon, 'alert-triangle');
+	assert.equal(MnApp.bucketMeta('today').icon, 'clock');
+	assert.equal(MnApp.bucketMeta('next7').icon, 'calendar');
+	assert.equal(MnApp.bucketMeta('later').icon, 'calendar');
+	assert.equal(MnApp.bucketMeta('nope').title, 'nope');
+});
+
+test('statusBadge returns A4 descriptor without DOM (icon + text, never colour alone)', () => {
+	assert.deepEqual(
+		MnApp.statusBadge('Overdue', 'mn-badge--overdue', 'alert-triangle'),
+		{ label: 'Overdue', badge: 'mn-badge--overdue', icon: 'alert-triangle' },
+	);
+});
+
+test('todayYmd prefers server calendar date (S1)', () => {
+	MnApp.setServerToday('2026-07-24');
+	assert.equal(MnApp.todayYmd(), '2026-07-24');
+	MnApp.setServerToday('not-a-date');
+	assert.equal(MnApp.todayYmd(), '2026-07-24', 'invalid setServerToday must keep prior value');
+	MnApp.setServerToday('2026-12-31');
+	assert.equal(MnApp.todayYmd(), '2026-12-31');
+});
+
+test('intervalLabel pluralises correctly', () => {
+	assert.equal(MnApp.intervalLabel('day', 1), 'Every day');
+	assert.equal(MnApp.intervalLabel('day', 3), 'Every 3 days');
+	assert.equal(MnApp.intervalLabel('week', 1), 'Every week');
+	assert.equal(MnApp.intervalLabel('week', 2), 'Every 2 weeks');
+	assert.equal(MnApp.intervalLabel('month', 1), 'Every month');
+	assert.equal(MnApp.intervalLabel('month', 6), 'Every 6 months');
+	assert.equal(MnApp.intervalLabel('year', 1), 'Every year');
+	assert.equal(MnApp.intervalLabel('year', 2), 'Every 2 years');
+	assert.equal(MnApp.intervalLabel('eon', 1), '');
+});
+
+test('formatDate falls back safely for invalid values', () => {
+	assert.equal(MnApp.formatDate(null), '');
+	assert.equal(MnApp.formatDate('not-a-date'), 'not-a-date');
+	// Valid date renders with the year and day present regardless of locale.
+	const rendered = MnApp.formatDate('2026-07-24', 'en');
+	assert.match(rendered, /2026/);
+	assert.match(rendered, /24/);
+});
+
+test('S9 force-delete dialog re-applies checkbox gate after setBusy(false)', () => {
+	// Source contract: setBusy restores prior disabled state and onIdle/syncDeleteGate
+	// keeps #mn-confirm-delete disabled unless the confirm checkbox is checked.
+	assert.match(source, /dataset\.mnWasDisabled/);
+	assert.match(source, /onIdle:\s*syncDeleteGate/);
+	assert.match(source, /button\.disabled = !confirmBox\.checked/);
+	assert.match(source, /if \(hasChildren && !confirmBox\.checked\) \{\s*return;/);
+});
+
+test('SPEC §8.3 seat assignment uses NC user picker combobox', () => {
+	assert.match(source, /function attachUserPicker\(/);
+	assert.match(source, /apiUrl\('usersSearch'\)/);
+	assert.match(source, /role:\s*'combobox'/);
+	assert.match(source, /Choose a Nextcloud user from the list\./);
+});
+
+test('A9 touch targets: chip remove and toast close are ≥44px in CSS', async () => {
+	const css = await readFile(join(root, 'css', 'app.css'), 'utf8');
+	assert.match(css, /\.mn-chip__remove\s*\{[^}]*min-width:\s*44px/s);
+	assert.match(css, /\.mn-chip__remove\s*\{[^}]*min-height:\s*44px/s);
+	assert.match(css, /\.mn-toast__close\s*\{[^}]*min-width:\s*44px/s);
+	assert.match(css, /\.mn-toast__close\s*\{[^}]*min-height:\s*44px/s);
+	assert.match(css, /\.mn-btn--compact\s*\{[^}]*min-height:\s*44px/s);
+});

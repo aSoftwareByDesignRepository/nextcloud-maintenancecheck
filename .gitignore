@@ -1,0 +1,14 @@
+/vendor/
+/node_modules/
+.phpunit.result.cache
+/tests/e2e/.env
+/test-results/
+/playwright-report/
+/tests/Mutation/infection.log
+/tests/Mutation/infection.html
+/tests/Mutation/infection-summary.json
+/tests/Mutation/msi-summary.json
+.infection/
+
+/tests/_gauntlet-*
+/tests/Mutation/.originals/
