@@ -20,3 +20,11 @@ test('MN dialogs use modal-backdrop and inert unlock', () => {
 	assert.match(src, /modal-backdrop/);
 	assert.match(src, /removeAttribute\('inert'\)/);
 });
+
+test('MN list pages use AZ filter-panel cards not bare toolbars', () => {
+	for (const page of ['customers.php', 'equipment.php', 'due.php', 'visits.php']) {
+		const tpl = readFileSync(join(root, 'templates', page), 'utf8');
+		assert.match(tpl, /mn-filter-panel/, `${page} missing mn-filter-panel`);
+		assert.doesNotMatch(tpl, /class="mn-toolbar"/, `${page} still uses bare mn-toolbar`);
+	}
+});

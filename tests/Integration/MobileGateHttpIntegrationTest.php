@@ -15,7 +15,9 @@ use OCA\MaintenanceCheck\Service\CatalogService;
 use OCA\MaintenanceCheck\Service\CustomerService;
 use OCA\MaintenanceCheck\Service\EquipmentService;
 use OCA\MaintenanceCheck\Service\LicenseService;
+use OCA\MaintenanceCheck\Service\MobileGateService;
 use OCA\MaintenanceCheck\Service\PlanService;
+use OCA\MaintenanceCheck\Service\VisitService;
 use OCA\MaintenanceCheck\Tests\Support\Mn2TestSigning;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -104,6 +106,32 @@ final class MobileGateHttpIntegrationTest extends TestCase
 		$user = \OC::$server->get(IUserManager::class)->get($uid);
 		$this->assertNotNull($user);
 		\OC::$server->get(IUserSession::class)->setUser($user);
+	}
+
+	/**
+	 * Mobile mutations require Authorization (app password) or a CSRF
+	 * requesttoken (N5). Container-resolved IRequest has neither in PHPUnit,
+	 * so build a controller whose request presents a Bearer channel — the
+	 * same shape the official app sends after NC session auth.
+	 */
+	private function mobileControllerWithMutationAuth(): MobileController
+	{
+		$request = $this->createMock(IRequest::class);
+		$request->method('getHeader')->willReturnCallback(static function (string $name): string {
+			return strcasecmp($name, 'Authorization') === 0 ? 'Bearer mn-integration-test' : '';
+		});
+		$request->method('getParam')->willReturn(null);
+		$request->method('getParams')->willReturn([]);
+
+		return new MobileController(
+			$request,
+			\OC::$server->get(IUserSession::class),
+			\OC::$server->get(AccessControlService::class),
+			\OC::$server->get(MobileGateService::class),
+			\OC::$server->get(VisitService::class),
+			\OC::$server->get(EquipmentService::class),
+			\OC::$server->get(CustomerService::class),
+		);
 	}
 
 	private function middleware(string $path, string $method = 'GET'): AppAccessMiddleware
@@ -241,7 +269,9 @@ final class MobileGateHttpIntegrationTest extends TestCase
 		$visitId = (int)$plan['openVisit']['id'];
 
 		$this->loginAs(self::UID);
+		// Reads work with the container controller; mutations need N5 channel auth.
 		$controller = \OC::$server->get(MobileController::class);
+		$mutating = $this->mobileControllerWithMutationAuth();
 
 		$due = $controller->due(null);
 		$this->assertSame(Http::STATUS_OK, $due->getStatus());
@@ -259,13 +289,13 @@ final class MobileGateHttpIntegrationTest extends TestCase
 		$visits = $controller->visits(null, null, 'scheduled', null, null, (string)$equipment['id'], null, '50', '0');
 		$this->assertGreaterThanOrEqual(1, $visits->getData()['total']);
 
-		$complete = $controller->complete($visitId);
+		$complete = $mutating->complete($visitId);
 		$this->assertSame(Http::STATUS_OK, $complete->getStatus());
 		$this->assertSame('done', $complete->getData()['visit']['status']);
 		$this->assertNotNull($complete->getData()['nextVisit']);
 
 		$nextId = (int)$complete->getData()['nextVisit']['id'];
-		$skip = $controller->skip($nextId);
+		$skip = $mutating->skip($nextId);
 		$this->assertSame(Http::STATUS_OK, $skip->getStatus());
 		$this->assertSame('skipped', $skip->getData()['visit']['status']);
 

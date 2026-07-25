@@ -11,13 +11,25 @@ declare(strict_types=1);
 
 require __DIR__ . '/common/page-start.php';
 ?>
-<div class="mn-toolbar" role="group" aria-label="<?php p($l->t('Due board filter')); ?>">
-	<label class="mn-switch">
-		<input type="checkbox" id="mn-due-mine" class="mn-switch__input">
-		<span class="mn-switch__label"><?php p($l->t('Only my visits')); ?></span>
-	</label>
-	<p class="mn-toolbar__meta" id="mn-due-today"></p>
-</div>
+<section class="mn-card mn-filter-panel" aria-labelledby="mn-due-filter-title">
+	<header class="mn-filter-panel__head">
+		<h2 id="mn-due-filter-title"><?php p($l->t('Filter')); ?></h2>
+		<p class="mn-filter-panel__intro"><?php p($l->t('Focus the board on visits assigned to you.')); ?></p>
+	</header>
+	<div class="mn-filter-panel__body">
+		<div class="mn-filter-panel__form" role="group" aria-label="<?php p($l->t('Due board filter')); ?>">
+			<div class="mn-filter-grid">
+				<div class="mn-filter-field">
+					<label class="mn-switch" for="mn-due-mine">
+						<input type="checkbox" id="mn-due-mine" class="mn-switch__input">
+						<span class="mn-switch__label"><?php p($l->t('Only my visits')); ?></span>
+					</label>
+				</div>
+				<p class="mn-toolbar__meta mn-filter-field" id="mn-due-today"></p>
+			</div>
+		</div>
+	</div>
+</section>
 <div id="mn-due-board" class="mn-board" aria-busy="true">
 	<section class="mn-bucket mn-bucket--overdue" aria-labelledby="mn-bucket-title-overdue" data-bucket="overdue">
 		<h2 class="mn-bucket__title" id="mn-bucket-title-overdue"></h2>

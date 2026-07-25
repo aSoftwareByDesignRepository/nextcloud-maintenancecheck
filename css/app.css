@@ -5,12 +5,13 @@
 @import url('common/app-layout.css');
 @import url('common/page-patterns.css');
 @import url('common/shell-chrome.css');
+@import url('common/form-controls.css');
 @import url('common/dialogs.css');
 @import url('navigation.css');
 @import url('common/notification-surfaces.css');
 
 /* ── Override pre-parity pill shapes (AZ shell uses small radii) ── */
-.mn-btn, button.button, a.button { border-radius: var(--mn-radius-sm, 6px) !important; }
+.mn-btn, button.button, a.button { border-radius: var(--mn-radius-md, 12px) !important; }
 
 /* ── Shell ─────────────────────────────────────────────────────────── */
 
@@ -233,7 +234,7 @@
 	gap: 8px;
 	min-height: 44px;
 	padding: 8px 18px;
-	border-radius: var(--mn-radius-sm, 6px);
+	border-radius: var(--mn-radius-md, 12px);
 	border: 1px solid transparent;
 	font-size: 14px;
 	font-weight: 600;
@@ -296,20 +297,22 @@
 /* ── Forms ─────────────────────────────────────────────────────────── */
 
 .mn-input {
+	/* AZ form chrome: 1px border, sm radius, 44px target */
 	width: 100%;
 	min-height: 44px;
-	padding: 8px 12px;
-	border: 2px solid var(--color-border-maxcontrast, var(--color-border-dark));
-	border-radius: var(--border-radius-large, 10px);
+	padding: var(--mn-space-2, 8px) var(--mn-space-3, 12px);
+	border: 1px solid var(--color-border, var(--mn-border));
+	border-radius: var(--mn-radius-sm, 6px);
 	background: var(--color-main-background);
 	color: var(--color-main-text);
-	font-size: 14px;
+	font-size: var(--mn-fs-md, 1rem);
 	box-sizing: border-box;
 }
 
 .mn-input:focus-visible {
 	border-color: var(--color-primary-element);
-	outline-offset: 0;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-element) 28%, transparent);
+	outline: none;
 }
 
 .mn-input[aria-invalid='true'] {
@@ -849,7 +852,7 @@ textarea.mn-input {
 	max-height: min(85vh, 720px);
 	overflow-y: auto;
 	background: var(--color-main-background);
-	border-radius: var(--border-radius-large, 10px);
+	border-radius: var(--mn-radius-lg, 16px);
 	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
 	padding: 24px;
 	box-sizing: border-box;
@@ -1368,21 +1371,50 @@ textarea.mn-input {
 /* === support-us:mn end === */
 
 
-/* ===== AZ-PARITY-RADIUS-ENFORCER — ArbeitszeitCheck radii win over legacy family pills ===== */
+
+/* ===== AZ form-control enforcer (.mn-input) ===== */
+#content.app-maintenancecheck #app-content .mn-input,
+#content.app-maintenancecheck #app-content input.mn-input,
+#content.app-maintenancecheck #app-content select.mn-input,
+#content.app-maintenancecheck #app-content textarea.mn-input {
+	min-height: 44px;
+	border-radius: var(--mn-radius-sm, 6px);
+	border: 1px solid var(--color-border, var(--mn-border));
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	box-sizing: border-box;
+}
+#content.app-maintenancecheck #app-content select.mn-input {
+	height: 44px;
+	padding: 0.625rem 2.5rem 0.625rem 1rem;
+	appearance: none;
+	-webkit-appearance: none;
+}
+
+/* ===== AZ-PARITY-RADIUS-ENFORCER — ArbeitszeitCheck radii (btn=md like azc-btn) ===== */
 #content.app-maintenancecheck .button,
 #content.app-maintenancecheck button.button,
 #content.app-maintenancecheck a.button,
 #content.app-maintenancecheck .mn-btn,
-#content.app-maintenancecheck .mn-btn--primary,
+#content.app-maintenancecheck .mn-btn--primary {
+	border-radius: var(--mn-radius-md, 12px) !important;
+}
 #content.app-maintenancecheck .mn-badge,
 #content.app-maintenancecheck .mn-chip,
-#content.app-maintenancecheck .mn-status,
-#content.app-maintenancecheck .mn-nav__link {
+#content.app-maintenancecheck .mn-status {
 	border-radius: var(--mn-radius-sm, 6px) !important;
 }
 #content.app-maintenancecheck .mn-card,
+#content.app-maintenancecheck .mn-section,
 #content.app-maintenancecheck .mn-filter-panel,
-#content.app-maintenancecheck .modal,
-#content.app-maintenancecheck .mn-dialog {
+#content.app-maintenancecheck .mn-table-wrap,
+#content.app-maintenancecheck .mn-empty,
+#content.app-maintenancecheck .mn-empty-state {
 	border-radius: var(--mn-radius-md, 12px) !important;
+}
+.modal.mn-dialog,
+.mn-dialog.modal,
+body > .modal-backdrop > .modal,
+body > .mn-dialog-overlay > .mn-dialog {
+	border-radius: var(--mn-radius-lg, 16px) !important;
 }
