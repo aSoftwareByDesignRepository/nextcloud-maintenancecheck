@@ -12,3 +12,5 @@
 
 /tests/_gauntlet-*
 /tests/Mutation/.originals/
+/composer.phar
+/composer-setup.php
