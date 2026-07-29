@@ -35,10 +35,36 @@ $pageIcons = [
 	'catalogs' => 'list-checks',
 	'settings' => 'settings',
 	'access-denied' => 'shield',
+	'work-orders' => 'clipboard-list',
+	'work-order-detail' => 'clipboard-list',
+	'dispatch' => 'kanban',
+	'tours' => 'route',
 ];
 $headerIcon = $pageIcons[$pageId] ?? 'wrench';
 $navUrls = json_decode($urlsJson, true)['pages'] ?? [];
 $homeUrl = (string)($navUrls['due'] ?? '#');
+
+/* Detail pages: one breadcrumb trail (home → list → current). No second nav in page body. */
+$parentCrumb = null;
+if ($pageId === 'customer-detail') {
+	$parentCrumb = [
+		'id' => 'mn-back-link',
+		'href' => (string)($navUrls['customers'] ?? '#'),
+		'label' => $l->t('Customers'),
+	];
+} elseif ($pageId === 'equipment-detail') {
+	$parentCrumb = [
+		'id' => 'mn-back-link',
+		'href' => (string)($navUrls['equipment'] ?? '#'),
+		'label' => $l->t('Equipment'),
+	];
+} elseif ($pageId === 'work-order-detail') {
+	$parentCrumb = [
+		'id' => 'mn-back-link',
+		'href' => (string)($navUrls['workOrders'] ?? '#'),
+		'label' => $l->t('Work orders'),
+	];
+}
 
 require __DIR__ . '/navigation.php';
 ?>
@@ -57,7 +83,7 @@ require __DIR__ . '/navigation.php';
 	<a class="mn-skip-link" href="#mn-main-content"><?php p($l->t('Skip to main content')); ?></a>
 	<div id="mn-live-region" class="mn-sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 	<div id="mn-alert-region" class="mn-sr-only" role="alert" aria-live="assertive" aria-atomic="true"></div>
-	<div id="mn-toast-region" class="mn-toast-region" aria-label="<?php p($l->t('Notifications')); ?>"></div>
+	<div id="mn-toast-region" class="mn-toast-region" role="region" aria-label="<?php p($l->t('Notifications')); ?>"></div>
 	<div id="app-content-wrapper" class="mn-shell">
 		<header class="mn-page-header" aria-labelledby="mn-page-title">
 			<nav class="mn-breadcrumb" aria-label="<?php p($l->t('Breadcrumb')); ?>">
@@ -65,6 +91,15 @@ require __DIR__ . '/navigation.php';
 					<li class="mn-breadcrumb__item">
 						<a class="mn-breadcrumb__link" href="<?php p($homeUrl); ?>"><?php p($l->t('MaintenanceCheck')); ?></a>
 					</li>
+					<?php if (is_array($parentCrumb)): ?>
+					<li class="mn-breadcrumb__item">
+						<a
+							class="mn-breadcrumb__link"
+							id="<?php p((string)$parentCrumb['id']); ?>"
+							href="<?php p((string)$parentCrumb['href']); ?>"
+						><?php p((string)$parentCrumb['label']); ?></a>
+					</li>
+					<?php endif; ?>
 					<li class="mn-breadcrumb__item mn-breadcrumb__item--current" aria-current="page">
 						<span class="mn-breadcrumb__current"><?php p($pageTitle); ?></span>
 					</li>
@@ -82,7 +117,7 @@ require __DIR__ . '/navigation.php';
 				</div>
 				<div id="mn-page-actions" class="mn-page-header__actions" aria-live="polite"></div>
 			</div>
-			<div class="mn-scope-strip" aria-label="<?php p($l->t('Active session context')); ?>">
+			<div class="mn-scope-strip" role="group" aria-label="<?php p($l->t('Active session context')); ?>">
 				<span class="mn-scope-strip__label"><?php p($l->t('Role')); ?></span>
 				<span class="mn-badge mn-badge--neutral mn-scope-strip__badge"><?php p($roleLabel); ?></span>
 				<span class="mn-scope-strip__sep" aria-hidden="true">·</span>

@@ -9,21 +9,31 @@ use OCA\MaintenanceCheck\Db\EquipTypeMapper;
 use OCA\MaintenanceCheck\Db\Equipment;
 use OCA\MaintenanceCheck\Db\EquipmentMapper;
 use OCA\MaintenanceCheck\Db\PlanMapper;
+use OCA\MaintenanceCheck\Db\SiteMapper;
 use OCA\MaintenanceCheck\Db\VisitMapper;
 use OCA\MaintenanceCheck\Exception\ConflictException;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
+use OCP\IURLGenerator;
+use OCP\Security\ISecureRandom;
+use splitbrain\phpQRCode\QRCode;
 
 class EquipmentService
 {
+	/** Sticker payload prefix — companion scanners strip this before hashing. */
+	public const QR_PAYLOAD_PREFIX = 'mn-eq:';
+
 	public function __construct(
 		private readonly EquipmentMapper $equipment,
 		private readonly CustomerMapper $customers,
 		private readonly EquipTypeMapper $equipTypes,
 		private readonly PlanMapper $plans,
 		private readonly VisitMapper $visits,
+		private readonly SiteMapper $sites,
 		private readonly InputValidator $validator,
 		private readonly Clock $clock,
+		private readonly ISecureRandom $secureRandom,
+		private readonly IURLGenerator $urlGenerator,
 	) {
 	}
 
@@ -42,8 +52,19 @@ class EquipmentService
 			$customerFilter = (int)$customerId;
 		}
 		$result = $this->equipment->search($customerFilter, $term, $page['limit'], $page['offset']);
+		$customerIds = array_map(
+			static fn (Equipment $e) => $e->getCustomerId(),
+			$result['data'],
+		);
+		$names = $this->customers->mapNamesByIds($customerIds);
+		$data = [];
+		foreach ($result['data'] as $equipment) {
+			$row = $equipment->toApi();
+			$row['customerName'] = $names[(int)$equipment->getCustomerId()] ?? '';
+			$data[] = $row;
+		}
 		return [
-			'data' => array_map(static fn (Equipment $e) => $e->toApi(), $result['data']),
+			'data' => $data,
 			'total' => $result['total'],
 			'limit' => $page['limit'],
 			'offset' => $page['offset'],
@@ -79,10 +100,18 @@ class EquipmentService
 		$equipment->setCustomerId($customerId);
 		$equipment->setEquipTypeId($equipTypeId);
 		$this->applyFields($equipment, $fields);
+		$this->applyGeoAndSite($equipment, $body);
 		$equipment->setCreatedAt($now);
 		$equipment->setUpdatedAt($now);
 		$equipment->setCreatedBy($uid);
-		return $this->equipment->insert($equipment)->toApi();
+		$plaintext = $this->issueQrToken($equipment, $now);
+		$api = $this->equipment->insert($equipment)->toApi();
+		// Plaintext is returned exactly once so the sticker can be printed.
+		$api['qrToken'] = $plaintext;
+		$api['qrPayload'] = self::QR_PAYLOAD_PREFIX . $plaintext;
+		$api['qrSvg'] = $this->qrSvg(self::QR_PAYLOAD_PREFIX . $plaintext);
+		$api['qrDeepLink'] = $this->qrDeepLink($plaintext);
+		return $api;
 	}
 
 	/**
@@ -102,6 +131,7 @@ class EquipmentService
 		}
 
 		$this->applyFields($equipment, $fields);
+		$this->applyGeoAndSite($equipment, $body);
 		$equipment->setUpdatedAt($this->clock->now());
 		return $this->equipment->update($equipment)->toApi();
 	}
@@ -116,6 +146,47 @@ class EquipmentService
 			throw new ConflictException('equipment_in_use', 'This equipment has plans or visits. Deactivate it instead.');
 		}
 		$this->equipment->delete($equipment);
+	}
+
+	/**
+	 * Issue or rotate the equipment sticker token. Returns plaintext once
+	 * (CORE steal #7 / COMPANION by-qr). Prior stickers stop resolving.
+	 *
+	 * @return array{equipment: array<string, mixed>, qrToken: string, qrPayload: string, qrSvg: string, qrDeepLink: string}
+	 */
+	public function rotateQrToken(int $id): array
+	{
+		$equipment = $this->equipment->findById($id);
+		$now = $this->clock->now();
+		$plaintext = $this->issueQrToken($equipment, $now);
+		$api = $this->equipment->update($equipment)->toApi();
+		$payload = self::QR_PAYLOAD_PREFIX . $plaintext;
+		return [
+			'equipment' => $api,
+			'qrToken' => $plaintext,
+			'qrPayload' => $payload,
+			'qrSvg' => $this->qrSvg($payload),
+			'qrDeepLink' => $this->qrDeepLink($plaintext),
+		];
+	}
+
+	/**
+	 * Resolve a sticker payload or raw token to the mobile equipment summary.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function resolveByQr(string $presented): array
+	{
+		$token = $this->normalizePresentedQr($presented);
+		$hash = hash('sha256', $token);
+		$equipment = $this->equipment->findByQrTokenHash($hash);
+		// Defence in depth: unique index already matched; still constant-time
+		// compare against the stored hash so empty/null hashes never pass.
+		$stored = (string)$equipment->getQrTokenHash();
+		if ($stored === '' || !hash_equals($stored, $hash)) {
+			throw new NotFoundException();
+		}
+		return $this->mobileSummary((int)$equipment->getId());
 	}
 
 	/**
@@ -195,6 +266,51 @@ class EquipmentService
 	}
 
 	/**
+	 * W1: optional site link (must belong to the same customer) + optional
+	 * coordinates for W3 tour sorting.
+	 *
+	 * @param array<string, mixed> $body
+	 */
+	private function applyGeoAndSite(Equipment $equipment, array $body): void
+	{
+		if (array_key_exists('siteId', $body)) {
+			$siteId = $body['siteId'];
+			if ($siteId === null) {
+				$equipment->setSiteId(null);
+			} elseif (is_int($siteId) && $siteId >= 1) {
+				$site = $this->sites->findById($siteId);
+				if ($site->getCustomerId() !== $equipment->getCustomerId()) {
+					throw new ValidationException('validation_failed', 'The site belongs to a different customer.', [
+						['field' => 'siteId', 'code' => 'invalid_value'],
+					]);
+				}
+				$equipment->setSiteId($siteId);
+			} else {
+				throw new ValidationException('validation_failed', 'Unknown site.', [
+					['field' => 'siteId', 'code' => 'invalid_type'],
+				]);
+			}
+		} elseif ($equipment->getSiteId() !== null) {
+			// Customer may have changed in this request — never keep a site
+			// link across customers.
+			try {
+				$site = $this->sites->findById($equipment->getSiteId());
+				if ($site->getCustomerId() !== $equipment->getCustomerId()) {
+					$equipment->setSiteId(null);
+				}
+			} catch (NotFoundException) {
+				$equipment->setSiteId(null);
+			}
+		}
+		if (array_key_exists('lat', $body)) {
+			$equipment->setLat($this->validator->coordinate($body, 'lat', -90.0, 90.0));
+		}
+		if (array_key_exists('lng', $body)) {
+			$equipment->setLng($this->validator->coordinate($body, 'lng', -180.0, 180.0));
+		}
+	}
+
+	/**
 	 * @param array<string, mixed> $fields
 	 */
 	private function applyFields(Equipment $equipment, array $fields): void
@@ -206,5 +322,48 @@ class EquipmentService
 		$equipment->setLocationText($fields['locationText']);
 		$equipment->setNotes($fields['notes']);
 		$equipment->setActive($fields['active']);
+	}
+
+	private function issueQrToken(Equipment $equipment, int $now): string
+	{
+		$plaintext = $this->secureRandom->generate(32, ISecureRandom::CHAR_ALPHANUMERIC);
+		$equipment->setQrTokenHash(hash('sha256', $plaintext));
+		$equipment->setQrTokenRotatedAt($now);
+		$equipment->setUpdatedAt($now);
+		return $plaintext;
+	}
+
+	private function normalizePresentedQr(string $presented): string
+	{
+		$token = trim($presented);
+		if (str_starts_with($token, self::QR_PAYLOAD_PREFIX)) {
+			$token = substr($token, strlen(self::QR_PAYLOAD_PREFIX));
+		}
+		// Deep-link form: …/equipment/by-qr/{token}
+		if (str_contains($token, '/by-qr/')) {
+			$parts = explode('/by-qr/', $token);
+			$token = (string)end($parts);
+		}
+		$token = trim($token);
+		if ($token === '' || !preg_match('/^[A-Za-z0-9]{16,128}$/', $token)) {
+			throw new ValidationException('validation_failed', 'The QR token is not valid.', [
+				['field' => 'token', 'code' => 'invalid_value'],
+			]);
+		}
+		return $token;
+	}
+
+	private function qrDeepLink(string $plaintext): string
+	{
+		return $this->urlGenerator->linkToRouteAbsolute(
+			'maintenancecheck.page.equipmentByQr',
+			['token' => $plaintext],
+		);
+	}
+
+	private function qrSvg(string $payload): string
+	{
+		require_once __DIR__ . '/../Vendor/splitbrain/phpQRCode/QRCode.php';
+		return QRCode::svg($payload, ['s' => 'qrm']);
 	}
 }

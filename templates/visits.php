@@ -64,6 +64,13 @@ require __DIR__ . '/common/page-start.php';
 		</form>
 	</div>
 </section>
-<div id="mn-visit-list" class="mn-listing" aria-busy="true"></div>
-<nav id="mn-visit-pagination" class="mn-pagination" aria-label="<?php p($l->t('Visit pages')); ?>"></nav>
+<section class="mn-card" aria-labelledby="mn-visit-list-title">
+	<header class="mn-card__header">
+		<h2 id="mn-visit-list-title" class="mn-card__title"><?php p($l->t('Visits')); ?></h2>
+	</header>
+	<div class="mn-card__body mn-card__body--table">
+		<div id="mn-visit-list" class="mn-listing" aria-busy="true"></div>
+		<nav id="mn-visit-pagination" class="mn-pagination" aria-label="<?php p($l->t('Visit pages')); ?>"></nav>
+	</div>
+</section>
 <?php require __DIR__ . '/common/page-end.php'; ?>

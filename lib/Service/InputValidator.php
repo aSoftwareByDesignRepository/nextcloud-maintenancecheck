@@ -235,6 +235,36 @@ class InputValidator
 	}
 
 	/**
+	 * W1 geo coordinate (DECIMAL 10,7). Returns the normalised string or
+	 * null when absent/empty. Never passes through floats unmodified —
+	 * the string form is what gets stored.
+	 */
+	public function coordinate(array $body, string $field, float $min, float $max): ?string
+	{
+		if (!array_key_exists($field, $body) || $body[$field] === null || $body[$field] === '') {
+			return null;
+		}
+		$raw = $body[$field];
+		if (is_int($raw)) {
+			$raw = (string)$raw;
+		} elseif (is_float($raw)) {
+			$raw = number_format($raw, 7, '.', '');
+		}
+		if (!is_string($raw)) {
+			throw new ValidationException('validation_failed', 'Invalid coordinate.', [
+				['field' => $field, 'code' => 'invalid_type'],
+			]);
+		}
+		$raw = trim($raw);
+		if (!preg_match('/^-?\d{1,3}(\.\d{1,7})?$/', $raw) || (float)$raw < $min || (float)$raw > $max) {
+			throw new ValidationException('validation_failed', 'Coordinate out of range.', [
+				['field' => $field, 'code' => 'invalid_value'],
+			]);
+		}
+		return $raw;
+	}
+
+	/**
 	 * Catalog code: required, 1–64, ^[a-z0-9_]+$.
 	 */
 	public function catalogCode(array $body): string

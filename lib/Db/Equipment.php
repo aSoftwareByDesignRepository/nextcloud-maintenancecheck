@@ -23,6 +23,12 @@ use OCP\AppFramework\Db\Entity;
  * @method void setLocationText(?string $v)
  * @method string|null getNotes()
  * @method void setNotes(?string $v)
+ * @method int|null getSiteId()
+ * @method void setSiteId(?int $v)
+ * @method string|null getLat()
+ * @method void setLat(?string $v)
+ * @method string|null getLng()
+ * @method void setLng(?string $v)
  * @method bool getActive()
  * @method void setActive(bool $v)
  * @method int getCreatedAt()
@@ -31,6 +37,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setUpdatedAt(int $v)
  * @method string getCreatedBy()
  * @method void setCreatedBy(string $v)
+ * @method string|null getQrTokenHash()
+ * @method void setQrTokenHash(?string $v)
+ * @method int|null getQrTokenRotatedAt()
+ * @method void setQrTokenRotatedAt(?int $v)
  */
 class Equipment extends Entity
 {
@@ -42,10 +52,15 @@ class Equipment extends Entity
 	protected ?string $serialNo = null;
 	protected ?string $locationText = null;
 	protected ?string $notes = null;
+	protected ?int $siteId = null;
+	protected ?string $lat = null;
+	protected ?string $lng = null;
 	protected bool $active = true;
 	protected int $createdAt = 0;
 	protected int $updatedAt = 0;
 	protected string $createdBy = '';
+	protected ?string $qrTokenHash = null;
+	protected ?int $qrTokenRotatedAt = null;
 
 	public function __construct()
 	{
@@ -57,10 +72,16 @@ class Equipment extends Entity
 		$this->addType('serialNo', 'string');
 		$this->addType('locationText', 'string');
 		$this->addType('notes', 'string');
+		$this->addType('siteId', 'integer');
+		// Decimal columns travel as strings — no float drift.
+		$this->addType('lat', 'string');
+		$this->addType('lng', 'string');
 		$this->addType('active', 'boolean');
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
 		$this->addType('createdBy', 'string');
+		$this->addType('qrTokenHash', 'string');
+		$this->addType('qrTokenRotatedAt', 'integer');
 	}
 
 	/**
@@ -78,10 +99,15 @@ class Equipment extends Entity
 			'serialNo' => $this->serialNo,
 			'locationText' => $this->locationText,
 			'notes' => $this->notes,
+			'siteId' => $this->siteId,
+			'lat' => $this->lat,
+			'lng' => $this->lng,
 			'active' => $this->active,
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,
 			'createdBy' => $this->createdBy,
+			'hasQrToken' => $this->qrTokenHash !== null && $this->qrTokenHash !== '',
+			'qrTokenRotatedAt' => $this->qrTokenRotatedAt,
 		];
 	}
 }

@@ -27,8 +27,14 @@ $runners = [
 	['file' => 'tests/Mutation/run-visit-rules-mutations.php', 'bucket' => 'hot'],
 	['file' => 'tests/Mutation/run-access-mutations.php', 'bucket' => 'hot'],
 	['file' => 'tests/Mutation/run-license-mutations.php', 'bucket' => 'hot'],
+	['file' => 'tests/Mutation/run-meter-mutations.php', 'bucket' => 'hot'],
+	['file' => 'tests/Mutation/run-inventory-flange-mutations.php', 'bucket' => 'hot'],
 	// Broader service surface — contributes to overall ≥ 80%
 	['file' => 'tests/Mutation/run-support-us-links-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-show-if-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-skills-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-w1w4-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-capabilities-mutations.php', 'bucket' => 'service'],
 ];
 
 $totals = ['hot' => ['killed' => 0, 'total' => 0], 'service' => ['killed' => 0, 'total' => 0]];
@@ -81,14 +87,14 @@ $report = [
 		'total' => $totals['hot']['total'],
 		'msi' => round($hotPct, 1),
 		'threshold' => 90.0,
-		'scope' => 'IntervalCalculator, VisitService, DueBoard rules, AccessControlService, Mn2Codec/SeatRank',
+		'scope' => 'IntervalCalculator, VisitService, DueBoard, Access, Mn2, meter IntervalCalculator guard',
 	],
 	'overall' => [
 		'killed' => $totals['hot']['killed'] + $totals['service']['killed'],
 		'total' => $totals['hot']['total'] + $totals['service']['total'],
 		'msi' => round($svcPct, 1),
 		'threshold' => 80.0,
-		'scope' => 'lib/Service hotspots + SupportUsLinks',
+		'scope' => 'lib/Service hotspots + SupportUsLinks + show_if + W1–W4 gates',
 	],
 	'survivors' => $failed,
 ];

@@ -61,6 +61,35 @@ class CustomerMapper extends QBMapper
 	}
 
 	/**
+	 * Batch name lookup for list enrichment (equipment register, etc.).
+	 *
+	 * @param list<int> $ids
+	 * @return array<int, string> id → name
+	 */
+	public function mapNamesByIds(array $ids): array
+	{
+		$ids = array_values(array_unique(array_filter(
+			array_map(static fn ($id) => (int)$id, $ids),
+			static fn (int $id) => $id >= 1,
+		)));
+		if ($ids === []) {
+			return [];
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id', 'name')
+			->from($this->getTableName())
+			->where($qb->expr()->in('id', $qb->createNamedParameter($ids, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
+		$result = $qb->executeQuery();
+		$map = [];
+		while (($row = $result->fetch()) !== false) {
+			$map[(int)$row['id']] = (string)$row['name'];
+		}
+		$result->closeCursor();
+		return $map;
+	}
+
+	/**
 	 * S13 search: case-insensitive substring across name, customer_no, city.
 	 *
 	 * @return array{data: list<Customer>, total: int}

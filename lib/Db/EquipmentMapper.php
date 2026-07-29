@@ -33,6 +33,17 @@ class EquipmentMapper extends QBMapper
 		}
 	}
 
+	public function countForSite(int $siteId): int
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('id', 'cnt'))->from($this->getTableName())
+			->where($qb->expr()->eq('site_id', $qb->createNamedParameter($siteId, \PDO::PARAM_INT)));
+		$result = $qb->executeQuery();
+		$count = (int)($result->fetchOne() ?: 0);
+		$result->closeCursor();
+		return $count;
+	}
+
 	/**
 	 * S13 search across label, manufacturer, model, serial_no, optional customer filter.
 	 *
@@ -99,5 +110,21 @@ class EquipmentMapper extends QBMapper
 		$count = (int)($result->fetchOne() ?: 0);
 		$result->closeCursor();
 		return $count;
+	}
+
+	/**
+	 * Resolve equipment by SHA-256 of the sticker plaintext (constant-time
+	 * compare happens at the service layer after this unique lookup).
+	 */
+	public function findByQrTokenHash(string $hash): Equipment
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())
+			->where($qb->expr()->eq('qr_token_hash', $qb->createNamedParameter($hash)));
+		try {
+			return $this->findEntity($qb);
+		} catch (DoesNotExistException) {
+			throw new NotFoundException();
+		}
 	}
 }

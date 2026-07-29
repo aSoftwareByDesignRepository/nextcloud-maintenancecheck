@@ -23,3 +23,9 @@ docker compose exec nextcloud bash -lc 'cd /var/www/html/custom_apps/maintenance
 ```
 
 Planning docs live in the parent workspace under `planning/app-ideas/maintenancecheck/` (not shipped in this repo).
+
+## Field Pack: dual customers (AC-S2.5)
+
+MaintenanceCheck customers are **not** CustomerCheck CRM companies. Matching names do not merge automatically.
+
+See [docs/FIELD-DUAL-CUSTOMER.md](docs/FIELD-DUAL-CUSTOMER.md) for the optional link path and what to tell technicians vs office staff.

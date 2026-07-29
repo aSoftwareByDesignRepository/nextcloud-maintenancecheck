@@ -27,13 +27,13 @@ class SchemaAndContainerIntegrationTest extends IntegrationTestCase
 		$this->assertSame('maintenancecheck', Application::APP_ID);
 	}
 
-	public function testAllEightTablesExistAfterEnsure(): void
+	public function testAllDeclaredTablesExistAfterEnsure(): void
 	{
 		$step = Server::get(EnsureMaintenanceCheckSchema::class);
 		$step->run($this->createMock(IOutput::class));
 
 		$db = Server::get(\OCP\IDBConnection::class);
-		$this->assertCount(8, UninstallDropTables::TABLES);
+		$this->assertGreaterThanOrEqual(8, count(UninstallDropTables::TABLES));
 		foreach (UninstallDropTables::TABLES as $table) {
 			$this->assertTrue($db->tableExists($table), "missing $table");
 		}
@@ -54,6 +54,21 @@ class SchemaAndContainerIntegrationTest extends IntegrationTestCase
 	{
 		$this->assertInstanceOf(EnsureMaintenanceCheckSchema::class, Server::get(EnsureMaintenanceCheckSchema::class));
 		$this->assertInstanceOf(UninstallDropTables::class, Server::get(UninstallDropTables::class));
+		$this->assertInstanceOf(\OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks::class, Server::get(\OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks::class));
+		$this->assertInstanceOf(\OCA\MaintenanceCheck\Service\BuiltinProcedurePackSeeder::class, Server::get(\OCA\MaintenanceCheck\Service\BuiltinProcedurePackSeeder::class));
+	}
+
+	public function testBuiltinProcedurePackSeederRunsIdempotently(): void
+	{
+		$step = Server::get(\OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks::class);
+		$out = $this->createMock(IOutput::class);
+		$step->run($out);
+		$step->run($out);
+		$seeder = Server::get(\OCA\MaintenanceCheck\Service\BuiltinProcedurePackSeeder::class);
+		$second = $seeder->ensureInstalled();
+		$this->assertSame([], $second['failed']);
+		$this->assertSame([], $second['installed']);
+		$this->assertCount(count(\OCA\MaintenanceCheck\Service\BuiltinProcedurePackSeeder::PACK_FILES), $second['skipped']);
 	}
 
 	public function testDefaultCatalogSeedsArePresent(): void

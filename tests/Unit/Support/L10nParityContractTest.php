@@ -14,12 +14,15 @@ final class L10nParityContractTest extends TestCase
 	public function testAppJsTrKeysExistInEnAndDe(): void
 	{
 		$root = dirname(__DIR__, 3);
-		$js = (string)file_get_contents($root . '/js/app.js');
-		preg_match_all("/\\btr\\('((?:\\\\'|[^'])*)'\\)/", $js, $m);
-		$keys = array_values(array_unique(array_map(
-			static fn (string $k): string => str_replace("\\'", "'", $k),
-			$m[1],
-		)));
+		$keys = [];
+		foreach (['/js/app.js', '/js/work-order-pages.js'] as $rel) {
+			$js = (string)file_get_contents($root . $rel);
+			preg_match_all("/\\btr\\('((?:\\\\'|[^'])*)'\\)/", $js, $m);
+			foreach ($m[1] as $raw) {
+				$keys[] = str_replace("\\'", "'", $raw);
+			}
+		}
+		$keys = array_values(array_unique($keys));
 		self::assertNotEmpty($keys);
 
 		$en = json_decode((string)file_get_contents($root . '/l10n/en.json'), true, 512, JSON_THROW_ON_ERROR);

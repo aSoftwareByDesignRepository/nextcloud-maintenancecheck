@@ -91,6 +91,28 @@ class PlanMapper extends QBMapper
 	}
 
 	/**
+	 * W5 due engine: active plans on this equipment whose meter trigger
+	 * matches the given meter code and that carry a threshold.
+	 *
+	 * @return list<Plan>
+	 */
+	public function findActiveMeterPlans(int $equipmentId, string $meterCode): array
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())
+			->where($qb->expr()->eq('equipment_id', $qb->createNamedParameter($equipmentId, \PDO::PARAM_INT)))
+			->andWhere($qb->expr()->eq('active', $qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->in('trigger_kind', $qb->createNamedParameter(
+				[Plan::TRIGGER_METER, Plan::TRIGGER_EITHER],
+				IQueryBuilder::PARAM_STR_ARRAY,
+			)))
+			->andWhere($qb->expr()->eq('meter_code', $qb->createNamedParameter($meterCode)))
+			->andWhere($qb->expr()->isNotNull('meter_threshold'))
+			->orderBy('id', 'ASC');
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * Serialises concurrent open-visit creation for one plan (SPEC §6.3.2).
 	 *
 	 * `SELECT … FOR UPDATE` takes a write lock on the plan row in

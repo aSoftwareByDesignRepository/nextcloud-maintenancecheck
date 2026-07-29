@@ -6,6 +6,7 @@ namespace OCA\MaintenanceCheck\Tests\Unit\Service;
 
 use OCA\MaintenanceCheck\Exception\MobileGateException;
 use OCA\MaintenanceCheck\Service\LicenseService;
+use OCA\MaintenanceCheck\Service\MobileCapabilities;
 use OCA\MaintenanceCheck\Service\MobileGateService;
 use PHPUnit\Framework\TestCase;
 
@@ -99,6 +100,13 @@ final class MobileGateServiceTest extends TestCase
 			['uid' => 'tech1', 'displayName' => 'Tech One', 'isOffice' => false],
 			$payload['user'],
 		);
+		$this->assertTrue($payload['capabilities']['visits']);
+		$this->assertTrue($payload['capabilities']['workOrders']);
+		$this->assertTrue($payload['capabilities']['qr']);
+		$this->assertTrue($payload['capabilities']['conditionalChecklist']);
+		$this->assertTrue($payload['capabilities']['serviceReport']);
+		$this->assertTrue($payload['capabilities']['meters']);
+		$this->assertSame(MobileCapabilities::MIN_APP_VERSION, $payload['capabilities']['minAppVersion']);
 	}
 
 	public function testBootstrapExposesWireParts(): void

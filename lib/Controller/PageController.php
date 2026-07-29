@@ -7,10 +7,14 @@ namespace OCA\MaintenanceCheck\Controller;
 use OCA\MaintenanceCheck\AppInfo\Application;
 use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Service\Clock;
+use OCA\MaintenanceCheck\Service\EquipmentService;
 use OCA\MaintenanceCheck\Service\LicenseService;
+use OCA\MaintenanceCheck\Exception\NotFoundException;
+use OCA\MaintenanceCheck\Exception\ValidationException;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IL10N;
 use OCP\IRequest;
@@ -32,6 +36,7 @@ class PageController extends Controller
 		private readonly IL10N $l,
 		private readonly Clock $clock,
 		private readonly IConfig $config,
+		private readonly EquipmentService $equipment,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -78,6 +83,28 @@ class PageController extends Controller
 		return $this->page('equipment-detail', $this->l->t('Equipment'), $this->l->t('Plans and visit history for this unit.'), $id);
 	}
 
+	/**
+	 * Deep-link target for printed stickers (`mn-eq:{token}` / absolute URL).
+	 * Resolves under the normal app ACL; unknown tokens land on the equipment list.
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function equipmentByQr(string $token): RedirectResponse
+	{
+		try {
+			$summary = $this->equipment->resolveByQr($token);
+			return new RedirectResponse(
+				$this->urlGenerator->linkToRoute('maintenancecheck.page.equipmentShow', [
+					'id' => (int)$summary['id'],
+				]),
+			);
+		} catch (NotFoundException | ValidationException) {
+			return new RedirectResponse(
+				$this->urlGenerator->linkToRoute('maintenancecheck.page.equipment'),
+			);
+		}
+	}
+
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function visits(): TemplateResponse
@@ -89,7 +116,7 @@ class PageController extends Controller
 	#[NoCSRFRequired]
 	public function catalogs(): TemplateResponse
 	{
-		return $this->page('catalogs', $this->l->t('Catalogs'), $this->l->t('Equipment types and maintenance types.'));
+		return $this->page('catalogs', $this->l->t('Catalogs'), $this->l->t('Equipment types, maintenance types, procedures, kits and skills.'));
 	}
 
 	#[NoAdminRequired]
@@ -99,10 +126,41 @@ class PageController extends Controller
 		return $this->page('settings', $this->l->t('Settings'), $this->l->t('Access, roles, license and support.'));
 	}
 
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function workOrders(): TemplateResponse
+	{
+		return $this->page('work-orders', $this->l->t('Work orders'), $this->l->t('Planned and corrective work with checklists and photos.'));
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function workOrderShow(int $id): TemplateResponse
+	{
+		return $this->page('work-order-detail', $this->l->t('Work order'), $this->l->t('Checklist, kit, photos and report for this job.'), $id);
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function dispatch(): TemplateResponse
+	{
+		return $this->page('dispatch', $this->l->t('Dispatch'), $this->l->t('Who does what, and when — assign open work orders.'));
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function tours(): TemplateResponse
+	{
+		return $this->page('tours', $this->l->t('Day tours'), $this->l->t('Stop-by-stop plans for each technician’s day.'));
+	}
+
 	private function page(string $pageId, string $title, string $hint, ?int $entityId = null): TemplateResponse
 	{
 		Util::addStyle(Application::APP_ID, 'app');
 		Util::addScript(Application::APP_ID, 'app');
+		if (in_array($pageId, ['work-orders', 'work-order-detail', 'dispatch', 'tours'], true)) {
+			Util::addScript(Application::APP_ID, 'work-order-pages');
+		}
 
 		$uid = $this->access->currentUserId();
 		$isAppAdmin = $this->access->isAppAdmin($uid);
@@ -142,6 +200,9 @@ class PageController extends Controller
 				'visits' => $route('page.visits'),
 				'catalogs' => $route('page.catalogs'),
 				'settings' => $route('page.settings'),
+				'workOrders' => $route('page.workOrders'),
+				'dispatch' => $route('page.dispatch'),
+				'tours' => $route('page.tours'),
 			],
 			'api' => [
 				'customers' => $route('customer.index'),
@@ -155,10 +216,24 @@ class PageController extends Controller
 				'config' => $route('config.index'),
 				'configAccess' => $route('config.saveAccess'),
 				'configOffice' => $route('config.saveOffice'),
+				'configInventoryFlange' => $route('config.saveInventoryFlange'),
+				'configPolicies' => $route('config.savePolicies'),
 				'userAccess' => $route('config.userAccess'),
 				'usersSearch' => $route('config.searchUsers'),
 				'license' => $route('license.show'),
 				'licenseSeats' => $route('license.seats'),
+				'workOrders' => $route('work_order.index'),
+				'procedures' => $route('procedure.index'),
+				'proceduresPack' => $route('procedure.exportPack'),
+				'skills' => $route('skill.index'),
+				'capacity' => $route('capacity.index'),
+				'dispatch' => $route('dispatch.board'),
+				'tours' => $route('tour.index'),
+				'kitTemplates' => $route('kit.indexTemplates'),
+				// Item routes: JS appends "/{id}…".
+				'sites' => preg_replace('#/0$#', '', $route('site.update', ['id' => 0])),
+				'meters' => preg_replace('#/0$#', '', $route('meter.update', ['id' => 0])),
+				'users' => preg_replace('#/x/skills$#', '', $route('skill.userSkills', ['uid' => 'x'])),
 			],
 		];
 	}

@@ -46,13 +46,32 @@ final class UninstallDropTables implements IRepairStep
 	 */
 	public const TABLES = [
 		'mn_customers',
+		'mn_day_tours',
 		'mn_equip_types',
 		'mn_equipment',
+		'mn_kit_templates',
+		'mn_kit_tpl_lines',
 		'mn_license_state',
 		'mn_maint_types',
+		'mn_meter_readings',
+		'mn_meters',
 		'mn_mobile_seats',
 		'mn_plans',
+		'mn_proc_items',
+		'mn_procedures',
+		'mn_sites',
+		'mn_skills',
+		'mn_tour_stops',
+		'mn_user_capacity',
+		'mn_user_skills',
 		'mn_visits',
+		'mn_wo_checklist',
+		'mn_wo_kit_lines',
+		'mn_wo_kits',
+		'mn_wo_photos',
+		'mn_wo_signatures',
+		'mn_wo_skills',
+		'mn_work_orders',
 	];
 
 	public function __construct(

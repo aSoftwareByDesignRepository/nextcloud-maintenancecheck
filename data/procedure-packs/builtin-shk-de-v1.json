@@ -1,0 +1,47 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "builtin-shk-de-v1",
+  "vertical": "shk",
+  "locale": "de",
+  "version": 1,
+  "procedures": [
+    {
+      "code": "shk_jahreswartung",
+      "title": "Jährliche SHK- / Wärmepumpenwartung",
+      "items": [
+        {
+          "code": "filter",
+          "label": "Filter prüfen und ggf. tauschen",
+          "required": true,
+          "sort_order": 10
+        },
+        {
+          "code": "verdampfer",
+          "label": "Verdampfer prüfen",
+          "required": true,
+          "sort_order": 20
+        },
+        {
+          "code": "ablauf",
+          "label": "Kondensatablauf reinigen",
+          "required": true,
+          "sort_order": 30
+        },
+        {
+          "code": "leck",
+          "label": "Kältemittelleck gefunden?",
+          "required": true,
+          "sort_order": 40
+        },
+        {
+          "code": "leck_notiz",
+          "label": "Leckstelle und Schwere dokumentieren",
+          "required": true,
+          "sort_order": 50,
+          "show_if_item_code": "leck",
+          "show_if_result": "fail"
+        }
+      ]
+    }
+  ]
+}

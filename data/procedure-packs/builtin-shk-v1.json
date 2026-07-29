@@ -1,0 +1,53 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "builtin-shk-v1",
+  "vertical": "shk",
+  "locale": "en",
+  "version": 1,
+  "procedures": [
+    {
+      "code": "shk_annual",
+      "title": "Annual SHK / heat-pump service",
+      "items": [
+        {
+          "code": "filters",
+          "label": "Check and replace filters",
+          "required": true,
+          "sort_order": 10
+        },
+        {
+          "code": "coils",
+          "label": "Inspect evaporator coils",
+          "required": true,
+          "sort_order": 20
+        },
+        {
+          "code": "drain",
+          "label": "Clear condensate drain",
+          "required": true,
+          "sort_order": 30
+        },
+        {
+          "code": "leak_found",
+          "label": "Refrigerant leak found?",
+          "required": true,
+          "sort_order": 40
+        },
+        {
+          "code": "leak_note",
+          "label": "Document leak location and severity",
+          "required": true,
+          "sort_order": 50,
+          "show_if_item_code": "leak_found",
+          "show_if_result": "fail"
+        },
+        {
+          "code": "customer_signoff",
+          "label": "Customer walkthrough complete",
+          "required": false,
+          "sort_order": 60
+        }
+      ]
+    }
+  ]
+}

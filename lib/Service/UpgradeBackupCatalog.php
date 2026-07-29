@@ -23,7 +23,8 @@ final class UpgradeBackupCatalog
 
 	/** @var list<string> App-data folder names (under appdata_<instance>/maintenancecheck/) to include in snapshots. */
 	public const APPDATA_FOLDERS = [
-
+		'wo-photos',
+		'wo-signatures',
 	];
 
 	public const CONFIG_MAX_SNAPSHOTS = 'upgrade_backup_max_snapshots';
@@ -37,25 +38,63 @@ final class UpgradeBackupCatalog
 	/** @var list<string> */
 	public const BACKUP_TABLES = [
 		'mn_customers',
+		'mn_day_tours',
 		'mn_equip_types',
 		'mn_equipment',
+		'mn_kit_templates',
+		'mn_kit_tpl_lines',
 		'mn_license_state',
 		'mn_maint_types',
+		'mn_meter_readings',
+		'mn_meters',
 		'mn_mobile_seats',
 		'mn_plans',
+		'mn_proc_items',
+		'mn_procedures',
+		'mn_sites',
+		'mn_skills',
+		'mn_tour_stops',
+		'mn_user_capacity',
+		'mn_user_skills',
 		'mn_visits',
+		'mn_wo_checklist',
+		'mn_wo_kit_lines',
+		'mn_wo_kits',
+		'mn_wo_photos',
+		'mn_wo_signatures',
+		'mn_wo_skills',
+		'mn_work_orders',
 	];
 
-	/** @var list<string> */
+	/** @var list<string> Parents before children so restores never orphan rows. */
 	public const RESTORE_TABLE_ORDER = [
 		'mn_customers',
+		'mn_sites',
 		'mn_equip_types',
-		'mn_equipment',
-		'mn_license_state',
 		'mn_maint_types',
-		'mn_mobile_seats',
+		'mn_equipment',
 		'mn_plans',
 		'mn_visits',
+		'mn_procedures',
+		'mn_proc_items',
+		'mn_work_orders',
+		'mn_wo_checklist',
+		'mn_wo_photos',
+		'mn_wo_signatures',
+		'mn_kit_templates',
+		'mn_kit_tpl_lines',
+		'mn_wo_kits',
+		'mn_wo_kit_lines',
+		'mn_skills',
+		'mn_user_skills',
+		'mn_wo_skills',
+		'mn_day_tours',
+		'mn_tour_stops',
+		'mn_user_capacity',
+		'mn_meters',
+		'mn_meter_readings',
+		'mn_license_state',
+		'mn_mobile_seats',
 	];
 
 	public static function isBackupTable(string $table): bool

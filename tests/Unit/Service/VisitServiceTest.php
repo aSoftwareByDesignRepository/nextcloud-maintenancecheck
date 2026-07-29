@@ -11,6 +11,7 @@ use OCA\MaintenanceCheck\Db\Plan;
 use OCA\MaintenanceCheck\Db\PlanMapper;
 use OCA\MaintenanceCheck\Db\Visit;
 use OCA\MaintenanceCheck\Db\VisitMapper;
+use OCA\MaintenanceCheck\Db\WorkOrderMapper;
 use OCA\MaintenanceCheck\Exception\ConflictException;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
@@ -18,6 +19,9 @@ use OCA\MaintenanceCheck\Service\Clock;
 use OCA\MaintenanceCheck\Service\DueBoard;
 use OCA\MaintenanceCheck\Service\InputValidator;
 use OCA\MaintenanceCheck\Service\IntervalCalculator;
+use OCA\MaintenanceCheck\Service\ProjectCheckHoursDeepLinkService;
+use OCA\MaintenanceCheck\Service\ArbeitszeitCheckDeepLinkService;
+use OCA\MaintenanceCheck\Service\MeterService;
 use OCA\MaintenanceCheck\Service\VisitService;
 use OCP\IDBConnection;
 use OCP\IUserManager;
@@ -68,6 +72,10 @@ final class VisitServiceTest extends TestCase
 			$validator,
 			$this->clock,
 			$this->users,
+			$this->createMock(WorkOrderMapper::class),
+			$this->createMock(ProjectCheckHoursDeepLinkService::class),
+			$this->createMock(ArbeitszeitCheckDeepLinkService::class),
+			$this->createMock(MeterService::class),
 		);
 	}
 
@@ -282,6 +290,49 @@ final class VisitServiceTest extends TestCase
 	{
 		$this->expectException(ValidationException::class);
 		$this->service->complete('tech', 1, ['doneOn' => '2099-01-01']);
+	}
+
+	/** AC-W5-2 — pure meter plans must not roll interval follow-ups. */
+	public function testCompleteOnPureMeterPlanDoesNotInsertFollowUp(): void
+	{
+		$closed = $this->visitEntity(70, 17, 'done');
+		$plan = $this->planEntity(17, true, 'month', 1);
+		$plan->setTriggerKind(Plan::TRIGGER_METER);
+		$plan->setMeterCode('hours');
+		$plan->setMeterThreshold('100.000');
+
+		$this->visits->method('closeScheduled')->willReturn(true);
+		$this->visits->method('findById')->willReturn($closed);
+		$this->plans->method('lockRow')->willReturn(true);
+		$this->plans->method('findById')->willReturn($plan);
+		$this->visits->expects($this->never())->method('insert');
+		$this->visits->expects($this->never())->method('findOpenByPlan');
+
+		$result = $this->service->complete('tech', 70, []);
+		$this->assertNull($result['nextVisit']);
+		$this->assertTrue($result['planActive']);
+	}
+
+	/** AC-W5 either trigger still rolls interval. */
+	public function testCompleteOnEitherPlanStillRollsInterval(): void
+	{
+		$closed = $this->visitEntity(71, 18, 'done');
+		$closed->setDoneOn('2026-07-24');
+		$plan = $this->planEntity(18, true, 'month', 1);
+		$plan->setTriggerKind(Plan::TRIGGER_EITHER);
+		$next = $this->visitEntity(72, 18, 'scheduled');
+		$next->setDueOn('2026-08-24');
+
+		$this->visits->method('closeScheduled')->willReturn(true);
+		$this->visits->method('findById')->willReturn($closed);
+		$this->plans->method('lockRow')->willReturn(true);
+		$this->plans->method('findById')->willReturn($plan);
+		$this->visits->method('findOpenByPlan')->willReturn(null);
+		$this->visits->expects($this->once())->method('insert')->willReturn($next);
+
+		$result = $this->service->complete('tech', 71, []);
+		$this->assertNotNull($result['nextVisit']);
+		$this->assertSame('2026-08-24', $result['nextVisit']['dueOn']);
 	}
 
 	private function visitEntity(int $id, int $planId, string $status): Visit

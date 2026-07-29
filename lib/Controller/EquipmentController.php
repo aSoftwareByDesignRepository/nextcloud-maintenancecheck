@@ -66,6 +66,17 @@ class EquipmentController extends Controller
 	}
 
 	/**
+	 * Issue / renew the printable QR sticker (office). Plaintext is returned
+	 * once — rotating invalidates the previous sticker immediately.
+	 */
+	#[NoAdminRequired]
+	public function rotateQr(int $id): JSONResponse
+	{
+		$this->access->requireOffice($this->access->currentUserId());
+		return new JSONResponse($this->equipment->rotateQrToken($id));
+	}
+
+	/**
 	 * @return array<string, mixed>
 	 */
 	private function jsonBody(): array

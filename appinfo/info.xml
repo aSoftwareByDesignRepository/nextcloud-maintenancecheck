@@ -7,19 +7,22 @@
 	<id>maintenancecheck</id>
 	<name>MaintenanceCheck</name>
 	<name lang="de">MaintenanceCheck</name>
-	<summary>Recurring maintenance for customer equipment</summary>
-	<summary lang="de">Wiederkehrende Wartung für Kundenanlagen</summary>
+	<summary>Field maintenance: job packs, checklists, tours, Servicebericht on your Nextcloud</summary>
+	<summary lang="de">Wartungsplanung: Einsatzpakete, Checklisten, Touren, Servicebericht auf Ihrer Nextcloud</summary>
 	<description><![CDATA[
 # MaintenanceCheck
 
-MaintenanceCheck keeps the equipment you service at customer sites on a clear schedule. See what is due, log the visit, and never lose the next date in a spreadsheet.
+MaintenanceCheck keeps the equipment you service at customer sites on a clear schedule — then turns due work into executable job packs on your Nextcloud.
 
-- Customers and their equipment in one register
-- Maintenance plans with day / week / month / year intervals
-- Due board: overdue, today, next 7 days, later
+- Customers, sites and equipment in one register (with printable QR stickers)
+- Maintenance plans: calendar intervals and meter-based thresholds
+- Due board: overdue, today, next 7 days, later — plus open work orders
+- Work orders with conditional checklists, photos and optional signature
+- Job kits, skills gates, dispatch board and day tours
+- Servicebericht PDF and van job-pack PDF
 - Complete or skip a visit — the next due date rolls automatically
-- Full visit history per equipment
 - Office / technician roles, optional access restriction
+- Official mobile seats via MN2 license (web stays free)
 
 ## Requirements
 
@@ -30,14 +33,17 @@ MaintenanceCheck keeps the equipment you service at customer sites on a clear sc
 	<description lang="de"><![CDATA[
 # MaintenanceCheck
 
-MaintenanceCheck verwaltet die Anlagen, die Sie beim Kunden warten. Fälligkeiten sehen, Einsatz dokumentieren, nächsten Termin fortschreiben — statt Excel und Zettel.
+MaintenanceCheck verwaltet die Anlagen, die Sie beim Kunden warten — und macht aus Fälligkeiten ausführbare Einsatzpakete auf Ihrer Nextcloud.
 
-- Kunden und ihre Anlagen in einem Register
-- Wartungspläne mit Tages- / Wochen- / Monats- / Jahresintervallen
-- Fälligkeitsboard: überfällig, heute, nächste 7 Tage, später
+- Kunden, Standorte und Anlagen in einem Register (mit druckbaren QR-Aufklebern)
+- Wartungspläne: Kalenderintervalle und Zählerschwellen
+- Fälligkeitsboard: überfällig, heute, nächste 7 Tage, später — plus offene Arbeitsaufträge
+- Arbeitsaufträge mit bedingten Checklisten, Fotos und optionaler Unterschrift
+- Materialkits, Qualifikationsprüfungen, Disposition und Tagestouren
+- Servicebericht-PDF und Job-Pack-PDF für den Van
 - Einsatz abschließen oder aussetzen — der nächste Termin wird automatisch fortgeschrieben
-- Vollständige Einsatzhistorie je Anlage
 - Büro-/Techniker-Rollen, optionale Zugriffsbeschränkung
+- Offizielle Mobile-Sitze über MN2-Lizenz (Web bleibt kostenlos)
 
 ## Voraussetzungen
 
@@ -45,7 +51,7 @@ MaintenanceCheck verwaltet die Anlagen, die Sie beim Kunden warten. Fälligkeite
 - PHP 8.2–8.5
 - MySQL/MariaDB oder PostgreSQL
 	]]></description>
-	<version>1.0.0</version>
+	<version>1.0.3</version>
 	<licence>AGPL-3.0-or-later</licence>
 	<author mail="info@software-by-design.de" homepage="https://nextcloud.software-by-design.de">Alexander Mäule</author>
 	<namespace>MaintenanceCheck</namespace>
@@ -75,6 +81,7 @@ MaintenanceCheck verwaltet die Anlagen, die Sie beim Kunden warten. Fälligkeite
 	<repair-steps>
 		<install>
 			<step>OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema</step>
+			<step>OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks</step>
 		</install>
 		<pre-migration>
 			<step>OCA\MaintenanceCheck\Repair\BackupBeforeUpdate</step>
@@ -82,6 +89,7 @@ MaintenanceCheck verwaltet die Anlagen, die Sie beim Kunden warten. Fälligkeite
 
 		<post-migration>
 			<step>OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema</step>
+			<step>OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks</step>
 		</post-migration>
 		<uninstall>
 			<step>OCA\MaintenanceCheck\Repair\UninstallDropTables</step>

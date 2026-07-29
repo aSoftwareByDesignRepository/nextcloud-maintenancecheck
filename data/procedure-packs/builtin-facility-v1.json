@@ -1,0 +1,28 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "builtin-facility-v1",
+  "vertical": "facility",
+  "locale": "en",
+  "version": 1,
+  "procedures": [
+    {
+      "code": "fire_extinguisher",
+      "title": "Fire extinguisher check",
+      "items": [
+        { "code": "access", "label": "Extinguisher accessible and unobstructed", "required": true, "sort_order": 10 },
+        { "code": "pressure", "label": "Pressure gauge in green zone", "required": true, "sort_order": 20 },
+        { "code": "seal", "label": "Safety seal intact", "required": true, "sort_order": 30 },
+        { "code": "needs_service", "label": "Unit needs service or replacement?", "required": true, "sort_order": 40 },
+        {
+          "code": "service_action",
+          "label": "Record service action taken",
+          "required": true,
+          "sort_order": 50,
+          "show_if_item_code": "needs_service",
+          "show_if_result": "any_answered"
+        },
+        { "code": "tag_updated", "label": "Inspection tag updated", "required": true, "sort_order": 60 }
+      ]
+    }
+  ]
+}

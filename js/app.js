@@ -128,7 +128,12 @@
 			case 'done': return { label: tr('Done'), badge: 'mn-badge--done', icon: 'check' };
 			case 'skipped': return { label: tr('Skipped'), badge: 'mn-badge--skipped', icon: 'skip' };
 			case 'cancelled': return { label: tr('Cancelled'), badge: 'mn-badge--cancelled', icon: 'x' };
-			default: return { label: String(status), badge: '', icon: null };
+			case 'draft': return { label: tr('Draft'), badge: 'mn-badge--neutral', icon: 'calendar' };
+			case 'planned': return { label: tr('Planned'), badge: 'mn-badge--scheduled', icon: 'calendar' };
+			case 'ready': return { label: tr('Ready'), badge: 'mn-badge--today', icon: 'clock' };
+			case 'in_progress': return { label: tr('In progress'), badge: 'mn-badge--scheduled', icon: 'clock' };
+			case 'blocked': return { label: tr('Blocked'), badge: 'mn-badge--overdue', icon: 'alert-triangle' };
+			default: return { label: String(status), badge: 'mn-badge--neutral', icon: null };
 		}
 	}
 
@@ -149,23 +154,84 @@
 			case 'overdue': return { title: tr('Overdue'), badge: 'mn-badge--overdue', icon: 'alert-triangle' };
 			case 'today': return { title: tr('Due today'), badge: 'mn-badge--today', icon: 'clock' };
 			case 'next7': return { title: tr('Next 7 days'), badge: 'mn-badge--scheduled', icon: 'calendar' };
-			case 'later': return { title: tr('Later (up to 30 days)'), badge: '', icon: 'calendar' };
-			default: return { title: key, badge: '', icon: null };
+			case 'later': return { title: tr('Later (up to 30 days)'), badge: 'mn-badge--neutral', icon: 'calendar' };
+			default: return { title: key, badge: 'mn-badge--neutral', icon: null };
 		}
 	}
 
-	/** A4 status / bucket badge: text label + decorative icon (never colour alone). */
+	/** A4 status / bucket badge: leading dot + text label + optional icon (never colour alone). */
 	function statusBadge(label, badgeClass, iconName) {
 		// Node contract tests have no DOM — return a plain descriptor instead.
 		if (typeof document === 'undefined') {
 			return { label: label, badge: badgeClass || '', icon: iconName || null };
 		}
-		var kids = [];
+		var kids = [
+			el('span', { class: 'mn-badge__dot', 'aria-hidden': 'true' }),
+		];
 		if (iconName && ICONS[iconName]) {
 			kids.push(svgIcon(iconName));
 		}
 		kids.push(document.createTextNode(label));
 		return el('span', { class: 'mn-badge' + (badgeClass ? ' ' + badgeClass : '') }, kids);
+	}
+
+	/**
+	 * Normalize column defs for design-system data tables (§3.7).
+	 * Pure — safe for Node contract / mutation tests.
+	 *
+	 * @param {unknown} columns
+	 * @returns {Array<{id: string, label: string, className: string, actions: boolean}>}
+	 */
+	function normalizeTableColumns(columns) {
+		if (!Array.isArray(columns)) {
+			return [];
+		}
+		var out = [];
+		for (var i = 0; i < columns.length; i++) {
+			var col = columns[i];
+			if (!col || typeof col !== 'object') {
+				continue;
+			}
+			var id = typeof col.id === 'string' ? col.id.trim() : '';
+			if (!id && typeof col.key === 'string') {
+				id = col.key.trim();
+			}
+			var label = typeof col.label === 'string' ? col.label.trim() : '';
+			if (!id || !label) {
+				continue;
+			}
+			out.push({
+				id: id,
+				label: label,
+				className: typeof col.className === 'string' ? col.className : '',
+				actions: !!col.actions,
+			});
+		}
+		return out;
+	}
+
+	/** Empty / missing cell display for tables (em dash, never blank). */
+	function tableCellText(value) {
+		if (value === null || value === undefined) {
+			return '—';
+		}
+		var text = String(value).trim();
+		return text === '' ? '—' : text;
+	}
+
+	/**
+	 * Pure table model for design-system §3.7 lists (Node-safe).
+	 * Mirrors InventoryCheck tableOrCards column contract without touching the DOM.
+	 *
+	 * @param {unknown} columns
+	 * @param {unknown} rows
+	 * @returns {{columns: Array<{id: string, label: string, className: string, actions: boolean}>, rowCount: number}}
+	 */
+	function buildTableModel(columns, rows) {
+		return {
+			columns: normalizeTableColumns(columns),
+			rowCount: Array.isArray(rows) ? rows.length : 0,
+		};
 	}
 
 	// ── Export pure helpers for Node contract tests ─────────────────────
@@ -180,6 +246,9 @@
 		statusBadge: statusBadge,
 		todayYmd: todayYmd,
 		setServerToday: setServerToday,
+		normalizeTableColumns: normalizeTableColumns,
+		tableCellText: tableCellText,
+		buildTableModel: buildTableModel,
 	};
 	if (typeof window !== 'undefined') {
 		window.MnApp = MnApp;
@@ -238,6 +307,147 @@
 		while (node.firstChild) {
 			node.removeChild(node.firstChild);
 		}
+	}
+
+	/** Primary cell: title (often a link) + optional muted sub-line. */
+	function tableStack(titleNode, subText) {
+		var kids = [
+			typeof titleNode === 'string'
+				? el('span', { class: 'mn-table-primary', text: titleNode })
+				: titleNode,
+		];
+		if (subText) {
+			kids.push(el('div', { class: 'mn-table-sub', text: subText }));
+		}
+		return el('div', { class: 'mn-table-stack' }, kids);
+	}
+
+	function tableLink(href, text, extraClass) {
+		return el('a', {
+			class: 'mn-table-link' + (extraClass ? ' ' + extraClass : ''),
+			href: href,
+			text: text,
+		});
+	}
+
+	/**
+	 * Design-system data table (§3.7) — InventoryCheck / AZC parity.
+	 * Markup: .mn-table-wrap.table-container > table.mn-table.table.table--hover.mn-table--responsive
+	 * Columns: { id|key, label, className?, actions?, render?(row) }
+	 * Options: { rowClass?(row), tableClass?, caption? }
+	 */
+	function tableOrCards(columns, rows, options) {
+		options = options || {};
+		var cols = [];
+		var raw = Array.isArray(columns) ? columns : [];
+		for (var i = 0; i < raw.length; i++) {
+			var col = raw[i];
+			if (!col || typeof col !== 'object') {
+				continue;
+			}
+			var id = typeof col.id === 'string' ? col.id.trim() : '';
+			if (!id && typeof col.key === 'string') {
+				id = col.key.trim();
+			}
+			var label = typeof col.label === 'string' ? col.label.trim() : '';
+			if (!id || !label) {
+				continue;
+			}
+			cols.push({
+				id: id,
+				label: label,
+				className: typeof col.className === 'string' ? col.className : '',
+				actions: !!col.actions,
+				render: typeof col.render === 'function' ? col.render : null,
+				key: typeof col.key === 'string' ? col.key : id,
+			});
+		}
+
+			var wrap = el('div', {
+				class: 'mn-table-wrap table-container',
+				tabindex: '0',
+				role: 'region',
+				'aria-label': options.caption ? String(options.caption) : tr('Data table'),
+			});
+		var tableClass = 'mn-table table table--hover mn-table--responsive';
+		if (options.tableClass) {
+			tableClass += ' ' + options.tableClass;
+		}
+		var table = el('table', { class: tableClass });
+		if (options.caption) {
+			table.appendChild(el('caption', { class: 'mn-sr-only', text: String(options.caption) }));
+		}
+
+		var headRow = el('tr');
+		cols.forEach(function (c) {
+			var thAttrs = { scope: 'col', text: c.label };
+			if (c.actions) {
+				thAttrs.class = 'mn-table-actions-col';
+			} else if (c.className) {
+				thAttrs.class = c.className;
+			}
+			headRow.appendChild(el('th', thAttrs));
+		});
+		table.appendChild(el('thead', {}, [headRow]));
+
+		var tbody = el('tbody');
+		(Array.isArray(rows) ? rows : []).forEach(function (row) {
+			var trClass = '';
+			if (typeof options.rowClass === 'function') {
+				trClass = options.rowClass(row) || '';
+			} else if (row && row.active === false) {
+				trClass = 'mn-table__row--inactive';
+			}
+			var tr = el('tr', trClass ? { class: trClass } : null);
+			cols.forEach(function (c) {
+				var cellContent;
+				if (c.render) {
+					cellContent = c.render(row);
+				} else if (row && Object.prototype.hasOwnProperty.call(row, c.key)) {
+					cellContent = tableCellText(row[c.key]);
+				} else {
+					cellContent = '—';
+				}
+
+				var tdAttrs = { 'data-label': c.label };
+				if (c.actions) {
+					tdAttrs.class = 'mn-table-actions-col actions-cell';
+				} else if (c.className) {
+					tdAttrs.class = c.className;
+				}
+
+				var kids = [];
+				if (cellContent === null || cellContent === undefined || cellContent === false) {
+					kids.push(document.createTextNode('—'));
+				} else if (typeof cellContent === 'string' || typeof cellContent === 'number') {
+					kids.push(document.createTextNode(String(cellContent)));
+				} else if (Array.isArray(cellContent)) {
+					cellContent.forEach(function (n) {
+						if (n === null || n === undefined || n === false) {
+							return;
+						}
+						kids.push(typeof n === 'string' ? document.createTextNode(n) : n);
+					});
+					if (!kids.length) {
+						kids.push(document.createTextNode('—'));
+					}
+				} else {
+					kids.push(cellContent);
+				}
+
+				if (c.actions) {
+					tr.appendChild(el('td', tdAttrs, [
+						el('div', { class: 'mn-table-actions' }, kids),
+					]));
+				} else {
+					tr.appendChild(el('td', tdAttrs, kids));
+				}
+			});
+			tbody.appendChild(tr);
+		});
+		table.appendChild(tbody);
+		wrap.appendChild(table);
+		return wrap;
 	}
 
 	var ICONS = {
@@ -317,6 +527,38 @@
 		});
 	}
 
+	/** Multipart upload (WO photos) — do not set Content-Type (browser sets boundary). */
+	function apiUpload(url, formData) {
+		return fetch(url, {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json',
+				'requesttoken': requestToken(),
+			},
+			credentials: 'same-origin',
+			body: formData,
+		}).then(function (response) {
+			return response.text().then(function (text) {
+				var data = null;
+				if (text) {
+					try { data = JSON.parse(text); } catch (e) { data = null; }
+				}
+				if (response.ok) {
+					return data;
+				}
+				var envelope = data && data.error ? data.error : {};
+				throw new ApiError(
+					response.status,
+					envelope.code || 'unexpected_error',
+					envelope.message || tr('Something went wrong. Please try again.'),
+					envelope.details
+				);
+			});
+		}, function () {
+			throw new ApiError(0, 'network_error', tr('Could not reach the server. Check your connection and try again.'));
+		});
+	}
+
 	// ── Toasts (§11.2, A7) ─────────────────────────────────────────────
 
 	function announce(message, assertive) {
@@ -325,6 +567,16 @@
 			region.textContent = '';
 			window.setTimeout(function () { region.textContent = message; }, 30);
 		}
+	}
+
+	/** Announce list/filter result counts (polite live region). */
+	function announceResults(total, emptyMessage) {
+		var n = Number(total) || 0;
+		if (n === 0) {
+			announce(emptyMessage || tr('No results.'));
+			return;
+		}
+		announce(tr('{n} results', { n: n }));
 	}
 
 	function toast(message, type) {
@@ -522,19 +774,24 @@
 		var hintId = id + '-hint';
 		input.setAttribute('id', id);
 		input.classList.add('mn-input');
+		if (options.required) {
+			input.setAttribute('required', '');
+			input.setAttribute('aria-required', 'true');
+		}
 		var describedBy = [];
 		var wrap = el('div', { class: 'mn-field' + (options.wide ? ' mn-field--wide' : '') });
+		/* Visible “(required)” text — do not also add form-label--required (::after *) */
 		wrap.appendChild(el('label', {
-			class: 'mn-field__label',
+			class: 'mn-field__label form-label',
 			for: id,
 			text: options.required ? tr('{label} (required)', { label: labelText }) : labelText,
 		}));
 		wrap.appendChild(input);
 		if (options.hint) {
-			wrap.appendChild(el('p', { class: 'mn-field__hint', id: hintId, text: options.hint }));
+			wrap.appendChild(el('p', { class: 'mn-field__hint form-help', id: hintId, text: options.hint }));
 			describedBy.push(hintId);
 		}
-		var error = el('p', { class: 'mn-field__error', id: errorId, hidden: true });
+		var error = el('p', { class: 'mn-field__error form-error', id: errorId, role: 'alert', hidden: true });
 		wrap.appendChild(error);
 		if (describedBy.length) {
 			input.setAttribute('aria-describedby', describedBy.join(' '));
@@ -776,6 +1033,12 @@
 			selectedUid = row.id;
 			combo.value = formatRow(row);
 			closeList();
+			root.dispatchEvent(new CustomEvent('mn-user-selected', { bubbles: true, detail: { uid: selectedUid } }));
+			try {
+				root.dispatchEvent(new Event('change', { bubbles: true }));
+			} catch (e) {
+				// IE-less environments always support Event
+			}
 		}
 
 		function renderOptions() {
@@ -871,6 +1134,10 @@
 		return {
 			root: root,
 			getValue: function () { return selectedUid; },
+			setValue: function (uid) {
+				selectedUid = uid ? String(uid) : '';
+				combo.value = selectedUid;
+			},
 			setError: function (message) {
 				if (message) {
 					error.textContent = message;
@@ -928,11 +1195,22 @@
 		var doneOnField = field(tr('Completed on'), doneOnInput, { required: true });
 		var notesField = field(tr('Notes'), notesInput, { hint: tr('Optional — what was done, parts used, anything the office should know.') });
 		var nextInfo = el('p', { class: 'mn-dialog__hint' });
+		var needsMeter = visit.triggerKind === 'meter' || visit.triggerKind === 'either';
+		var closingValueInput = el('input', { type: 'text', inputmode: 'decimal', autocomplete: 'off', placeholder: visit.meterCode ? tr('Reading for {code}', { code: visit.meterCode }) : tr('Meter reading') });
+		var closingValueField = field(tr('Closing meter reading (optional)'), closingValueInput, {
+			hint: needsMeter
+				? tr('Record the counter after the job. This does not create a new due visit by itself.')
+				: tr('Optional. Only used when this plan is meter-based.'),
+		});
 
 		function refreshNext() {
 			if (!visit.planActive) {
 				nextInfo.className = 'mn-dialog__hint mn-dialog__hint--warning';
 				nextInfo.textContent = tr('Plan inactive — no follow-up visit will be created.');
+				return;
+			}
+			if (visit.triggerKind === 'meter') {
+				nextInfo.textContent = tr('Meter plan — no calendar follow-up visit is created.');
 				return;
 			}
 			var next = addInterval(doneOnInput.value, visit.intervalUnit, visit.intervalCount);
@@ -943,7 +1221,12 @@
 		doneOnInput.addEventListener('input', refreshNext);
 		refreshNext();
 
-		var content = el('div', {}, [doneOnField, notesField, nextInfo]);
+		var contentChildren = [doneOnField, notesField];
+		if (needsMeter) {
+			contentChildren.push(closingValueField);
+		}
+		contentChildren.push(nextInfo);
+		var content = el('div', {}, contentChildren);
 		openDialog({
 			title: tr('Complete visit'),
 			text: tr('{customer} — {equipment}, {type}', {
@@ -959,10 +1242,18 @@
 					onClick: function (d) {
 						d.setBusy(true);
 						d.setError(null);
-						api('POST', apiUrl('visits') + '/' + visit.id + '/complete', {
+						var body = {
 							doneOn: doneOnInput.value,
 							notes: notesInput.value.trim() === '' ? null : notesInput.value,
-						}).then(function (result) {
+						};
+						var closingVal = closingValueInput.value.trim();
+						if (needsMeter && closingVal !== '') {
+							body.closingReading = {
+								meterCode: visit.meterCode,
+								value: closingVal,
+							};
+						}
+						api('POST', apiUrl('visits') + '/' + visit.id + '/complete', body).then(function (result) {
 							d.close();
 							if (!result.planActive) {
 								toast(tr('Visit completed. Plan inactive — no follow-up visit created.'), 'success');
@@ -977,6 +1268,9 @@
 							if (error.code === 'invalid_done_on') {
 								doneOnField.mnSetError(tr('The completion date must be a real date between 2000-01-01 and today.'));
 								doneOnInput.focus();
+							} else if (error.code === 'meter_not_monotonic') {
+								closingValueField.mnSetError(error.message);
+								closingValueInput.focus();
 							} else if (error.code === 'visit_not_open') {
 								d.close();
 								toast(tr('This visit was already closed.'), 'error');
@@ -1207,6 +1501,134 @@
 			onClick: function () { completeDialog(visit, onDone); },
 		}));
 
+		if (visit.openWorkOrder && visit.openWorkOrder.logHoursUrl) {
+			actions.push(el('a', {
+				class: 'mn-btn mn-btn--secondary mn-btn--compact',
+				href: visit.openWorkOrder.logHoursUrl,
+				target: '_blank',
+				rel: 'noopener noreferrer',
+				text: tr('Log hours'),
+				title: tr('Open ProjectCheck with work order {number} in the note', {
+					number: visit.openWorkOrder.number || '',
+				}),
+			}));
+		}
+		if (visit.openWorkOrder && visit.openWorkOrder.recordTimeUrl) {
+			actions.push(el('a', {
+				class: 'mn-btn mn-btn--secondary mn-btn--compact',
+				href: visit.openWorkOrder.recordTimeUrl,
+				target: '_blank',
+				rel: 'noopener noreferrer',
+				text: tr('Record time'),
+				title: tr('Open ArbeitszeitCheck with work order {number} in the note', {
+					number: visit.openWorkOrder.number || '',
+				}),
+			}));
+		}
+		if (visit.openWorkOrder && visit.openWorkOrder.id) {
+			actions.push(el('a', {
+				class: 'mn-btn mn-btn--secondary mn-btn--compact',
+				href: pageUrl('workOrders') + '/' + visit.openWorkOrder.id,
+				text: tr('Open work order'),
+			}));
+		} else if (ctx.isOffice) {
+			actions.push(el('button', {
+				type: 'button',
+				class: 'mn-btn mn-btn--secondary mn-btn--compact',
+				text: tr('Create work order'),
+				onClick: function () {
+					api('GET', apiUrl('procedures')).then(function (envelope) {
+						var procedures = (envelope && envelope.data) ? envelope.data : [];
+						var select = el('select', { class: 'mn-input form-select' });
+						select.appendChild(el('option', { value: '', text: tr('Select a procedure…') }));
+						procedures.forEach(function (proc) {
+							if (proc.active === false) {
+								return;
+							}
+							select.appendChild(el('option', {
+								value: String(proc.id),
+								text: proc.title || proc.code || ('#' + proc.id),
+							}));
+						});
+						var skipToggle = el('input', { type: 'checkbox', id: 'mn-visit-wo-skip' });
+						var skipReason = el('textarea', {
+							class: 'mn-input form-textarea',
+							rows: '3',
+							id: 'mn-visit-wo-skip-reason',
+						});
+						function syncSkip() {
+							select.disabled = !!skipToggle.checked;
+							skipReason.disabled = !skipToggle.checked;
+						}
+						skipToggle.addEventListener('change', syncSkip);
+						syncSkip();
+						openDialog({
+							title: tr('Create work order'),
+							content: el('div', { class: 'mn-form-grid' }, [
+								field(tr('Procedure'), select, {
+									hint: tr('Pick a checklist template, or skip with a reason.'),
+								}),
+								el('label', { class: 'mn-checkbox', for: 'mn-visit-wo-skip' }, [
+									skipToggle,
+									el('span', { text: tr('Skip without procedure') }),
+								]),
+								field(tr('Skip reason'), skipReason, {
+									hint: tr('At least 10 characters when skipping.'),
+								}),
+							]),
+							actions: [
+								{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+								{
+									label: tr('Create'),
+									variant: 'mn-btn--primary',
+									onClick: function (d) {
+										var body = {};
+										if (skipToggle.checked) {
+											var reason = String(skipReason.value || '').trim();
+											if (reason.length < 10) {
+												d.setError(tr('The skip reason must be at least 10 characters.'));
+												return;
+											}
+											body.procedureSkipped = true;
+											body.procedureSkipReason = reason;
+										} else if (select.value) {
+											body.procedureId = Number(select.value);
+										} else {
+											d.setError(tr('Select a procedure or skip with a reason.'));
+											return;
+										}
+										d.setBusy(true);
+										d.setError(null);
+										api('POST', apiUrl('visits') + '/' + visit.id + '/work-orders', body)
+											.then(function (wo) {
+												d.close();
+												toast(tr('Work order created from visit.'), 'success');
+												if (wo && wo.id) {
+													window.location.href = pageUrl('workOrders') + '/' + wo.id;
+												} else {
+													onDone();
+												}
+											})
+											.catch(function (error) {
+												d.setBusy(false);
+												if (error.code === 'visit_already_linked') {
+													d.setError(tr('This visit already has a work order.'));
+													onDone();
+												} else {
+													d.setError(error.message || tr('Something went wrong. Please try again.'));
+												}
+											});
+									},
+								},
+							],
+						});
+					}).catch(function (error) {
+						toast(error.message || tr('Could not load procedures.'), 'error');
+					});
+				},
+			}));
+		}
+
 		var overflowItems = [];
 		overflowItems.push({
 			label: tr('Skip'),
@@ -1228,9 +1650,9 @@
 			});
 		}
 
-		if (options.overflow) {
-			actions.push(visitOverflowMenu(overflowItems));
-		} else {
+		// Default: collapsible overflow (granny/toddler — one clear primary + More).
+		// Pass `{ overflow: false }` only for dense office tables that need every action visible.
+		if (options.overflow === false) {
 			overflowItems.forEach(function (item) {
 				actions.push(el('button', {
 					type: 'button',
@@ -1239,6 +1661,11 @@
 					onClick: item.onClick,
 				}));
 			});
+		} else {
+			var overflow = visitOverflowMenu(overflowItems);
+			if (overflow) {
+				actions.push(overflow);
+			}
 		}
 		return actions;
 	}
@@ -1302,11 +1729,17 @@
 		}
 		document.addEventListener('click', onDoc);
 		document.addEventListener('keydown', onKey);
-		// Lightweight cleanup when the card is cleared from the DOM.
-		wrap.addEventListener('DOMNodeRemoved', function () {
-			document.removeEventListener('click', onDoc);
-			document.removeEventListener('keydown', onKey);
-		});
+		// Cleanup listeners when the overflow root leaves the DOM.
+		if (typeof MutationObserver === 'function') {
+			var observer = new MutationObserver(function () {
+				if (!document.body.contains(wrap)) {
+					document.removeEventListener('click', onDoc);
+					document.removeEventListener('keydown', onKey);
+					observer.disconnect();
+				}
+			});
+			observer.observe(document.body, { childList: true, subtree: true });
+		}
 		return wrap;
 	}
 
@@ -1317,13 +1750,29 @@
 		var emptyBox = document.getElementById('mn-due-empty');
 		var mineToggle = document.getElementById('mn-due-mine');
 		var todayLabel = document.getElementById('mn-due-today');
+		var loadSeq = 0;
 
 		function load() {
+			var seq = ++loadSeq;
 			board.setAttribute('aria-busy', 'true');
 			api('GET', withQuery(apiUrl('visitsDue'), { mine: mineToggle.checked ? '1' : '' }))
-				.then(render)
-				.catch(handleGlobalError)
-				.finally(function () { board.removeAttribute('aria-busy'); });
+				.then(function (data) {
+					if (seq !== loadSeq) {
+						return;
+					}
+					render(data);
+				})
+				.catch(function (error) {
+					if (seq !== loadSeq) {
+						return;
+					}
+					handleGlobalError(error);
+				})
+				.finally(function () {
+					if (seq === loadSeq) {
+						board.removeAttribute('aria-busy');
+					}
+				});
 		}
 
 		function render(data) {
@@ -1341,8 +1790,8 @@
 					list.appendChild(el('p', { class: 'mn-bucket__empty', text: tr('Nothing here.') }));
 					return;
 				}
-				data[key].forEach(function (visit) {
-					list.appendChild(visitCard(visit, key));
+				data[key].forEach(function (row) {
+					list.appendChild(row.rowKind === 'workOrder' ? workOrderDueCard(row, key) : visitCard(row, key));
 				});
 			});
 			var showEmpty = totalVisits === 0;
@@ -1356,7 +1805,41 @@
 					tr('New visits appear here as soon as a maintenance plan makes them due.'),
 					link
 				));
+				announceResults(0, tr('Nothing due in the next 30 days'));
+			} else {
+				announceResults(totalVisits);
 			}
+		}
+
+		function workOrderDueCard(wo, bucketKey) {
+			var meta = bucketMeta(bucketKey);
+			var badgeLabel = bucketKey === 'overdue'
+				? tr('Overdue')
+				: (bucketKey === 'today' ? tr('Today') : fmt(wo.dueOn));
+			var head = el('div', { class: 'mn-visit-card__head' }, [
+				el('p', { class: 'mn-visit-card__customer', text: wo.customerName }),
+				statusBadge(badgeLabel, meta.badge, meta.icon),
+			]);
+			var title = el('p', { class: 'mn-visit-card__line' }, [
+				el('a', { href: pageUrl('workOrders') + '/' + wo.id, text: wo.number + ' — ' + (wo.title || tr('Work order')) }),
+			]);
+			var lineParts = [tr('Preventive work order') + ' · ' + tr('Due {date}', { date: fmt(wo.dueOn) })];
+			if (wo.equipmentId && wo.equipmentLabel) {
+				lineParts.unshift(wo.equipmentLabel + ' — ');
+			}
+			var line = el('p', { class: 'mn-visit-card__line', text: lineParts.join('') });
+			var card = el('div', { class: 'mn-visit-card mn-visit-card--work-order' }, [head, title, line]);
+			if (wo.primaryUserId) {
+				card.appendChild(el('p', { class: 'mn-visit-card__line', text: tr('Assigned to {user}', { user: wo.primaryUserId }) }));
+			}
+			card.appendChild(el('div', { class: 'mn-visit-card__actions' }, [
+				el('a', {
+					class: 'mn-btn mn-btn--primary mn-btn--compact',
+					href: pageUrl('workOrders') + '/' + wo.id,
+					text: tr('Open work order'),
+				}),
+			]));
+			return card;
 		}
 
 		function visitCard(visit, bucketKey) {
@@ -1543,6 +2026,7 @@
 		var pagination = document.getElementById('mn-customer-pagination');
 		var search = document.getElementById('mn-customer-search');
 		var state = { q: '', offset: 0 };
+		var loadSeq = 0;
 
 		if (ctx.isOffice) {
 			document.getElementById('mn-page-actions').appendChild(el('button', {
@@ -1553,16 +2037,29 @@
 		}
 
 		function load() {
+			var seq = ++loadSeq;
 			list.setAttribute('aria-busy', 'true');
 			clear(list);
 			list.appendChild(skeleton(4));
 			api('GET', withQuery(apiUrl('customers'), { q: state.q, offset: state.offset }))
-				.then(render)
+				.then(function (envelope) {
+					if (seq !== loadSeq) {
+						return;
+					}
+					render(envelope);
+				})
 				.catch(function (error) {
+					if (seq !== loadSeq) {
+						return;
+					}
 					clear(list);
 					handleGlobalError(error);
 				})
-				.finally(function () { list.removeAttribute('aria-busy'); });
+				.finally(function () {
+					if (seq === loadSeq) {
+						list.removeAttribute('aria-busy');
+					}
+				});
 		}
 
 		function render(envelope) {
@@ -1582,30 +2079,44 @@
 					action
 				));
 				renderPagination(pagination, envelope, onPage);
+				announceResults(0, state.q === '' ? tr('No customers yet') : tr('No customers match your search'));
 				return;
 			}
-			envelope.data.forEach(function (customer) {
-				var subParts = [];
-				if (customer.customerNo) {
-					subParts.push(tr('No. {no}', { no: customer.customerNo }));
-				}
-				if (customer.city) {
-					subParts.push(customer.city);
-				}
-				var row = el('div', { class: 'mn-row' + (customer.active ? '' : ' mn-row--inactive') }, [
-					el('div', { class: 'mn-row__main' }, [
-						el('h3', { class: 'mn-row__title' }, [
-							el('a', { href: pageUrl('customers') + '/' + customer.id, text: customer.name }),
-						]),
-						subParts.length ? el('p', { class: 'mn-row__sub', text: subParts.join(' · ') }) : null,
-					]),
-					el('div', { class: 'mn-row__meta' }, [
-						customer.active ? null : el('span', { class: 'mn-badge', text: tr('Inactive') }),
-					]),
-				]);
-				list.appendChild(row);
-			});
+			list.appendChild(tableOrCards([
+				{
+					id: 'name',
+					label: tr('Customer'),
+					render: function (customer) {
+						var subParts = [];
+						if (customer.customerNo) {
+							subParts.push(tr('No. {no}', { no: customer.customerNo }));
+						}
+						if (customer.city) {
+							subParts.push(customer.city);
+						}
+						return tableStack(
+							tableLink(pageUrl('customers') + '/' + customer.id, customer.name),
+							subParts.length ? subParts.join(' · ') : null
+						);
+					},
+				},
+				{
+					id: 'status',
+					label: tr('Status'),
+					render: function (customer) {
+						return customer.active
+							? tableCellText(null)
+							: statusBadge(tr('Inactive'), 'mn-badge--neutral');
+					},
+				},
+			], envelope.data, {
+				caption: tr('Customers'),
+				rowClass: function (customer) {
+					return customer.active ? '' : 'mn-table__row--inactive';
+				},
+			}));
 			renderPagination(pagination, envelope, onPage);
+			announceResults(envelope.total);
 		}
 
 		function onPage(offset) {
@@ -1628,6 +2139,8 @@
 		var detail = document.getElementById('mn-customer-detail');
 		var equipmentList = document.getElementById('mn-customer-equipment');
 		var sectionActions = document.getElementById('mn-equipment-section-actions');
+		var sitesList = document.getElementById('mn-customer-sites');
+		var sitesActions = document.getElementById('mn-sites-section-actions');
 		document.getElementById('mn-back-link').setAttribute('href', pageUrl('customers'));
 		var customerId = ctx.entityId;
 		var current = null;
@@ -1638,12 +2151,14 @@
 				.then(function (customer) {
 					current = customer;
 					renderDetail(customer);
+					loadSites();
 					loadEquipment();
 				})
 				.catch(function (error) {
 					clear(detail);
 					detail.appendChild(emptyState(tr('Customer not found'), tr('It may have been deleted in the meantime.')));
 					clear(equipmentList);
+					if (sitesList) clear(sitesList);
 					if (error.status !== 404) {
 						handleGlobalError(error);
 					}
@@ -1667,6 +2182,27 @@
 			]);
 			var card = el('div', { class: 'mn-card' }, [grid]);
 			detail.appendChild(card);
+			var dual = el('aside', {
+				class: 'mn-callout mn-callout--info',
+				role: 'note',
+				'aria-label': tr('Field vs CRM customers'),
+			}, [
+				el('p', { class: 'mn-callout__title', text: tr('Field vs CRM customers') }),
+				el('p', {
+					class: 'mn-callout__text',
+					text: tr('This register is for field work. CustomerCheck is the CRM — the same name is not the same record. Link them on purpose; nothing merges silently.'),
+				}),
+				el('p', { class: 'mn-callout__hint' }, [
+					el('a', {
+						class: 'mn-btn mn-btn--secondary mn-btn--compact',
+						href: (window.OC && OC.generateUrl)
+							? OC.generateUrl('/apps/customercheck/companies')
+							: '/index.php/apps/customercheck/companies',
+						text: tr('Open CustomerCheck'),
+					}),
+				]),
+			]);
+			detail.appendChild(dual);
 			if (ctx.isOffice) {
 				var actions = el('div', { class: 'mn-row__actions mn-row__actions--below' }, [
 					el('button', {
@@ -1690,6 +2226,123 @@
 			return el('div', {}, [el('dt', { text: label }), el('dd', { text: value })]);
 		}
 
+		function loadSites() {
+			if (!sitesList) {
+				return;
+			}
+			clear(sitesActions);
+			if (ctx.isOffice) {
+				sitesActions.appendChild(el('button', {
+					type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact',
+					onClick: function () { siteFormDialog(null, customerId, loadSites); },
+				}, [el('span', { html: ICONS.plus, 'aria-hidden': 'true' }), tr('New site')]));
+			}
+			sitesList.setAttribute('aria-busy', 'true');
+			clear(sitesList);
+			sitesList.appendChild(skeleton(2));
+			api('GET', apiUrl('customers') + '/' + customerId + '/sites')
+				.then(function (envelope) {
+					clear(sitesList);
+					var rows = envelope.data || [];
+					if (rows.length === 0) {
+						sitesList.appendChild(emptyState(
+							tr('No sites yet'),
+							ctx.isOffice
+								? tr('Add a site when this customer has more than one address.')
+								: tr('No sites have been registered for this customer yet.')
+						));
+						return;
+					}
+					sitesList.appendChild(renderSitesTable(rows.map(siteRow)));
+				})
+				.catch(handleGlobalError)
+				.finally(function () { sitesList.removeAttribute('aria-busy'); });
+		}
+
+		function siteRow(site) {
+			var address = [site.street, [site.postalCode, site.city].filter(Boolean).join(' '), site.country]
+				.filter(Boolean).join(', ');
+			var actions = [];
+			if (ctx.isOffice) {
+				actions.push(el('button', {
+					type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit'),
+					onClick: function () { siteFormDialog(site, customerId, loadSites); },
+				}));
+				actions.push(el('button', {
+					type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact', text: tr('Delete'),
+					onClick: function () { deleteSite(site); },
+				}));
+			}
+			return {
+				site: site,
+				address: address,
+				actions: actions,
+			};
+		}
+
+		function renderSitesTable(rows) {
+			return tableOrCards([
+				{
+					id: 'name',
+					label: tr('Site'),
+					render: function (row) {
+						return tableStack(row.site.name, row.address || null);
+					},
+				},
+				{
+					id: 'status',
+					label: tr('Status'),
+					render: function (row) {
+						return row.site.active
+							? tableCellText(null)
+							: statusBadge(tr('Inactive'), 'mn-badge--neutral');
+					},
+				},
+				{
+					id: 'actions',
+					label: tr('Actions'),
+					actions: true,
+					render: function (row) {
+						return row.actions.length ? row.actions : tableCellText(null);
+					},
+				},
+			], rows, {
+				caption: tr('Sites'),
+				rowClass: function (row) {
+					return row.site.active ? '' : 'mn-table__row--inactive';
+				},
+			});
+		}
+
+		function deleteSite(site) {
+			openDialog({
+				title: tr('Delete site'),
+				text: tr('Delete “{name}”? Equipment linked to this site must be moved first.', { name: site.name }),
+				actions: [
+					{ label: tr('Keep site'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+					{
+						label: tr('Delete permanently'),
+						variant: 'mn-btn--danger',
+						onClick: function (d) {
+							d.setBusy(true);
+							api('DELETE', apiUrl('sites') + '/' + site.id)
+								.then(function () {
+									d.close();
+									toast(tr('Site deleted.'), 'success');
+									loadSites();
+								})
+								.catch(function (error) {
+									d.setBusy(false);
+									d.setError(error.code === 'site_in_use'
+										? tr('Equipment is linked to this site. Move it first.')
+										: error.message);
+								});
+						},
+					},
+				],
+			});
+		}
+
 		function loadEquipment() {
 			clear(sectionActions);
 			if (ctx.isOffice) {
@@ -1711,9 +2364,7 @@
 						));
 						return;
 					}
-					envelope.data.forEach(function (item) {
-						equipmentList.appendChild(equipmentRow(item));
-					});
+					equipmentList.appendChild(equipmentTable(envelope.data, tr('Equipment')));
 				})
 				.catch(handleGlobalError)
 				.finally(function () { equipmentList.removeAttribute('aria-busy'); });
@@ -1722,34 +2373,144 @@
 		load();
 	}
 
+	function siteFormDialog(existing, customerId, onDone) {
+		var f = {
+			name: field(tr('Site name'), el('input', { type: 'text', value: existing ? existing.name : '' }), { required: true, wide: true }),
+			street: field(tr('Street'), el('input', { type: 'text', value: existing ? (existing.street || '') : '' }), { wide: true }),
+			postalCode: field(tr('Postal code'), el('input', { type: 'text', value: existing ? (existing.postalCode || '') : '' })),
+			city: field(tr('City'), el('input', { type: 'text', value: existing ? (existing.city || '') : '' })),
+			country: field(tr('Country code'), el('input', { type: 'text', maxlength: '2', value: existing ? (existing.country || '') : '' }), { hint: tr('Two letters, e.g. DE or AT.') }),
+			lat: field(tr('Latitude'), el('input', {
+				type: 'number',
+				step: 'any',
+				min: '-90',
+				max: '90',
+				value: existing && existing.lat != null ? String(existing.lat) : '',
+			}), { hint: tr('Optional — decimal degrees (−90 to 90).') }),
+			lng: field(tr('Longitude'), el('input', {
+				type: 'number',
+				step: 'any',
+				min: '-180',
+				max: '180',
+				value: existing && existing.lng != null ? String(existing.lng) : '',
+			}), { hint: tr('Optional — decimal degrees (−180 to 180).') }),
+			notes: field(tr('Notes'), el('textarea', { rows: '2' }), { wide: true }),
+		};
+		if (existing && existing.notes) {
+			f.notes.mnInput.value = existing.notes;
+		}
+		var activeBox = el('input', { type: 'checkbox' });
+		activeBox.checked = existing ? !!existing.active : true;
+		openDialog({
+			title: existing ? tr('Edit site') : tr('New site'),
+			content: el('div', {}, [
+				el('div', { class: 'mn-form-grid' }, ['name', 'street', 'postalCode', 'city', 'country', 'lat', 'lng', 'notes'].map(function (k) { return f[k]; })),
+				existing ? el('label', { class: 'mn-checkbox' }, [activeBox, el('span', { text: tr('Site is active') })]) : null,
+			]),
+			actions: [
+				{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+				{
+					label: existing ? tr('Save changes') : tr('Create site'),
+					variant: 'mn-btn--primary',
+					onClick: function (d) {
+						d.setBusy(true);
+						d.setError(null);
+						var body = {
+							name: f.name.mnInput.value,
+							street: nullable(f.street.mnInput.value),
+							postalCode: nullable(f.postalCode.mnInput.value),
+							city: nullable(f.city.mnInput.value),
+							country: nullable(f.country.mnInput.value),
+							notes: nullable(f.notes.mnInput.value),
+						};
+						var latRaw = String(f.lat.mnInput.value || '').trim();
+						var lngRaw = String(f.lng.mnInput.value || '').trim();
+						if (latRaw !== '') {
+							body.lat = Number(latRaw);
+						} else if (existing) {
+							body.lat = null;
+						}
+						if (lngRaw !== '') {
+							body.lng = Number(lngRaw);
+						} else if (existing) {
+							body.lng = null;
+						}
+						if (existing) {
+							body.active = activeBox.checked;
+						}
+						var request = existing
+							? api('PUT', apiUrl('sites') + '/' + existing.id, body)
+							: api('POST', apiUrl('customers') + '/' + customerId + '/sites', body);
+						request.then(function () {
+							d.close();
+							toast(existing ? tr('Site saved.') : tr('Site created.'), 'success');
+							onDone();
+						}).catch(function (error) {
+							d.setBusy(false);
+							if (!applyFieldErrors(f, error)) {
+								d.setError(error.message);
+							}
+						});
+					},
+				},
+			],
+		});
+	}
+
 	// ── Equipment form + rows (shared) ─────────────────────────────────
 
-	function equipmentRow(item) {
-		var subParts = [item.manufacturer, item.model, item.serialNo ? tr('SN {sn}', { sn: item.serialNo }) : null]
-			.filter(function (v) { return v; });
-		return el('div', { class: 'mn-row' + (item.active ? '' : ' mn-row--inactive') }, [
-			el('div', { class: 'mn-row__main' }, [
-				el('h3', { class: 'mn-row__title' }, [
-					el('a', { href: pageUrl('equipment') + '/' + item.id, text: item.label }),
-				]),
-				subParts.length ? el('p', { class: 'mn-row__sub', text: subParts.join(' · ') }) : null,
-			]),
-			el('div', { class: 'mn-row__meta' }, [
-				item.locationText ? el('span', { text: item.locationText }) : null,
-				item.active ? null : el('span', { class: 'mn-badge', text: tr('Inactive') }),
-			]),
-		]);
+	function equipmentTable(items, caption) {
+		return tableOrCards([
+			{
+				id: 'label',
+				label: tr('Equipment'),
+				render: function (item) {
+					var subParts = [item.manufacturer, item.model, item.serialNo ? tr('SN {sn}', { sn: item.serialNo }) : null]
+						.filter(function (v) { return v; });
+					return tableStack(
+						tableLink(pageUrl('equipment') + '/' + item.id, item.label),
+						subParts.length ? subParts.join(' · ') : null
+					);
+				},
+			},
+			{
+				id: 'location',
+				label: tr('Location'),
+				render: function (item) {
+					return tableCellText(item.locationText);
+				},
+			},
+			{
+				id: 'status',
+				label: tr('Status'),
+				render: function (item) {
+					return item.active
+						? tableCellText(null)
+						: statusBadge(tr('Inactive'), 'mn-badge--neutral');
+				},
+			},
+		], items, {
+			caption: caption || tr('Equipment'),
+			rowClass: function (item) {
+				return item.active ? '' : 'mn-table__row--inactive';
+			},
+		});
 	}
 
 	function equipmentFormDialog(existing, fixedCustomerId, onDone) {
+		var customerIdForSites = fixedCustomerId || (existing ? existing.customerId : null);
 		Promise.all([
 			loadAllCatalog(apiUrl('equipTypes')),
 			fixedCustomerId || existing
 				? Promise.resolve(null)
 				: api('GET', withQuery(apiUrl('customers'), { limit: 200 })).then(function (e) { return e.data; }),
+			customerIdForSites
+				? api('GET', apiUrl('customers') + '/' + customerIdForSites + '/sites').then(function (e) { return e.data || []; })
+				: Promise.resolve([]),
 		]).then(function (results) {
 			var equipTypes = results[0];
 			var customers = results[1];
+			var sites = results[2] || [];
 			var typeSelect = catalogSelect(equipTypes, existing ? existing.equipTypeId : null, true);
 			var f = {
 				label: field(tr('Label'), el('input', { type: 'text', value: existing ? existing.label : '' }), { required: true, wide: true, hint: tr('How your team refers to this unit, e.g. “Boiler cellar left”.') }),
@@ -1771,11 +2532,23 @@
 				});
 				f.customerId = field(tr('Customer'), customerSelect, { required: true, wide: true });
 			}
+			var siteSelect = el('select', {});
+			siteSelect.appendChild(el('option', { value: '', text: tr('No site') }));
+			sites.forEach(function (site) {
+				siteSelect.appendChild(el('option', {
+					value: String(site.id),
+					text: site.active ? site.name : tr('{name} (deactivated)', { name: site.name }),
+				}));
+			});
+			if (existing && existing.siteId) {
+				siteSelect.value = String(existing.siteId);
+			}
+			f.siteId = field(tr('Site'), siteSelect, { hint: tr('Optional — link this unit to a customer site.') });
 			var activeBox = el('input', { type: 'checkbox' });
 			activeBox.checked = existing ? !!existing.active : true;
 
 			var order = customers ? ['customerId', 'label', 'equipTypeId'] : ['label', 'equipTypeId'];
-			order = order.concat(['manufacturer', 'model', 'serialNo', 'locationText', 'notes']);
+			order = order.concat(['siteId', 'manufacturer', 'model', 'serialNo', 'locationText', 'notes']);
 			var grid = el('div', { class: 'mn-form-grid' }, order.map(function (k) { return f[k]; }));
 			var content = el('div', {}, [
 				grid,
@@ -1793,6 +2566,7 @@
 						onClick: function (d) {
 							d.setBusy(true);
 							d.setError(null);
+							var siteRaw = siteSelect.value;
 							var body = {
 								label: f.label.mnInput.value,
 								equipTypeId: Number(typeSelect.value),
@@ -1801,6 +2575,7 @@
 								serialNo: nullable(f.serialNo.mnInput.value),
 								locationText: nullable(f.locationText.mnInput.value),
 								notes: nullable(f.notes.mnInput.value),
+								siteId: siteRaw === '' ? null : Number(siteRaw),
 								active: existing ? activeBox.checked : true,
 							};
 							if (!existing) {
@@ -1831,6 +2606,7 @@
 		var pagination = document.getElementById('mn-equipment-pagination');
 		var search = document.getElementById('mn-equipment-search');
 		var state = { q: '', offset: 0 };
+		var loadSeq = 0;
 
 		if (ctx.isOffice) {
 			document.getElementById('mn-page-actions').appendChild(el('button', {
@@ -1841,16 +2617,29 @@
 		}
 
 		function load() {
+			var seq = ++loadSeq;
 			list.setAttribute('aria-busy', 'true');
 			clear(list);
 			list.appendChild(skeleton(4));
 			api('GET', withQuery(apiUrl('equipment'), { q: state.q, offset: state.offset }))
-				.then(render)
+				.then(function (envelope) {
+					if (seq !== loadSeq) {
+						return;
+					}
+					render(envelope);
+				})
 				.catch(function (error) {
+					if (seq !== loadSeq) {
+						return;
+					}
 					clear(list);
 					handleGlobalError(error);
 				})
-				.finally(function () { list.removeAttribute('aria-busy'); });
+				.finally(function () {
+					if (seq === loadSeq) {
+						list.removeAttribute('aria-busy');
+					}
+				});
 		}
 
 		function render(envelope) {
@@ -1861,12 +2650,12 @@
 					state.q === '' ? tr('Equipment is created on a customer page, so every unit has a home.') : tr('Try a shorter search term.')
 				));
 				renderPagination(pagination, envelope, onPage);
+				announceResults(0, state.q === '' ? tr('No equipment yet') : tr('No equipment matches your search'));
 				return;
 			}
-			envelope.data.forEach(function (item) {
-				list.appendChild(equipmentRow(item));
-			});
+			list.appendChild(equipmentTable(envelope.data, tr('Equipment')));
 			renderPagination(pagination, envelope, onPage);
+			announceResults(envelope.total);
 		}
 
 		function onPage(offset) {
@@ -1886,7 +2675,12 @@
 	// ── Page: equipment detail (plans + history) ──────────────────────
 
 	function planFormDialog(existing, equipmentId, hasOpenVisit, onDone) {
-		loadAllCatalog(apiUrl('maintTypes')).then(function (maintTypes) {
+		Promise.all([
+			loadAllCatalog(apiUrl('maintTypes')),
+			api('GET', apiUrl('equipment') + '/' + equipmentId + '/meters').then(function (e) { return e.data || []; }),
+		]).then(function (results) {
+			var maintTypes = results[0];
+			var meters = results[1];
 			var typeSelect = catalogSelect(maintTypes, existing ? existing.maintTypeId : null, true);
 			var unitSelect = el('select', {}, [
 				el('option', { value: 'day', text: tr('Days') }),
@@ -1901,11 +2695,36 @@
 			contractBox.checked = existing ? !!existing.hasContract : false;
 			var contractNotes = el('input', { type: 'text', value: existing ? (existing.contractNotes || '') : '' });
 			var recalcBox = el('input', { type: 'checkbox' });
+			var triggerSelect = el('select', {}, [
+				el('option', { value: 'interval', text: tr('On a calendar interval') }),
+				el('option', { value: 'meter', text: tr('When a meter reaches a threshold') }),
+				el('option', { value: 'either', text: tr('Whichever comes first') }),
+			]);
+			triggerSelect.value = existing && existing.triggerKind ? existing.triggerKind : 'interval';
+			var meterSelect = el('select', {});
+			meterSelect.appendChild(el('option', { value: '', text: tr('Select a meter…') }));
+			meters.filter(function (m) { return m.active; }).forEach(function (meter) {
+				meterSelect.appendChild(el('option', {
+					value: meter.code,
+					text: meter.name + (meter.unit ? ' (' + meter.unit + ')' : '') + ' · ' + meter.code,
+				}));
+			});
+			if (existing && existing.meterCode) {
+				meterSelect.value = existing.meterCode;
+			}
+			var thresholdInput = el('input', {
+				type: 'text',
+				inputmode: 'decimal',
+				value: existing && existing.meterThreshold != null ? String(existing.meterThreshold) : '',
+			});
 
 			var f = {
 				maintTypeId: field(tr('Maintenance type'), typeSelect, { required: true, wide: true }),
+				triggerKind: field(tr('When is it due?'), triggerSelect, { required: true, wide: true }),
 				intervalCount: field(tr('Repeat every'), countInput, { required: true }),
 				intervalUnit: field(tr('Unit'), unitSelect, { required: true }),
+				meterCode: field(tr('Meter'), meterSelect, { required: true, wide: true }),
+				meterThreshold: field(tr('Threshold'), thresholdInput, { required: true, hint: tr('Visit opens when the reading reaches this value.') }),
 			};
 			if (!existing) {
 				f.firstDueOn = field(tr('First visit due on'), firstDueInput, { required: true, wide: true });
@@ -1923,8 +2742,29 @@
 			countInput.addEventListener('input', refreshRecalcHint);
 			refreshRecalcHint();
 
+			var intervalFields = el('div', { class: 'mn-form-grid' }, [f.intervalCount, f.intervalUnit]);
+			var meterFields = el('div', { class: 'mn-form-grid' }, [f.meterCode, f.meterThreshold]);
+			var firstDueWrap = f.firstDueOn || null;
+
+			function syncTriggerUi() {
+				var kind = triggerSelect.value;
+				var needsInterval = kind === 'interval' || kind === 'either';
+				var needsMeter = kind === 'meter' || kind === 'either';
+				intervalFields.hidden = !needsInterval;
+				meterFields.hidden = !needsMeter;
+				if (firstDueWrap) {
+					firstDueWrap.hidden = kind === 'meter';
+				}
+			}
+			triggerSelect.addEventListener('change', syncTriggerUi);
+			syncTriggerUi();
+
 			var content = el('div', {}, [
-				el('div', { class: 'mn-form-grid' }, Object.keys(f).map(function (k) { return f[k]; })),
+				el('div', { class: 'mn-form-grid' }, [f.maintTypeId, f.triggerKind]),
+				intervalFields,
+				meterFields,
+				firstDueWrap,
+				f.contractNotes,
 				el('label', { class: 'mn-checkbox' }, [contractBox, el('span', { text: tr('There is a maintenance contract') })]),
 				existing && hasOpenVisit ? el('label', { class: 'mn-checkbox' }, [recalcBox, el('span', {}, [
 					el('span', { text: tr('Recalculate the open visit’s due date') }),
@@ -1943,16 +2783,24 @@
 						onClick: function (d) {
 							d.setBusy(true);
 							d.setError(null);
+							var kind = triggerSelect.value;
 							var body = {
 								maintTypeId: Number(typeSelect.value),
-								intervalUnit: unitSelect.value,
-								intervalCount: Math.trunc(Number(countInput.value)),
+								triggerKind: kind,
 								hasContract: contractBox.checked,
 								contractNotes: nullable(contractNotes.value),
 							};
-							if (!existing) {
+							if (kind === 'interval' || kind === 'either') {
+								body.intervalUnit = unitSelect.value;
+								body.intervalCount = Math.trunc(Number(countInput.value));
+							}
+							if (kind === 'meter' || kind === 'either') {
+								body.meterCode = meterSelect.value;
+								body.meterThreshold = thresholdInput.value.trim();
+							}
+							if (!existing && kind !== 'meter') {
 								body.firstDueOn = firstDueInput.value;
-							} else if (hasOpenVisit) {
+							} else if (existing && hasOpenVisit) {
 								body.recalculateOpenVisit = recalcBox.checked;
 							}
 							var request = existing
@@ -1960,7 +2808,13 @@
 								: api('POST', apiUrl('equipment') + '/' + equipmentId + '/plans', body);
 							request.then(function () {
 								d.close();
-								toast(existing ? tr('Plan saved.') : tr('Plan created — first visit is on the board.'), 'success');
+								if (existing) {
+									toast(tr('Plan saved.'), 'success');
+								} else if (kind === 'meter') {
+									toast(tr('Plan created — waiting for a meter reading.'), 'success');
+								} else {
+									toast(tr('Plan created — first visit is on the board.'), 'success');
+								}
 								onDone();
 							}).catch(function (error) {
 								d.setBusy(false);
@@ -1973,6 +2827,9 @@
 								} else if (error.code === 'inactive_maint_type' || error.code === 'unknown_maint_type') {
 									f.maintTypeId.mnSetError(FIELD_ERROR_TEXT[error.code]());
 									typeSelect.focus();
+								} else if (error.code === 'meter_threshold_required') {
+									f.meterThreshold.mnSetError(tr('Enter a threshold for this meter plan.'));
+									thresholdInput.focus();
 								} else if (!applyFieldErrors(f, error)) {
 									d.setError(error.message);
 								}
@@ -2029,6 +2886,8 @@
 		var detail = document.getElementById('mn-equipment-detail');
 		var plansBox = document.getElementById('mn-equipment-plans');
 		var planActions = document.getElementById('mn-plans-section-actions');
+		var metersBox = document.getElementById('mn-equipment-meters');
+		var meterActions = document.getElementById('mn-meters-section-actions');
 		var historyBox = document.getElementById('mn-equipment-history');
 		var historyPagination = document.getElementById('mn-history-pagination');
 		document.getElementById('mn-back-link').setAttribute('href', pageUrl('equipment'));
@@ -2042,6 +2901,7 @@
 				.then(function (item) {
 					current = item;
 					renderDetail(item);
+					loadMeters();
 					loadPlans();
 					loadHistory();
 				})
@@ -2050,6 +2910,7 @@
 					detail.appendChild(emptyState(tr('Equipment not found'), tr('It may have been deleted in the meantime.')));
 					clear(plansBox);
 					clear(historyBox);
+					if (metersBox) clear(metersBox);
 					if (error.status !== 404) {
 						handleGlobalError(error);
 					}
@@ -2066,6 +2927,7 @@
 				pair(tr('Serial number'), item.serialNo || '—'),
 				pair(tr('Location'), item.locationText || '—'),
 				pair(tr('Status'), item.active ? tr('Active') : tr('Inactive')),
+				pair(tr('QR sticker'), item.hasQrToken ? tr('Issued') : tr('Not issued yet')),
 				item.notes ? pair(tr('Notes'), item.notes) : null,
 			]);
 			var card = el('div', { class: 'mn-card' }, [grid]);
@@ -2077,11 +2939,93 @@
 						onClick: function () { equipmentFormDialog(current, null, load); },
 					}),
 					el('button', {
+						type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact',
+						text: item.hasQrToken ? tr('Renew QR sticker') : tr('Create QR sticker'),
+						title: item.hasQrToken
+							? tr('Creates a new sticker. The previous sticker stops working.')
+							: tr('Print a sticker technicians can scan to open this unit.'),
+						onClick: renewQrSticker,
+					}),
+					el('button', {
 						type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact', text: tr('Delete equipment'),
 						onClick: deleteEquipment,
 					}),
 				]));
 			}
+		}
+
+		function renewQrSticker() {
+			openDialog({
+				title: current.hasQrToken ? tr('Renew QR sticker') : tr('Create QR sticker'),
+				text: current.hasQrToken
+					? tr('A new sticker will replace the old one. Printed stickers with the previous code will no longer open this unit.')
+					: tr('Create a printable QR sticker for this equipment. Technicians can scan it to open the unit.'),
+				actions: [
+					{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+					{
+						label: current.hasQrToken ? tr('Renew and show') : tr('Create and show'),
+						variant: 'mn-btn--primary',
+						onClick: function (d) {
+							d.setBusy(true);
+							api('POST', apiUrl('equipment') + '/' + equipmentId + '/qr/rotate', {})
+								.then(function (result) {
+									d.close();
+									showQrStickerDialog(result);
+									load();
+								})
+								.catch(function (error) {
+									d.setBusy(false);
+									d.setError(error.message);
+								});
+						},
+					},
+				],
+			});
+		}
+
+		function showQrStickerDialog(result) {
+			var svgWrap = el('div', {
+				class: 'mn-qr-sticker',
+				html: result.qrSvg || '',
+				role: 'img',
+				'aria-label': tr('QR code for this equipment'),
+			});
+			var link = el('p', { class: 'mn-muted' }, [
+				el('span', { text: tr('Deep link: ') }),
+				el('code', { text: result.qrDeepLink || result.qrPayload || '' }),
+			]);
+			openDialog({
+				title: tr('QR sticker'),
+				content: el('div', { class: 'mn-qr-sticker-dialog' }, [
+					el('p', { class: 'mn-dialog__text', text: tr('Print this sticker and attach it to the equipment. Scanning opens the unit in MaintenanceCheck.') }),
+					svgWrap,
+					link,
+				]),
+				actions: [
+					{
+						label: tr('Print'),
+						variant: 'mn-btn--secondary',
+						onClick: function () {
+							var win = window.open('', '_blank', 'noopener,noreferrer,width=480,height=640');
+							if (!win) {
+								toast(tr('Pop-up blocked — allow pop-ups to print the sticker.'), 'error');
+								return;
+							}
+							win.document.write('<!DOCTYPE html><html><head><title>' +
+								String(current.label).replace(/[<>&]/g, '') +
+								'</title><style>body{font-family:system-ui,sans-serif;text-align:center;padding:2rem}svg{width:240px;height:240px}h1{font-size:1.1rem}</style></head><body><h1>' +
+								String(current.label).replace(/[<>&]/g, '') +
+								'</h1>' + (result.qrSvg || '') + '<p>' +
+								String(result.qrPayload || '').replace(/[<>&]/g, '') +
+								'</p></body></html>');
+							win.document.close();
+							win.focus();
+							win.print();
+						},
+					},
+					{ label: tr('Close'), variant: 'mn-btn--primary', onClick: function (d) { d.close(); } },
+				],
+			});
 		}
 
 		function deleteEquipment() {
@@ -2117,6 +3061,143 @@
 			return el('div', {}, [el('dt', { text: label }), el('dd', { text: value })]);
 		}
 
+		function meterCsvImportDialog(equipmentId, onDone) {
+			var csvInput = el('textarea', { rows: '8', class: 'mn-input form-input', placeholder: 'meter_code,value,read_on,note\nruntime_h,2005,2026-07-26,' });
+			var csvField = field(tr('CSV readings'), csvInput, {
+				required: true,
+				wide: true,
+				hint: tr('Columns: meter_code, value, optional read_on (Y-m-d), optional note. Header row allowed. Max 500 rows.'),
+			});
+			openDialog({
+				title: tr('Import meter readings'),
+				content: el('div', {}, [csvField]),
+				initialFocus: 'textarea',
+				actions: [
+					{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+					{
+						label: tr('Import'),
+						variant: 'mn-btn--primary',
+						onClick: function (d) {
+							d.setBusy(true);
+							d.setError(null);
+							api('POST', apiUrl('equipment') + '/' + equipmentId + '/meters/import', { csv: csvInput.value })
+								.then(function (result) {
+									d.close();
+									var n = result.imported || 0;
+									var trig = (result.triggered || []).length;
+									toast(trig
+										? tr('Imported {n} readings — {t} plans became due.', { n: String(n), t: String(trig) })
+										: tr('Imported {n} readings.', { n: String(n) }), 'success');
+									onDone();
+								})
+								.catch(function (error) {
+									d.setBusy(false);
+									if (!applyFieldErrors({ csv: csvField }, error)) {
+										d.setError(error.message);
+									}
+								});
+						},
+					},
+				],
+			});
+		}
+
+		function loadMeters() {
+			if (!metersBox) {
+				return;
+			}
+			clear(meterActions);
+			if (ctx.isOffice) {
+				meterActions.appendChild(el('button', {
+					type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact',
+					onClick: function () { meterFormDialog(null, equipmentId, reload); },
+				}, [el('span', { html: ICONS.plus, 'aria-hidden': 'true' }), tr('New meter')]));
+				meterActions.appendChild(el('button', {
+					type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact',
+					text: tr('Import CSV'),
+					onClick: function () { meterCsvImportDialog(equipmentId, reload); },
+				}));
+			}
+			metersBox.setAttribute('aria-busy', 'true');
+			clear(metersBox);
+			metersBox.appendChild(skeleton(2));
+			api('GET', apiUrl('equipment') + '/' + equipmentId + '/meters')
+				.then(function (envelope) {
+					clear(metersBox);
+					var rows = envelope.data || [];
+					if (rows.length === 0) {
+						metersBox.appendChild(emptyState(
+							tr('No meters yet'),
+							ctx.isOffice
+								? tr('Add a meter for operating hours or cycles, then plan maintenance on a threshold.')
+								: tr('No meters have been set up for this unit.')
+						));
+						return;
+					}
+					metersBox.appendChild(tableOrCards([
+						{
+							id: 'meter',
+							label: tr('Meter'),
+							render: function (meter) {
+								var latest = meter.latestReading;
+								var sub = latest
+									? tr('Latest {value}{unit} on {date}', {
+										value: latest.value,
+										unit: meter.unit ? ' ' + meter.unit : '',
+										date: fmt(latest.readOn),
+									})
+									: tr('No readings yet');
+								return tableStack(meter.name + ' · ' + meter.code, sub);
+							},
+						},
+						{
+							id: 'flags',
+							label: tr('Details'),
+							render: function (meter) {
+								var badges = [];
+								if (meter.unit) {
+									badges.push(el('span', { class: 'mn-table-meta', text: meter.unit }));
+								}
+								if (meter.monotonic) {
+									badges.push(statusBadge(tr('Counts up only'), 'mn-badge--info'));
+								}
+								if (!meter.active) {
+									badges.push(statusBadge(tr('Inactive'), 'mn-badge--neutral'));
+								}
+								return badges.length ? badges : tableCellText(null);
+							},
+						},
+						{
+							id: 'actions',
+							label: tr('Actions'),
+							actions: true,
+							render: function (meter) {
+								var actions = [
+									el('button', {
+										type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact', text: tr('Add reading'),
+										onClick: function () { readingDialog(meter, reload); },
+									}),
+								];
+								if (ctx.isOffice) {
+									actions.push(el('button', {
+										type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit'),
+										onClick: function () { meterFormDialog(meter, equipmentId, reload); },
+									}));
+								}
+								return actions;
+							},
+						},
+					], rows, {
+						caption: tr('Meters'),
+						rowClass: function (meter) {
+							return meter.active ? '' : 'mn-table__row--inactive';
+						},
+					}));
+				})
+				.catch(handleGlobalError)
+				.finally(function () { metersBox.removeAttribute('aria-busy'); });
+		}
+
 		function loadPlans() {
 			clear(planActions);
 			if (ctx.isOffice) {
@@ -2143,53 +3224,99 @@
 					));
 					return;
 				}
-				plans.forEach(function (plan) {
-					plansBox.appendChild(planRow(plan, typeNames));
-				});
+				plansBox.appendChild(tableOrCards([
+					{
+						id: 'plan',
+						label: tr('Plan'),
+						render: function (plan) {
+							var sub;
+							if (plan.openVisit) {
+								sub = tr('Next visit due {date}', { date: fmt(plan.openVisit.dueOn) });
+							} else if (plan.triggerKind === 'meter' && plan.active) {
+								sub = tr('Waiting for a meter reading that reaches the threshold.');
+							} else if (plan.active) {
+								sub = tr('No open visit — schedule one to continue the cycle.');
+							} else {
+								sub = tr('Plan is inactive.');
+							}
+							return tableStack(planTitle(plan, typeNames), sub);
+						},
+					},
+					{
+						id: 'status',
+						label: tr('Status'),
+						render: function (plan) {
+							var badges = [
+								statusBadge(
+									plan.active ? tr('Active') : tr('Inactive'),
+									plan.active ? 'mn-badge--scheduled' : 'mn-badge--neutral'
+								),
+							];
+							if (plan.hasContract) {
+								badges.push(statusBadge(tr('Contract'), 'mn-badge--info'));
+							}
+							if (plan.triggerKind && plan.triggerKind !== 'interval') {
+								badges.push(statusBadge(
+									plan.triggerKind === 'meter' ? tr('Meter') : tr('Interval or meter'),
+									'mn-badge--info'
+								));
+							}
+							return badges;
+						},
+					},
+					{
+						id: 'actions',
+						label: tr('Actions'),
+						actions: true,
+						render: function (plan) {
+							var actions = [];
+							if (ctx.isOffice) {
+								actions.push(el('button', {
+									type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit'),
+									onClick: function () { planFormDialog(plan, equipmentId, !!plan.openVisit, reload); },
+								}));
+								if (plan.active && !plan.openVisit && plan.triggerKind !== 'meter') {
+									actions.push(el('button', {
+										type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact', text: tr('Schedule visit'),
+										onClick: function () { scheduleVisitDialog(plan, reload); },
+									}));
+								}
+								if (plan.active) {
+									actions.push(el('button', {
+										type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact', text: tr('Deactivate'),
+										onClick: function () { deactivatePlan(plan); },
+									}));
+								}
+							}
+							return actions.length ? actions : tableCellText(null);
+						},
+					},
+				], plans, {
+					caption: tr('Plans'),
+					rowClass: function (plan) {
+						return plan.active ? '' : 'mn-table__row--inactive';
+					},
+				}));
 			}).catch(handleGlobalError)
 				.finally(function () { plansBox.removeAttribute('aria-busy'); });
 		}
 
-		function planRow(plan, typeNames) {
-			var meta = el('div', { class: 'mn-row__meta' }, [
-				el('span', { class: 'mn-badge ' + (plan.active ? 'mn-badge--scheduled' : ''), text: plan.active ? tr('Active') : tr('Inactive') }),
-				plan.hasContract ? el('span', { class: 'mn-badge', text: tr('Contract') }) : null,
-			]);
-			var sub;
-			if (plan.openVisit) {
-				sub = tr('Next visit due {date}', { date: fmt(plan.openVisit.dueOn) });
-			} else if (plan.active) {
-				sub = tr('No open visit — schedule one to continue the cycle.');
-			} else {
-				sub = tr('Plan is inactive.');
+		function planTitle(plan, typeNames) {
+			var typeName = typeNames[plan.maintTypeId] || tr('Maintenance');
+			if (plan.triggerKind === 'meter') {
+				return typeName + ' · ' + tr('Meter {code} ≥ {threshold}', {
+					code: plan.meterCode || '—',
+					threshold: plan.meterThreshold || '—',
+				});
 			}
-			var actions = [];
-			if (ctx.isOffice) {
-				actions.push(el('button', {
-					type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit'),
-					onClick: function () { planFormDialog(plan, equipmentId, !!plan.openVisit, reload); },
-				}));
-				if (plan.active && !plan.openVisit) {
-					actions.push(el('button', {
-						type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact', text: tr('Schedule visit'),
-						onClick: function () { scheduleVisitDialog(plan, reload); },
-					}));
-				}
-				if (plan.active) {
-					actions.push(el('button', {
-						type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact', text: tr('Deactivate'),
-						onClick: function () { deactivatePlan(plan); },
-					}));
-				}
+			if (plan.triggerKind === 'either') {
+				return typeName + ' · ' + intervalLabel(plan.intervalUnit, plan.intervalCount)
+					+ ' / ' + tr('Meter {code} ≥ {threshold}', {
+						code: plan.meterCode || '—',
+						threshold: plan.meterThreshold || '—',
+					});
 			}
-			return el('div', { class: 'mn-row' + (plan.active ? '' : ' mn-row--inactive') }, [
-				el('div', { class: 'mn-row__main' }, [
-					el('h3', { class: 'mn-row__title', text: (typeNames[plan.maintTypeId] || tr('Maintenance')) + ' · ' + intervalLabel(plan.intervalUnit, plan.intervalCount) }),
-					el('p', { class: 'mn-row__sub', text: sub }),
-				]),
-				meta,
-				actions.length ? el('div', { class: 'mn-row__actions' }, actions) : null,
-			]);
+			return typeName + ' · ' + intervalLabel(plan.intervalUnit, plan.intervalCount);
 		}
 
 		function deactivatePlan(plan) {
@@ -2231,36 +3358,46 @@
 						renderPagination(historyPagination, envelope, onHistoryPage);
 						return;
 					}
-					envelope.data.forEach(function (visit) {
-						historyBox.appendChild(historyRow(visit));
-					});
+					historyBox.appendChild(tableOrCards([
+						{
+							id: 'visit',
+							label: tr('Visit'),
+							render: function (visit) {
+								var subParts = [visit.maintTypeName];
+								if (visit.status === 'done' && visit.doneOn) {
+									subParts.push(tr('Completed on {date}', { date: fmt(visit.doneOn) }));
+								}
+								if (visit.assignedUid) {
+									subParts.push(tr('Assigned to {user}', { user: visit.assignedUid }));
+								}
+								if (visit.notes) {
+									subParts.push(visit.notes);
+								}
+								return tableStack(tr('Due {date}', { date: fmt(visit.dueOn) }), subParts.join(' · '));
+							},
+						},
+						{
+							id: 'status',
+							label: tr('Status'),
+							render: function (visit) {
+								var meta = statusMeta(visit.status);
+								return statusBadge(meta.label, meta.badge, meta.icon);
+							},
+						},
+						{
+							id: 'actions',
+							label: tr('Actions'),
+							actions: true,
+							render: function (visit) {
+								var actions = visitActions(visit, reload);
+								return actions.length ? actions : tableCellText(null);
+							},
+						},
+					], envelope.data, { caption: tr('Visit history') }));
 					renderPagination(historyPagination, envelope, onHistoryPage);
 				})
 				.catch(handleGlobalError)
 				.finally(function () { historyBox.removeAttribute('aria-busy'); });
-		}
-
-		function historyRow(visit) {
-			var meta = statusMeta(visit.status);
-			var subParts = [visit.maintTypeName];
-			if (visit.status === 'done' && visit.doneOn) {
-				subParts.push(tr('Completed on {date}', { date: fmt(visit.doneOn) }));
-			}
-			if (visit.assignedUid) {
-				subParts.push(tr('Assigned to {user}', { user: visit.assignedUid }));
-			}
-			var actions = visitActions(visit, reload);
-			return el('div', { class: 'mn-row' }, [
-				el('div', { class: 'mn-row__main' }, [
-					el('h3', { class: 'mn-row__title', text: tr('Due {date}', { date: fmt(visit.dueOn) }) }),
-					el('p', { class: 'mn-row__sub', text: subParts.join(' · ') }),
-					visit.notes ? el('p', { class: 'mn-row__sub', text: visit.notes }) : null,
-				]),
-				el('div', { class: 'mn-row__meta' }, [
-					statusBadge(meta.label, meta.badge, meta.icon),
-				]),
-				actions.length ? el('div', { class: 'mn-row__actions' }, actions) : null,
-			]);
 		}
 
 		function onHistoryPage(offset) {
@@ -2269,11 +3406,127 @@
 		}
 
 		function reload() {
+			loadMeters();
 			loadPlans();
 			loadHistory();
 		}
 
 		load();
+	}
+
+	function meterFormDialog(existing, equipmentId, onDone) {
+		var codeInput = el('input', {
+			type: 'text',
+			value: existing ? existing.code : '',
+			disabled: existing ? 'disabled' : null,
+		});
+		var f = {
+			code: field(tr('Code'), codeInput, {
+				required: !existing,
+				hint: existing ? tr('The code cannot be changed after creation.') : tr('Lowercase letters, digits and underscores, e.g. heat_pump.'),
+			}),
+			name: field(tr('Name'), el('input', { type: 'text', value: existing ? existing.name : '' }), { required: true, wide: true }),
+			unit: field(tr('Unit'), el('input', { type: 'text', value: existing ? (existing.unit || '') : 'h' }), { hint: tr('Short unit label, e.g. h, km, cycles.') }),
+		};
+		var monoBox = el('input', { type: 'checkbox' });
+		monoBox.checked = existing ? !!existing.monotonic : true;
+		var activeBox = el('input', { type: 'checkbox' });
+		activeBox.checked = existing ? !!existing.active : true;
+		openDialog({
+			title: existing ? tr('Edit meter') : tr('New meter'),
+			content: el('div', {}, [
+				el('div', { class: 'mn-form-grid' }, [f.code, f.name, f.unit]),
+				el('label', { class: 'mn-checkbox' }, [monoBox, el('span', { text: tr('Only allow readings that count up') })]),
+				existing ? el('label', { class: 'mn-checkbox' }, [activeBox, el('span', { text: tr('Meter is active') })]) : null,
+			]),
+			actions: [
+				{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+				{
+					label: existing ? tr('Save changes') : tr('Create meter'),
+					variant: 'mn-btn--primary',
+					onClick: function (d) {
+						d.setBusy(true);
+						d.setError(null);
+						var body = {
+							name: f.name.mnInput.value,
+							unit: nullable(f.unit.mnInput.value),
+							monotonic: monoBox.checked,
+						};
+						if (!existing) {
+							body.code = codeInput.value;
+						} else {
+							body.active = activeBox.checked;
+						}
+						var request = existing
+							? api('PUT', apiUrl('meters') + '/' + existing.id, body)
+							: api('POST', apiUrl('equipment') + '/' + equipmentId + '/meters', body);
+						request.then(function () {
+							d.close();
+							toast(existing ? tr('Meter saved.') : tr('Meter created.'), 'success');
+							onDone();
+						}).catch(function (error) {
+							d.setBusy(false);
+							if (error.code === 'code_exists') {
+								f.code.mnSetError(tr('This code is already in use.'));
+								codeInput.focus();
+							} else if (!applyFieldErrors(f, error)) {
+								d.setError(error.message);
+							}
+						});
+					},
+				},
+			],
+		});
+	}
+
+	function readingDialog(meter, onDone) {
+		var valueInput = el('input', { type: 'text', inputmode: 'decimal', value: '' });
+		var dateInput = el('input', { type: 'date', value: todayYmd() });
+		var noteInput = el('input', { type: 'text', value: '' });
+		var f = {
+			value: field(tr('Reading'), valueInput, { required: true, hint: meter.unit ? tr('Value in {unit}.', { unit: meter.unit }) : null }),
+			readOn: field(tr('Read on'), dateInput, { required: true }),
+			note: field(tr('Notes'), noteInput, { wide: true }),
+		};
+		openDialog({
+			title: tr('Add reading'),
+			text: meter.name + (meter.latestReading ? ' — ' + tr('Latest was {value}.', { value: meter.latestReading.value }) : ''),
+			content: el('div', { class: 'mn-form-grid' }, [f.value, f.readOn, f.note]),
+			initialFocus: 'input[inputmode="decimal"], input[type="text"]',
+			actions: [
+				{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+				{
+					label: tr('Save reading'),
+					variant: 'mn-btn--primary',
+					onClick: function (d) {
+						d.setBusy(true);
+						d.setError(null);
+						api('POST', apiUrl('meters') + '/' + meter.id + '/readings', {
+							value: valueInput.value.trim(),
+							readOn: dateInput.value,
+							note: nullable(noteInput.value),
+						}).then(function (result) {
+							d.close();
+							var triggered = (result && result.triggered) || [];
+							if (triggered.length > 0) {
+								toast(tr('Reading saved — Due board updated.'), 'success');
+							} else {
+								toast(tr('Reading saved.'), 'success');
+							}
+							onDone();
+						}).catch(function (error) {
+							d.setBusy(false);
+							if (error.code === 'meter_not_monotonic') {
+								f.value.mnSetError(error.message);
+								valueInput.focus();
+							} else if (!applyFieldErrors(f, error)) {
+								d.setError(error.message);
+							}
+						});
+					},
+				},
+			],
+		});
 	}
 
 	// ── Page: visits ───────────────────────────────────────────────────
@@ -2288,8 +3541,10 @@
 		var mineToggle = document.getElementById('mn-filter-mine');
 		var resetButton = document.getElementById('mn-filter-reset');
 		var state = { offset: 0 };
+		var loadSeq = 0;
 
 		function load() {
+			var seq = ++loadSeq;
 			list.setAttribute('aria-busy', 'true');
 			clear(list);
 			list.appendChild(skeleton(5));
@@ -2300,8 +3555,16 @@
 				mine: mineToggle.checked ? '1' : '',
 				offset: state.offset,
 			}))
-				.then(render)
+				.then(function (envelope) {
+					if (seq !== loadSeq) {
+						return;
+					}
+					render(envelope);
+				})
 				.catch(function (error) {
+					if (seq !== loadSeq) {
+						return;
+					}
 					clear(list);
 					if (error.code === 'invalid_query') {
 						toast(error.message, 'error');
@@ -2309,7 +3572,11 @@
 						handleGlobalError(error);
 					}
 				})
-				.finally(function () { list.removeAttribute('aria-busy'); });
+				.finally(function () {
+					if (seq === loadSeq) {
+						list.removeAttribute('aria-busy');
+					}
+				});
 		}
 
 		function render(envelope) {
@@ -2317,33 +3584,57 @@
 			if (envelope.total === 0) {
 				list.appendChild(emptyState(tr('No visits match these filters'), tr('Try widening the date range or clearing filters.')));
 				renderPagination(pagination, envelope, onPage);
+				announceResults(0, tr('No visits match these filters'));
 				return;
 			}
-			envelope.data.forEach(function (visit) {
-				var meta = statusMeta(visit.status);
-				var subParts = [visit.maintTypeName];
-				if (visit.status === 'done' && visit.doneOn) {
-					subParts.push(tr('Completed on {date}', { date: fmt(visit.doneOn) }));
-				}
-				if (visit.assignedUid) {
-					subParts.push(tr('Assigned to {user}', { user: visit.assignedUid }));
-				}
-				var actions = visitActions(visit, load);
-				list.appendChild(el('div', { class: 'mn-row' }, [
-					el('div', { class: 'mn-row__main' }, [
-						el('h3', { class: 'mn-row__title' }, [
-							el('a', { href: pageUrl('equipment') + '/' + visit.equipmentId, text: visit.customerName + ' — ' + visit.equipmentLabel }),
-						]),
-						el('p', { class: 'mn-row__sub', text: subParts.join(' · ') }),
-					]),
-					el('div', { class: 'mn-row__meta' }, [
-						el('span', { text: tr('Due {date}', { date: fmt(visit.dueOn) }) }),
-						statusBadge(meta.label, meta.badge, meta.icon),
-					]),
-					actions.length ? el('div', { class: 'mn-row__actions' }, actions) : null,
-				]));
-			});
+			list.appendChild(tableOrCards([
+				{
+					id: 'equipment',
+					label: tr('Visit'),
+					render: function (visit) {
+						var subParts = [visit.maintTypeName];
+						if (visit.status === 'done' && visit.doneOn) {
+							subParts.push(tr('Completed on {date}', { date: fmt(visit.doneOn) }));
+						}
+						if (visit.assignedUid) {
+							subParts.push(tr('Assigned to {user}', { user: visit.assignedUid }));
+						}
+						return tableStack(
+							tableLink(
+								pageUrl('equipment') + '/' + visit.equipmentId,
+								visit.customerName + ' — ' + visit.equipmentLabel
+							),
+							subParts.join(' · ')
+						);
+					},
+				},
+				{
+					id: 'due',
+					label: tr('Due'),
+					render: function (visit) {
+						return tr('Due {date}', { date: fmt(visit.dueOn) });
+					},
+				},
+				{
+					id: 'status',
+					label: tr('Status'),
+					render: function (visit) {
+						var meta = statusMeta(visit.status);
+						return statusBadge(meta.label, meta.badge, meta.icon);
+					},
+				},
+				{
+					id: 'actions',
+					label: tr('Actions'),
+					actions: true,
+					render: function (visit) {
+						var actions = visitActions(visit, load);
+						return actions.length ? actions : tableCellText(null);
+					},
+				},
+			], envelope.data, { caption: tr('Visits') }));
 			renderPagination(pagination, envelope, onPage);
+			announceResults(envelope.total);
 		}
 
 		function onPage(offset) {
@@ -2440,11 +3731,775 @@
 	function pageCatalogs() {
 		renderKind('equip', 'mn-equip-types', 'mn-equip-types-actions');
 		renderKind('maint', 'mn-maint-types', 'mn-maint-types-actions');
+		renderProcedures();
+		renderSimpleCatalog('skills', 'mn-skills', 'mn-skills-actions', tr('Skills'));
+		renderSimpleCatalog('kitTemplates', 'mn-kit-templates', 'mn-kit-templates-actions', tr('Kit templates'));
+
+		function renderProcedures() {
+			var box = document.getElementById('mn-procedures');
+			var actions = document.getElementById('mn-procedures-actions');
+			var loadSeq = 0;
+			if (!box || !actions) {
+				return;
+			}
+			clear(actions);
+
+			function showIfResultSelect(selected) {
+				var select = el('select', { class: 'mn-input form-select' });
+				[
+					{ value: '', label: tr('Always visible') },
+					{ value: 'ok', label: 'ok' },
+					{ value: 'fail', label: 'fail' },
+					{ value: 'na', label: 'na' },
+					{ value: 'any_answered', label: 'any_answered' },
+				].forEach(function (opt) {
+					select.appendChild(el('option', {
+						value: opt.value,
+						text: opt.label,
+						selected: (selected || '') === opt.value ? 'selected' : null,
+					}));
+				});
+				return select;
+			}
+
+			function buildItemEditor(initial) {
+				var itemsHost = el('div', { class: 'mn-form-grid', 'aria-label': tr('Checklist items') });
+				var itemRows = [];
+
+				function collectItems() {
+					return itemRows.map(function (row, index) {
+						var showIfCode = String(row.showIfCode.value || '').trim();
+						var showIfResult = String(row.showIfResult.value || '').trim();
+						return {
+							code: String(row.code.value || '').trim(),
+							label: String(row.label.value || '').trim(),
+							required: !!row.required.checked,
+							sortOrder: index + 1,
+							showIfItemCode: showIfCode || null,
+							showIfResult: showIfResult || null,
+						};
+					});
+				}
+
+				function addRow(seed) {
+					seed = seed || {};
+					var codeInput = el('input', { type: 'text', class: 'mn-input form-input', value: seed.code || '', autocomplete: 'off' });
+					var labelInput = el('input', { type: 'text', class: 'mn-input form-input', value: seed.label || '', autocomplete: 'off' });
+					var requiredInput = el('input', { type: 'checkbox', checked: seed.required === false ? null : 'checked' });
+					var showIfCode = el('input', { type: 'text', class: 'mn-input form-input', value: seed.showIfItemCode || '', autocomplete: 'off', placeholder: tr('Parent item code') });
+					var showIfResult = showIfResultSelect(seed.showIfResult || '');
+					var removeBtn = el('button', { type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact', text: tr('Remove item') });
+					var wrap = el('div', { class: 'mn-form-grid mn-procedure-item' }, [
+						field(tr('Item code'), codeInput, { required: true }),
+						field(tr('Label'), labelInput, { required: true }),
+						field(tr('Required'), requiredInput),
+						field(tr('Show if item'), showIfCode, { hint: tr('Optional: another item code in this procedure.') }),
+						field(tr('Show if result'), showIfResult),
+						removeBtn,
+					]);
+					var row = { wrap: wrap, code: codeInput, label: labelInput, required: requiredInput, showIfCode: showIfCode, showIfResult: showIfResult };
+					removeBtn.addEventListener('click', function () {
+						if (itemRows.length <= 1) {
+							return;
+						}
+						itemsHost.removeChild(wrap);
+						itemRows = itemRows.filter(function (r) { return r !== row; });
+					});
+					itemRows.push(row);
+					itemsHost.appendChild(wrap);
+				}
+
+				(initial && initial.length ? initial : [{ code: '', label: '', required: true }]).forEach(addRow);
+				var addBtn = el('button', { type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Add item') });
+				addBtn.addEventListener('click', function () { addRow({}); });
+				return {
+					root: el('div', {}, [itemsHost, addBtn]),
+					collect: collectItems,
+				};
+			}
+
+			function procedureDialog(existing, onSaved) {
+				var isEdit = !!existing;
+				var codeInput = el('input', {
+					type: 'text',
+					class: 'mn-input form-input',
+					value: existing && existing.code ? existing.code : '',
+					autocomplete: 'off',
+					disabled: isEdit ? 'disabled' : null,
+				});
+				var titleInput = el('input', { type: 'text', class: 'mn-input form-input', value: (existing && existing.title) || '', autocomplete: 'off' });
+				var verticalInput = el('input', { type: 'text', class: 'mn-input form-input', value: (existing && existing.vertical) || '', autocomplete: 'off' });
+				var localeInput = el('input', { type: 'text', class: 'mn-input form-input', value: (existing && existing.locale) || 'en', autocomplete: 'off' });
+				var itemsEditor = buildItemEditor(existing && existing.items ? existing.items : null);
+				openDialog({
+					title: isEdit ? tr('Edit procedure') : tr('New procedure'),
+					content: el('div', { class: 'mn-form-grid' }, [
+						field(tr('Code'), codeInput, { required: !isEdit }),
+						field(tr('Title'), titleInput, { required: true }),
+						field(tr('Vertical'), verticalInput, { hint: tr('Optional short id, e.g. shk.') }),
+						field(tr('Locale'), localeInput),
+						el('div', { class: 'mn-form-wide' }, [
+							el('h3', { class: 'mn-card__title', text: tr('Checklist items') }),
+							itemsEditor.root,
+						]),
+					]),
+					actions: [
+						{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+						{
+							label: isEdit ? tr('Save') : tr('Create'),
+							variant: 'mn-btn--primary',
+							onClick: function (d) {
+								var items = itemsEditor.collect();
+								if (!items.length || items.some(function (it) { return !it.code || !it.label; })) {
+									d.setError(tr('Every checklist item needs a code and label.'));
+									return;
+								}
+								d.setBusy(true);
+								d.setError(null);
+								var body = {
+									title: titleInput.value.trim(),
+									vertical: verticalInput.value.trim() || null,
+									locale: localeInput.value.trim() || 'en',
+									items: items,
+								};
+								var req = isEdit
+									? api('PUT', apiUrl('procedures') + '/' + existing.id, body)
+									: api('POST', apiUrl('procedures'), Object.assign({ code: codeInput.value.trim() }, body));
+								req.then(function () {
+									d.close();
+									toast(tr('Status updated.'), 'success');
+									onSaved();
+								}).catch(function (error) {
+									if (error.code === 'procedure_in_use') {
+										d.setBusy(false);
+										d.setError(tr('This procedure is used by work orders. Fork it to change checklist items.'));
+										return;
+									}
+									d.setBusy(false);
+									d.setError(error.message);
+								});
+							},
+						},
+					],
+				});
+			}
+
+			if (ctx.isOffice) {
+				actions.appendChild(el('button', {
+					type: 'button',
+					class: 'mn-btn mn-btn--primary mn-btn--compact',
+					text: tr('New procedure'),
+					onClick: function () { procedureDialog(null, load); },
+				}));
+				var exportBtn = el('button', {
+					type: 'button',
+					class: 'mn-btn mn-btn--secondary mn-btn--compact',
+					text: tr('Export pack'),
+				});
+				exportBtn.addEventListener('click', function () {
+					var codeInput = el('input', { type: 'text', class: 'mn-input form-input', value: 'builtin-shk-v1', autocomplete: 'off' });
+					openDialog({
+						title: tr('Export pack'),
+						content: el('div', { class: 'mn-form-grid' }, [
+							field(tr('Pack code'), codeInput, { required: true }),
+						]),
+						actions: [
+							{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+							{
+								label: tr('Download'),
+								variant: 'mn-btn--primary',
+								onClick: function (d) {
+									var code = codeInput.value.trim();
+									if (!code) {
+										d.setError(tr('Pack code is required.'));
+										return;
+									}
+									d.close();
+									window.open(withQuery(apiUrl('proceduresPack'), { pack: code }), '_blank');
+								},
+							},
+						],
+					});
+				});
+				actions.appendChild(exportBtn);
+				var importBtn = el('button', {
+					type: 'button',
+					class: 'mn-btn mn-btn--secondary mn-btn--compact',
+					text: tr('Import pack'),
+				});
+				importBtn.addEventListener('click', function () {
+					var ta = el('textarea', { class: 'mn-input form-textarea', rows: '8' });
+					openDialog({
+						title: tr('Import pack'),
+						content: el('div', { class: 'mn-form-grid' }, [
+							field(tr('Procedures'), ta, { required: true, wide: true, hint: tr('Paste mn_procedure_pack_v1 JSON.') }),
+						]),
+						actions: [
+							{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+							{
+								label: tr('Preview'),
+								variant: 'mn-btn--secondary',
+								onClick: function (d) {
+									var raw = ta.value.trim();
+									var parsed;
+									try {
+										parsed = JSON.parse(raw);
+									} catch (e) {
+										d.setError(tr('This value has the wrong format.'));
+										return;
+									}
+									var procs = (parsed && parsed.procedures) || [];
+									if (!Array.isArray(procs) || !procs.length) {
+										d.setError(tr('Pack must list at least one procedure.'));
+										return;
+									}
+									var preview = el('ul', { class: 'mn-listing' });
+									procs.forEach(function (proc) {
+										preview.appendChild(el('li', {
+											text: (proc.code || '?') + ' — ' + (proc.title || tr('Procedure'))
+												+ ' (' + String((proc.items && proc.items.length) || 0) + ' ' + tr('Checklist items') + ')',
+										}));
+									});
+									openDialog({
+										title: tr('Pack preview'),
+										content: el('div', { class: 'mn-form-grid' }, [
+											el('p', {
+												text: tr('Pack code') + ': ' + String(parsed.pack_code || parsed.packCode || '—')
+													+ ' · ' + tr('Vertical') + ': ' + String(parsed.vertical || '—'),
+											}),
+											preview,
+										]),
+										actions: [
+											{ label: tr('Back'), variant: 'mn-btn--tertiary', onClick: function (d2) { d2.close(); } },
+											{
+												label: tr('Import pack'),
+												variant: 'mn-btn--primary',
+												onClick: function (d2) {
+													d2.close();
+													d.setBusy(true);
+													api('POST', apiUrl('proceduresPack'), { packJson: raw, overwrite: 0 })
+														.then(function () {
+															d.close();
+															toast(tr('Status updated.'), 'success');
+															load();
+														})
+														.catch(function (error) {
+															d.setBusy(false);
+															if (error.code === 'pack_exists') {
+																var packCode = '';
+																if (error.details && error.details.packCode) {
+																	packCode = String(error.details.packCode);
+																} else {
+																	packCode = String(parsed.pack_code || parsed.packCode || '');
+																}
+																var confirmInput = el('input', {
+																	type: 'text',
+																	class: 'mn-input form-input',
+																	autocomplete: 'off',
+																	'aria-required': 'true',
+																});
+																openDialog({
+																	title: tr('Overwrite pack?'),
+																	content: el('div', { class: 'mn-form-grid' }, [
+																		el('p', { text: tr('A pack with this code was already imported. Type the pack code to confirm overwrite.') }),
+																		packCode ? el('p', { class: 'mn-muted', text: tr('Pack code') + ': ' + packCode }) : null,
+																		field(tr('Pack code'), confirmInput, { required: true }),
+																	]),
+																	actions: [
+																		{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d3) { d3.close(); } },
+																		{
+																			label: tr('Overwrite'),
+																			variant: 'mn-btn--primary',
+																			onClick: function (d3) {
+																				var typed = String(confirmInput.value || '').trim();
+																				if (!typed || (packCode && typed !== packCode)) {
+																					d3.setError(tr('Type the exact pack code to overwrite.'));
+																					return;
+																				}
+																				d3.setBusy(true);
+																				api('POST', apiUrl('proceduresPack'), { packJson: raw, overwrite: 1 })
+																					.then(function () {
+																						d.close();
+																						d3.close();
+																						toast(tr('Status updated.'), 'success');
+																						load();
+																					})
+																					.catch(function (err2) {
+																						d3.setBusy(false);
+																						d3.setError(err2.message);
+																					});
+																			},
+																		},
+																	],
+																});
+																return;
+															}
+															d.setError(error.message);
+														});
+												},
+											},
+										],
+									});
+								},
+							},
+						],
+					});
+				});
+				actions.appendChild(importBtn);
+			}
+
+			function load() {
+				var seq = ++loadSeq;
+				box.setAttribute('aria-busy', 'true');
+				clear(box);
+				box.appendChild(skeleton(3));
+				api('GET', apiUrl('procedures'))
+					.then(function (envelope) {
+						if (seq !== loadSeq) {
+							return;
+						}
+						clear(box);
+						var rows = (envelope && envelope.data) || [];
+						if (!rows.length) {
+							box.appendChild(emptyState(tr('No types yet'), tr('Create the first one to categorise your data.')));
+							return;
+						}
+						var tableRows = rows.map(function (proc) {
+							var rowActions = [];
+							if (ctx.isOffice) {
+								rowActions.push(el('button', {
+									type: 'button',
+									class: 'mn-btn mn-btn--secondary mn-btn--compact',
+									text: tr('Edit'),
+									onClick: function () {
+										api('GET', apiUrl('procedures') + '/' + proc.id)
+											.then(function (detail) { procedureDialog(detail, load); })
+											.catch(handleGlobalError);
+									},
+								}));
+								rowActions.push(el('button', {
+									type: 'button',
+									class: 'mn-btn mn-btn--secondary mn-btn--compact',
+									text: tr('Fork'),
+									onClick: function () {
+										api('POST', apiUrl('procedures') + '/' + proc.id + '/fork', {})
+											.then(function () {
+												toast(tr('Status updated.'), 'success');
+												load();
+											})
+											.catch(handleGlobalError);
+									},
+								}));
+								rowActions.push(el('button', {
+									type: 'button',
+									class: 'mn-btn mn-btn--tertiary mn-btn--compact',
+									text: proc.active === false ? tr('Activate') : tr('Deactivate'),
+									onClick: function () {
+										api('PUT', apiUrl('procedures') + '/' + proc.id, { active: proc.active === false })
+											.then(function () {
+												toast(tr('Status updated.'), 'success');
+												load();
+											})
+											.catch(handleGlobalError);
+									},
+								}));
+							}
+							return { proc: proc, rowActions: rowActions };
+						});
+						box.appendChild(tableOrCards([
+							{
+								id: 'procedure',
+								label: tr('Procedure'),
+								render: function (row) {
+									var proc = row.proc;
+									var sub = (proc.code || '') + (proc.packCode || proc.sourcePack ? ' · ' + (proc.packCode || proc.sourcePack) : '');
+									return tableStack(proc.title || proc.code, sub || null);
+								},
+							},
+							{
+								id: 'status',
+								label: tr('Status'),
+								render: function (row) {
+									return row.proc.active === false
+										? statusBadge(tr('Deactivated'), 'mn-badge--neutral')
+										: tableCellText(null);
+								},
+							},
+							{
+								id: 'actions',
+								label: tr('Actions'),
+								actions: true,
+								render: function (row) {
+									return row.rowActions.length ? row.rowActions : tableCellText(null);
+								},
+							},
+						], tableRows, {
+							caption: tr('Procedures'),
+							rowClass: function (row) {
+								return row.proc.active === false ? 'mn-table__row--inactive' : '';
+							},
+						}));
+					})
+					.catch(function (error) {
+						if (seq !== loadSeq) {
+							return;
+						}
+						handleGlobalError(error);
+					})
+					.finally(function () {
+						if (seq === loadSeq) {
+							box.removeAttribute('aria-busy');
+						}
+					});
+			}
+			load();
+		}
+
+		function renderSimpleCatalog(apiKey, boxId, actionsId, title) {
+			var box = document.getElementById(boxId);
+			var actions = document.getElementById(actionsId);
+			var loadSeq = 0;
+			if (!box || !actions) {
+				return;
+			}
+			clear(actions);
+
+			function kitLinesEditor(initial) {
+				var host = el('div', { class: 'mn-form-grid' });
+				var rows = [];
+				function collect() {
+					return rows.map(function (row, index) {
+						return {
+							label: String(row.label.value || '').trim(),
+							lineType: row.lineType.value || 'part',
+							qtyRequired: Math.max(1, parseInt(row.qty.value, 10) || 1),
+							optional: !!row.optional.checked,
+							sortOrder: index + 1,
+						};
+					});
+				}
+				function addLine(seed) {
+					seed = seed || {};
+					var labelInput = el('input', { type: 'text', class: 'mn-input form-input', value: seed.label || '', autocomplete: 'off' });
+					var typeSelect = el('select', { class: 'mn-input form-select' }, [
+						el('option', { value: 'part', text: tr('Part'), selected: (seed.lineType || 'part') === 'part' ? 'selected' : null }),
+						el('option', { value: 'tool', text: tr('Tool'), selected: seed.lineType === 'tool' ? 'selected' : null }),
+					]);
+					var qtyInput = el('input', { type: 'number', class: 'mn-input form-input', min: '1', step: '1', value: String(seed.qtyRequired || 1) });
+					var optionalInput = el('input', { type: 'checkbox', checked: seed.optional ? 'checked' : null });
+					var removeBtn = el('button', { type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact', text: tr('Remove line') });
+					var wrap = el('div', { class: 'mn-form-grid' }, [
+						field(tr('Label'), labelInput, { required: true }),
+						field(tr('Type'), typeSelect),
+						field(tr('Quantity'), qtyInput, { required: true }),
+						field(tr('Optional'), optionalInput),
+						removeBtn,
+					]);
+					var row = { wrap: wrap, label: labelInput, lineType: typeSelect, qty: qtyInput, optional: optionalInput };
+					removeBtn.addEventListener('click', function () {
+						if (rows.length <= 1) {
+							return;
+						}
+						host.removeChild(wrap);
+						rows = rows.filter(function (r) { return r !== row; });
+					});
+					rows.push(row);
+					host.appendChild(wrap);
+				}
+				(initial && initial.length ? initial : [{ label: '', lineType: 'part', qtyRequired: 1 }]).forEach(addLine);
+				var addBtn = el('button', { type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Add line') });
+				addBtn.addEventListener('click', function () { addLine({}); });
+				return { root: el('div', {}, [host, addBtn]), collect: collect };
+			}
+
+			function openKitDialog(existing, onSaved) {
+				var isEdit = !!existing;
+				var kitCode = el('input', { type: 'text', class: 'mn-input form-input', value: (existing && existing.code) || '', autocomplete: 'off', disabled: isEdit ? 'disabled' : null });
+				var kitName = el('input', { type: 'text', class: 'mn-input form-input', value: (existing && existing.name) || '', autocomplete: 'off' });
+				var linesEditor = kitLinesEditor(existing && existing.lines ? existing.lines : null);
+				openDialog({
+					title: isEdit ? tr('Edit kit template') : tr('New kit template'),
+					content: el('div', { class: 'mn-form-grid' }, [
+						field(tr('Code'), kitCode, { required: !isEdit }),
+						field(tr('Name'), kitName, { required: true }),
+						el('div', { class: 'mn-form-wide' }, [
+							el('h3', { class: 'mn-card__title', text: tr('Lines') }),
+							linesEditor.root,
+						]),
+					]),
+					actions: [
+						{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+						{
+							label: isEdit ? tr('Save') : tr('Create'),
+							variant: 'mn-btn--primary',
+							onClick: function (d) {
+								var lines = linesEditor.collect();
+								if (!lines.length || lines.some(function (line) { return !line.label; })) {
+									d.setError(tr('A line label is required.'));
+									return;
+								}
+								d.setBusy(true);
+								d.setError(null);
+								var body = { name: kitName.value.trim(), lines: lines };
+								var req = isEdit
+									? api('PUT', apiUrl('kitTemplates') + '/' + existing.id, body)
+									: api('POST', apiUrl('kitTemplates'), Object.assign({ code: kitCode.value.trim() }, body));
+								req.then(function () {
+									d.close();
+									toast(tr('Status updated.'), 'success');
+									onSaved();
+								}).catch(function (error) {
+									d.setBusy(false);
+									d.setError(error.message);
+								});
+							},
+						},
+					],
+				});
+			}
+
+			function openGrantSkillsDialog() {
+				var picker = attachUserPicker({ placeholder: tr('Start typing a name or user ID…') });
+				var skillsHost = el('div', { class: 'mn-form-grid', role: 'group', 'aria-label': tr('Skills') });
+				var skillChecks = [];
+				api('GET', apiUrl('skills')).then(function (envelope) {
+					var skills = (envelope && envelope.data) || [];
+					skills.forEach(function (skill) {
+						if (skill.active === false) {
+							return;
+						}
+						var cb = el('input', { type: 'checkbox', value: String(skill.id) });
+						skillChecks.push({ id: skill.id, input: cb });
+						skillsHost.appendChild(field(skill.name || skill.code, cb));
+					});
+				}).catch(handleGlobalError);
+
+				function loadUserSkills() {
+					var uid = picker.getValue();
+					if (!uid) {
+						return;
+					}
+					api('GET', apiUrl('users') + '/' + encodeURIComponent(uid) + '/skills')
+						.then(function (data) {
+							var ids = (data && data.skillIds) || [];
+							skillChecks.forEach(function (row) {
+								row.input.checked = ids.indexOf(row.id) !== -1 || ids.indexOf(Number(row.id)) !== -1;
+							});
+						})
+						.catch(handleGlobalError);
+				}
+				picker.root.addEventListener('mn-user-selected', loadUserSkills);
+				picker.root.addEventListener('change', loadUserSkills);
+				openDialog({
+					title: tr('Grant skills'),
+					content: el('div', { class: 'mn-form-grid' }, [
+						field(tr('Technician'), picker.root, { required: true }),
+						el('button', { type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Load skills'), onClick: loadUserSkills }),
+						skillsHost,
+					]),
+					actions: [
+						{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+						{
+							label: tr('Save'),
+							variant: 'mn-btn--primary',
+							onClick: function (d) {
+								var uid = picker.getValue();
+								if (!uid) {
+									d.setError(tr('Pick a technician first.'));
+									return;
+								}
+								var skillIds = skillChecks.filter(function (row) { return row.input.checked; }).map(function (row) { return Number(row.id); });
+								d.setBusy(true);
+								api('PUT', apiUrl('users') + '/' + encodeURIComponent(uid) + '/skills', { skillIds: skillIds })
+									.then(function () {
+										d.close();
+										toast(tr('Status updated.'), 'success');
+									})
+									.catch(function (error) {
+										d.setBusy(false);
+										d.setError(error.message);
+									});
+							},
+						},
+					],
+				});
+			}
+
+			if (ctx.isOffice) {
+				if (apiKey === 'skills') {
+					actions.appendChild(el('button', {
+						type: 'button',
+						class: 'mn-btn mn-btn--primary mn-btn--compact',
+						text: tr('New skill'),
+						onClick: function () {
+							var codeInput = el('input', { type: 'text', class: 'mn-input form-input', autocomplete: 'off' });
+							var nameInput = el('input', { type: 'text', class: 'mn-input form-input', autocomplete: 'off' });
+							openDialog({
+								title: tr('New skill'),
+								content: el('div', { class: 'mn-form-grid' }, [
+									field(tr('Code'), codeInput, { required: true }),
+									field(tr('Name'), nameInput, { required: true }),
+								]),
+								actions: [
+									{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+									{
+										label: tr('Create'),
+										variant: 'mn-btn--primary',
+										onClick: function (d) {
+											d.setBusy(true);
+											d.setError(null);
+											api('POST', apiUrl('skills'), {
+												code: codeInput.value.trim(),
+												name: nameInput.value.trim(),
+											}).then(function () {
+												d.close();
+												toast(tr('Status updated.'), 'success');
+												load();
+											}).catch(function (error) {
+												d.setBusy(false);
+												d.setError(error.message);
+											});
+										},
+									},
+								],
+							});
+						},
+					}));
+					actions.appendChild(el('button', {
+						type: 'button',
+						class: 'mn-btn mn-btn--secondary mn-btn--compact',
+						text: tr('Grant skills'),
+						onClick: openGrantSkillsDialog,
+					}));
+				} else {
+					actions.appendChild(el('button', {
+						type: 'button',
+						class: 'mn-btn mn-btn--primary mn-btn--compact',
+						text: tr('New kit template'),
+						onClick: function () { openKitDialog(null, load); },
+					}));
+				}
+			}
+
+			function load() {
+				var seq = ++loadSeq;
+				box.setAttribute('aria-busy', 'true');
+				clear(box);
+				box.appendChild(skeleton(3));
+				api('GET', apiUrl(apiKey))
+					.then(function (envelope) {
+						if (seq !== loadSeq) {
+							return;
+						}
+						clear(box);
+						var rows = (envelope && envelope.data) || [];
+						if (!rows.length) {
+							box.appendChild(emptyState(tr('No types yet'), tr('Create the first one to categorise your data.')));
+							return;
+						}
+						var tableRows = rows.map(function (row) {
+							var rowActions = [];
+							if (ctx.isOffice && apiKey === 'skills') {
+								rowActions.push(el('button', {
+									type: 'button',
+									class: 'mn-btn mn-btn--secondary mn-btn--compact',
+									text: tr('Edit'),
+									onClick: function () {
+										var nameInput = el('input', { type: 'text', class: 'mn-input form-input', value: row.name || '', autocomplete: 'off' });
+										var activeInput = el('input', { type: 'checkbox', checked: row.active === false ? null : 'checked' });
+										openDialog({
+											title: tr('Edit skill'),
+											content: el('div', { class: 'mn-form-grid' }, [
+												field(tr('Name'), nameInput, { required: true }),
+												field(tr('Active'), activeInput),
+											]),
+											actions: [
+												{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+												{
+													label: tr('Save'),
+													variant: 'mn-btn--primary',
+													onClick: function (d) {
+														d.setBusy(true);
+														api('PUT', apiUrl('skills') + '/' + row.id, {
+															name: nameInput.value.trim(),
+															active: !!activeInput.checked,
+														}).then(function () {
+															d.close();
+															toast(tr('Status updated.'), 'success');
+															load();
+														}).catch(function (error) {
+															d.setBusy(false);
+															d.setError(error.message);
+														});
+													},
+												},
+											],
+										});
+									},
+								}));
+							}
+							if (ctx.isOffice && apiKey === 'kitTemplates') {
+								rowActions.push(el('button', {
+									type: 'button',
+									class: 'mn-btn mn-btn--secondary mn-btn--compact',
+									text: tr('Edit'),
+									onClick: function () {
+										api('GET', apiUrl('kitTemplates') + '/' + row.id)
+											.then(function (detail) { openKitDialog(detail, load); })
+											.catch(handleGlobalError);
+									},
+								}));
+							}
+							var sub = row.code || title;
+							if (apiKey === 'kitTemplates' && Array.isArray(row.lines)) {
+								sub += ' · ' + tr('Lines') + ': ' + String(row.lines.length);
+							}
+							return { row: row, rowActions: rowActions, sub: sub };
+						});
+						box.appendChild(tableOrCards([
+							{
+								id: 'name',
+								label: title,
+								render: function (entry) {
+									var row = entry.row;
+									return tableStack(row.name || row.title || row.code || ('#' + row.id), entry.sub);
+								},
+							},
+							{
+								id: 'actions',
+								label: tr('Actions'),
+								actions: true,
+								render: function (entry) {
+									return entry.rowActions.length ? entry.rowActions : tableCellText(null);
+								},
+							},
+						], tableRows, {
+							caption: title,
+							rowClass: function (entry) {
+								return entry.row.active === false ? 'mn-table__row--inactive' : '';
+							},
+						}));
+					})
+					.catch(function (error) {
+						if (seq !== loadSeq) {
+							return;
+						}
+						handleGlobalError(error);
+					})
+					.finally(function () {
+						if (seq === loadSeq) {
+							box.removeAttribute('aria-busy');
+						}
+					});
+			}
+			load();
+		}
 
 		function renderKind(kind, boxId, actionsId) {
 			var box = document.getElementById(boxId);
 			var actions = document.getElementById(actionsId);
 			var url = kind === 'equip' ? apiUrl('equipTypes') : apiUrl('maintTypes');
+			var loadSeq = 0;
 
 			clear(actions);
 			if (ctx.isOffice) {
@@ -2455,38 +4510,71 @@
 			}
 
 			function load() {
+				var seq = ++loadSeq;
 				box.setAttribute('aria-busy', 'true');
 				clear(box);
 				box.appendChild(skeleton(3));
 				loadAllCatalog(url)
 					.then(function (types) {
+						if (seq !== loadSeq) {
+							return;
+						}
 						clear(box);
 						if (types.length === 0) {
 							box.appendChild(emptyState(tr('No types yet'), tr('Create the first one to categorise your data.')));
 							return;
 						}
-						types.forEach(function (type) {
-							var rowActions = [];
-							if (ctx.isOffice) {
-								rowActions.push(el('button', {
-									type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit'),
-									onClick: function () { catalogTypeDialog(kind, type, load); },
-								}));
-							}
-							box.appendChild(el('div', { class: 'mn-row' + (type.active ? '' : ' mn-row--inactive') }, [
-								el('div', { class: 'mn-row__main' }, [
-									el('h3', { class: 'mn-row__title', text: type.name }),
-									el('p', { class: 'mn-row__sub', text: type.code }),
-								]),
-								el('div', { class: 'mn-row__meta' }, [
-									type.active ? null : el('span', { class: 'mn-badge', text: tr('Deactivated') }),
-								]),
-								rowActions.length ? el('div', { class: 'mn-row__actions' }, rowActions) : null,
-							]));
-						});
+						box.appendChild(tableOrCards([
+							{
+								id: 'name',
+								label: tr('Name'),
+								render: function (type) {
+									return tableStack(type.name, type.code);
+								},
+							},
+							{
+								id: 'status',
+								label: tr('Status'),
+								render: function (type) {
+									return type.active
+										? tableCellText(null)
+										: statusBadge(tr('Deactivated'), 'mn-badge--neutral');
+								},
+							},
+							{
+								id: 'actions',
+								label: tr('Actions'),
+								actions: true,
+								render: function (type) {
+									if (!ctx.isOffice) {
+										return tableCellText(null);
+									}
+									return [
+										el('button', {
+											type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit'),
+											onClick: function () { catalogTypeDialog(kind, type, load); },
+										}),
+									];
+								},
+							},
+						], types, {
+							caption: kind === 'equip' ? tr('Equipment types') : tr('Maintenance types'),
+							rowClass: function (type) {
+								return type.active ? '' : 'mn-table__row--inactive';
+							},
+						}));
 					})
-					.catch(handleGlobalError)
-					.finally(function () { box.removeAttribute('aria-busy'); });
+					.catch(function (error) {
+						if (seq !== loadSeq) {
+							return;
+						}
+						handleGlobalError(error);
+					})
+					.finally(function () {
+						if (seq === loadSeq) {
+							box.removeAttribute('aria-busy');
+						}
+					});
 			}
 
 			load();
@@ -2587,18 +4675,26 @@
 		}
 		var accessBox = document.getElementById('mn-settings-access');
 		var rolesBox = document.getElementById('mn-settings-roles');
+		var flangeBox = document.getElementById('mn-settings-inventory-flange');
+		var policiesBox = document.getElementById('mn-settings-policies');
+		var capacityBox = document.getElementById('mn-settings-capacity');
 		var licenseBox = document.getElementById('mn-settings-license');
 
 		api('GET', apiUrl('config'))
 			.then(function (config) {
 				renderAccess(config);
 				renderRoles(config);
+				renderInventoryFlange(config);
+				renderPolicies(config);
 			})
 			.catch(handleGlobalError)
 			.finally(function () {
 				accessBox.removeAttribute('aria-busy');
 				rolesBox.removeAttribute('aria-busy');
+				if (flangeBox) flangeBox.removeAttribute('aria-busy');
+				if (policiesBox) policiesBox.removeAttribute('aria-busy');
 			});
+		loadCapacity();
 		loadLicense();
 
 		function saveAccess(patch, done) {
@@ -2621,6 +4717,162 @@
 				.catch(function (error) {
 					done(error.message);
 				});
+		}
+
+		function savePolicies(patch, done) {
+			api('POST', apiUrl('configPolicies'), patch)
+				.then(function (config) {
+					toast(tr('Work policies saved.'), 'success');
+					done(null, config);
+				})
+				.catch(function (error) {
+					done(error.message);
+				});
+		}
+
+		function renderPolicies(config) {
+			if (!policiesBox) {
+				return;
+			}
+			clear(policiesBox);
+			var p = config.policies || {};
+			var checklistSelect = el('select', { class: 'mn-input' });
+			[
+				{ value: 'all_required', label: tr('All required checklist items must pass') },
+				{ value: 'percent', label: tr('A minimum percent of required items') },
+				{ value: 'off', label: tr('Checklist is advisory only') },
+			].forEach(function (opt) {
+				var o = el('option', { value: opt.value, text: opt.label });
+				if (opt.value === p.checklistDonePolicy) o.selected = true;
+				checklistSelect.appendChild(o);
+			});
+			var percentInput = el('input', {
+				type: 'number', min: '0', max: '100', step: '1',
+				value: String(p.checklistMinPercent != null ? p.checklistMinPercent : 100),
+			});
+			function enforcementSelect(current) {
+				var sel = el('select', { class: 'mn-input' });
+				[
+					{ value: 'off', label: tr('Off') },
+					{ value: 'warn', label: tr('Warn') },
+					{ value: 'block', label: tr('Block') },
+				].forEach(function (opt) {
+					var o = el('option', { value: opt.value, text: opt.label });
+					if (opt.value === current) o.selected = true;
+					sel.appendChild(o);
+				});
+				return sel;
+			}
+			var skillsSelect = enforcementSelect(p.skillsEnforcement || 'warn');
+			var capacitySelect = enforcementSelect(p.capacityEnforcement || 'warn');
+			var warnRatio = el('input', {
+				type: 'number', min: '0.01', max: '9.99', step: '0.01',
+				value: String(p.capacityWarnRatio != null ? p.capacityWarnRatio : 1),
+			});
+			var equipBox = el('input', { type: 'checkbox' });
+			equipBox.checked = p.requireEquipmentOnWo !== false;
+
+			function persist(patch) {
+				savePolicies(patch, function (message) {
+					if (message) toast(message, 'error');
+				});
+			}
+			checklistSelect.addEventListener('change', function () {
+				persist({ checklistDonePolicy: checklistSelect.value });
+			});
+			percentInput.addEventListener('change', function () {
+				persist({ checklistMinPercent: Math.trunc(Number(percentInput.value)) });
+			});
+			skillsSelect.addEventListener('change', function () {
+				persist({ skillsEnforcement: skillsSelect.value });
+			});
+			capacitySelect.addEventListener('change', function () {
+				persist({ capacityEnforcement: capacitySelect.value });
+			});
+			warnRatio.addEventListener('change', function () {
+				persist({ capacityWarnRatio: Number(warnRatio.value) });
+			});
+			equipBox.addEventListener('change', function () {
+				persist({ requireEquipmentOnWo: equipBox.checked });
+			});
+
+			policiesBox.appendChild(field(tr('Checklist to finish a job'), checklistSelect, { wide: true }));
+			policiesBox.appendChild(field(tr('Minimum checklist percent'), percentInput, {
+				hint: tr('Used when the checklist policy is “minimum percent”.'),
+			}));
+			policiesBox.appendChild(field(tr('Missing skills on assign'), skillsSelect));
+			policiesBox.appendChild(field(tr('Over capacity on assign'), capacitySelect));
+			policiesBox.appendChild(field(tr('Capacity warn ratio'), warnRatio, {
+				hint: tr('Warn when projected load exceeds this share of daily minutes (1.0 = 100%).'),
+			}));
+			policiesBox.appendChild(el('label', { class: 'mn-checkbox' }, [
+				equipBox,
+				el('span', { text: tr('Require equipment on every work order') }),
+			]));
+		}
+
+		function loadCapacity() {
+			if (!capacityBox) {
+				return;
+			}
+			capacityBox.setAttribute('aria-busy', 'true');
+			api('GET', apiUrl('capacity'))
+				.then(function (envelope) {
+					renderCapacity(envelope.data || []);
+				})
+				.catch(handleGlobalError)
+				.finally(function () { capacityBox.removeAttribute('aria-busy'); });
+		}
+
+		function renderCapacity(rows) {
+			clear(capacityBox);
+			if (rows.length === 0) {
+				capacityBox.appendChild(el('p', {
+					class: 'mn-section__hint',
+					text: tr('No custom capacities yet — everyone defaults to a full workday until you set minutes below.'),
+				}));
+			} else {
+				capacityBox.appendChild(tableOrCards([
+					{
+						id: 'uid',
+						label: tr('User'),
+						render: function (row) {
+							return tableStack(row.uid, tr('{n} minutes per day', { n: row.dailyMinutes }));
+						},
+					},
+				], rows, { caption: tr('Daily capacity') }));
+			}
+
+			var uidInput = el('input', { type: 'text', autocomplete: 'off', placeholder: tr('Nextcloud user ID') });
+			var minutesInput = el('input', { type: 'number', min: '1', max: '1440', step: '1', value: '480' });
+			var uidField = field(tr('Nextcloud user'), uidInput, { required: true });
+			var minutesField = field(tr('Daily minutes'), minutesInput, { required: true, hint: tr('1–1440. Typical full day is 480.') });
+			var saveBtn = el('button', {
+				type: 'button',
+				class: 'mn-btn mn-btn--primary mn-btn--compact',
+				text: tr('Save capacity'),
+				onClick: function () {
+					saveBtn.disabled = true;
+					uidField.mnSetError(null);
+					minutesField.mnSetError(null);
+					api('PUT', apiUrl('capacity') + '/' + encodeURIComponent(uidInput.value.trim()), {
+						dailyMinutes: Math.trunc(Number(minutesInput.value)),
+					}).then(function () {
+						toast(tr('Capacity saved.'), 'success');
+						loadCapacity();
+					}).catch(function (error) {
+						saveBtn.disabled = false;
+						if (error.code === 'unknown_user') {
+							uidField.mnSetError(tr('This Nextcloud user does not exist.'));
+							uidInput.focus();
+						} else if (!applyFieldErrors({ dailyMinutes: minutesField, uid: uidField }, error)) {
+							toast(error.message, 'error');
+						}
+					});
+				},
+			});
+			capacityBox.appendChild(el('div', { class: 'mn-form-grid' }, [uidField, minutesField]));
+			capacityBox.appendChild(saveBtn);
 		}
 
 		function renderAccess(config) {
@@ -2678,6 +4930,89 @@
 				hint: tr('All members of these groups count as office.'),
 				onChange: function (ids, done) { saveOffice({ officeGroupIds: ids }, done); },
 			}));
+		}
+
+		function saveInventoryFlange(patch, done) {
+			api('POST', apiUrl('configInventoryFlange'), patch)
+				.then(function () {
+					toast(tr('Inventory flange settings saved.'), 'success');
+					done(null);
+				})
+				.catch(function (error) {
+					done(error.message);
+				});
+		}
+
+		function renderInventoryFlange(config) {
+			if (!flangeBox) {
+				return;
+			}
+			clear(flangeBox);
+			var flange = config.inventoryFlange || { enabled: false, locationPolicy: 'fail_if_ambiguous', explicitLocationId: null };
+			var toggle = el('input', { type: 'checkbox' });
+			toggle.checked = !!flange.enabled;
+			toggle.addEventListener('change', function () {
+				saveInventoryFlange({ enabled: toggle.checked }, function (message) {
+					if (message) {
+						toast(message, 'error');
+						toggle.checked = !toggle.checked;
+					}
+				});
+			});
+			flangeBox.appendChild(el('label', { class: 'mn-switch' }, [
+				toggle,
+				el('span', { class: 'mn-switch__label', text: tr('Deduct kit stock when a work order is finished') }),
+			]));
+			flangeBox.appendChild(el('p', {
+				class: 'mn-field__hint',
+				text: tr('Requires InventoryCheck with its Maintenance flange enabled in InventoryCheck Settings. Failures never undo the finished work order.'),
+			}));
+
+			var policy = el('select', { class: 'mn-input' });
+			[
+				{ value: 'fail_if_ambiguous', label: tr('Fail if location is ambiguous (safest)') },
+				{ value: 'equipment_default_location', label: tr('Use equipment default location') },
+				{ value: 'explicit_location_id', label: tr('Always use the location ID below') },
+			].forEach(function (opt) {
+				var o = el('option', { value: opt.value, text: opt.label });
+				if (opt.value === flange.locationPolicy) {
+					o.selected = true;
+				}
+				policy.appendChild(o);
+			});
+			policy.addEventListener('change', function () {
+				saveInventoryFlange({ locationPolicy: policy.value }, function (message) {
+					if (message) toast(message, 'error');
+				});
+			});
+			flangeBox.appendChild(field(tr('Location policy'), policy));
+
+			var locInput = el('input', {
+				type: 'number',
+				min: '1',
+				step: '1',
+				value: flange.explicitLocationId ? String(flange.explicitLocationId) : '',
+			});
+			var locField = field(tr('Explicit location ID'), locInput, {
+				hint: tr('Only used when the policy is “Always use the location ID below”. Leave empty to clear.'),
+			});
+			var saveLoc = el('button', {
+				type: 'button',
+				class: 'mn-btn mn-btn--secondary mn-btn--compact',
+				text: tr('Save location ID'),
+				onClick: function () {
+					var raw = locInput.value.trim();
+					saveInventoryFlange({
+						explicitLocationId: raw === '' ? null : parseInt(raw, 10),
+					}, function (message) {
+						if (message) {
+							toast(message, 'error');
+						}
+					});
+				},
+			});
+			flangeBox.appendChild(locField);
+			flangeBox.appendChild(saveLoc);
 		}
 
 		function loadLicense() {
@@ -2879,8 +5214,11 @@
 		'settings': pageSettings,
 	};
 
-	function boot() {
-		ctx = buildContext();
+	function registerPage(name, fn) {
+		PAGES[name] = fn;
+	}
+
+	function runCurrentPage() {
 		if (!ctx) {
 			return;
 		}
@@ -2888,6 +5226,44 @@
 		if (run) {
 			run();
 		}
+	}
+
+	function boot() {
+		ctx = buildContext();
+		if (!ctx) {
+			return;
+		}
+		MnApp.__dom = {
+			api: api,
+			apiUpload: apiUpload,
+			apiUrl: apiUrl,
+			pageUrl: pageUrl,
+			withQuery: withQuery,
+			el: el,
+			clear: clear,
+			emptyState: emptyState,
+			skeleton: skeleton,
+			renderPagination: renderPagination,
+			statusMeta: statusMeta,
+			statusBadge: statusBadge,
+			tableOrCards: tableOrCards,
+			tableStack: tableStack,
+			tableLink: tableLink,
+			tableCellText: tableCellText,
+			toast: toast,
+			announce: announce,
+			announceResults: announceResults,
+			attachUserPicker: attachUserPicker,
+			handleGlobalError: handleGlobalError,
+			openDialog: openDialog,
+			field: field,
+			fmt: fmt,
+			todayYmd: todayYmd,
+			getCtx: function () { return ctx; },
+			registerPage: registerPage,
+			runCurrentPage: runCurrentPage,
+		};
+		runCurrentPage();
 	}
 
 	if (document.readyState === 'loading') {

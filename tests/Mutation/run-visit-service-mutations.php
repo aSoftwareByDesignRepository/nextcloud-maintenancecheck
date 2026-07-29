@@ -21,8 +21,8 @@ runMutations(dirname(__DIR__, 2), 'VisitServiceTest', [
 	[
 		'name' => 'inactive-plan-still-schedules-follow-up',
 		'file' => $file,
-		'search' => 'if ($plan->getActive() && $this->visits->findOpenByPlan($planId) === null) {',
-		'replace' => 'if (!$plan->getActive() && $this->visits->findOpenByPlan($planId) === null) {',
+		'search' => "if (\$plan->getActive()\n\t\t\t&& \$plan->usesIntervalTrigger()\n\t\t\t&& \$this->visits->findOpenByPlan(\$planId) === null\n\t\t) {",
+		'replace' => "if (!\$plan->getActive()\n\t\t\t&& \$plan->usesIntervalTrigger()\n\t\t\t&& \$this->visits->findOpenByPlan(\$planId) === null\n\t\t) {",
 	],
 	[
 		'name' => 'lockrow-failure-still-schedules',

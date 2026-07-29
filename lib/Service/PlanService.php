@@ -7,6 +7,7 @@ namespace OCA\MaintenanceCheck\Service;
 use OCA\MaintenanceCheck\Db\Equipment;
 use OCA\MaintenanceCheck\Db\EquipmentMapper;
 use OCA\MaintenanceCheck\Db\MaintTypeMapper;
+use OCA\MaintenanceCheck\Db\MeterMapper;
 use OCA\MaintenanceCheck\Db\Plan;
 use OCA\MaintenanceCheck\Db\PlanMapper;
 use OCA\MaintenanceCheck\Db\Visit;
@@ -24,7 +25,9 @@ class PlanService
 		private readonly EquipmentMapper $equipment,
 		private readonly MaintTypeMapper $maintTypes,
 		private readonly VisitMapper $visits,
+		private readonly MeterMapper $meters,
 		private readonly IntervalCalculator $intervals,
+		private readonly MeterMath $meterMath,
 		private readonly InputValidator $validator,
 		private readonly Clock $clock,
 	) {
@@ -59,16 +62,30 @@ class PlanService
 	{
 		$equipment = $this->equipment->findById($equipmentId);
 		$maintTypeId = $this->requireActiveMaintType($body, null);
+		$triggerKind = $this->validatedTriggerKind($body, Plan::TRIGGER_INTERVAL);
 
-		$unit = (string)($this->validator->optionalString($body, 'intervalUnit') ?? '');
-		$count = $body['intervalCount'] ?? null;
-		if (!is_int($count)) {
-			throw new ValidationException('invalid_interval', 'Interval count must be an integer.');
+		// §14.1b: interval fields mandatory for interval/either; a pure
+		// meter plan never uses them (M1) — store safe defaults.
+		$unit = IntervalCalculator::UNIT_MONTH;
+		$count = 1;
+		if ($triggerKind !== Plan::TRIGGER_METER || array_key_exists('intervalUnit', $body) || array_key_exists('intervalCount', $body)) {
+			$unit = (string)($this->validator->optionalString($body, 'intervalUnit') ?? '');
+			$countRaw = $body['intervalCount'] ?? null;
+			if (!is_int($countRaw)) {
+				throw new ValidationException('invalid_interval', 'Interval count must be an integer.');
+			}
+			$count = $countRaw;
+			$this->intervals->assertValidInterval($unit, $count);
 		}
-		$this->intervals->assertValidInterval($unit, $count);
+
+		[$meterCode, $meterThreshold] = $this->validatedMeterTrigger($body, $triggerKind, $equipmentId, null, null);
 
 		$today = $this->clock->today();
-		$firstDueOn = $this->validator->dueOn($this->validator->optionalString($body, 'firstDueOn'), $today);
+		// Pure meter plans get their visits from the meter-due engine only.
+		$firstDueOn = null;
+		if ($triggerKind !== Plan::TRIGGER_METER) {
+			$firstDueOn = $this->validator->dueOn($this->validator->optionalString($body, 'firstDueOn'), $today);
+		}
 		$contractNotes = $this->validator->contractNotes($body);
 		$hasContract = $this->validator->boolOrDefault($body, 'hasContract', false);
 		$now = $this->clock->now();
@@ -81,22 +98,30 @@ class PlanService
 		$plan->setActive(true);
 		$plan->setHasContract($hasContract);
 		$plan->setContractNotes($contractNotes);
+		$plan->setTriggerKind($triggerKind);
+		$plan->setMeterCode($meterCode);
+		$plan->setMeterThreshold($meterThreshold);
 		$plan->setCreatedAt($now);
 		$plan->setUpdatedAt($now);
 		$plan->setCreatedBy($uid);
 
+		$visit = null;
 		$this->db->beginTransaction();
 		try {
 			$plan = $this->plans->insert($plan);
-			$visit = $this->insertScheduledVisit($plan, $equipment, $firstDueOn, $now);
+			if ($firstDueOn !== null) {
+				$visit = $this->insertScheduledVisit($plan, $equipment, $firstDueOn, $now);
+			}
 			$this->db->commit();
 		} catch (\Throwable $e) {
-			$this->db->rollBack();
+			if ($this->db->inTransaction()) {
+				$this->db->rollBack();
+			}
 			throw $e;
 		}
 
 		$result = $plan->toApi();
-		$result['openVisit'] = $visit->toApi();
+		$result['openVisit'] = $visit?->toApi();
 		return $result;
 	}
 
@@ -110,6 +135,7 @@ class PlanService
 	public function update(int $id, array $body): array
 	{
 		$plan = $this->plans->findById($id);
+		$triggerKind = $this->validatedTriggerKind($body, $plan->getTriggerKind());
 
 		$unit = $plan->getIntervalUnit();
 		$count = $plan->getIntervalCount();
@@ -123,6 +149,17 @@ class PlanService
 			$count = $body['intervalCount'];
 		}
 		$this->intervals->assertValidInterval($unit, $count);
+
+		[$meterCode, $meterThreshold] = $this->validatedMeterTrigger(
+			$body,
+			$triggerKind,
+			$plan->getEquipmentId(),
+			$plan->getMeterCode(),
+			$plan->getMeterThreshold(),
+		);
+		$plan->setTriggerKind($triggerKind);
+		$plan->setMeterCode($meterCode);
+		$plan->setMeterThreshold($meterThreshold);
 
 		if (array_key_exists('maintTypeId', $body)) {
 			$plan->setMaintTypeId($this->requireActiveMaintType($body, $plan->getMaintTypeId()));
@@ -247,6 +284,48 @@ class PlanService
 		$visit->setCreatedAt($now);
 		$visit->setUpdatedAt($now);
 		return $this->visits->insert($visit);
+	}
+
+	private function validatedTriggerKind(array $body, string $current): string
+	{
+		if (!array_key_exists('triggerKind', $body)) {
+			return $current;
+		}
+		$kind = (string)($this->validator->optionalString($body, 'triggerKind') ?? '');
+		if (!in_array($kind, Plan::TRIGGER_KINDS, true)) {
+			throw new ValidationException('validation_failed', 'triggerKind must be interval, meter, or either.', [
+				['field' => 'triggerKind', 'code' => 'invalid_value'],
+			]);
+		}
+		return $kind;
+	}
+
+	/**
+	 * §14.1b: kind ≠ interval ⇒ meter_code must match a meter on this
+	 * equipment and a threshold is required (422 `meter_threshold_required`).
+	 * kind = interval ⇒ both fields are cleared.
+	 *
+	 * @param array<string, mixed> $body
+	 * @return array{0: ?string, 1: ?string} [meterCode, meterThreshold]
+	 */
+	private function validatedMeterTrigger(array $body, string $triggerKind, int $equipmentId, ?string $currentCode, ?string $currentThreshold): array
+	{
+		if ($triggerKind === Plan::TRIGGER_INTERVAL) {
+			return [null, null];
+		}
+		$code = array_key_exists('meterCode', $body)
+			? ($this->validator->optionalString($body, 'meterCode') ?? '')
+			: ($currentCode ?? '');
+		if ($code === '' || $this->meters->findByEquipmentAndCode($equipmentId, $code) === null) {
+			throw new ValidationException('validation_failed', 'meterCode must match a meter on this equipment.', [
+				['field' => 'meterCode', 'code' => 'unknown_meter'],
+			]);
+		}
+		$thresholdRaw = array_key_exists('meterThreshold', $body) ? $body['meterThreshold'] : $currentThreshold;
+		if ($thresholdRaw === null || $thresholdRaw === '') {
+			throw new ValidationException('meter_threshold_required', 'A meter-triggered plan needs a threshold.');
+		}
+		return [$code, $this->meterMath->normalizeValue($thresholdRaw)];
 	}
 
 	/**

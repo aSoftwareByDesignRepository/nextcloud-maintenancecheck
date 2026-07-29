@@ -144,6 +144,88 @@ final class AzcShellParityContractTest extends TestCase
 			'/th[^{]*\{[^}]*padding:\s*var\(/s',
 			$chrome
 		);
+		// Wrap must scroll — never clip overflow for sticky headers / mobile.
+		$this->assertDoesNotMatchRegularExpression(
+			'/\.mn-table-wrap[^{]*\{[^}]*overflow:\s*hidden/s',
+			$chrome,
+			'mn-table-wrap must use overflow-x:auto, not overflow:hidden'
+		);
+	}
+
+	public function testListTemplatesUseCardBodyTableChrome(): void
+	{
+		foreach (['/templates/customers.php', '/templates/equipment.php', '/templates/visits.php', '/templates/work-orders.php'] as $rel) {
+			$tpl = (string)file_get_contents($this->root . $rel);
+			$this->assertStringContainsString('mn-card__body--table', $tpl, $rel);
+		}
+	}
+
+	public function testAppJsShipsTableOrCardsHelper(): void
+	{
+		$js = (string)file_get_contents($this->root . '/js/app.js');
+		$this->assertStringContainsString('function tableOrCards(', $js);
+		$this->assertStringContainsString('mn-table table table--hover mn-table--responsive', $js);
+		$this->assertStringContainsString('tableOrCards: tableOrCards', $js);
+		$this->assertStringContainsString('var loadSeq = 0', $js);
+		$this->assertStringContainsString('function announceResults(', $js);
+		$wo = (string)file_get_contents($this->root . '/js/work-order-pages.js');
+		$this->assertStringContainsString('tableOrCards', $wo);
+		$this->assertStringContainsString('mn-dispatch-job', $wo);
+		$this->assertStringContainsString('var loadSeq = 0', $wo);
+	}
+
+	public function testCatalogsUseCardChromeNotBareSections(): void
+	{
+		$tpl = (string)file_get_contents($this->root . '/templates/catalogs.php');
+		$this->assertStringContainsString('mn-card', $tpl);
+		$this->assertStringContainsString('mn-card__body--table', $tpl);
+		$this->assertStringNotContainsString('mn-section', $tpl);
+	}
+
+	public function testDetailAndSettingsUseCardChromeWithoutDuplicateBreadcrumbs(): void
+	{
+		foreach (['customer-detail.php', 'equipment-detail.php', 'settings.php'] as $file) {
+			$tpl = (string)file_get_contents($this->root . '/templates/' . $file);
+			$this->assertStringContainsString('mn-card', $tpl, $file);
+			$this->assertStringNotContainsString('mn-section', $tpl, $file);
+			$this->assertStringNotContainsString('<nav class="mn-breadcrumb"', $tpl, $file . ' must not duplicate shell breadcrumb');
+		}
+		$wo = (string)file_get_contents($this->root . '/templates/work-order-detail.php');
+		$this->assertStringNotContainsString('<nav class="mn-breadcrumb"', $wo);
+		$shell = (string)file_get_contents($this->root . '/templates/common/page-start.php');
+		$this->assertStringContainsString("pageId === 'customer-detail'", $shell);
+		$this->assertStringContainsString("pageId === 'equipment-detail'", $shell);
+		$this->assertStringContainsString("pageId === 'work-order-detail'", $shell);
+		$this->assertStringContainsString('mn-back-link', $shell);
+	}
+
+	public function testRequiredFieldsUseAriaRequired(): void
+	{
+		$js = (string)file_get_contents($this->root . '/js/app.js');
+		$this->assertStringContainsString("input.setAttribute('aria-required', 'true')", $js);
+		$this->assertStringContainsString("input.setAttribute('required', '')", $js);
+		$this->assertStringContainsString('{label} (required)', $js);
+		$this->assertStringNotContainsString('form-label--required mn-field__label--required', $js);
+	}
+
+	public function testDueBoardGuardsStaleLoads(): void
+	{
+		$js = (string)file_get_contents($this->root . '/js/app.js');
+		$this->assertMatchesRegularExpression(
+			'/function pageDue\(\)[\s\S]*?var loadSeq = 0;[\s\S]*?if \(seq !== loadSeq\)/',
+			$js
+		);
+	}
+
+	public function testBadgesDefineNeutralAndUseWeight600(): void
+	{
+		$css = (string)file_get_contents($this->root . '/css/app.css');
+		$this->assertStringContainsString('.mn-badge--neutral', $css);
+		$this->assertMatchesRegularExpression(
+			'/\.mn-badge\s*\{[^}]*font-weight:\s*600/s',
+			$css
+		);
+		$this->assertStringContainsString('.mn-badge:not(:has(.mn-badge__dot))::before', $css);
 	}
 
 

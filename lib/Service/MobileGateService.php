@@ -60,6 +60,7 @@ class MobileGateService
 			'seatAssigned' => $state['seatAssigned'],
 			'seatWithinLimit' => $state['seatWithinLimit'],
 			'mobileAppStatus' => LicenseService::MOBILE_APP_STATUS,
+			'capabilities' => MobileCapabilities::current(),
 			'user' => [
 				'uid' => $uid,
 				'displayName' => $displayName,

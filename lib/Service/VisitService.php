@@ -11,6 +11,7 @@ use OCA\MaintenanceCheck\Db\Plan;
 use OCA\MaintenanceCheck\Db\PlanMapper;
 use OCA\MaintenanceCheck\Db\Visit;
 use OCA\MaintenanceCheck\Db\VisitMapper;
+use OCA\MaintenanceCheck\Db\WorkOrderMapper;
 use OCA\MaintenanceCheck\Exception\ConflictException;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
@@ -22,6 +23,9 @@ use OCP\IUserManager;
  * Visit lifecycle engine — owns every state transition and the D6 invariant
  * (≤ 1 open visit per plan). All terminal transitions follow S6: conditional
  * UPDATE + optional next-visit INSERT inside one transaction.
+ *
+ * W5: pure `meter` plans never call IntervalCalculator on close (AC-W5-2).
+ * W1: due-board rows may carry an open work-order badge + soft deep links.
  */
 class VisitService
 {
@@ -37,6 +41,10 @@ class VisitService
 		private readonly InputValidator $validator,
 		private readonly Clock $clock,
 		private readonly IUserManager $userManager,
+		private readonly WorkOrderMapper $workOrders,
+		private readonly ProjectCheckHoursDeepLinkService $hoursDeepLink,
+		private readonly ArbeitszeitCheckDeepLinkService $recordTimeDeepLink,
+		private readonly MeterService $meters,
 	) {
 	}
 
@@ -50,17 +58,29 @@ class VisitService
 	public function due(string $currentUid, bool $mine): array
 	{
 		$today = $this->clock->today();
-		$rows = $this->visits->findDue($this->dueBoard->maxDueOn($today), $mine ? $currentUid : null);
+		$maxDue = $this->dueBoard->maxDueOn($today);
+		$rows = $this->visits->findDue($maxDue, $mine ? $currentUid : null);
 		$buckets = [
 			DueBoard::BUCKET_OVERDUE => [],
 			DueBoard::BUCKET_TODAY => [],
 			DueBoard::BUCKET_NEXT7 => [],
 			DueBoard::BUCKET_LATER => [],
 		];
+		$visitIdsOnBoard = [];
 		foreach ($this->enrich($rows) as $row) {
+			$row['rowKind'] = 'visit';
 			$bucket = $this->dueBoard->bucketFor($row['dueOn'], $today);
 			if ($bucket !== null) {
 				$buckets[$bucket][] = $row;
+				$visitIdsOnBoard[(int)$row['id']] = true;
+			}
+		}
+		// CORE §13.1: PM visits + open preventive WOs. Skip WOs whose linked
+		// visit is already on the board (badge already covers that job).
+		foreach ($this->enrichOpenPreventiveWorkOrders($maxDue, $mine ? $currentUid : null, $visitIdsOnBoard) as $woRow) {
+			$bucket = $this->dueBoard->bucketFor($woRow['dueOn'], $today);
+			if ($bucket !== null) {
+				$buckets[$bucket][] = $woRow;
 			}
 		}
 		return [
@@ -142,7 +162,7 @@ class VisitService
 
 	/**
 	 * Complete: close visit, roll next due from done_on (D5), unless the
-	 * plan is inactive (S18).
+	 * plan is inactive (S18) or pure meter (AC-W5-2).
 	 *
 	 * @param array<string, mixed> $body
 	 * @return array<string, mixed>
@@ -250,6 +270,29 @@ class VisitService
 		return $this->visits->findById($visitId)->toApi();
 	}
 
+	/**
+	 * W1 (AC-W1-2): complete a visit as part of a work-order `done` — the
+	 * caller owns the transaction. Behaviour matches complete()'s roll path.
+	 *
+	 * @return array{closed: bool, visit: ?Visit, nextVisit: ?Visit}
+	 */
+	public function completeWithinTransaction(string $uid, int $visitId, string $doneOn, int $now): array
+	{
+		$closed = $this->visits->closeScheduled($visitId, [
+			'status' => Visit::STATUS_DONE,
+			'done_by' => $uid,
+			'done_at' => $now,
+			'done_on' => $doneOn,
+			'updated_at' => $now,
+		]);
+		if (!$closed) {
+			return ['closed' => false, 'visit' => null, 'nextVisit' => null];
+		}
+		$visit = $this->visits->findById($visitId);
+		$rolled = $this->rollNextVisit($visit, $doneOn, $now);
+		return ['closed' => true, 'visit' => $visit, 'nextVisit' => $rolled['nextVisit']];
+	}
+
 	// ── Internals ───────────────────────────────────────────────────────
 
 	/**
@@ -264,6 +307,8 @@ class VisitService
 	{
 		$notes = array_key_exists('notes', $body) ? $this->validator->visitNotes($body) : false;
 		$now = $this->clock->now();
+		$today = $this->clock->today();
+		$closingReading = $this->optionalClosingReading($body);
 
 		$set = [
 			'status' => $status,
@@ -278,6 +323,7 @@ class VisitService
 
 		$nextVisit = null;
 		$plan = null;
+		$closingReadingApi = null;
 
 		$this->db->beginTransaction();
 		try {
@@ -286,25 +332,23 @@ class VisitService
 				$this->throwNotOpenOrNotFound($visitId);
 			}
 			$visit = $this->visits->findById($visitId);
-			$planId = $visit->getPlanId();
-
-			// Always lock before deciding follow-up: S9 force-delete can remove
-			// the plan mid-flight, and S18 deactivate must win under the same lock.
-			if (!$this->plans->lockRow($planId)) {
-				$plan = null;
-			} else {
-				$plan = $this->plans->findById($planId);
-				if ($plan->getActive() && $this->visits->findOpenByPlan($planId) === null) {
-					$dueOn = $this->intervals->addInterval(
-						$anchor($doneOn),
-						$plan->getIntervalUnit(),
-						$plan->getIntervalCount(),
-					);
-					$nextVisit = $this->insertNextVisit($visit, $plan, $dueOn, $now);
-				}
+			if ($closingReading !== null) {
+				$closingReadingApi = $this->meters->recordClosingWithinTransaction(
+					$uid,
+					$visit->getEquipmentId(),
+					$closingReading,
+					$today,
+					$now,
+				);
 			}
+			$rolled = $this->rollNextVisit($visit, $anchor($doneOn), $now);
+			$plan = $rolled['plan'];
+			$nextVisit = $rolled['nextVisit'];
 			$this->db->commit();
-		} catch (ConflictException | NotFoundException $e) {
+		} catch (ConflictException | NotFoundException | ValidationException $e) {
+			if ($this->db->inTransaction()) {
+				$this->db->rollBack();
+			}
 			throw $e;
 		} catch (\Throwable $e) {
 			$this->db->rollBack();
@@ -315,7 +359,56 @@ class VisitService
 			'visit' => $this->visits->findById($visitId)->toApi(),
 			'nextVisit' => $nextVisit?->toApi(),
 			'planActive' => $plan !== null && $plan->getActive(),
+			'closingReading' => $closingReadingApi,
 		];
+	}
+
+	/**
+	 * @param array<string, mixed> $body
+	 * @return ?array<string, mixed>
+	 */
+	private function optionalClosingReading(array $body): ?array
+	{
+		if (!array_key_exists('closingReading', $body) || $body['closingReading'] === null) {
+			return null;
+		}
+		if (!is_array($body['closingReading'])) {
+			throw new ValidationException('validation_failed', 'closingReading must be an object.', [
+				['field' => 'closingReading', 'code' => 'invalid_type'],
+			]);
+		}
+		return $body['closingReading'];
+	}
+
+	/**
+	 * Shared follow-up decision for every terminal close. Runs inside the
+	 * caller's transaction.
+	 *
+	 * W5 invariants M1/M2: interval math runs only for `interval`/`either`
+	 * plans — pure `meter` plans never touch the IntervalCalculator.
+	 *
+	 * @return array{plan: ?Plan, nextVisit: ?Visit}
+	 */
+	private function rollNextVisit(Visit $visit, string $anchorDate, int $now): array
+	{
+		$planId = $visit->getPlanId();
+		if (!$this->plans->lockRow($planId)) {
+			return ['plan' => null, 'nextVisit' => null];
+		}
+		$plan = $this->plans->findById($planId);
+		$nextVisit = null;
+		if ($plan->getActive()
+			&& $plan->usesIntervalTrigger()
+			&& $this->visits->findOpenByPlan($planId) === null
+		) {
+			$dueOn = $this->intervals->addInterval(
+				$anchorDate,
+				$plan->getIntervalUnit(),
+				$plan->getIntervalCount(),
+			);
+			$nextVisit = $this->insertNextVisit($visit, $plan, $dueOn, $now);
+		}
+		return ['plan' => $plan, 'nextVisit' => $nextVisit];
 	}
 
 	private function insertNextVisit(Visit $closed, Plan $plan, string $dueOn, int $now): Visit
@@ -346,7 +439,7 @@ class VisitService
 
 	/**
 	 * Adds display fields (customer name, equipment label, maintenance type
-	 * name) and plan interval metadata to visit rows for the UI.
+	 * name), plan interval metadata, and optional open work-order badge.
 	 *
 	 * @param list<Visit> $rows
 	 * @return list<array<string, mixed>>
@@ -365,6 +458,7 @@ class VisitService
 		$equipmentLabels = $this->nameMap(EquipmentMapper::TABLE, 'label', array_keys($equipmentIds));
 		$maintTypeNames = $this->nameMap(MaintTypeMapper::TABLE, 'name', array_keys($maintTypeIds));
 		$planMeta = $this->planMetaMap(array_keys($planIds));
+		$openWoByVisit = $this->openWorkOrderMap($rows);
 
 		$result = [];
 		foreach ($rows as $visit) {
@@ -376,9 +470,102 @@ class VisitService
 			$row['intervalUnit'] = $meta['unit'] ?? null;
 			$row['intervalCount'] = $meta['count'] ?? null;
 			$row['planActive'] = $meta['active'] ?? false;
+			$row['triggerKind'] = $meta['triggerKind'] ?? 'interval';
+			$row['meterCode'] = $meta['meterCode'] ?? null;
+			$row['meterThreshold'] = $meta['meterThreshold'] ?? null;
+			$row['openWorkOrder'] = $openWoByVisit[(int)$visit->getId()] ?? null;
 			$result[] = $row;
 		}
 		return $result;
+	}
+
+	/**
+	 * Standalone preventive WO cards for the due board (CORE §13.1).
+	 * Skips WOs whose linked visit is already listed (avoids duplicate jobs).
+	 *
+	 * @param array<int, true> $visitIdsOnBoard
+	 * @return list<array<string, mixed>>
+	 */
+	private function enrichOpenPreventiveWorkOrders(string $maxDueOn, ?string $mineUid, array $visitIdsOnBoard): array
+	{
+		$workOrders = $this->workOrders->findOpenPreventiveDue($maxDueOn, $mineUid);
+		if ($workOrders === []) {
+			return [];
+		}
+
+		$customerIds = $equipmentIds = [];
+		$filtered = [];
+		foreach ($workOrders as $wo) {
+			$visitId = $wo->getVisitId();
+			if ($visitId !== null && isset($visitIdsOnBoard[$visitId])) {
+				continue;
+			}
+			$filtered[] = $wo;
+			$customerIds[$wo->getCustomerId()] = true;
+			if ($wo->getEquipmentId() !== null) {
+				$equipmentIds[$wo->getEquipmentId()] = true;
+			}
+		}
+		if ($filtered === []) {
+			return [];
+		}
+
+		$customerNames = $this->nameMap(CustomerMapper::TABLE, 'name', array_keys($customerIds));
+		$equipmentLabels = $this->nameMap(EquipmentMapper::TABLE, 'label', array_keys($equipmentIds));
+
+		$result = [];
+		foreach ($filtered as $wo) {
+			$number = (string)$wo->getNumber();
+			$dueOn = (string)$wo->getDueOn();
+			$result[] = [
+				'rowKind' => 'workOrder',
+				'id' => (int)$wo->getId(),
+				'number' => $number,
+				'title' => $wo->getTitle(),
+				'status' => $wo->getStatus(),
+				'kind' => $wo->getKind(),
+				'priority' => $wo->getPriority(),
+				'dueOn' => $dueOn,
+				'customerId' => $wo->getCustomerId(),
+				'customerName' => $customerNames[$wo->getCustomerId()] ?? '',
+				'equipmentId' => $wo->getEquipmentId(),
+				'equipmentLabel' => $wo->getEquipmentId() !== null
+					? ($equipmentLabels[$wo->getEquipmentId()] ?? '')
+					: '',
+				'visitId' => $wo->getVisitId(),
+				'primaryUserId' => $wo->getPrimaryUserId(),
+				'logHoursUrl' => $this->hoursDeepLink->buildLogHoursUrl($number),
+				'recordTimeUrl' => $this->recordTimeDeepLink->buildRecordTimeUrl($number),
+			];
+		}
+		return $result;
+	}
+
+	/**
+	 * @param list<Visit> $rows
+	 * @return array<int, array{id: int, number: string, status: string, logHoursUrl: ?string, recordTimeUrl: ?string}>
+	 */
+	private function openWorkOrderMap(array $rows): array
+	{
+		$visitIds = [];
+		foreach ($rows as $visit) {
+			$visitIds[] = (int)$visit->getId();
+		}
+		$map = [];
+		foreach ($this->workOrders->findOpenByVisitIds($visitIds) as $wo) {
+			$visitId = $wo->getVisitId();
+			if ($visitId !== null && !isset($map[$visitId])) {
+				$number = (string)$wo->getNumber();
+				$map[$visitId] = [
+					'id' => (int)$wo->getId(),
+					'number' => $number,
+					'status' => $wo->getStatus(),
+					'logHoursUrl' => $this->hoursDeepLink->buildLogHoursUrl($number),
+					'recordTimeUrl' => $this->recordTimeDeepLink->buildRecordTimeUrl($number),
+				];
+			}
+		}
+		return $map;
 	}
 
 	/**
@@ -403,14 +590,15 @@ class VisitService
 
 	/**
 	 * @param list<int> $ids
-	 * @return array<int, array{unit: string, count: int, active: bool}>
+	 * @return array<int, array{unit: string, count: int, active: bool, triggerKind: string, meterCode: ?string, meterThreshold: ?string}>
 	 */
 	private function planMetaMap(array $ids): array
 	{
 		$map = [];
 		foreach (array_chunk($ids, 500) as $chunk) {
 			$qb = $this->db->getQueryBuilder();
-			$qb->select('id', 'interval_unit', 'interval_count', 'active')->from(PlanMapper::TABLE)
+			$qb->select('id', 'interval_unit', 'interval_count', 'active', 'trigger_kind', 'meter_code', 'meter_threshold')
+				->from(PlanMapper::TABLE)
 				->where($qb->expr()->in('id', $qb->createNamedParameter($chunk, IQueryBuilder::PARAM_INT_ARRAY)));
 			$result = $qb->executeQuery();
 			while (($row = $result->fetch()) !== false) {
@@ -418,6 +606,13 @@ class VisitService
 					'unit' => (string)$row['interval_unit'],
 					'count' => (int)$row['interval_count'],
 					'active' => self::dbBool($row['active']),
+					'triggerKind' => (string)($row['trigger_kind'] ?? 'interval'),
+					'meterCode' => $row['meter_code'] !== null && $row['meter_code'] !== ''
+						? (string)$row['meter_code']
+						: null,
+					'meterThreshold' => $row['meter_threshold'] !== null && $row['meter_threshold'] !== ''
+						? (string)$row['meter_threshold']
+						: null,
 				];
 			}
 			$result->closeCursor();

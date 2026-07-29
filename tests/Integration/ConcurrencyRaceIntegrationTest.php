@@ -292,6 +292,204 @@ final class ConcurrencyRaceIntegrationTest extends IntegrationTestCase
 	}
 
 	/**
+	 * AC-W1-4: concurrent dual-done → exactly one success.
+	 */
+	public function testAcW14ParallelWoDoneExactlyOneWinner(): void
+	{
+		$workOrders = Server::get(\OCA\MaintenanceCheck\Service\WorkOrderService::class);
+		$seed = $this->seedPlan();
+		$visitId = (int)$seed['openVisit']['id'];
+		Server::get(\OCA\MaintenanceCheck\Service\BuiltinProcedurePackSeeder::class)->ensureInstalled();
+		$wo = $workOrders->createFromVisit(self::UID, $visitId, [
+			'procedureSkipped' => true,
+			'procedureSkipReason' => 'Race test skips checklist template',
+		]);
+		$woId = (int)$wo['id'];
+		$workOrders->transition(self::UID, $woId, ['to' => 'ready'], true);
+		$workOrders->transition(self::UID, $woId, ['to' => 'in_progress'], true);
+
+		[$a, $b] = $this->raceWoDone([
+			[(string)$woId, self::UID],
+			[(string)$woId, self::UID],
+		]);
+		$tokens = [$a['token'], $b['token']];
+		$this->assertContains('OK', $tokens, 'exactly one worker must win done');
+		$conflicts = array_values(array_filter($tokens, static fn (string $t): bool => str_starts_with($t, 'CONFLICT:')));
+		$this->assertCount(1, $conflicts, 'loser must report a conflict; tokens=' . implode(',', $tokens));
+		$this->assertSame('CONFLICT:invalid_status', $conflicts[0]);
+		$detail = $workOrders->get($woId);
+		$this->assertSame('done', $detail['status']);
+	}
+
+	/**
+	 * W4 capacity TOCTOU: two concurrent assigns to the same tech under
+	 * capacity_enforcement=block must yield exactly one OK and one
+	 * CONFLICT:capacity_exceeded (FOR UPDATE on mn_user_capacity).
+	 */
+	public function testW4ParallelCapacityAssignExactlyOneWinner(): void
+	{
+		$workOrders = Server::get(\OCA\MaintenanceCheck\Service\WorkOrderService::class);
+		$policies = Server::get(\OCA\MaintenanceCheck\Service\PolicyService::class);
+		$capacity = Server::get(\OCA\MaintenanceCheck\Service\CapacityService::class);
+		$userManager = Server::get(\OCP\IUserManager::class);
+		$previous = $policies->snapshot();
+
+		$tech = 'mn_race_cap_' . bin2hex(random_bytes(3));
+		if ($userManager->userExists($tech)) {
+			$userManager->get($tech)?->delete();
+		}
+		$userManager->createUser($tech, 'Mn-Race-Cap-9xK!' . bin2hex(random_bytes(2)));
+
+		try {
+			$policies->save([
+				'capacityEnforcement' => \OCA\MaintenanceCheck\Service\PolicyService::ENFORCEMENT_BLOCK,
+			]);
+			$capacity->set(self::UID, $tech, ['dailyMinutes' => 60]);
+
+			$seedA = $this->seedPlan();
+			$seedB = $this->seedPlan();
+			Server::get(\OCA\MaintenanceCheck\Service\BuiltinProcedurePackSeeder::class)->ensureInstalled();
+
+			$woA = $workOrders->createFromVisit(self::UID, (int)$seedA['openVisit']['id'], [
+				'procedureSkipped' => true,
+				'procedureSkipReason' => 'Capacity race A',
+				'estimatedMinutes' => 60,
+			]);
+			$woB = $workOrders->createFromVisit(self::UID, (int)$seedB['openVisit']['id'], [
+				'procedureSkipped' => true,
+				'procedureSkipReason' => 'Capacity race B',
+				'estimatedMinutes' => 60,
+			]);
+			// Ensure due_on is today so both land on the same capacity day.
+			$workOrders->update(self::UID, (int)$woA['id'], ['dueOn' => $this->today]);
+			$workOrders->update(self::UID, (int)$woB['id'], ['dueOn' => $this->today]);
+
+			[$a, $b] = $this->raceCapacityAssign([
+				[(string)$woA['id'], self::UID, $tech],
+				[(string)$woB['id'], self::UID, $tech],
+			]);
+			$tokens = [$a['token'], $b['token']];
+			$ok = array_values(array_filter($tokens, static fn (string $t): bool => $t === 'OK'));
+			$conflicts = array_values(array_filter(
+				$tokens,
+				static fn (string $t): bool => $t === 'CONFLICT:capacity_exceeded',
+			));
+			$this->assertCount(1, $ok, 'exactly one assign must succeed; tokens=' . implode(',', $tokens));
+			$this->assertCount(1, $conflicts, 'loser must hit capacity_exceeded; tokens=' . implode(',', $tokens));
+
+			$load = Server::get(\OCA\MaintenanceCheck\Db\WorkOrderMapper::class)
+				->loadMinutesFor($tech, $this->today, null);
+			$this->assertSame(60, $load, 'winner alone must consume the full 60-minute capacity');
+		} finally {
+			$policies->save([
+				'capacityEnforcement' => $previous['capacityEnforcement'],
+			]);
+			if ($userManager->userExists($tech)) {
+				$userManager->get($tech)?->delete();
+			}
+			$qb = $this->db->getQueryBuilder();
+			$qb->delete('mn_user_capacity')->where($qb->expr()->eq('uid', $qb->createNamedParameter($tech)));
+			$qb->executeStatement();
+		}
+	}
+
+	/**
+	 * @param list<list<string>> $argSets
+	 * @return list<array{token: string, code: int}>
+	 */
+	private function raceCapacityAssign(array $argSets): array
+	{
+		$worker = __DIR__ . '/workers/capacity-assign-worker.php';
+		$this->assertFileExists($worker);
+
+		$php = PHP_BINARY;
+		$root = getenv('NEXTCLOUD_ROOT') ?: '/var/www/html';
+		$descriptors = [
+			0 => ['pipe', 'r'],
+			1 => ['pipe', 'w'],
+			2 => ['pipe', 'w'],
+		];
+
+		$procs = [];
+		$pipes = [];
+		foreach ($argSets as $i => $args) {
+			$cmd = array_merge([$php, $worker], $args);
+			$env = array_merge($_ENV, $_SERVER, [
+				'NEXTCLOUD_ROOT' => $root,
+			]);
+			$proc = proc_open($cmd, $descriptors, $pipeSet, null, $env);
+			$this->assertIsResource($proc, 'failed to spawn capacity-assign worker ' . $i);
+			$procs[$i] = $proc;
+			$pipes[$i] = $pipeSet;
+			fclose($pipeSet[0]);
+		}
+		usleep(50_000);
+
+		$results = [];
+		foreach ($procs as $i => $proc) {
+			$stdout = stream_get_contents($pipes[$i][1]) ?: '';
+			$stderr = stream_get_contents($pipes[$i][2]) ?: '';
+			fclose($pipes[$i][1]);
+			fclose($pipes[$i][2]);
+			$code = proc_close($proc);
+			$token = trim(explode("\n", trim($stdout))[0] ?? '');
+			if ($token === '') {
+				$this->fail("Capacity assign worker $i produced empty stdout (exit=$code stderr=$stderr)");
+			}
+			$results[] = ['token' => $token, 'code' => $code];
+		}
+		return $results;
+	}
+
+	/**
+	 * @param list<list<string>> $argSets
+	 * @return list<array{token: string, code: int}>
+	 */
+	private function raceWoDone(array $argSets): array
+	{
+		$worker = __DIR__ . '/workers/wo-done-worker.php';
+		$this->assertFileExists($worker);
+
+		$php = PHP_BINARY;
+		$root = getenv('NEXTCLOUD_ROOT') ?: '/var/www/html';
+		$descriptors = [
+			0 => ['pipe', 'r'],
+			1 => ['pipe', 'w'],
+			2 => ['pipe', 'w'],
+		];
+
+		$procs = [];
+		$pipes = [];
+		foreach ($argSets as $i => $args) {
+			$cmd = array_merge([$php, $worker], $args);
+			$env = array_merge($_ENV, $_SERVER, [
+				'NEXTCLOUD_ROOT' => $root,
+			]);
+			$proc = proc_open($cmd, $descriptors, $pipeSet, null, $env);
+			$this->assertIsResource($proc, 'failed to spawn wo-done worker ' . $i);
+			$procs[$i] = $proc;
+			$pipes[$i] = $pipeSet;
+			fclose($pipeSet[0]);
+		}
+		usleep(50_000);
+
+		$results = [];
+		foreach ($procs as $i => $proc) {
+			$stdout = stream_get_contents($pipes[$i][1]) ?: '';
+			$stderr = stream_get_contents($pipes[$i][2]) ?: '';
+			fclose($pipes[$i][1]);
+			fclose($pipes[$i][2]);
+			$code = proc_close($proc);
+			$token = trim(explode("\n", trim($stdout))[0] ?? '');
+			if ($token === '') {
+				$this->fail("WO done worker $i produced empty stdout (exit=$code stderr=$stderr)");
+			}
+			$results[] = ['token' => $token, 'code' => $code];
+		}
+		return $results;
+	}
+
+	/**
 	 * @param list<list<string>> $argSets
 	 * @return list<array{token: string, code: int}>
 	 */

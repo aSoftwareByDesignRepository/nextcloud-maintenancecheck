@@ -10,7 +10,8 @@
 		}
 	],
 	"require": {
-		"php": ">=8.2"
+		"php": ">=8.2",
+		"dompdf/dompdf": "^3.0"
 	},
 	"require-dev": {
 		"nextcloud/ocp": "^32.0 || ^33.0",

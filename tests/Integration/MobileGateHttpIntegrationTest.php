@@ -14,10 +14,17 @@ use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Service\CatalogService;
 use OCA\MaintenanceCheck\Service\CustomerService;
 use OCA\MaintenanceCheck\Service\EquipmentService;
+use OCA\MaintenanceCheck\Service\KitService;
 use OCA\MaintenanceCheck\Service\LicenseService;
+use OCA\MaintenanceCheck\Service\MeterService;
 use OCA\MaintenanceCheck\Service\MobileGateService;
 use OCA\MaintenanceCheck\Service\PlanService;
+use OCA\MaintenanceCheck\Service\TourService;
 use OCA\MaintenanceCheck\Service\VisitService;
+use OCA\MaintenanceCheck\Service\WoChecklistService;
+use OCA\MaintenanceCheck\Service\WoEvidenceService;
+use OCA\MaintenanceCheck\Service\WoPdfService;
+use OCA\MaintenanceCheck\Service\WorkOrderService;
 use OCA\MaintenanceCheck\Tests\Support\Mn2TestSigning;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -130,6 +137,13 @@ final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 			\OC::$server->get(VisitService::class),
 			\OC::$server->get(EquipmentService::class),
 			\OC::$server->get(CustomerService::class),
+			\OC::$server->get(WorkOrderService::class),
+			\OC::$server->get(WoChecklistService::class),
+			\OC::$server->get(WoEvidenceService::class),
+			\OC::$server->get(WoPdfService::class),
+			\OC::$server->get(KitService::class),
+			\OC::$server->get(TourService::class),
+			\OC::$server->get(MeterService::class),
 		);
 	}
 

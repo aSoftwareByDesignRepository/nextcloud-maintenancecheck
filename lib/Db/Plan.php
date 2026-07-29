@@ -21,6 +21,12 @@ use OCP\AppFramework\Db\Entity;
  * @method void setHasContract(bool $v)
  * @method string|null getContractNotes()
  * @method void setContractNotes(?string $v)
+ * @method string getTriggerKind()
+ * @method void setTriggerKind(string $v)
+ * @method string|null getMeterCode()
+ * @method void setMeterCode(?string $v)
+ * @method string|null getMeterThreshold()
+ * @method void setMeterThreshold(?string $v)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $v)
  * @method int getUpdatedAt()
@@ -30,6 +36,24 @@ use OCP\AppFramework\Db\Entity;
  */
 class Plan extends Entity
 {
+	public const TRIGGER_INTERVAL = 'interval';
+	public const TRIGGER_METER = 'meter';
+	public const TRIGGER_EITHER = 'either';
+	public const TRIGGER_KINDS = [self::TRIGGER_INTERVAL, self::TRIGGER_METER, self::TRIGGER_EITHER];
+
+	/**
+	 * M1/M2: interval math applies to `interval` and `either` plans only.
+	 */
+	public function usesIntervalTrigger(): bool
+	{
+		return $this->triggerKind !== self::TRIGGER_METER;
+	}
+
+	public function usesMeterTrigger(): bool
+	{
+		return $this->triggerKind !== self::TRIGGER_INTERVAL;
+	}
+
 	protected int $equipmentId = 0;
 	protected int $maintTypeId = 0;
 	protected string $intervalUnit = 'month';
@@ -37,6 +61,9 @@ class Plan extends Entity
 	protected bool $active = true;
 	protected bool $hasContract = false;
 	protected ?string $contractNotes = null;
+	protected string $triggerKind = self::TRIGGER_INTERVAL;
+	protected ?string $meterCode = null;
+	protected ?string $meterThreshold = null;
 	protected int $createdAt = 0;
 	protected int $updatedAt = 0;
 	protected string $createdBy = '';
@@ -50,6 +77,10 @@ class Plan extends Entity
 		$this->addType('active', 'boolean');
 		$this->addType('hasContract', 'boolean');
 		$this->addType('contractNotes', 'string');
+		$this->addType('triggerKind', 'string');
+		$this->addType('meterCode', 'string');
+		// Decimal columns travel as strings — no float drift.
+		$this->addType('meterThreshold', 'string');
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
 		$this->addType('createdBy', 'string');
@@ -69,6 +100,9 @@ class Plan extends Entity
 			'active' => $this->active,
 			'hasContract' => $this->hasContract,
 			'contractNotes' => $this->contractNotes,
+			'triggerKind' => $this->triggerKind,
+			'meterCode' => $this->meterCode,
+			'meterThreshold' => $this->meterThreshold,
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,
 			'createdBy' => $this->createdBy,

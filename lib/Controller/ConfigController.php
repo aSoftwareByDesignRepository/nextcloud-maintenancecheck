@@ -7,6 +7,8 @@ namespace OCA\MaintenanceCheck\Controller;
 use OCA\MaintenanceCheck\AppInfo\Application;
 use OCA\MaintenanceCheck\Exception\ValidationException;
 use OCA\MaintenanceCheck\Service\AccessControlService;
+use OCA\MaintenanceCheck\Service\InventoryFlangeService;
+use OCA\MaintenanceCheck\Service\PolicyService;
 use OCA\MaintenanceCheck\Support\UserDirectorySearch;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -18,12 +20,16 @@ use OCP\IUserManager;
 /**
  * P7 (app admin): access restriction, allow-lists, app-admin list, office
  * lists. Unknown uids/gids → 422 so typos never silently lock people out.
+ * F6 inventory flange toggle lives here too (suite AC-L5 / AC-S2.2).
+ * W3–W4 org policies (checklist / skills / capacity) are edited here as well.
  */
 class ConfigController extends Controller
 {
 	public function __construct(
 		IRequest $request,
 		private readonly AccessControlService $access,
+		private readonly InventoryFlangeService $inventoryFlange,
+		private readonly PolicyService $policies,
 		private readonly IUserManager $userManager,
 		private readonly IGroupManager $groupManager,
 	) {
@@ -41,6 +47,8 @@ class ConfigController extends Controller
 			'accessAllowedGroupIds' => $this->access->getJsonIdList(AccessControlService::KEY_ACCESS_ALLOWED_GROUP_IDS),
 			'officeUserIds' => $this->access->getJsonIdList(AccessControlService::KEY_OFFICE_USER_IDS),
 			'officeGroupIds' => $this->access->getJsonIdList(AccessControlService::KEY_OFFICE_GROUP_IDS),
+			'inventoryFlange' => $this->inventoryFlange->adminSnapshot(),
+			'policies' => $this->policies->snapshot(),
 		]);
 	}
 
@@ -101,6 +109,70 @@ class ConfigController extends Controller
 			);
 		}
 
+		return $this->index();
+	}
+
+	/**
+	 * F6: opt-in InventoryCheck stock issue after WO done (default off).
+	 */
+	#[NoAdminRequired]
+	public function saveInventoryFlange(): JSONResponse
+	{
+		$this->access->requireAppAdmin($this->access->currentUserId());
+		$body = $this->request->getParams();
+
+		if (array_key_exists('enabled', $body)) {
+			if (!is_bool($body['enabled'])) {
+				throw new ValidationException('validation_failed', 'enabled must be a boolean.', [
+					['field' => 'enabled', 'code' => 'invalid_type'],
+				]);
+			}
+			$this->inventoryFlange->setEnabled($body['enabled']);
+		}
+		if (array_key_exists('locationPolicy', $body)) {
+			$policy = (string)$body['locationPolicy'];
+			try {
+				$this->inventoryFlange->setLocationPolicy($policy);
+			} catch (\InvalidArgumentException) {
+				throw new ValidationException('validation_failed', 'locationPolicy is not valid.', [
+					['field' => 'locationPolicy', 'code' => 'invalid_value'],
+				]);
+			}
+		}
+		if (array_key_exists('explicitLocationId', $body)) {
+			$raw = $body['explicitLocationId'];
+			if ($raw === null || $raw === '') {
+				$this->inventoryFlange->setExplicitLocationId(null);
+			} elseif (is_int($raw) || (is_string($raw) && ctype_digit($raw))) {
+				$this->inventoryFlange->setExplicitLocationId((int)$raw);
+			} else {
+				throw new ValidationException('validation_failed', 'explicitLocationId must be a positive integer or empty.', [
+					['field' => 'explicitLocationId', 'code' => 'invalid_type'],
+				]);
+			}
+		}
+
+		return $this->index();
+	}
+
+	/**
+	 * W3–W4: org enforcement policies (checklist done, skills, capacity).
+	 * Partial updates; validated values only — never brick the app.
+	 */
+	#[NoAdminRequired]
+	public function savePolicies(): JSONResponse
+	{
+		$this->access->requireAppAdmin($this->access->currentUserId());
+		$body = $this->request->getParams();
+		unset($body['_route']);
+		// JSON numbers arrive as int/float; checklistMinPercent must be int.
+		if (array_key_exists('checklistMinPercent', $body) && is_float($body['checklistMinPercent'])) {
+			$body['checklistMinPercent'] = (int)$body['checklistMinPercent'];
+		}
+		if (array_key_exists('capacityWarnRatio', $body) && is_int($body['capacityWarnRatio'])) {
+			$body['capacityWarnRatio'] = (float)$body['capacityWarnRatio'];
+		}
+		$this->policies->save($body);
 		return $this->index();
 	}
 

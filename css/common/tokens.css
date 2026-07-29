@@ -40,6 +40,11 @@
 	--mn-icon-stroke: 2;
 
 	--mn-tab-num: tabular-nums;
+
+	/* Print/QR stickers stay light for scanners regardless of NC theme */
+	--mn-print-surface: #fff;
+	/* Ink on the light signature pad (not theme text — pad is always print-surface) */
+	--mn-signature-ink: #111;
 }
 
 /* Theme-bound tokens — must follow body [data-theme-*] where NC defines --color-* */
@@ -72,4 +77,12 @@ body {
 
 	--mn-shadow-sm: 0 1px 2px color-mix(in srgb, var(--color-main-text) 8%, transparent);
 	--mn-shadow-md: 0 8px 24px color-mix(in srgb, var(--color-main-text) 12%, transparent);
+	--mn-shadow-lg: 0 8px 40px color-mix(in srgb, var(--color-main-text) 35%, transparent);
+
+	/* Modal / dialog scrims and soft hover fills — theme-safe (no raw rgba black) */
+	--mn-scrim: color-mix(in srgb, var(--color-main-text) 45%, transparent);
+	--mn-hover-fill: color-mix(in srgb, var(--color-main-text) 15%, transparent);
+
+	/* Signature pad stays light for ink contrast on every NC theme */
+	--mn-signature-surface: var(--mn-print-surface, #fff);
 }

@@ -1,0 +1,47 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "builtin-electro-de-v1",
+  "vertical": "electro",
+  "locale": "de",
+  "version": 1,
+  "procedures": [
+    {
+      "code": "elektro_jahrespruefung",
+      "title": "Jährliche Elektroprüfung",
+      "items": [
+        {
+          "code": "schutzleiter",
+          "label": "Schutzleiter prüfen",
+          "required": true,
+          "sort_order": 10
+        },
+        {
+          "code": "isolation",
+          "label": "Isolationswiderstand messen",
+          "required": true,
+          "sort_order": 20
+        },
+        {
+          "code": "fi",
+          "label": "FI-Schalter auslösen",
+          "required": true,
+          "sort_order": 30
+        },
+        {
+          "code": "mangel",
+          "label": "Mangel gefunden?",
+          "required": true,
+          "sort_order": 40
+        },
+        {
+          "code": "mangel_notiz",
+          "label": "Mangel dokumentieren",
+          "required": true,
+          "sort_order": 50,
+          "show_if_item_code": "mangel",
+          "show_if_result": "fail"
+        }
+      ]
+    }
+  ]
+}

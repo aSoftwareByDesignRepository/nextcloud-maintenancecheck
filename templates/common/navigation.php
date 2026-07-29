@@ -26,16 +26,21 @@ $mnNavIcon = static function (string $name): string {
 $activeNavId = match ($pageId) {
 	'customer-detail' => 'customers',
 	'equipment-detail' => 'equipment',
+	'work-order-detail' => 'work-orders',
 	default => $pageId,
 };
 
 $isDue = $activeNavId === 'due';
 $isVisits = $activeNavId === 'visits';
+$isWorkOrders = $activeNavId === 'work-orders';
+$isDispatch = $activeNavId === 'dispatch';
+$isTours = $activeNavId === 'tours';
 $isCustomers = $activeNavId === 'customers';
 $isEquipment = $activeNavId === 'equipment';
 $isCatalogs = $activeNavId === 'catalogs';
 $isSettings = $activeNavId === 'settings';
 $isAdmin = $isSettings;
+$isPlanning = $isDispatch || $isTours;
 ?>
 <div id="maintenancecheck-app" class="maintenancecheck-app">
 	<a href="#app-navigation" class="skip-link mn-skip-link--nav"><?php p($l->t('Skip to app navigation')); ?></a>
@@ -71,6 +76,51 @@ $isAdmin = $isSettings;
 					<span><?php p($l->t('Visits')); ?></span>
 				</a>
 			</li>
+			<li class="<?php p($isWorkOrders ? 'active' : ''); ?>" <?php if ($isWorkOrders): ?>aria-current="page"<?php endif; ?>>
+				<a href="<?php p((string)($navUrls['workOrders'] ?? '#')); ?>"
+					title="<?php p($l->t('Work orders: Planned and corrective work')); ?>"
+					aria-label="<?php p($l->t('Go to work orders')); ?>">
+					<span class="mn-nav__icon" aria-hidden="true"><?php print_unescaped($mnNavIcon('clipboard-list')); ?></span>
+					<span><?php p($l->t('Work orders')); ?></span>
+				</a>
+			</li>
+			<?php if ($isOffice || $isAppAdmin): ?>
+				<li class="nav-section-divider" role="separator" aria-hidden="true"></li>
+				<li class="nav-item-has-children <?php p($isPlanning ? 'is-open' : ''); ?>">
+					<button class="nav-parent-toggle" type="button"
+						aria-expanded="<?php p($isPlanning ? 'true' : 'false'); ?>"
+						aria-controls="mn-planning-subnav">
+						<span class="mn-nav__icon" aria-hidden="true"><?php print_unescaped($mnNavIcon('kanban')); ?></span>
+						<span><?php p($l->t('Planning')); ?></span>
+						<span class="nav-parent-chevron" aria-hidden="true"></span>
+					</button>
+					<ul id="mn-planning-subnav" class="nav-submenu" <?php p($isPlanning ? '' : 'hidden'); ?>>
+						<li class="<?php p($isDispatch ? 'active' : ''); ?>" <?php if ($isDispatch): ?>aria-current="page"<?php endif; ?>>
+							<a href="<?php p((string)($navUrls['dispatch'] ?? '#')); ?>"
+								title="<?php p($l->t('Dispatch: Assign open work orders')); ?>"
+								aria-label="<?php p($l->t('Go to dispatch')); ?>">
+								<span><?php p($l->t('Dispatch')); ?></span>
+							</a>
+						</li>
+						<li class="<?php p($isTours ? 'active' : ''); ?>" <?php if ($isTours): ?>aria-current="page"<?php endif; ?>>
+							<a href="<?php p((string)($navUrls['tours'] ?? '#')); ?>"
+								title="<?php p($l->t('Day tours: Stop-by-stop plans')); ?>"
+								aria-label="<?php p($l->t('Go to day tours')); ?>">
+								<span><?php p($l->t('Day tours')); ?></span>
+							</a>
+						</li>
+					</ul>
+				</li>
+			<?php else: ?>
+				<li class="<?php p($isTours ? 'active' : ''); ?>" <?php if ($isTours): ?>aria-current="page"<?php endif; ?>>
+					<a href="<?php p((string)($navUrls['tours'] ?? '#')); ?>"
+						title="<?php p($l->t('Day tours: Stop-by-stop plans')); ?>"
+						aria-label="<?php p($l->t('Go to day tours')); ?>">
+						<span class="mn-nav__icon" aria-hidden="true"><?php print_unescaped($mnNavIcon('route')); ?></span>
+						<span><?php p($l->t('My tour')); ?></span>
+					</a>
+				</li>
+			<?php endif; ?>
 			<li class="nav-section-divider" role="separator" aria-hidden="true"></li>
 			<li class="nav-item-has-children <?php p(($isCustomers || $isEquipment || $isCatalogs) ? 'is-open' : ''); ?>">
 				<button class="nav-parent-toggle" type="button"

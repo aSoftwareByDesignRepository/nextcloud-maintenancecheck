@@ -35,7 +35,7 @@ require __DIR__ . '/common/page-start.php';
 	<header class="mn-card__header">
 		<h2 id="mn-customer-list-title" class="mn-card__title"><?php p($l->t('Customers')); ?></h2>
 	</header>
-	<div class="mn-card__body">
+	<div class="mn-card__body mn-card__body--table">
 		<div id="mn-customer-list" class="mn-listing" aria-busy="true"></div>
 		<nav id="mn-customer-pagination" class="mn-pagination" aria-label="<?php p($l->t('Customer pages')); ?>"></nav>
 	</div>

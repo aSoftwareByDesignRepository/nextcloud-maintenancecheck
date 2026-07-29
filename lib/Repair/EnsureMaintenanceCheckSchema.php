@@ -51,6 +51,8 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 	{
 		$this->config->deleteAppValue(UninstallDropTables::APP_ID, UninstallDropTables::REPAIR_PASS_KEY);
 
+		// Always migrate to latest — tables may exist while additive columns
+		// from a later migration are still missing (recorded-but-empty diffs).
 		$missingBefore = $this->missingTables();
 		if ($missingBefore !== []) {
 			$output->info(sprintf(
@@ -58,20 +60,20 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 				count($missingBefore),
 				implode(', ', $missingBefore),
 			));
+		}
 
-			$migrationService = new MigrationService(
-				UninstallDropTables::APP_ID,
-				Server::get(Connection::class),
-			);
-			$migrationService->migrate('latest', false);
+		$migrationService = new MigrationService(
+			UninstallDropTables::APP_ID,
+			Server::get(Connection::class),
+		);
+		$migrationService->migrate('latest', false);
 
-			$missingAfter = $this->missingTables();
-			if ($missingAfter !== []) {
-				throw new \RuntimeException(sprintf(
-					'MaintenanceCheck schema is still incomplete after migrate("latest"). Missing: %s.',
-					implode(', ', $missingAfter),
-				));
-			}
+		$missingAfter = $this->missingTables();
+		if ($missingAfter !== []) {
+			throw new \RuntimeException(sprintf(
+				'MaintenanceCheck schema is still incomplete after migrate("latest"). Missing: %s.',
+				implode(', ', $missingAfter),
+			));
 		}
 
 		$seeded = $this->seedCatalogs();

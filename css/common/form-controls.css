@@ -63,7 +63,9 @@
 	-webkit-appearance: auto;
 }
 
-/* Native select: AZ chevron + 44px height */
+/* Native select: AZ chevron + 44px height.
+ * Prefer NC --icon-triangle-s-dark (theme-aware). Fallbacks use currentColour-ish
+ * greys tuned per theme so the chevron stays visible on dark/HC backgrounds. */
 #content.app-maintenancecheck #app-content select,
 #content.app-maintenancecheck #app-content select.mn-input,
 #content.app-maintenancecheck #app-content .form-select,
@@ -83,22 +85,34 @@
 	cursor: pointer;
 }
 
+body[data-theme-dark] #content.app-maintenancecheck #app-content select,
+body[data-theme-dark] #content.app-maintenancecheck #app-content .form-select,
+body[data-theme-dark] #content.app-maintenancecheck #app-content .mn-select,
+body[data-theme-dark-highcontrast] #content.app-maintenancecheck #app-content select,
+body[data-theme-dark-highcontrast] #content.app-maintenancecheck #app-content .form-select,
+body[data-theme-dark-highcontrast] #content.app-maintenancecheck #app-content .mn-select {
+	background-image: var(--icon-triangle-s-dark, url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23c0c0c0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e"));
+}
+
 #content.app-maintenancecheck #app-content select::-ms-expand,
 #content.app-maintenancecheck #app-content .form-select::-ms-expand {
 	display: none;
 }
 
 #content.app-maintenancecheck #app-content input:focus,
-#content.app-maintenancecheck #app-content input:focus-visible,
 #content.app-maintenancecheck #app-content textarea:focus,
-#content.app-maintenancecheck #app-content textarea:focus-visible,
 #content.app-maintenancecheck #app-content select:focus,
-#content.app-maintenancecheck #app-content select:focus-visible,
 #content.app-maintenancecheck #app-content .form-input:focus,
-#content.app-maintenancecheck #app-content .form-input:focus-visible,
 #content.app-maintenancecheck #app-content .form-select:focus,
+#content.app-maintenancecheck #app-content .form-textarea:focus {
+	outline: none;
+}
+
+#content.app-maintenancecheck #app-content input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+#content.app-maintenancecheck #app-content textarea:focus-visible,
+#content.app-maintenancecheck #app-content select:focus-visible,
+#content.app-maintenancecheck #app-content .form-input:focus-visible,
 #content.app-maintenancecheck #app-content .form-select:focus-visible,
-#content.app-maintenancecheck #app-content .form-textarea:focus,
 #content.app-maintenancecheck #app-content .form-textarea:focus-visible {
 	border-color: var(--mn-form-border-focus);
 	box-shadow: 0 0 0 3px var(--mn-form-ring);
@@ -130,10 +144,10 @@
 #content.app-maintenancecheck #app-content textarea[aria-invalid="true"] {
 	border-color: var(--mn-form-error);
 }
-#content.app-maintenancecheck #app-content .form-input--error:focus,
-#content.app-maintenancecheck #app-content input[aria-invalid="true"]:focus,
-#content.app-maintenancecheck #app-content select[aria-invalid="true"]:focus,
-#content.app-maintenancecheck #app-content textarea[aria-invalid="true"]:focus {
+#content.app-maintenancecheck #app-content .form-input--error:focus-visible,
+#content.app-maintenancecheck #app-content input[aria-invalid="true"]:focus-visible,
+#content.app-maintenancecheck #app-content select[aria-invalid="true"]:focus-visible,
+#content.app-maintenancecheck #app-content textarea[aria-invalid="true"]:focus-visible {
 	border-color: var(--mn-form-error);
 	box-shadow: 0 0 0 3px var(--mn-form-error-ring);
 }
@@ -162,7 +176,10 @@
 	height: 1.125rem;
 	min-width: 1.125rem;
 	min-height: 1.125rem;
+	max-width: 1.125rem;
+	max-height: 1.125rem;
 	margin: 0;
+	padding: 0;
 	flex-shrink: 0;
 	cursor: pointer;
 	accent-color: var(--color-primary-element);
@@ -170,6 +187,9 @@
 	border: 1px solid var(--mn-form-border);
 	border-radius: 3px;
 	box-sizing: border-box;
+	color-scheme: inherit;
+	appearance: auto;
+	-webkit-appearance: auto;
 }
 
 #content.app-maintenancecheck #app-content input[type="radio"] {

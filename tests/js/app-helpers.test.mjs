@@ -84,8 +84,10 @@ test('statusMeta maps every visit status to label, badge class, and A4 icon', ()
 	assert.deepEqual(MnApp.statusMeta('done'), { label: 'Done', badge: 'mn-badge--done', icon: 'check' });
 	assert.deepEqual(MnApp.statusMeta('skipped'), { label: 'Skipped', badge: 'mn-badge--skipped', icon: 'skip' });
 	assert.deepEqual(MnApp.statusMeta('cancelled'), { label: 'Cancelled', badge: 'mn-badge--cancelled', icon: 'x' });
-	// Unknown statuses degrade gracefully — never crash the render path.
-	assert.deepEqual(MnApp.statusMeta('weird'), { label: 'weird', badge: '', icon: null });
+	assert.deepEqual(MnApp.statusMeta('draft'), { label: 'Draft', badge: 'mn-badge--neutral', icon: 'calendar' });
+	assert.deepEqual(MnApp.statusMeta('in_progress'), { label: 'In progress', badge: 'mn-badge--scheduled', icon: 'clock' });
+	// Unknown statuses degrade to neutral — never colour-only empty class.
+	assert.deepEqual(MnApp.statusMeta('weird'), { label: 'weird', badge: 'mn-badge--neutral', icon: null });
 });
 
 test('bucketMeta covers all four S8 buckets with A4 icons', () => {
@@ -98,7 +100,9 @@ test('bucketMeta covers all four S8 buckets with A4 icons', () => {
 	assert.equal(MnApp.bucketMeta('today').icon, 'clock');
 	assert.equal(MnApp.bucketMeta('next7').icon, 'calendar');
 	assert.equal(MnApp.bucketMeta('later').icon, 'calendar');
+	assert.equal(MnApp.bucketMeta('later').badge, 'mn-badge--neutral');
 	assert.equal(MnApp.bucketMeta('nope').title, 'nope');
+	assert.equal(MnApp.bucketMeta('nope').badge, 'mn-badge--neutral');
 });
 
 test('statusBadge returns A4 descriptor without DOM (icon + text, never colour alone)', () => {
@@ -136,6 +140,78 @@ test('formatDate falls back safely for invalid values', () => {
 	const rendered = MnApp.formatDate('2026-07-24', 'en');
 	assert.match(rendered, /2026/);
 	assert.match(rendered, /24/);
+});
+
+test('normalizeTableColumns keeps only id+label columns (key aliases id)', () => {
+	assert.deepEqual(MnApp.normalizeTableColumns(null), []);
+	assert.deepEqual(MnApp.normalizeTableColumns('nope'), []);
+	assert.deepEqual(
+		MnApp.normalizeTableColumns([
+			null,
+			{ id: '', label: 'X' },
+			{ id: 'name', label: '  Name  ', className: 'wide', actions: true },
+			{ key: 'status', label: 'Status' },
+			{ id: 'skip-me' },
+		]),
+		[
+			{ id: 'name', label: 'Name', className: 'wide', actions: true },
+			{ id: 'status', label: 'Status', className: '', actions: false },
+		],
+	);
+});
+
+test('tableCellText never returns a blank cell', () => {
+	assert.equal(MnApp.tableCellText(null), '—');
+	assert.equal(MnApp.tableCellText(undefined), '—');
+	assert.equal(MnApp.tableCellText(''), '—');
+	assert.equal(MnApp.tableCellText('   '), '—');
+	assert.equal(MnApp.tableCellText('Berlin'), 'Berlin');
+	assert.equal(MnApp.tableCellText(0), '0');
+});
+
+test('buildTableModel is a pure §3.7 table contract', () => {
+	const model = MnApp.buildTableModel(
+		[
+			{ id: 'name', label: 'Customer' },
+			{ key: 'actions', label: 'Actions', actions: true },
+			{ id: '', label: 'bad' },
+		],
+		[{ id: 1 }, { id: 2 }],
+	);
+	assert.equal(model.rowCount, 2);
+	assert.deepEqual(model.columns, [
+		{ id: 'name', label: 'Customer', className: '', actions: false },
+		{ id: 'actions', label: 'Actions', className: '', actions: true },
+	]);
+	assert.deepEqual(MnApp.buildTableModel([], null).rowCount, 0);
+});
+
+test('list pages use design-system tableOrCards (not orphaned mn-row cards)', () => {
+	assert.match(source, /function tableOrCards\(/);
+	assert.match(source, /mn-table table table--hover mn-table--responsive/);
+	assert.match(source, /data-label/);
+	assert.match(source, /mn-table-actions/);
+	assert.match(source, /tabindex:\s*'0'/);
+	assert.match(source, /list\.appendChild\(tableOrCards\(/);
+	assert.match(source, /equipmentTable\(/);
+	// Dense office lists must not keep the old card-row renderer.
+	assert.doesNotMatch(source, /function equipmentRow\(/);
+});
+
+test('list loads guard against stale responses (loadSeq)', () => {
+	assert.match(source, /var loadSeq = 0/);
+	assert.match(source, /var seq = \+\+loadSeq/);
+	assert.match(source, /if \(seq !== loadSeq\)/);
+	assert.match(source, /function announceResults\(/);
+	assert.match(source, /announceResults\(/);
+	assert.match(source, /function pageDue\(\)[\s\S]*?var loadSeq = 0/);
+});
+
+test('required fields set aria-required and required attribute', () => {
+	assert.match(source, /input\.setAttribute\('required'/);
+	assert.match(source, /input\.setAttribute\('aria-required',\s*'true'\)/);
+	assert.match(source, /\{label\} \(required\)/);
+	assert.doesNotMatch(source, /form-label--required mn-field__label--required/);
 });
 
 test('S9 force-delete dialog re-applies checkbox gate after setBusy(false)', () => {

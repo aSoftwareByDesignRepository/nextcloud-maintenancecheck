@@ -1,0 +1,47 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "builtin-security-de-v1",
+  "vertical": "security",
+  "locale": "de",
+  "version": 1,
+  "procedures": [
+    {
+      "code": "sicherheit_jahrescheck",
+      "title": "Jährliche Sicherheitsanlagen-Prüfung",
+      "items": [
+        {
+          "code": "alarme",
+          "label": "Alarmmeldungen prüfen",
+          "required": true,
+          "sort_order": 10
+        },
+        {
+          "code": "tueren",
+          "label": "Türkontakte testen",
+          "required": true,
+          "sort_order": 20
+        },
+        {
+          "code": "batterien",
+          "label": "Backup-Batterien prüfen",
+          "required": true,
+          "sort_order": 30
+        },
+        {
+          "code": "stoerung",
+          "label": "Störung gefunden?",
+          "required": true,
+          "sort_order": 40
+        },
+        {
+          "code": "stoerung_notiz",
+          "label": "Störung beschreiben",
+          "required": true,
+          "sort_order": 50,
+          "show_if_item_code": "stoerung",
+          "show_if_result": "fail"
+        }
+      ]
+    }
+  ]
+}

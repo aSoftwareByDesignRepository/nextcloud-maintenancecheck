@@ -33,6 +33,24 @@ class VisitMapper extends QBMapper
 		}
 	}
 
+	/**
+	 * Write-lock a visit row (W1 WO↔visit invariant D1). Must be the first
+	 * read in its transaction so the REPEATABLE READ snapshot is established
+	 * *after* the lock is granted — later consistent reads then see any
+	 * concurrently committed work order.
+	 */
+	public function lockRow(int $id): bool
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id')->from($this->getTableName())
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, \PDO::PARAM_INT)))
+			->forUpdate();
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return $row !== false;
+	}
+
 	public function exists(int $id): bool
 	{
 		$qb = $this->db->getQueryBuilder();

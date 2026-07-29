@@ -107,6 +107,12 @@
 	align-items: stretch;
 }
 
+/* Single search field — never stretch into an empty 4-column grid. */
+#app-content.mn-app .mn-filter-grid--search {
+	grid-template-columns: minmax(0, 36rem);
+	max-width: 36rem;
+}
+
 #app-content.mn-app .mn-filter-grid--extended {
 	grid-template-columns:
 		minmax(0, 1fr)
@@ -338,12 +344,14 @@
 
 #app-content.mn-app .table-container .table,
 #app-content.mn-app .table-container .grid-table,
+#app-content.mn-app .table-container .mn-table,
 #app-content.mn-app .table-container .maintenancecheck-table,
 #app-content.mn-app .table-container .report-table,
 #app-content.mn-app .table-responsive .table,
 #app-content.mn-app .table-responsive .grid-table,
 #app-content.mn-app .mn-table-wrap .table,
-#app-content.mn-app .mn-table-wrap .grid-table {
+#app-content.mn-app .mn-table-wrap .grid-table,
+#app-content.mn-app .mn-table-wrap .mn-table {
 	margin-bottom: 0;
 	width: 100%;
 	table-layout: auto;

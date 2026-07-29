@@ -1,0 +1,28 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "builtin-industrial-v1",
+  "vertical": "industrial",
+  "locale": "en",
+  "version": 1,
+  "procedures": [
+    {
+      "code": "industrial_safety",
+      "title": "Industrial safety round",
+      "items": [
+        { "code": "loto", "label": "Lock-out / tag-out verified", "required": true, "sort_order": 10 },
+        { "code": "guards", "label": "Machine guards in place", "required": true, "sort_order": 20 },
+        { "code": "emergency_stop", "label": "E-stop function tested", "required": true, "sort_order": 30 },
+        { "code": "anomaly", "label": "Any anomaly requiring follow-up?", "required": true, "sort_order": 40 },
+        {
+          "code": "anomaly_detail",
+          "label": "Describe the anomaly",
+          "required": true,
+          "sort_order": 50,
+          "show_if_item_code": "anomaly",
+          "show_if_result": "fail"
+        },
+        { "code": "area_clean", "label": "Work area left clean", "required": false, "sort_order": 60 }
+      ]
+    }
+  ]
+}

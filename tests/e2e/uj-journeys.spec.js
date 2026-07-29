@@ -237,6 +237,458 @@ test.describe('UJ journeys', () => {
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
 	})
 
+	test('UJ-W1 WO from visit with procedure → planned → PDF gates', async ({ page }) => {
+		const admin = primaryCreds()
+		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
+		await login(page, admin)
+		await openApp(page)
+
+		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
+		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
+		const procs = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/procedures?limit=20&offset=0')
+		expectOk(procs, 'procedures')
+		expect(procs.data.data.length).toBeGreaterThan(0)
+		const procedureId = procs.data.data[0].id
+
+		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
+			name: `UJWO ${Date.now()}`,
+		})
+		expectOk(customer, 'customer')
+		const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+			label: 'UJWO unit',
+			customerId: customer.data.id,
+			equipTypeId: types.data.data[0].id,
+		})
+		expectOk(equipment, 'equipment')
+		const serverToday = await page.locator('#app-content').getAttribute('data-mn-server-today')
+		const plan = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/plans`, {
+			maintTypeId: maint.data.data[0].id,
+			intervalUnit: 'week',
+			intervalCount: 1,
+			firstDueOn: serverToday,
+		})
+		expectOk(plan, 'plan')
+		const visitId = plan.data.openVisit.id
+
+		const wo = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/visits/${visitId}/work-orders`, {
+			procedureId,
+		})
+		expectOk(wo, 'createFromVisit')
+		expect(wo.data.status).toBe('planned')
+		expect(Array.isArray(wo.data.checklist)).toBeTruthy()
+		expect(wo.data.checklist.length).toBeGreaterThan(0)
+
+		const openPdf = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/pdf/servicebericht`)
+		expect([409, 400]).toContain(openPdf.status)
+
+		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
+		await expect(page.locator('#mn-wo-detail')).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByRole('heading', { name: /checklist/i }).first()).toBeVisible()
+		await axeMain(page)
+
+		const shk = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/procedures/pack?pack=builtin-shk-v1')
+		expectOk(shk, 'shk export')
+		expect(shk.data.format).toBe('mn_procedure_pack_v1')
+		expect(shk.data.vertical).toBe('shk')
+
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+	})
+
+	test('UJ-W1 show_if hides conditional item until parent fails', async ({ page }) => {
+		const admin = primaryCreds()
+		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
+		await login(page, admin)
+		await openApp(page)
+
+		const stamp = Date.now()
+		const proc = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/procedures', {
+			code: `uj_showif_${stamp}`,
+			title: `UJ show_if ${stamp}`,
+			locale: 'en',
+			items: [
+				{ code: 'leak', label: 'Leak found?', required: true, sortOrder: 1 },
+				{
+					code: 'leak_note',
+					label: 'Describe the leak',
+					required: true,
+					sortOrder: 2,
+					showIfItemCode: 'leak',
+					showIfResult: 'fail',
+				},
+			],
+		})
+		expectOk(proc, 'procedure')
+
+		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
+		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
+		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
+			name: `UJShowIf ${stamp}`,
+		})
+		expectOk(customer, 'customer')
+		const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+			label: 'UJ showif unit',
+			customerId: customer.data.id,
+			equipTypeId: types.data.data[0].id,
+		})
+		expectOk(equipment, 'equipment')
+		const serverToday = await page.locator('#app-content').getAttribute('data-mn-server-today')
+		const plan = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/plans`, {
+			maintTypeId: maint.data.data[0].id,
+			intervalUnit: 'week',
+			intervalCount: 1,
+			firstDueOn: serverToday,
+		})
+		expectOk(plan, 'plan')
+		const wo = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/visits/${plan.data.openVisit.id}/work-orders`, {
+			procedureId: proc.data.id,
+		})
+		expectOk(wo, 'wo')
+		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/transition`, { to: 'ready' })
+		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/transition`, { to: 'in_progress' })
+
+		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
+		await expect(page.getByText(/Leak found/i).first()).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByText(/Describe the leak/i)).toHaveCount(0)
+
+		const checklist = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}`)
+		expectOk(checklist, 'wo detail')
+		await api(page, 'PUT', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/checklist/leak`, {
+			result: 'fail',
+		})
+		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
+		await expect(page.getByText(/Describe the leak/i).first()).toBeVisible({ timeout: 15_000 })
+		await axeMain(page)
+
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+	})
+
+	test('UJ-W2 skills block rejects assign without grant', async ({ page }) => {
+		const admin = primaryCreds()
+		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
+		await login(page, admin)
+		await openApp(page)
+
+		const stamp = Date.now()
+		const skill = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/skills', {
+			code: `uj_sk_${stamp}`,
+			name: `UJ Skill ${stamp}`,
+		})
+		expectOk(skill, 'skill')
+		await api(page, 'POST', '/index.php/apps/maintenancecheck/api/config/policies', {
+			skillsEnforcement: 'block',
+		})
+
+		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
+		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
+		const procs = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/procedures?limit=5&offset=0')
+		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
+			name: `UJSkill ${stamp}`,
+		})
+		expectOk(customer, 'customer')
+		const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+			label: 'UJ skill unit',
+			customerId: customer.data.id,
+			equipTypeId: types.data.data[0].id,
+		})
+		const serverToday = await page.locator('#app-content').getAttribute('data-mn-server-today')
+		const plan = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/plans`, {
+			maintTypeId: maint.data.data[0].id,
+			intervalUnit: 'week',
+			intervalCount: 1,
+			firstDueOn: serverToday,
+		})
+		const wo = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/visits/${plan.data.openVisit.id}/work-orders`, {
+			procedureId: procs.data.data[0].id,
+		})
+		expectOk(wo, 'wo')
+		const setSkills = await api(page, 'PUT', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/skills`, {
+			skillIds: [skill.data.id],
+		})
+		expectOk(setSkills, 'wo skills')
+
+		const blocked = await api(page, 'PUT', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/assign`, {
+			primaryUserId: admin.username,
+		})
+		expect(blocked.status).toBe(422)
+		expect(blocked.data?.error?.code).toBe('skills_missing')
+
+		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
+		await expect(page.getByRole('heading', { name: /required skills/i }).first()).toBeVisible({ timeout: 15_000 })
+		await axeMain(page)
+
+		await api(page, 'POST', '/index.php/apps/maintenancecheck/api/config/policies', {
+			skillsEnforcement: 'warn',
+		})
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+	})
+
+	test('UJ-W3 tour suggest-order applies via reorder + Servicebericht on done', async ({ page }) => {
+		const admin = primaryCreds()
+		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
+		await login(page, admin)
+		await openApp(page)
+
+		const stamp = Date.now()
+		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
+		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
+		const serverToday = await page.locator('#app-content').getAttribute('data-mn-server-today')
+
+		async function seedWo(label) {
+			const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
+				name: `UJTour ${label} ${stamp}`,
+			})
+			expectOk(customer, 'customer')
+			const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+				label: `UJTour ${label}`,
+				customerId: customer.data.id,
+				equipTypeId: types.data.data[0].id,
+			})
+			expectOk(equipment, 'equipment')
+			const plan = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/plans`, {
+				maintTypeId: maint.data.data[0].id,
+				intervalUnit: 'week',
+				intervalCount: 1,
+				firstDueOn: serverToday,
+			})
+			expectOk(plan, 'plan')
+			const wo = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/visits/${plan.data.openVisit.id}/work-orders`, {
+				procedureSkipped: true,
+				procedureSkipReason: 'Tour E2E skips checklist template',
+			})
+			expectOk(wo, 'wo')
+			return { customerId: customer.data.id, woId: wo.data.id, number: wo.data.number }
+		}
+
+		const a = await seedWo('A')
+		const b = await seedWo('B')
+		const tour = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/tours', {
+			tourDate: serverToday,
+			techUid: admin.username,
+		})
+		expectOk(tour, 'tour')
+		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/tours/${tour.data.id}/stops`, { workOrderId: a.woId })
+		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/tours/${tour.data.id}/stops`, { workOrderId: b.woId })
+
+		const suggestion = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/tours/${tour.data.id}/suggest-order`, {})
+		expectOk(suggestion, 'suggest')
+		expect(suggestion.data.applied).toBe(false)
+		expect(suggestion.data.suggestedWorkOrderIds.length).toBe(2)
+
+		const reordered = await api(page, 'PUT', `/index.php/apps/maintenancecheck/api/tours/${tour.data.id}/reorder`, {
+			workOrderIds: suggestion.data.suggestedWorkOrderIds,
+		})
+		expectOk(reordered, 'reorder')
+		const stopIds = (reordered.data.stops || []).map((s) => s.workOrderId)
+		expect(stopIds).toEqual(suggestion.data.suggestedWorkOrderIds)
+
+		await openApp(page, '/apps/maintenancecheck/tours')
+		await expect(page.locator('#mn-tours-board')).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByRole('button', { name: /suggest order|reihenfolge vorschlagen/i }).first()).toBeVisible()
+		await axeMain(page)
+
+		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${a.woId}/transition`, { to: 'ready' })
+		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${a.woId}/transition`, { to: 'in_progress' })
+		const done = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${a.woId}/transition`, { to: 'done' })
+		expectOk(done, 'done')
+		const pdf = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/work-orders/${a.woId}/pdf/servicebericht`)
+		expect(pdf.status).toBe(200)
+
+		await openApp(page, `/apps/maintenancecheck/work-orders/${a.woId}`)
+		await expect(page.getByRole('link', { name: /service report|servicebericht/i }).first()).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByRole('link', { name: /job pack|einsatzmappe/i })).toHaveCount(0)
+		await axeMain(page)
+
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${a.customerId}?force=1`)
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${b.customerId}?force=1`)
+	})
+
+	test('UJ-W1 AC-B3 phone viewport checklist execute ≤480px', async ({ page }) => {
+		const admin = primaryCreds()
+		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
+		await page.setViewportSize({ width: 480, height: 800 })
+		await login(page, admin)
+		await openApp(page)
+
+		const stamp = Date.now()
+		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
+		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
+		const procs = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/procedures?limit=5&offset=0')
+		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
+			name: `UJ480 ${stamp}`,
+		})
+		expectOk(customer, 'customer')
+		const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+			label: 'UJ480 unit',
+			customerId: customer.data.id,
+			equipTypeId: types.data.data[0].id,
+		})
+		const serverToday = await page.locator('#app-content').getAttribute('data-mn-server-today')
+		const plan = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/plans`, {
+			maintTypeId: maint.data.data[0].id,
+			intervalUnit: 'week',
+			intervalCount: 1,
+			firstDueOn: serverToday,
+		})
+		const wo = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/visits/${plan.data.openVisit.id}/work-orders`, {
+			procedureId: procs.data.data[0].id,
+		})
+		expectOk(wo, 'wo')
+		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/transition`, { to: 'ready' })
+		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/transition`, { to: 'in_progress' })
+
+		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
+		await expect(page.locator('#mn-wo-detail')).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByRole('heading', { name: /checklist/i }).first()).toBeVisible()
+		// Narrow shells often leave NC/app nav overlapping the content column.
+		await page.locator('#mn-main-content').evaluate((el) => {
+			el.scrollIntoView({ block: 'start' })
+			const nav = document.getElementById('app-navigation')
+			if (nav) {
+				nav.setAttribute('aria-hidden', 'true')
+				nav.style.setProperty('pointer-events', 'none')
+			}
+		})
+		const okBtn = page.locator('#mn-main-content').getByRole('button', { name: /^OK$/i }).first()
+		await expect(okBtn).toBeVisible()
+		await okBtn.click({ force: true })
+		await axeMain(page)
+
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+	})
+
+	test('UJ-W5 meter threshold reading opens due visit + equipment meters UI', async ({ page }) => {
+		const admin = primaryCreds()
+		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
+		await login(page, admin)
+		await openApp(page)
+
+		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
+		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
+		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
+			name: `UJW5 ${Date.now()}`,
+		})
+		expectOk(customer, 'customer')
+		const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+			label: 'UJW5 meter unit',
+			customerId: customer.data.id,
+			equipTypeId: types.data.data[0].id,
+		})
+		expectOk(equipment, 'equipment')
+		const meter = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/meters`, {
+			code: 'hours',
+			name: 'Operating hours',
+			unit: 'h',
+			monotonic: true,
+		})
+		expectOk(meter, 'meter')
+		const plan = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/plans`, {
+			maintTypeId: maint.data.data[0].id,
+			triggerKind: 'meter',
+			meterCode: 'hours',
+			meterThreshold: '250',
+		})
+		expectOk(plan, 'meter plan')
+		expect(plan.data.openVisit == null).toBeTruthy()
+
+		const reading = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/meters/${meter.data.id}/readings`, {
+			value: '250',
+		})
+		expectOk(reading, 'reading')
+		expect(reading.data.triggered.length).toBe(1)
+		expect(reading.data.triggered[0].action).toBe('created')
+
+		await openApp(page, `/apps/maintenancecheck/equipment/${equipment.data.id}`)
+		await expect(page.locator('#mn-equipment-meters')).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByRole('heading', { name: /operating hours|betriebsstunden/i }).first()).toBeVisible()
+		await expect(page.getByRole('button', { name: /add reading|zählerstand erfassen/i }).first()).toBeVisible()
+		await axeMain(page)
+
+		await openApp(page, '/apps/maintenancecheck/')
+		await expect(page.locator('#mn-main-content')).toBeVisible()
+		await expect(page.getByText(/ujw5 meter unit/i).first()).toBeVisible({ timeout: 15_000 })
+		await axeMain(page)
+
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+	})
+
+	test('UJ-QR equipment sticker rotate + resolve + capabilities', async ({ page }) => {
+		const admin = primaryCreds()
+		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
+		await login(page, admin)
+
+		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
+		expectOk(types, 'equip-types')
+		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
+			name: `UJQR ${Date.now()}`,
+		})
+		expectOk(customer, 'customer')
+		const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+			label: 'UJQR unit',
+			customerId: customer.data.id,
+			equipTypeId: types.data.data[0].id,
+		})
+		expectOk(equipment, 'equipment')
+		expect(equipment.data.hasQrToken).toBeTruthy()
+		expect(equipment.data.qrToken).toBeTruthy()
+		expect(String(equipment.data.qrSvg || '')).toContain('<svg')
+
+		const rotated = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/qr/rotate`, {})
+		expectOk(rotated, 'rotate qr')
+		expect(rotated.data.qrToken).toBeTruthy()
+		expect(rotated.data.qrToken).not.toBe(equipment.data.qrToken)
+
+		await openApp(page, `/apps/maintenancecheck/equipment/by-qr/${rotated.data.qrToken}`)
+		await expect(page.locator('#mn-equipment-detail')).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByText(/ujqr unit/i).first()).toBeVisible()
+		await expect(page.getByRole('button', { name: /renew qr sticker|qr-aufkleber erneuern/i }).first()).toBeVisible()
+		await axeMain(page)
+
+		const bootstrap = await api(page, 'GET', '/index.php/apps/maintenancecheck/mobile/v1/bootstrap')
+		expectOk(bootstrap, 'bootstrap')
+		expect(bootstrap.data.capabilities.qr).toBe(true)
+		expect(bootstrap.data.capabilities.workOrders).toBe(true)
+		expect(bootstrap.data.capabilities.conditionalChecklist).toBe(true)
+		expect(bootstrap.data.capabilities.serviceReport).toBe(true)
+		expect(bootstrap.data.capabilities.meters).toBe(true)
+
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+	})
+
+	test('UJ-W1 sites + settings policies surface', async ({ page }) => {
+		const admin = primaryCreds()
+		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
+		await login(page, admin)
+
+		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
+			name: `UJW1site ${Date.now()}`,
+		})
+		expectOk(customer, 'customer')
+		const site = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}/sites`, {
+			name: 'Plant North',
+			city: 'Berlin',
+			country: 'DE',
+		})
+		expectOk(site, 'site')
+
+		await openApp(page, `/apps/maintenancecheck/customers/${customer.data.id}`)
+		await expect(page.locator('#mn-customer-sites')).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByText(/plant north/i).first()).toBeVisible()
+		await axeMain(page)
+
+		await openApp(page, '/apps/maintenancecheck/settings')
+		await expect(page.locator('#mn-settings-policies')).toBeVisible({ timeout: 30_000 })
+		await expect(page.locator('#mn-settings-capacity')).toBeVisible()
+		const policies = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/config/policies', {
+			skillsEnforcement: 'warn',
+			capacityEnforcement: 'warn',
+		})
+		expectOk(policies, 'policies')
+		expect(policies.data.policies.skillsEnforcement).toBe('warn')
+		await axeMain(page)
+
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+	})
+
 	test('UJ-5 force-delete customer with children', async ({ page }) => {
 		const admin = primaryCreds()
 		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
@@ -614,6 +1066,78 @@ test.describe('UJ journeys', () => {
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
 	})
 
+	test('AX4 dispatch keyboard focuses jobs; AX3 status announce contract on WO detail', async ({ page }) => {
+		const admin = primaryCreds()
+		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
+		await login(page, admin)
+		await openApp(page)
+
+		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
+		expectOk(types, 'equip-types')
+		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
+		expectOk(maint, 'maint-types')
+		const today = new Date().toISOString().slice(0, 10)
+		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
+			name: `AX4 ${Date.now()}`,
+		})
+		expectOk(customer, 'customer')
+		const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+			label: 'AX4 unit',
+			customerId: customer.data.id,
+			equipTypeId: types.data.data[0].id,
+		})
+		expectOk(equipment, 'equipment')
+		const plan = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/plans`, {
+			maintTypeId: maint.data.data[0].id,
+			intervalUnit: 'month',
+			intervalCount: 1,
+			firstDueOn: today,
+		})
+		expectOk(plan, 'plan')
+		const procs = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/procedures?limit=5&offset=0')
+		expectOk(procs, 'procedures')
+		const procedureId = procs.data?.data?.[0]?.id
+		const visitId = plan.data.openVisit?.id || plan.data.openVisitId
+		const woBody = {
+			estimatedMinutes: 30,
+			dueOn: today,
+		}
+		if (procedureId) {
+			woBody.procedureId = procedureId
+		} else {
+			woBody.procedureSkipped = true
+			woBody.procedureSkipReason = 'AX4 e2e — no procedure available'
+		}
+		const wo = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/visits/${visitId}/work-orders`, woBody)
+		expectOk(wo, 'create WO')
+		const assign = await api(page, 'PUT', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/assign`, {
+			primaryUserId: admin.username,
+		})
+		expectOk(assign, 'assign')
+
+		await openApp(page, '/apps/maintenancecheck/dispatch')
+		await expect(page.locator('#mn-dispatch-board')).toBeVisible({ timeout: 15_000 })
+		const jobs = page.locator('a.mn-dispatch-job')
+		await expect(jobs.first()).toBeVisible({ timeout: 15_000 })
+		await expect(page.locator('.mn-dispatch-hint')).toBeVisible()
+		await jobs.first().focus()
+		if ((await jobs.count()) >= 2) {
+			await page.keyboard.press('ArrowDown')
+			await expect(jobs.nth(1)).toBeFocused()
+			await page.keyboard.press('ArrowUp')
+			await expect(jobs.first()).toBeFocused()
+		}
+		await axeMain(page)
+
+		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
+		await expect(page.locator('#mn-wo-detail')).toBeVisible({ timeout: 15_000 })
+		// AX3: status transitions announce via #mn-live-region (see afterTransitionOk).
+		await expect(page.locator('#mn-live-region')).toBeAttached()
+		await axeMain(page)
+
+		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+	})
+
 	test('UJ-6 Alt B expired key accepted with invalid badge', async ({ page }) => {
 		const admin = adminCreds()
 		test.skip(!admin, 'Requires NC_E2E_* or NC_ADMIN_* for license')
@@ -629,9 +1153,18 @@ test.describe('UJ journeys', () => {
 
 		try {
 			await login(page, admin)
+			// Confirm the CLI seed is visible to the web session before asserting UI
+			// (avoids racing a parallel clear / slow DB replication in shared stacks).
+			await expect.poll(async () => {
+				const license = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/license')
+				return license.status === 200
+					&& license.data?.state?.customerId === 'e2e-expired'
+					&& license.data?.state?.valid === false
+			}, { timeout: 20_000 }).toBeTruthy()
+
 			await openApp(page, '/apps/maintenancecheck/settings')
 			await expect(page.locator('#mn-settings-license')).toBeVisible({ timeout: 30_000 })
-			await expect(page.getByText(/^Expired$|^Abgelaufen$/i).first()).toBeVisible({ timeout: 15_000 })
+			await expect(page.getByText(/^Expired$|^Abgelaufen$/i).first()).toBeVisible({ timeout: 20_000 })
 			await expect(page.getByText(/e2e-expired/i).first()).toBeVisible()
 			await axeMain(page)
 		} finally {
