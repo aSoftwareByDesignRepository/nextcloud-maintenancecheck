@@ -475,6 +475,10 @@
 								el('option', { value: 'emergency', text: tr('Emergency') }),
 							]);
 							var procSelect = procedureSelect(procedures, null);
+							var requesterInput = el('input', { type: 'text', class: 'mn-input form-input', autocomplete: 'name' });
+							var phoneInput = el('input', { type: 'tel', class: 'mn-input form-input', autocomplete: 'tel' });
+							var symptomInput = el('textarea', { class: 'mn-input form-textarea', rows: '2' });
+							var accessInput = el('textarea', { class: 'mn-input form-textarea', rows: '2' });
 							var formFields = [
 								field(tr('Title'), titleInput, { required: true }),
 								field(tr('Customer'), customerSelect, {
@@ -490,6 +494,16 @@
 								}),
 								field(tr('Procedure'), procSelect, {
 									hint: tr('Optional — attach a checklist template now.'),
+								}),
+								field(tr('Requester name'), requesterInput, {
+									hint: tr('Who called — for break/fix intake.'),
+								}),
+								field(tr('Requester phone'), phoneInput),
+								field(tr('What is wrong'), symptomInput, {
+									hint: tr('Short symptom — e.g. no heat, alarm fault.'),
+								}),
+								field(tr('Access notes'), accessInput, {
+									hint: tr('Gate codes, dogs, preferred hours — copied from the site when empty.'),
 								}),
 							];
 							openDialog({
@@ -523,9 +537,25 @@
 											if (procSelect.value) {
 												body.procedureId = Number(procSelect.value);
 											}
+											if (requesterInput.value.trim()) {
+												body.requesterName = requesterInput.value.trim();
+											}
+											if (phoneInput.value.trim()) {
+												body.requesterPhone = phoneInput.value.trim();
+											}
+											if (symptomInput.value.trim()) {
+												body.symptom = symptomInput.value.trim();
+											}
+											if (accessInput.value.trim()) {
+												body.accessNotes = accessInput.value.trim();
+											}
 											api('POST', apiUrl('workOrders'), body).then(function (wo) {
 												d.close();
-												toast(tr('Work order created.'), 'success');
+												var msg = tr('Work order created.');
+												if (wo && wo.warnings && wo.warnings.length) {
+													msg += ' ' + tr('Warranty warning: check the equipment.');
+												}
+												toast(msg, 'success');
 												if (wo && wo.id) {
 													window.location.href = pageUrl('workOrders') + '/' + wo.id;
 												} else {
@@ -589,6 +619,29 @@
 						}, [
 							el('strong', { text: tr('Stock sync') + ': ' }),
 							el('span', { text: syncLabel }),
+						]));
+					}
+
+					if (wo.warrantyExpired) {
+						root.appendChild(el('div', {
+							class: 'mn-callout mn-callout--warning',
+							role: 'status',
+						}, [
+							el('strong', { text: tr('Warranty ended') + ': ' }),
+							el('span', { text: tr('This equipment’s warranty ended on {date}.', { date: fmt(wo.warrantyEnd) }) }),
+						]));
+					}
+
+					if (wo.requesterName || wo.symptom || wo.accessNotes) {
+						root.appendChild(el('section', { class: 'mn-card', 'aria-labelledby': 'mn-intake-title' }, [
+							el('header', { class: 'mn-card__header' }, [
+								el('h3', { id: 'mn-intake-title', class: 'mn-card__title', text: tr('Request intake') }),
+							]),
+							el('div', { class: 'mn-card__body mn-dl' }, [
+								wo.requesterName ? el('p', { text: tr('Requester') + ': ' + wo.requesterName + (wo.requesterPhone ? ' · ' + wo.requesterPhone : '') }) : null,
+								wo.symptom ? el('p', { text: tr('Symptom') + ': ' + wo.symptom }) : null,
+								wo.accessNotes ? el('p', { text: tr('Access') + ': ' + wo.accessNotes }) : null,
+							]),
 						]));
 					}
 
