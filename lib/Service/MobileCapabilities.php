@@ -38,7 +38,7 @@ final class MobileCapabilities
 			'kits' => true,
 			'qr' => true,
 			'conditionalChecklist' => true,
-			'serviceReport' => false,
+			'serviceReport' => true,
 			'meters' => true,
 			'requestIntake' => true,
 			'failureCodes' => true,
