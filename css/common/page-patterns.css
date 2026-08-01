@@ -639,3 +639,49 @@
 		color: HighlightText;
 	}
 }
+
+/* W6 Ops KPI snapshot — simple readable cards */
+.mn-kpi-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+	gap: 1rem;
+}
+.mn-kpi-card {
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--color-border, #ddd);
+	border-radius: var(--border-radius-large, 8px);
+	background: var(--color-main-background, #fff);
+}
+.mn-kpi-card__label {
+	margin: 0 0 0.35rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+}
+.mn-kpi-card__value {
+	margin: 0;
+	font-size: 1.75rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+.mn-kpi-status {
+	grid-column: 1 / -1;
+	margin-top: 0.5rem;
+}
+.mn-filter-bar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+.mn-chip {
+	border: 1px solid var(--color-border, #ccc);
+	background: var(--color-main-background, #fff);
+	border-radius: 999px;
+	padding: 0.35rem 0.85rem;
+	cursor: pointer;
+}
+.mn-chip.is-active {
+	border-color: var(--color-primary-element, #0073ad);
+	background: var(--color-primary-element-light, #e6f3f9);
+	font-weight: 600;
+}

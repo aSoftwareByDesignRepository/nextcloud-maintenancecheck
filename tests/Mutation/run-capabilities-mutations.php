@@ -10,7 +10,7 @@ require __DIR__ . '/harness.php';
 
 $file = 'lib/Service/MobileCapabilities.php';
 
-runMutations(dirname(__DIR__, 2), 'MobileCapabilitiesTest|MobileGateServiceTest', [
+runMutations(dirname(__DIR__, 2), 'MobileCapabilitiesTest|MobileGateServiceTest|W6FieldOpsContractTest', [
 	[
 		'name' => 'visits-false',
 		'file' => $file,
@@ -46,5 +46,17 @@ runMutations(dirname(__DIR__, 2), 'MobileCapabilitiesTest|MobileGateServiceTest'
 		'file' => $file,
 		'search' => "'meters' => true,",
 		'replace' => "'meters' => false,",
+	],
+	[
+		'name' => 'request-intake-false',
+		'file' => $file,
+		'search' => "'requestIntake' => true,",
+		'replace' => "'requestIntake' => false,",
+	],
+	[
+		'name' => 'failure-codes-false',
+		'file' => $file,
+		'search' => "'failureCodes' => true,",
+		'replace' => "'failureCodes' => false,",
 	],
 ]);
