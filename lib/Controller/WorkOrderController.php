@@ -9,6 +9,7 @@ use OCA\MaintenanceCheck\Exception\ValidationException;
 use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Service\SkillService;
 use OCA\MaintenanceCheck\Service\WoChecklistService;
+use OCA\MaintenanceCheck\Service\WoCommentService;
 use OCA\MaintenanceCheck\Service\WoEvidenceService;
 use OCA\MaintenanceCheck\Service\WoPdfService;
 use OCA\MaintenanceCheck\Service\WorkOrderService;
@@ -38,6 +39,7 @@ class WorkOrderController extends Controller
 		private readonly WoEvidenceService $evidence,
 		private readonly SkillService $skills,
 		private readonly WoPdfService $pdf,
+		private readonly WoCommentService $comments,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}

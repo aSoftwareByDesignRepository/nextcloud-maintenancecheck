@@ -231,7 +231,32 @@ class InputValidator
 			'locationText' => $this->boundedOptionalString($body, 'locationText', 512, 'location_too_long'),
 			'notes' => $this->boundedOptionalString($body, 'notes', 10000, 'notes_too_long'),
 			'active' => $this->boolOrDefault($body, 'active', true),
+			'warrantyEnd' => $this->optionalYmd($body, 'warrantyEnd'),
 		];
+	}
+
+	/**
+	 * Optional calendar date `Y-m-d` or null when absent/empty.
+	 *
+	 * @param array<string, mixed> $body
+	 */
+	public function optionalYmd(array $body, string $field): ?string
+	{
+		if (!array_key_exists($field, $body) || $body[$field] === null || $body[$field] === '') {
+			return null;
+		}
+		if (!is_string($body[$field]) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $body[$field])) {
+			throw new ValidationException('validation_failed', $field . ' must be a Y-m-d date.', [
+				['field' => $field, 'code' => 'invalid_date'],
+			]);
+		}
+		$dt = \DateTimeImmutable::createFromFormat('Y-m-d', $body[$field]);
+		if ($dt === false || $dt->format('Y-m-d') !== $body[$field]) {
+			throw new ValidationException('validation_failed', $field . ' must be a valid calendar date.', [
+				['field' => $field, 'code' => 'invalid_date'],
+			]);
+		}
+		return $body[$field];
 	}
 
 	/**

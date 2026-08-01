@@ -117,6 +117,12 @@ class SiteService
 		if (array_key_exists('notes', $body)) {
 			$site->setNotes($this->validator->boundedOptionalString($body, 'notes', 10000, 'notes_too_long'));
 		}
+		if (array_key_exists('accessNotes', $body)) {
+			$site->setAccessNotes($this->validator->boundedOptionalString($body, 'accessNotes', 1024, 'access_notes_too_long'));
+		}
+		if (array_key_exists('preferredWindow', $body)) {
+			$site->setPreferredWindow($this->validator->boundedOptionalString($body, 'preferredWindow', 128, 'preferred_window_too_long'));
+		}
 		if (array_key_exists('active', $body)) {
 			$site->setActive($this->validator->boolOrDefault($body, 'active', $site->getActive()));
 		}

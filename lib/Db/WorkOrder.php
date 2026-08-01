@@ -68,6 +68,18 @@ use OCP\AppFramework\Db\Entity;
  * @method void setUpdatedAt(int $v)
  * @method string getCreatedBy()
  * @method void setCreatedBy(string $v)
+ * @method string|null getRequesterName()
+ * @method void setRequesterName(?string $v)
+ * @method string|null getRequesterPhone()
+ * @method void setRequesterPhone(?string $v)
+ * @method string|null getSymptom()
+ * @method void setSymptom(?string $v)
+ * @method string|null getAccessNotes()
+ * @method void setAccessNotes(?string $v)
+ * @method string|null getFailureCode()
+ * @method void setFailureCode(?string $v)
+ * @method int|null getLaborMinutes()
+ * @method void setLaborMinutes(?int $v)
  */
 class WorkOrder extends Entity
 {
@@ -145,6 +157,15 @@ class WorkOrder extends Entity
 	protected int $createdAt = 0;
 	protected int $updatedAt = 0;
 	protected string $createdBy = '';
+	protected ?string $requesterName = null;
+	protected ?string $requesterPhone = null;
+	protected ?string $symptom = null;
+	protected ?string $accessNotes = null;
+	protected ?string $failureCode = null;
+	protected ?int $laborMinutes = null;
+
+	/** Max job-duration evidence minutes (W6-R4): 24×60. */
+	public const MAX_LABOR_MINUTES = 1440;
 
 	public function __construct()
 	{
@@ -178,6 +199,12 @@ class WorkOrder extends Entity
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
 		$this->addType('createdBy', 'string');
+		$this->addType('requesterName', 'string');
+		$this->addType('requesterPhone', 'string');
+		$this->addType('symptom', 'string');
+		$this->addType('accessNotes', 'string');
+		$this->addType('failureCode', 'string');
+		$this->addType('laborMinutes', 'integer');
 	}
 
 	public function isTerminal(): bool
@@ -259,6 +286,12 @@ class WorkOrder extends Entity
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,
 			'createdBy' => $this->createdBy,
+			'requesterName' => $this->requesterName,
+			'requesterPhone' => $this->requesterPhone,
+			'symptom' => $this->symptom,
+			'accessNotes' => $this->accessNotes,
+			'failureCode' => $this->failureCode,
+			'laborMinutes' => $this->laborMinutes,
 		];
 	}
 }

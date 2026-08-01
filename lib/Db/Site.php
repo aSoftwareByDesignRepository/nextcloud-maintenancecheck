@@ -27,6 +27,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setLng(?string $v)
  * @method string|null getNotes()
  * @method void setNotes(?string $v)
+ * @method string|null getAccessNotes()
+ * @method void setAccessNotes(?string $v)
+ * @method string|null getPreferredWindow()
+ * @method void setPreferredWindow(?string $v)
  * @method bool getActive()
  * @method void setActive(bool $v)
  * @method int getCreatedAt()
@@ -47,6 +51,8 @@ class Site extends Entity
 	protected ?string $lat = null;
 	protected ?string $lng = null;
 	protected ?string $notes = null;
+	protected ?string $accessNotes = null;
+	protected ?string $preferredWindow = null;
 	protected bool $active = true;
 	protected int $createdAt = 0;
 	protected int $updatedAt = 0;
@@ -64,6 +70,8 @@ class Site extends Entity
 		$this->addType('lat', 'string');
 		$this->addType('lng', 'string');
 		$this->addType('notes', 'string');
+		$this->addType('accessNotes', 'string');
+		$this->addType('preferredWindow', 'string');
 		$this->addType('active', 'boolean');
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
@@ -86,6 +94,8 @@ class Site extends Entity
 			'lat' => $this->lat,
 			'lng' => $this->lng,
 			'notes' => $this->notes,
+			'accessNotes' => $this->accessNotes,
+			'preferredWindow' => $this->preferredWindow,
 			'active' => $this->active,
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,

@@ -823,30 +823,65 @@
 							text: tr('Assign technician'),
 						});
 						assignBtn.addEventListener('click', function () {
-							var picker = attachUserPicker ? attachUserPicker({
+							if (!attachUserPicker) {
+								toast(tr('Directory search is unavailable. Reload the page and try again.'), 'error');
+								return;
+							}
+							var picker = attachUserPicker({
 								label: tr('Technician'),
-								placeholder: tr('Start typing a name or user ID…'),
-							}) : null;
-							var input = el('input', {
-								type: 'text',
-								class: 'mn-input form-input',
-								value: wo.primaryUserId || '',
-								autocomplete: 'off',
+								placeholder: tr('Start typing a name…'),
+								hint: tr('Search and pick a technician. Never type a raw user id.'),
 							});
-							if (picker && wo.primaryUserId) {
+							if (wo.primaryUserId) {
 								picker.setValue && picker.setValue(wo.primaryUserId);
 							}
-							var helpersInput = el('input', {
-								type: 'text',
-								class: 'mn-input form-input',
-								value: Array.isArray(wo.helperUids) ? wo.helperUids.join(', ') : '',
-								autocomplete: 'off',
+							var helperUids = Array.isArray(wo.helperUids) ? wo.helperUids.slice() : [];
+							var helpersHost = el('div', { class: 'mn-field' });
+							var helpersChips = el('ul', { class: 'mn-chips', 'aria-label': tr('Helpers') });
+							var helperPicker = attachUserPicker({
+								label: tr('Add helper'),
+								placeholder: tr('Start typing a name…'),
+								hint: tr('Optional helpers — search and pick. Never type a raw user id.'),
 							});
+							function renderHelperChips() {
+								clear(helpersChips);
+								if (helperUids.length === 0) {
+									helpersChips.appendChild(el('li', { class: 'mn-field__hint', text: tr('No helpers yet.') }));
+									return;
+								}
+								helperUids.forEach(function (uid) {
+									helpersChips.appendChild(el('li', { class: 'mn-chip' }, [
+										el('span', { text: uid }),
+										el('button', {
+											type: 'button',
+											class: 'mn-chip__remove',
+											'aria-label': tr('Remove {id}', { id: uid }),
+											text: '×',
+											onClick: function () {
+												helperUids = helperUids.filter(function (x) { return x !== uid; });
+												renderHelperChips();
+											},
+										}),
+									]));
+								});
+							}
+							helperPicker.root.addEventListener('mn-user-selected', function () {
+								var uid = helperPicker.getValue();
+								if (!uid || helperUids.indexOf(uid) !== -1) {
+									return;
+								}
+								helperUids.push(uid);
+								helperPicker.setValue && helperPicker.setValue('');
+								renderHelperChips();
+							});
+							renderHelperChips();
+							helpersHost.appendChild(helpersChips);
+							helpersHost.appendChild(helperPicker.root);
 							openDialog({
 								title: tr('Assign technician'),
 								content: el('div', { class: 'mn-form-grid' }, [
-									picker ? picker.root : field(tr('Technician UID'), input, { required: true }),
-									field(tr('Helpers'), helpersInput, { hint: tr('Optional helper user IDs, comma-separated') }),
+									picker.root,
+									helpersHost,
 								]),
 								actions: [
 									{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
@@ -856,11 +891,15 @@
 										onClick: function (d) {
 											d.setBusy(true);
 											d.setError(null);
-											var uid = picker && picker.getValue ? picker.getValue() : input.value.trim();
-											var helpers = String(helpersInput.value || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+											var uid = picker.getValue ? picker.getValue() : '';
+											if (!uid) {
+												d.setBusy(false);
+												d.setError(tr('Pick a technician first.'));
+												return;
+											}
 											var assignBody = {
 												primaryUserId: uid || null,
-												helperUids: helpers,
+												helperUids: helperUids.slice(),
 											};
 											function doAssign(force) {
 												var body = Object.assign({}, assignBody);
@@ -1587,11 +1626,19 @@
 							text: tr('Create tour'),
 						});
 						createBtn.addEventListener('click', function () {
-							var techInput = el('input', { type: 'text', class: 'mn-input form-input', autocomplete: 'off' });
+							if (!attachUserPicker) {
+								toast(tr('Directory search is unavailable. Reload the page and try again.'), 'error');
+								return;
+							}
+							var techPicker = attachUserPicker({
+								label: tr('Technician'),
+								placeholder: tr('Start typing a name…'),
+								hint: tr('Search and pick a technician. Never type a raw user id.'),
+							});
 							openDialog({
 								title: tr('Create tour'),
 								content: el('div', { class: 'mn-form-grid' }, [
-									field(tr('Technician UID'), techInput, { required: true }),
+									techPicker.root,
 								]),
 								actions: [
 									{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
@@ -1599,10 +1646,15 @@
 										label: tr('Create'),
 										variant: 'mn-btn--primary',
 										onClick: function (d) {
+											var techUid = techPicker.getValue();
+											if (!techUid) {
+												d.setError(tr('Pick a technician first.'));
+												return;
+											}
 											d.setBusy(true);
 											api('POST', apiUrl('tours'), {
 												tourDate: date,
-												techUid: techInput.value.trim(),
+												techUid: techUid,
 											}).then(function () {
 												d.close();
 												toast(tr('Status updated.'), 'success');

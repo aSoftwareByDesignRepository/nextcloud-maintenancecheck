@@ -220,6 +220,7 @@ class PageController extends Controller
 				'configPolicies' => $route('config.savePolicies'),
 				'userAccess' => $route('config.userAccess'),
 				'usersSearch' => $route('config.searchUsers'),
+				'groupsSearch' => $route('config.searchGroups'),
 				'license' => $route('license.show'),
 				'licenseSeats' => $route('license.seats'),
 				'workOrders' => $route('work_order.index'),

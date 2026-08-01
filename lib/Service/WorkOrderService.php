@@ -82,6 +82,7 @@ class WorkOrderService
 		private readonly ArbeitszeitCheckDeepLinkService $recordTimeDeepLink,
 		private readonly MeterService $meters,
 		private readonly WorkOrderAccessPolicy $woAccess,
+		private readonly FailureCodeService $failureCodes,
 	) {
 	}
 
@@ -224,9 +225,12 @@ class WorkOrderService
 		$equipmentId = $wo->getEquipmentId();
 		if ($equipmentId !== null) {
 			try {
-				$equipment = $this->equipment->findById($equipmentId)->toApi();
-				$serial = trim((string)($equipment['serialNo'] ?? ''));
+				$equipment = $this->equipment->findById($equipmentId);
+				$api = $equipment->toApi();
+				$serial = trim((string)($api['serialNo'] ?? ''));
 				$row['equipmentSerialNo'] = $serial !== '' ? $serial : null;
+				$row['warrantyEnd'] = $api['warrantyEnd'] ?? null;
+				$row['warrantyExpired'] = $equipment->isWarrantyExpired($this->clock->today());
 			} catch (NotFoundException) {
 				// ignore
 			}
@@ -304,13 +308,49 @@ class WorkOrderService
 		$wo->setUpdatedAt($now);
 		$wo->setCreatedBy($uid);
 
+		$intake = $this->validatedIntakeFields($body);
+		$wo->setRequesterName($intake['requesterName']);
+		$wo->setRequesterPhone($intake['requesterPhone']);
+		$wo->setSymptom($intake['symptom']);
+		$wo->setAccessNotes($intake['accessNotes']);
+		// AC-W6-2: copy site defaults when WO access_notes not explicitly set.
+		if ($wo->getAccessNotes() === null && $fields['siteId'] !== null) {
+			try {
+				$site = $this->sites->findById($fields['siteId']);
+				$siteNotes = $site->getAccessNotes();
+				if ($siteNotes !== null && $siteNotes !== '') {
+					$wo->setAccessNotes($siteNotes);
+				}
+			} catch (NotFoundException) {
+				// ignore
+			}
+		}
+
+		$warnings = [];
+		if ($kind === WorkOrder::KIND_CORRECTIVE && $fields['equipmentId'] !== null) {
+			try {
+				$equipment = $this->equipment->findById($fields['equipmentId']);
+				if ($equipment->isWarrantyExpired($this->clock->today())) {
+					$warnings[] = [
+						'code' => 'warranty_expired',
+						'message' => 'Equipment warranty ended on ' . (string)$equipment->getWarrantyEnd() . '.',
+						'warrantyEnd' => $equipment->getWarrantyEnd(),
+					];
+				}
+			} catch (NotFoundException) {
+				// ignore
+			}
+		}
+
 		if ($wantPlanned) {
 			$this->assertPlannedGate($wo);
 			$wo->setStatus(WorkOrder::STATUS_PLANNED);
 		}
 
 		$wo = $this->insertWithNumber($wo, $procedureId);
-		return $this->get((int)$wo->getId());
+		$detail = $this->get((int)$wo->getId());
+		$detail['warnings'] = $warnings;
+		return $detail;
 	}
 
 	/**
@@ -449,6 +489,18 @@ class WorkOrderService
 			if (array_key_exists('equipmentId', $body)) {
 				$this->assertStructuralEditsAllowed($wo);
 				$wo->setEquipmentId($this->validatedEquipmentId($body, $wo->getCustomerId()));
+			}
+			if (array_key_exists('requesterName', $body)) {
+				$wo->setRequesterName($this->validator->boundedOptionalString($body, 'requesterName', 128, 'requester_name_too_long'));
+			}
+			if (array_key_exists('requesterPhone', $body)) {
+				$wo->setRequesterPhone($this->validator->boundedOptionalString($body, 'requesterPhone', 64, 'requester_phone_too_long'));
+			}
+			if (array_key_exists('symptom', $body)) {
+				$wo->setSymptom($this->validator->boundedOptionalString($body, 'symptom', 512, 'symptom_too_long'));
+			}
+			if (array_key_exists('accessNotes', $body)) {
+				$wo->setAccessNotes($this->validator->boundedOptionalString($body, 'accessNotes', 512, 'access_notes_too_long'));
 			}
 
 			$resnapshot = null;
@@ -847,6 +899,9 @@ class WorkOrderService
 		$set['completed_at'] = $now;
 		$set['completed_by'] = $uid;
 
+		// W6 close-rich: failure code + labor minutes (evidence, not ArbZG).
+		$this->applyCloseRichFields($wo, $body, $set);
+
 		// AC-W1-2 / invariant D2: only a *linked* visit is completed; the
 		// roll is identical to visit-complete (same code path).
 		$visitId = $wo->getVisitId();
@@ -885,6 +940,57 @@ class WorkOrderService
 
 		$skuLines = $this->kits->skuLinesFor((int)$wo->getId());
 		return $skuLines === [] ? null : $skuLines;
+	}
+
+	/**
+	 * W6 Done payload: failure_code policy + labor_minutes (CORE §20).
+	 *
+	 * @param array<string, mixed> $body
+	 * @param array<string, string|int|bool|null> $set
+	 */
+	private function applyCloseRichFields(WorkOrder $wo, array $body, array &$set): void
+	{
+		$code = null;
+		if (array_key_exists('failureCode', $body)) {
+			$raw = $this->validator->boundedOptionalString($body, 'failureCode', 64, 'failure_code_too_long');
+			$code = ($raw === null || $raw === '') ? null : $raw;
+		}
+		$policy = $this->policies->failureCodeOnCorrective();
+		$needsCode = $wo->getKind() === WorkOrder::KIND_CORRECTIVE
+			&& $policy !== PolicyService::FAILURE_CODE_OFF;
+		if ($needsCode && $code === null && $policy === PolicyService::FAILURE_CODE_REQUIRED) {
+			throw new ValidationException('failure_code_required', 'A failure code is required to close this corrective work order.', [
+				['field' => 'failureCode', 'code' => 'failure_code_required'],
+			]);
+		}
+		if ($code !== null) {
+			$this->failureCodes->assertActiveCode($code);
+			$set['failure_code'] = $code;
+		}
+
+		if (array_key_exists('laborMinutes', $body) && $body['laborMinutes'] !== null) {
+			$minutes = $body['laborMinutes'];
+			if (!is_int($minutes) || $minutes < 0 || $minutes > WorkOrder::MAX_LABOR_MINUTES) {
+				throw new ValidationException('validation_failed', 'laborMinutes must be an integer between 0 and ' . WorkOrder::MAX_LABOR_MINUTES . '.', [
+					['field' => 'laborMinutes', 'code' => 'out_of_range'],
+				]);
+			}
+			$set['labor_minutes'] = $minutes;
+		}
+	}
+
+	/**
+	 * @param array<string, mixed> $body
+	 * @return array{requesterName: ?string, requesterPhone: ?string, symptom: ?string, accessNotes: ?string}
+	 */
+	private function validatedIntakeFields(array $body): array
+	{
+		return [
+			'requesterName' => $this->validator->boundedOptionalString($body, 'requesterName', 128, 'requester_name_too_long'),
+			'requesterPhone' => $this->validator->boundedOptionalString($body, 'requesterPhone', 64, 'requester_phone_too_long'),
+			'symptom' => $this->validator->boundedOptionalString($body, 'symptom', 512, 'symptom_too_long'),
+			'accessNotes' => $this->validator->boundedOptionalString($body, 'accessNotes', 512, 'access_notes_too_long'),
+		];
 	}
 
 	/**

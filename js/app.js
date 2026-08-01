@@ -996,7 +996,7 @@
 			'aria-expanded': 'false',
 			'aria-controls': base + '-list',
 			'aria-haspopup': 'listbox',
-			placeholder: options.placeholder || tr('Start typing a name or user ID…'),
+			placeholder: options.placeholder || tr('Start typing a name…'),
 		});
 		var list = el('ul', {
 			id: base + '-list',
@@ -1410,27 +1410,31 @@
 	}
 
 	function assignDialog(visit, onDone) {
-		var input = el('input', { type: 'text', value: visit.assignedUid || '', autocomplete: 'off' });
+		var picker = attachUserPicker({
+			label: tr('Technician'),
+			placeholder: tr('Start typing a name…'),
+			hint: tr('Search and pick a technician. Leave empty and save to remove the assignment. Never type a raw user id.'),
+		});
+		if (visit.assignedUid) {
+			picker.setValue && picker.setValue(visit.assignedUid);
+		}
 		var warn = el('p', {
 			class: 'mn-dialog__hint mn-dialog__hint--warning',
 			hidden: 'true',
 			role: 'status',
 			text: tr('This user currently cannot open MaintenanceCheck (access restriction). You can still assign the visit — the warning is informational only.'),
 		});
-		var assignField = field(tr('Nextcloud user ID'), input, {
-			hint: tr('Leave empty to remove the assignment.'),
-		});
 
 		var accessTimer = null;
 		function refreshAccessWarning() {
-			var value = input.value.trim();
+			var value = picker.getValue();
 			warn.hidden = true;
 			if (value === '' || !ctx.urls || !ctx.urls.api || !ctx.urls.api.userAccess) {
 				return;
 			}
 			api('GET', withQuery(ctx.urls.api.userAccess, { userId: value }))
 				.then(function (result) {
-					if (input.value.trim() !== value) {
+					if (picker.getValue() !== value) {
 						return;
 					}
 					if (result.exists && result.canUseApp === false) {
@@ -1439,11 +1443,12 @@
 				})
 				.catch(function () { /* preview is best-effort */ });
 		}
-		input.addEventListener('input', function () {
+		picker.root.addEventListener('mn-user-selected', refreshAccessWarning);
+		picker.root.addEventListener('change', function () {
 			window.clearTimeout(accessTimer);
 			accessTimer = window.setTimeout(refreshAccessWarning, 300);
 		});
-		if (input.value.trim() !== '') {
+		if (picker.getValue()) {
 			refreshAccessWarning();
 		}
 
@@ -1452,8 +1457,8 @@
 			text: tr('{customer} — {equipment}, {type}', {
 				customer: visit.customerName, equipment: visit.equipmentLabel, type: visit.maintTypeName,
 			}),
-			content: el('div', {}, [assignField, warn]),
-			initialFocus: 'input[type="text"]',
+			content: el('div', {}, [picker.root, warn]),
+			initialFocus: 'input[type="search"]',
 			actions: [
 				{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
 				{
@@ -1462,7 +1467,7 @@
 					onClick: function (d) {
 						d.setBusy(true);
 						d.setError(null);
-						var value = input.value.trim();
+						var value = picker.getValue();
 						api('PUT', apiUrl('visits') + '/' + visit.id + '/assign', { userId: value === '' ? null : value })
 							.then(function () {
 								d.close();
@@ -1472,8 +1477,8 @@
 							.catch(function (error) {
 								d.setBusy(false);
 								if (error.code === 'unknown_user') {
-									assignField.mnSetError(tr('This Nextcloud user does not exist.'));
-									input.focus();
+									picker.setError(tr('This Nextcloud user does not exist.'));
+									picker.focus();
 								} else if (error.code === 'visit_not_open') {
 									d.close();
 									toast(tr('This visit was already closed.'), 'error');
@@ -4259,7 +4264,7 @@
 			}
 
 			function openGrantSkillsDialog() {
-				var picker = attachUserPicker({ placeholder: tr('Start typing a name or user ID…') });
+				var picker = attachUserPicker({ placeholder: tr('Start typing a name…') });
 				var skillsHost = el('div', { class: 'mn-form-grid', role: 'group', 'aria-label': tr('Skills') });
 				var skillChecks = [];
 				api('GET', apiUrl('skills')).then(function (envelope) {
@@ -4585,38 +4590,39 @@
 
 	function idListEditor(options) {
 		var ids = options.ids.slice();
-		var wrap = el('div', { class: 'mn-field' });
-		var input = el('input', { type: 'text', autocomplete: 'off' });
+		var kind = options.kind === 'group' ? 'group' : 'user';
+		var searchKey = kind === 'group' ? 'groupsSearch' : 'usersSearch';
+		var wrap = el('div', { class: 'mn-field mn-id-directory' });
 		fieldSeq += 1;
-		var inputId = 'mn-idlist-' + fieldSeq;
-		input.setAttribute('id', inputId);
-		input.classList.add('mn-input');
+		var base = 'mn-idlist-' + fieldSeq;
 		var chips = el('ul', { class: 'mn-chips', 'aria-label': options.label });
 		var error = el('p', { class: 'mn-field__error', hidden: true });
-
-		function renderChips() {
-			clear(chips);
-			if (ids.length === 0) {
-				chips.appendChild(el('li', { class: 'mn-field__hint', text: options.emptyText }));
-				return;
-			}
-			ids.forEach(function (id) {
-				chips.appendChild(el('li', { class: 'mn-chip' }, [
-					el('span', { text: id }),
-					el('button', {
-						type: 'button',
-						class: 'mn-chip__remove',
-						'aria-label': tr('Remove {id}', { id: id }),
-						html: ICONS.x,
-						onClick: function () {
-							ids = ids.filter(function (x) { return x !== id; });
-							renderChips();
-							options.onChange(ids, setError);
-						},
-					}),
-				]));
-			});
-		}
+		var combo = el('input', {
+			type: 'search',
+			id: base + '-combo',
+			class: 'mn-input mn-user-picker__input',
+			autocomplete: 'off',
+			role: 'combobox',
+			'aria-autocomplete': 'list',
+			'aria-expanded': 'false',
+			'aria-controls': base + '-list',
+			'aria-haspopup': 'listbox',
+			placeholder: options.placeholder || (kind === 'group'
+				? tr('Start typing a group name…')
+				: tr('Start typing a name…')),
+		});
+		var list = el('ul', {
+			id: base + '-list',
+			class: 'mn-user-picker__list',
+			role: 'listbox',
+			hidden: true,
+		});
+		var rows = [];
+		var activeIdx = -1;
+		var labels = Object.create(null);
+		(options.ids || []).forEach(function (id) {
+			labels[id] = id;
+		});
 
 		function setError(message) {
 			if (message) {
@@ -4628,38 +4634,156 @@
 			}
 		}
 
-		var addButton = el('button', {
-			type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Add'),
-			onClick: add,
-		});
-		function add() {
-			var value = input.value.trim();
-			if (value === '') {
+		function formatRow(row) {
+			var dn = row.displayName || row.id;
+			return dn + (row.id && dn !== row.id ? ' (' + row.id + ')' : '');
+		}
+
+		function chipLabel(id) {
+			return labels[id] || id;
+		}
+
+		function renderChips() {
+			clear(chips);
+			if (ids.length === 0) {
+				chips.appendChild(el('li', { class: 'mn-field__hint', text: options.emptyText }));
 				return;
 			}
-			if (ids.indexOf(value) !== -1) {
-				input.value = '';
+			ids.forEach(function (id) {
+				chips.appendChild(el('li', { class: 'mn-chip' }, [
+					el('span', { text: chipLabel(id) }),
+					el('button', {
+						type: 'button',
+						class: 'mn-chip__remove',
+						'aria-label': tr('Remove {id}', { id: chipLabel(id) }),
+						html: ICONS.x,
+						onClick: function () {
+							ids = ids.filter(function (x) { return x !== id; });
+							renderChips();
+							options.onChange(ids, setError);
+						},
+					}),
+				]));
+			});
+		}
+
+		function closeList() {
+			list.hidden = true;
+			combo.setAttribute('aria-expanded', 'false');
+			activeIdx = -1;
+		}
+
+		function renderOptions() {
+			clear(list);
+			var pickable = rows.filter(function (row) { return ids.indexOf(row.id) === -1; });
+			if (pickable.length === 0) {
+				list.appendChild(el('li', {
+					class: 'mn-user-picker__empty',
+					role: 'presentation',
+					text: kind === 'group' ? tr('No groups match your search.') : tr('No users match your search.'),
+				}));
 				return;
 			}
-			var candidate = ids.concat([value]);
+			pickable.forEach(function (row, i) {
+				list.appendChild(el('li', {
+					class: 'mn-user-picker__option' + (i === activeIdx ? ' is-active' : ''),
+					role: 'option',
+					id: base + '-opt-' + i,
+					tabIndex: -1,
+					text: formatRow(row),
+					onMouseDown: function (ev) {
+						ev.preventDefault();
+						applySelection(row);
+					},
+				}));
+			});
+		}
+
+		function openList() {
+			if (!list.children.length) {
+				return;
+			}
+			list.hidden = false;
+			combo.setAttribute('aria-expanded', 'true');
+		}
+
+		function applySelection(row) {
+			if (!row || !row.id || ids.indexOf(row.id) !== -1) {
+				closeList();
+				combo.value = '';
+				return;
+			}
+			labels[row.id] = formatRow(row);
+			var candidate = ids.concat([row.id]);
 			options.onChange(candidate, function (message) {
 				setError(message);
 				if (!message) {
 					ids = candidate;
-					input.value = '';
+					combo.value = '';
 					renderChips();
 				}
 			});
+			closeList();
 		}
-		input.addEventListener('keydown', function (event) {
-			if (event.key === 'Enter') {
-				event.preventDefault();
-				add();
+
+		var runSearch = debounce(function (q) {
+			if (!ctx.urls || !ctx.urls.api || !ctx.urls.api[searchKey]) {
+				setError(tr('Directory search is unavailable. Reload the page and try again.'));
+				return;
+			}
+			api('GET', withQuery(apiUrl(searchKey), { q: q, limit: '25' }))
+				.then(function (payload) {
+					rows = payload.data || [];
+					activeIdx = rows.length ? 0 : -1;
+					renderOptions();
+					openList();
+				})
+				.catch(function () {
+					rows = [];
+					renderOptions();
+					openList();
+				});
+		}, 220);
+
+		combo.addEventListener('input', function () {
+			var q = combo.value.trim();
+			if (q.length < 2) {
+				rows = [];
+				clear(list);
+				closeList();
+				return;
+			}
+			runSearch(q);
+		});
+		combo.addEventListener('keydown', function (ev) {
+			if (list.hidden) {
+				return;
+			}
+			var pickable = rows.filter(function (row) { return ids.indexOf(row.id) === -1; });
+			if (ev.key === 'ArrowDown') {
+				ev.preventDefault();
+				activeIdx = Math.min(pickable.length - 1, activeIdx + 1);
+				renderOptions();
+				openList();
+			} else if (ev.key === 'ArrowUp') {
+				ev.preventDefault();
+				activeIdx = Math.max(0, activeIdx - 1);
+				renderOptions();
+				openList();
+			} else if (ev.key === 'Enter' && activeIdx >= 0 && pickable[activeIdx]) {
+				ev.preventDefault();
+				applySelection(pickable[activeIdx]);
+			} else if (ev.key === 'Escape') {
+				ev.preventDefault();
+				closeList();
 			}
 		});
+		combo.addEventListener('blur', function () {
+			window.setTimeout(closeList, 120);
+		});
 
-		wrap.appendChild(el('label', { class: 'mn-field__label', for: inputId, text: options.label }));
-		wrap.appendChild(el('div', { class: 'mn-inline-row mn-inline-row--center' }, [input, addButton]));
+		wrap.appendChild(el('label', { class: 'mn-field__label', for: base + '-combo', text: options.label }));
+		wrap.appendChild(el('div', { class: 'mn-user-picker__wrap' }, [combo, list]));
 		if (options.hint) {
 			wrap.appendChild(el('p', { class: 'mn-field__hint', text: options.hint }));
 		}
@@ -4843,9 +4967,12 @@
 				], rows, { caption: tr('Daily capacity') }));
 			}
 
-			var uidInput = el('input', { type: 'text', autocomplete: 'off', placeholder: tr('Nextcloud user ID') });
+			var capacityPicker = attachUserPicker({
+				label: tr('Nextcloud user'),
+				placeholder: tr('Start typing a name…'),
+				hint: tr('Search and pick a colleague. Never type a raw user id.'),
+			});
 			var minutesInput = el('input', { type: 'number', min: '1', max: '1440', step: '1', value: '480' });
-			var uidField = field(tr('Nextcloud user'), uidInput, { required: true });
 			var minutesField = field(tr('Daily minutes'), minutesInput, { required: true, hint: tr('1–1440. Typical full day is 480.') });
 			var saveBtn = el('button', {
 				type: 'button',
@@ -4853,9 +4980,16 @@
 				text: tr('Save capacity'),
 				onClick: function () {
 					saveBtn.disabled = true;
-					uidField.mnSetError(null);
+					capacityPicker.setError(null);
 					minutesField.mnSetError(null);
-					api('PUT', apiUrl('capacity') + '/' + encodeURIComponent(uidInput.value.trim()), {
+					var uid = capacityPicker.getValue();
+					if (!uid) {
+						saveBtn.disabled = false;
+						capacityPicker.setError(tr('Pick a colleague first.'));
+						capacityPicker.focus();
+						return;
+					}
+					api('PUT', apiUrl('capacity') + '/' + encodeURIComponent(uid), {
 						dailyMinutes: Math.trunc(Number(minutesInput.value)),
 					}).then(function () {
 						toast(tr('Capacity saved.'), 'success');
@@ -4863,15 +4997,15 @@
 					}).catch(function (error) {
 						saveBtn.disabled = false;
 						if (error.code === 'unknown_user') {
-							uidField.mnSetError(tr('This Nextcloud user does not exist.'));
-							uidInput.focus();
-						} else if (!applyFieldErrors({ dailyMinutes: minutesField, uid: uidField }, error)) {
+							capacityPicker.setError(tr('This Nextcloud user does not exist.'));
+							capacityPicker.focus();
+						} else if (!applyFieldErrors({ dailyMinutes: minutesField }, error)) {
 							toast(error.message, 'error');
 						}
 					});
 				},
 			});
-			capacityBox.appendChild(el('div', { class: 'mn-form-grid' }, [uidField, minutesField]));
+			capacityBox.appendChild(el('div', { class: 'mn-form-grid' }, [capacityPicker.root, minutesField]));
 			capacityBox.appendChild(saveBtn);
 		}
 
@@ -4893,23 +5027,26 @@
 			]));
 			accessBox.appendChild(idListEditor({
 				label: tr('Allowed users'),
+				kind: 'user',
 				ids: config.accessAllowedUserIds,
 				emptyText: tr('No users listed.'),
-				hint: tr('Nextcloud user IDs with access while the restriction is on.'),
+				hint: tr('Search and pick people. Never type a raw user id. These accounts keep access while restriction is on.'),
 				onChange: function (ids, done) { saveAccess({ accessAllowedUserIds: ids }, done); },
 			}));
 			accessBox.appendChild(idListEditor({
 				label: tr('Allowed groups'),
+				kind: 'group',
 				ids: config.accessAllowedGroupIds,
 				emptyText: tr('No groups listed.'),
-				hint: tr('Members of these Nextcloud groups get access while the restriction is on.'),
+				hint: tr('Search and pick groups. Never type a raw group id. Members keep access while restriction is on.'),
 				onChange: function (ids, done) { saveAccess({ accessAllowedGroupIds: ids }, done); },
 			}));
 			accessBox.appendChild(idListEditor({
 				label: tr('App administrators'),
+				kind: 'user',
 				ids: config.appAdminUserIds,
 				emptyText: tr('Only Nextcloud administrators manage this app.'),
-				hint: tr('These users manage settings, catalogs and the license in addition to Nextcloud admins.'),
+				hint: tr('Search and pick delegated admins. Never type a raw user id. System administrators always keep access.'),
 				onChange: function (ids, done) { saveAccess({ appAdminUserIds: ids }, done); },
 			}));
 		}
@@ -4918,16 +5055,18 @@
 			clear(rolesBox);
 			rolesBox.appendChild(idListEditor({
 				label: tr('Office users'),
+				kind: 'user',
 				ids: config.officeUserIds,
 				emptyText: tr('No office users listed.'),
-				hint: tr('Office members manage customers, equipment and plans.'),
+				hint: tr('Search and pick office members. Never type a raw user id.'),
 				onChange: function (ids, done) { saveOffice({ officeUserIds: ids }, done); },
 			}));
 			rolesBox.appendChild(idListEditor({
 				label: tr('Office groups'),
+				kind: 'group',
 				ids: config.officeGroupIds,
 				emptyText: tr('No office groups listed.'),
-				hint: tr('All members of these groups count as office.'),
+				hint: tr('Search and pick office groups. Never type a raw group id.'),
 				onChange: function (ids, done) { saveOffice({ officeGroupIds: ids }, done); },
 			}));
 		}
@@ -5139,8 +5278,8 @@
 			licenseBox.appendChild(seatsTitle);
 			var seatPicker = attachUserPicker({
 				label: tr('Nextcloud user'),
-				hint: tr('Search by name or user ID, then assign a named seat for the official mobile app.'),
-				placeholder: tr('Start typing a name or user ID…'),
+				hint: tr('Search and pick a colleague, then assign a named seat for the official mobile app. Never type a raw user id.'),
+				placeholder: tr('Start typing a name…'),
 			});
 			var seatAdd = el('button', {
 				type: 'button', class: 'mn-btn mn-btn--secondary', text: tr('Assign seat'),

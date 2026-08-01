@@ -23,11 +23,22 @@ class PolicyService
 	public const KEY_CAPACITY_ENFORCEMENT = 'capacity_enforcement';
 	public const KEY_CAPACITY_WARN_RATIO = 'capacity_warn_ratio';
 	public const KEY_REQUIRE_EQUIPMENT_ON_WO = 'require_equipment_on_wo';
+	public const KEY_FAILURE_CODE_ON_CORRECTIVE = 'failure_code_on_corrective';
 
 	public const ENFORCEMENT_OFF = 'off';
 	public const ENFORCEMENT_WARN = 'warn';
 	public const ENFORCEMENT_BLOCK = 'block';
 	public const ENFORCEMENTS = [self::ENFORCEMENT_OFF, self::ENFORCEMENT_WARN, self::ENFORCEMENT_BLOCK];
+
+	/** W6-R3: off | warn | required (default warn). */
+	public const FAILURE_CODE_OFF = 'off';
+	public const FAILURE_CODE_WARN = 'warn';
+	public const FAILURE_CODE_REQUIRED = 'required';
+	public const FAILURE_CODE_POLICIES = [
+		self::FAILURE_CODE_OFF,
+		self::FAILURE_CODE_WARN,
+		self::FAILURE_CODE_REQUIRED,
+	];
 
 	public function __construct(
 		private readonly IConfig $config,
@@ -77,6 +88,13 @@ class PolicyService
 		return $this->config->getAppValue(Application::APP_ID, self::KEY_REQUIRE_EQUIPMENT_ON_WO, '1') === '1';
 	}
 
+	/** W6-R3 — default `warn`. */
+	public function failureCodeOnCorrective(): string
+	{
+		$value = $this->config->getAppValue(Application::APP_ID, self::KEY_FAILURE_CODE_ON_CORRECTIVE, self::FAILURE_CODE_WARN);
+		return in_array($value, self::FAILURE_CODE_POLICIES, true) ? $value : self::FAILURE_CODE_WARN;
+	}
+
 	/**
 	 * @return array<string, mixed> full policy snapshot for the settings UI
 	 */
@@ -89,6 +107,7 @@ class PolicyService
 			'capacityEnforcement' => $this->capacityEnforcement(),
 			'capacityWarnRatio' => $this->capacityWarnRatio(),
 			'requireEquipmentOnWo' => $this->requireEquipmentOnWo(),
+			'failureCodeOnCorrective' => $this->failureCodeOnCorrective(),
 		];
 	}
 
@@ -149,6 +168,15 @@ class PolicyService
 				]);
 			}
 			$this->config->setAppValue(Application::APP_ID, self::KEY_REQUIRE_EQUIPMENT_ON_WO, $value ? '1' : '0');
+		}
+		if (array_key_exists('failureCodeOnCorrective', $body)) {
+			$value = $body['failureCodeOnCorrective'];
+			if (!is_string($value) || !in_array($value, self::FAILURE_CODE_POLICIES, true)) {
+				throw new ValidationException('validation_failed', 'failureCodeOnCorrective must be off, warn, or required.', [
+					['field' => 'failureCodeOnCorrective', 'code' => 'invalid_value'],
+				]);
+			}
+			$this->config->setAppValue(Application::APP_ID, self::KEY_FAILURE_CODE_ON_CORRECTIVE, $value);
 		}
 		return $this->snapshot();
 	}

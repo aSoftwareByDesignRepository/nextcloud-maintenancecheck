@@ -67,6 +67,7 @@ return [
 		['name' => 'config#savePolicies', 'url' => '/api/config/policies', 'verb' => 'POST'],
 		['name' => 'config#userAccess', 'url' => '/api/config/user-access', 'verb' => 'GET'],
 		['name' => 'config#searchUsers', 'url' => '/api/users/search', 'verb' => 'GET'],
+		['name' => 'config#searchGroups', 'url' => '/api/groups/search', 'verb' => 'GET'],
 
 		// ── License (Track L) ──────────────────────────────────────────
 		['name' => 'license#show', 'url' => '/api/license', 'verb' => 'GET'],

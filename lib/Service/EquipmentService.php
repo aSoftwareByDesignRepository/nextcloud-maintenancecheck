@@ -322,6 +322,9 @@ class EquipmentService
 		$equipment->setLocationText($fields['locationText']);
 		$equipment->setNotes($fields['notes']);
 		$equipment->setActive($fields['active']);
+		if (array_key_exists('warrantyEnd', $fields)) {
+			$equipment->setWarrantyEnd($fields['warrantyEnd']);
+		}
 	}
 
 	private function issueQrToken(Equipment $equipment, int $now): string

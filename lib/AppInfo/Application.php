@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OCA\MaintenanceCheck\AppInfo;
 
+use OCA\MaintenanceCheck\Listener\UserDeletedListener;
+use OCP\User\Events\UserDeletedEvent;
 use OCP\Lock\ILockingProvider;
 use OCP\Files\AppData\IAppDataFactory;
 use OCP\Files\IRootFolder;
@@ -136,6 +138,7 @@ class Application extends App implements IBootstrap
 
 	public function register(IRegistrationContext $context): void
 	{
+		$context->registerEventListener(UserDeletedEvent::class, UserDeletedListener::class);
 		// ── Mappers ─────────────────────────────────────────────────────
 		$context->registerService(CustomerMapper::class, static function ($c): CustomerMapper {
 			return new CustomerMapper($c->get(IDBConnection::class));

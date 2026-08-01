@@ -40,6 +40,12 @@ final class MobileCapabilities
 			'conditionalChecklist' => true,
 			'serviceReport' => true,
 			'meters' => true,
+			'requestIntake' => true,
+			'failureCodes' => true,
+			'laborMinutes' => true,
+			'woComments' => true,
+			'equipmentDocs' => true,
+			'opsAlerts' => true,
 			'minAppVersion' => self::MIN_APP_VERSION,
 		];
 	}

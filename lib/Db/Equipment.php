@@ -41,6 +41,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setQrTokenHash(?string $v)
  * @method int|null getQrTokenRotatedAt()
  * @method void setQrTokenRotatedAt(?int $v)
+ * @method string|null getWarrantyEnd()
+ * @method void setWarrantyEnd(?string $v)
  */
 class Equipment extends Entity
 {
@@ -61,6 +63,7 @@ class Equipment extends Entity
 	protected string $createdBy = '';
 	protected ?string $qrTokenHash = null;
 	protected ?int $qrTokenRotatedAt = null;
+	protected ?string $warrantyEnd = null;
 
 	public function __construct()
 	{
@@ -82,6 +85,7 @@ class Equipment extends Entity
 		$this->addType('createdBy', 'string');
 		$this->addType('qrTokenHash', 'string');
 		$this->addType('qrTokenRotatedAt', 'integer');
+		$this->addType('warrantyEnd', 'string');
 	}
 
 	/**
@@ -108,6 +112,17 @@ class Equipment extends Entity
 			'createdBy' => $this->createdBy,
 			'hasQrToken' => $this->qrTokenHash !== null && $this->qrTokenHash !== '',
 			'qrTokenRotatedAt' => $this->qrTokenRotatedAt,
+			'warrantyEnd' => $this->warrantyEnd,
 		];
+	}
+
+	/**
+	 * Non-blocking warn when warranty_end is in the past (AC-W6-3).
+	 */
+	public function isWarrantyExpired(string $todayYmd): bool
+	{
+		return $this->warrantyEnd !== null
+			&& $this->warrantyEnd !== ''
+			&& $this->warrantyEnd < $todayYmd;
 	}
 }

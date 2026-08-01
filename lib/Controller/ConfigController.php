@@ -9,6 +9,7 @@ use OCA\MaintenanceCheck\Exception\ValidationException;
 use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Service\InventoryFlangeService;
 use OCA\MaintenanceCheck\Service\PolicyService;
+use OCA\MaintenanceCheck\Support\GroupDirectorySearch;
 use OCA\MaintenanceCheck\Support\UserDirectorySearch;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -67,11 +68,21 @@ class ConfigController extends Controller
 			$this->access->setAccessRestrictionEnabled($body['accessRestrictionEnabled']);
 		}
 		if (array_key_exists('appAdminUserIds', $body)) {
-			// SPEC §4.4 — L0 only (NC admin). L1 must not rewrite app admins.
-			$this->access->requireSystemAdmin($this->access->currentUserId());
+			// Portfolio §2.1 — dedicated App Admins may rewrite the list (with self-lockout guard).
+			$actor = $this->access->currentUserId();
+			$adminIds = $this->validatedUserIds($body['appAdminUserIds'], 'appAdminUserIds');
+			if (
+				!$this->access->isSystemAdmin($actor)
+				&& !in_array($actor, $adminIds, true)
+				&& $adminIds === []
+			) {
+				throw new ValidationException('validation_failed', 'You cannot remove your own app administrator access without assigning another administrator first.', [
+					['field' => 'appAdminUserIds', 'code' => 'cannot_remove_self'],
+				]);
+			}
 			$this->access->setJsonIdList(
 				AccessControlService::KEY_APP_ADMINS,
-				$this->validatedUserIds($body['appAdminUserIds'], 'appAdminUserIds'),
+				$adminIds,
 			);
 		}
 		if (array_key_exists('accessAllowedUserIds', $body)) {
@@ -219,6 +230,32 @@ class ConfigController extends Controller
 		}
 		return new JSONResponse([
 			'data' => UserDirectorySearch::search($this->userManager, $q, $limitInt),
+		]);
+	}
+
+	/**
+	 * Directory group picker for access / office allow-lists.
+	 */
+	#[NoAdminRequired]
+	public function searchGroups(?string $q = null, ?string $limit = null): JSONResponse
+	{
+		$this->access->requireAppAdmin($this->access->currentUserId());
+		$q = trim((string)$q);
+		if (mb_strlen($q) > 128) {
+			throw new ValidationException('invalid_query', 'Search query is too long.');
+		}
+		if (mb_strlen($q) < 2) {
+			return new JSONResponse(['data' => []]);
+		}
+		$limitInt = 25;
+		if ($limit !== null && $limit !== '') {
+			if (!preg_match('/^\d+$/', $limit)) {
+				throw new ValidationException('invalid_query', 'limit must be a positive integer.');
+			}
+			$limitInt = max(1, min(50, (int)$limit));
+		}
+		return new JSONResponse([
+			'data' => GroupDirectorySearch::search($this->groupManager, $q, $limitInt),
 		]);
 	}
 

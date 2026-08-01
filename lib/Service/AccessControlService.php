@@ -111,6 +111,17 @@ class AccessControlService
 		return false;
 	}
 
+	/**
+	 * Explicit office user ids (config list only — not expanded groups).
+	 * Used by overdue reminder fan-out (W6).
+	 *
+	 * @return list<string>
+	 */
+	public function officeUserIds(): array
+	{
+		return $this->getJsonIdList(self::KEY_OFFICE_USER_IDS);
+	}
+
 	public function requireOffice(string $userId): void
 	{
 		if (!$this->isOffice($userId)) {
@@ -126,7 +137,8 @@ class AccessControlService
 	}
 
 	/**
-	 * §4.4: `app_admin_user_ids` is writable by L0 (NC admin) only.
+	 * §4.4 (legacy) / portfolio §2.1: system admins always pass; dedicated app admins are OR'd.
+	 * Prefer {@see requireAppAdmin} for policy writes that delegated admins may perform.
 	 */
 	public function requireSystemAdmin(string $userId): void
 	{
@@ -172,6 +184,28 @@ class AccessControlService
 			$key,
 			json_encode(array_values(array_unique($clean)), JSON_UNESCAPED_UNICODE),
 		);
+	}
+
+	
+	/**
+	 * Portfolio §2.1 / user lifecycle: strip deleted UIDs from app-admin and allow lists.
+	 * Idempotent — missing uid is a no-op.
+	 */
+	public function purgeUser(string $userId): void
+	{
+		if ($userId === '') {
+			return;
+		}
+		foreach ([self::KEY_APP_ADMINS, self::KEY_ACCESS_ALLOWED_USER_IDS] as $key) {
+			$ids = $this->getJsonIdList($key);
+			$filtered = array_values(array_filter(
+				$ids,
+				static fn (string $id): bool => $id !== $userId,
+			));
+			if ($filtered !== $ids) {
+				$this->setJsonIdList($key, $filtered);
+			}
+		}
 	}
 
 	public function setAccessRestrictionEnabled(bool $enabled): void
