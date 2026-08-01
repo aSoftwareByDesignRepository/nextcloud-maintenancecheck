@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace OCA\MaintenanceCheck\Tests\Unit\Service;
 
-use OCA\MaintenanceCheck\Db\FailureCodeMapper;
 use OCA\MaintenanceCheck\Service\FailureCodeService;
-use OCA\MaintenanceCheck\Service\InputValidator;
-use OCA\MaintenanceCheck\Service\KpiService;
 use OCA\MaintenanceCheck\Service\MobileCapabilities;
 use OCA\MaintenanceCheck\Service\PolicyService;
-use OCA\MaintenanceCheck\Tests\TestCase;
 use OCP\IConfig;
-use OCP\IDBConnection;
+use PHPUnit\Framework\TestCase;
 
 /**
  * W6 unit contracts — capabilities, failure-code policy, KPI algebra edge cases.
