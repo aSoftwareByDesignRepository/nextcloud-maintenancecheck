@@ -20,7 +20,13 @@ final class MobileCapabilitiesTest extends TestCase
 		$this->assertTrue($caps['conditionalChecklist']);
 		$this->assertTrue($caps['serviceReport']);
 		$this->assertTrue($caps['meters']);
+		$this->assertTrue($caps['requestIntake']);
+		$this->assertTrue($caps['failureCodes']);
+		$this->assertTrue($caps['laborMinutes']);
+		$this->assertTrue($caps['woComments']);
+		$this->assertTrue($caps['equipmentDocs']);
+		$this->assertTrue($caps['opsAlerts']);
 		$this->assertSame('1.0.0', $caps['minAppVersion']);
-		$this->assertCount(9, $caps);
+		$this->assertCount(15, $caps);
 	}
 }
