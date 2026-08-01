@@ -111,6 +111,20 @@ $isPlanning = $isDispatch || $isTours || $isKpi || $isExceptions;
 								<span><?php p($l->t('Day tours')); ?></span>
 							</a>
 						</li>
+						<li class="<?php p($isExceptions ? 'active' : ''); ?>" <?php if ($isExceptions): ?>aria-current="page"<?php endif; ?>>
+							<a href="<?php p((string)($navUrls['exceptions'] ?? '#')); ?>"
+								title="<?php p($l->t('Exceptions: Blocked and overdue work')); ?>"
+								aria-label="<?php p($l->t('Go to exceptions')); ?>">
+								<span><?php p($l->t('Exceptions')); ?></span>
+							</a>
+						</li>
+						<li class="<?php p($isKpi ? 'active' : ''); ?>" <?php if ($isKpi): ?>aria-current="page"<?php endif; ?>>
+							<a href="<?php p((string)($navUrls['kpi'] ?? '#')); ?>"
+								title="<?php p($l->t('Ops KPI: Compliance and overdue snapshot')); ?>"
+								aria-label="<?php p($l->t('Go to ops KPI')); ?>">
+								<span><?php p($l->t('Ops KPI')); ?></span>
+							</a>
+						</li>
 					</ul>
 				</li>
 			<?php else: ?>
