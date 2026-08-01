@@ -9,13 +9,16 @@ use OCA\MaintenanceCheck\Exception\PermissionDeniedException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
 use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Service\CustomerService;
+use OCA\MaintenanceCheck\Service\EquipDocService;
 use OCA\MaintenanceCheck\Service\EquipmentService;
+use OCA\MaintenanceCheck\Service\FailureCodeService;
 use OCA\MaintenanceCheck\Service\KitService;
 use OCA\MaintenanceCheck\Service\MeterService;
 use OCA\MaintenanceCheck\Service\MobileGateService;
 use OCA\MaintenanceCheck\Service\TourService;
 use OCA\MaintenanceCheck\Service\VisitService;
 use OCA\MaintenanceCheck\Service\WoChecklistService;
+use OCA\MaintenanceCheck\Service\WoCommentService;
 use OCA\MaintenanceCheck\Service\WoEvidenceService;
 use OCA\MaintenanceCheck\Service\WoPdfService;
 use OCA\MaintenanceCheck\Service\WorkOrderService;
@@ -54,6 +57,9 @@ class MobileController extends Controller
 		private readonly KitService $kits,
 		private readonly TourService $tours,
 		private readonly MeterService $meters,
+		private readonly WoCommentService $comments,
+		private readonly EquipDocService $equipDocs,
+		private readonly FailureCodeService $failureCodes,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -371,6 +377,48 @@ class MobileController extends Controller
 		throw new ValidationException('validation_failed', 'A photo file is required.', [
 			['field' => 'file', 'code' => 'required'],
 		]);
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function workOrderComments(int $id): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		$this->workOrders->get($id, $uid);
+		return new JSONResponse($this->comments->list($id));
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function workOrderAddComment(int $id): JSONResponse
+	{
+		$this->assertSafeMutationChannel();
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		$isOffice = $this->access->isOffice($uid);
+		return new JSONResponse(
+			$this->comments->create($uid, $id, $this->jsonBody(), $isOffice),
+			Http::STATUS_CREATED,
+		);
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function equipmentDocs(int $equipmentId): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		return new JSONResponse($this->equipDocs->listForEquipment($equipmentId));
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function failureCodes(): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		return new JSONResponse($this->failureCodes->list(null, null, true));
 	}
 
 	/**

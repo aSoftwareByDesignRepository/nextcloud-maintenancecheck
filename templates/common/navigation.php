@@ -35,12 +35,14 @@ $isVisits = $activeNavId === 'visits';
 $isWorkOrders = $activeNavId === 'work-orders';
 $isDispatch = $activeNavId === 'dispatch';
 $isTours = $activeNavId === 'tours';
+$isKpi = $activeNavId === 'kpi';
+$isExceptions = $activeNavId === 'exceptions';
 $isCustomers = $activeNavId === 'customers';
 $isEquipment = $activeNavId === 'equipment';
 $isCatalogs = $activeNavId === 'catalogs';
 $isSettings = $activeNavId === 'settings';
 $isAdmin = $isSettings;
-$isPlanning = $isDispatch || $isTours;
+$isPlanning = $isDispatch || $isTours || $isKpi || $isExceptions;
 ?>
 <div id="maintenancecheck-app" class="maintenancecheck-app">
 	<a href="#app-navigation" class="skip-link mn-skip-link--nav"><?php p($l->t('Skip to app navigation')); ?></a>

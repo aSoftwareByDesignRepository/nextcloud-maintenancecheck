@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\MaintenanceCheck\Repair;
 
+use OCA\MaintenanceCheck\Service\FailureCodeService;
 use OC\DB\Connection;
 use OC\DB\MigrationService;
 use OCP\IConfig;
@@ -77,6 +78,7 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 		}
 
 		$seeded = $this->seedCatalogs();
+		$seeded += $this->seedFailureCodes();
 		$output->info(sprintf(
 			'MaintenanceCheck: all %d tables are present; seeded %d catalog row(s).',
 			count(UninstallDropTables::TABLES),
@@ -93,6 +95,14 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 		$inserted += $this->seedTable('mn_equip_types', self::SEED_EQUIP_TYPES);
 		$inserted += $this->seedTable('mn_maint_types', self::SEED_MAINT_TYPES);
 		return $inserted;
+	}
+
+	private function seedFailureCodes(): int
+	{
+		if (!$this->connection->tableExists('mn_failure_codes')) {
+			return 0;
+		}
+		return $this->seedTable('mn_failure_codes', FailureCodeService::SEED);
 	}
 
 	/**

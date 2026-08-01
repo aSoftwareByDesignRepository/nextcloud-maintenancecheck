@@ -514,6 +514,7 @@ class Application extends App implements IBootstrap
 				$c->get(ArbeitszeitCheckDeepLinkService::class),
 				$c->get(MeterService::class),
 				$c->get(WorkOrderAccessPolicy::class),
+				$c->get(FailureCodeService::class),
 			);
 		});
 		$context->registerService(SkillsAssignPolicy::class, static function (): SkillsAssignPolicy {
