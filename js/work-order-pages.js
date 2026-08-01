@@ -790,21 +790,78 @@
 							return;
 						}
 						if (to === 'done') {
-							postTransition({ to: 'done' }).then(function () { afterTransitionOk('done'); }).catch(function (error) {
-								if (error.code === 'checklist_incomplete') {
-									if (ctx.isOffice) {
-										openForceCloseDialog();
-									} else {
-										toast(error.message || tr('Required checklist items are still open. Finish them or confirm the exception.'), 'error');
-									}
-									return;
-								}
-								toast(error.message, 'error');
-							});
+							openDoneDialog();
 							return;
 						}
 						postTransition({ to: to }).then(afterTransitionOk).catch(function (error) {
 							toast(error.message, 'error');
+						});
+					}
+
+					function openDoneDialog() {
+						var codeSelect = el('select', { class: 'mn-input form-select' });
+						codeSelect.appendChild(el('option', { value: '', text: tr('No failure code') }));
+						var laborInput = el('input', {
+							type: 'number',
+							class: 'mn-input form-input',
+							min: '0',
+							max: '1440',
+							step: '1',
+							inputmode: 'numeric',
+							'aria-label': tr('Job duration (evidence) in minutes'),
+						});
+						api('GET', withQuery(apiUrl('failureCodes'), { active: '1' })).then(function (envelope) {
+							((envelope && envelope.data) || []).forEach(function (row) {
+								codeSelect.appendChild(el('option', {
+									value: String(row.code),
+									text: (row.name || row.code),
+								}));
+							});
+						}).catch(function () { /* optional catalog */ });
+						openDialog({
+							title: tr('Complete work order'),
+							content: el('div', { class: 'mn-form-grid' }, [
+								field(tr('Failure code'), codeSelect, {
+									hint: tr('Required for corrective jobs when policy says so.'),
+								}),
+								field(tr('Job duration (evidence)'), laborInput, {
+									hint: tr('Minutes on site — not working-time clock. 0–1440.'),
+								}),
+							]),
+							actions: [
+								{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+								{
+									label: tr('Complete'),
+									variant: 'mn-btn--primary',
+									onClick: function (d) {
+										d.setBusy(true);
+										d.setError(null);
+										var body = { to: 'done' };
+										if (codeSelect.value) {
+											body.failureCode = codeSelect.value;
+										}
+										if (laborInput.value !== '') {
+											body.laborMinutes = Number(laborInput.value);
+										}
+										postTransition(body).then(function () {
+											d.close();
+											afterTransitionOk('done');
+										}).catch(function (error) {
+											d.setBusy(false);
+											if (error.code === 'checklist_incomplete') {
+												d.close();
+												if (ctx.isOffice) {
+													openForceCloseDialog();
+												} else {
+													toast(error.message || tr('Required checklist items are still open. Finish them or confirm the exception.'), 'error');
+												}
+												return;
+											}
+											d.setError(error.message);
+										});
+									},
+								},
+							],
 						});
 					}
 
@@ -1968,8 +2025,118 @@
 			dom.registerPage('work-order-detail', pageWorkOrderDetail);
 			dom.registerPage('dispatch', pageDispatch);
 			dom.registerPage('tours', pageTours);
+			dom.registerPage('kpi', pageKpi);
+			dom.registerPage('exceptions', pageExceptions);
 			dom.runCurrentPage();
 		});
+	}
+
+	function pageKpi() {
+		var root = document.getElementById('mn-kpi-snapshot');
+		var csvLink = document.getElementById('mn-kpi-csv');
+		if (!root) {
+			return;
+		}
+		function apiUrl(key) {
+			return (window.MnApp && window.MnApp.urls && window.MnApp.urls.api && window.MnApp.urls.api[key]) || '';
+		}
+		function api(method, url) {
+			return window.MnApp.api(method, url);
+		}
+		function el() {
+			return window.MnApp.el.apply(null, arguments);
+		}
+		if (csvLink && apiUrl('kpiCsv')) {
+			csvLink.setAttribute('href', apiUrl('kpiCsv'));
+		}
+		root.setAttribute('aria-busy', 'true');
+		api('GET', apiUrl('kpi')).then(function (snap) {
+			root.removeAttribute('aria-busy');
+			root.innerHTML = '';
+			var cards = [
+				{ label: tr('PM compliance'), value: snap.pmCompliancePercent == null ? '—' : (String(snap.pmCompliancePercent) + '%'), hint: tr('On-time visits in the window') },
+				{ label: tr('Overdue visits'), value: String(snap.overdueVisitCount || 0), hint: tr('Still open and past due') },
+				{ label: tr('MTTR (minutes)'), value: snap.mttrMinutes == null ? '—' : String(snap.mttrMinutes), hint: tr('Corrective start→done average') },
+				{ label: tr('Corrective closed'), value: String(snap.correctiveClosedInWindow || 0), hint: tr('In this window') },
+			];
+			cards.forEach(function (c) {
+				root.appendChild(el('article', { class: 'mn-kpi-card' }, [
+					el('h3', { class: 'mn-kpi-card__label', text: c.label }),
+					el('p', { class: 'mn-kpi-card__value', text: c.value }),
+					el('p', { class: 'mn-muted', text: c.hint }),
+				]));
+			});
+			var statusBlock = el('div', { class: 'mn-kpi-status' });
+			statusBlock.appendChild(el('h3', { text: tr('Open work orders by status') }));
+			var list = el('ul', { class: 'mn-list' });
+			Object.keys(snap.openWorkOrdersByStatus || {}).forEach(function (st) {
+				list.appendChild(el('li', { text: st + ': ' + String(snap.openWorkOrdersByStatus[st]) }));
+			});
+			statusBlock.appendChild(list);
+			root.appendChild(statusBlock);
+		}).catch(function (error) {
+			root.removeAttribute('aria-busy');
+			root.textContent = error.message || tr('Could not load KPI.');
+		});
+	}
+
+	function pageExceptions() {
+		var root = document.getElementById('mn-exceptions-board');
+		if (!root) {
+			return;
+		}
+		var filter = 'all';
+		function apiUrl(key) {
+			return (window.MnApp && window.MnApp.urls && window.MnApp.urls.api && window.MnApp.urls.api[key]) || '';
+		}
+		function api(method, url) {
+			return window.MnApp.api(method, url);
+		}
+		function el() {
+			return window.MnApp.el.apply(null, arguments);
+		}
+		function withQuery(url, q) {
+			return window.MnApp.withQuery(url, q);
+		}
+		function load() {
+			root.setAttribute('aria-busy', 'true');
+			api('GET', withQuery(apiUrl('exceptions'), { filter: filter, limit: 100 })).then(function (envelope) {
+				root.removeAttribute('aria-busy');
+				root.innerHTML = '';
+				var rows = (envelope && envelope.data) || [];
+				if (!rows.length) {
+					root.appendChild(el('p', { class: 'mn-muted', role: 'status', text: tr('No exceptions right now.') }));
+					return;
+				}
+				var list = el('ul', { class: 'mn-list', role: 'list' });
+				rows.forEach(function (row) {
+					var reasons = (row.exceptionReasons || []).join(', ');
+					var link = el('a', {
+						href: ((window.MnApp.urls.pages.workOrders || '') + '/' + row.id),
+						text: (row.number || '') + ' — ' + (row.title || ''),
+					});
+					list.appendChild(el('li', {}, [
+						link,
+						el('span', { class: 'mn-muted', text: ' · ' + (row.status || '') + ' · ' + reasons }),
+					]));
+				});
+				root.appendChild(list);
+			}).catch(function (error) {
+				root.removeAttribute('aria-busy');
+				root.textContent = error.message || tr('Could not load exceptions.');
+			});
+		}
+		document.querySelectorAll('[data-mn-exception-filter]').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				document.querySelectorAll('[data-mn-exception-filter]').forEach(function (b) {
+					b.classList.remove('is-active');
+				});
+				btn.classList.add('is-active');
+				filter = btn.getAttribute('data-mn-exception-filter') || 'all';
+				load();
+			});
+		});
+		load();
 	}
 
 	if (document.readyState === 'loading') {
