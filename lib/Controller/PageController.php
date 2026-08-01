@@ -154,11 +154,25 @@ class PageController extends Controller
 		return $this->page('tours', $this->l->t('Day tours'), $this->l->t('Stop-by-stop plans for each technician’s day.'));
 	}
 
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function kpi(): TemplateResponse
+	{
+		return $this->page('kpi', $this->l->t('Ops KPI'), $this->l->t('PM compliance, overdue work and MTTR for the last 30 days.'));
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function exceptions(): TemplateResponse
+	{
+		return $this->page('exceptions', $this->l->t('Exceptions'), $this->l->t('Blocked, overdue and incomplete kits — what needs attention.'));
+	}
+
 	private function page(string $pageId, string $title, string $hint, ?int $entityId = null): TemplateResponse
 	{
 		Util::addStyle(Application::APP_ID, 'app');
 		Util::addScript(Application::APP_ID, 'app');
-		if (in_array($pageId, ['work-orders', 'work-order-detail', 'dispatch', 'tours'], true)) {
+		if (in_array($pageId, ['work-orders', 'work-order-detail', 'dispatch', 'tours', 'kpi', 'exceptions'], true)) {
 			Util::addScript(Application::APP_ID, 'work-order-pages');
 		}
 
@@ -203,6 +217,8 @@ class PageController extends Controller
 				'workOrders' => $route('page.workOrders'),
 				'dispatch' => $route('page.dispatch'),
 				'tours' => $route('page.tours'),
+				'kpi' => $route('page.kpi'),
+				'exceptions' => $route('page.exceptions'),
 			],
 			'api' => [
 				'customers' => $route('customer.index'),
@@ -231,6 +247,10 @@ class PageController extends Controller
 				'dispatch' => $route('dispatch.board'),
 				'tours' => $route('tour.index'),
 				'kitTemplates' => $route('kit.indexTemplates'),
+				'kpi' => $route('ops.kpi'),
+				'kpiCsv' => $route('ops.kpiCsv'),
+				'exceptions' => $route('ops.exceptions'),
+				'failureCodes' => $route('ops.failureCodes'),
 				// Item routes: JS appends "/{id}…".
 				'sites' => preg_replace('#/0$#', '', $route('site.update', ['id' => 0])),
 				'meters' => preg_replace('#/0$#', '', $route('meter.update', ['id' => 0])),

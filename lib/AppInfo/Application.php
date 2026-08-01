@@ -43,6 +43,10 @@ use OCA\MaintenanceCheck\Db\WoPhotoMapper;
 use OCA\MaintenanceCheck\Db\WorkOrderMapper;
 use OCA\MaintenanceCheck\Db\WoSignatureMapper;
 use OCA\MaintenanceCheck\Db\WoSkillMapper;
+use OCA\MaintenanceCheck\Db\WoCommentMapper;
+use OCA\MaintenanceCheck\Db\NotifLogMapper;
+use OCA\MaintenanceCheck\Db\FailureCodeMapper;
+use OCA\MaintenanceCheck\Db\EquipDocMapper;
 use OCA\MaintenanceCheck\Middleware\AppAccessMiddleware;
 use OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema;
 use OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks;
@@ -89,6 +93,16 @@ use OCA\MaintenanceCheck\Service\WoPdfService;
 use OCA\MaintenanceCheck\Service\WorkOrderAccessPolicy;
 use OCA\MaintenanceCheck\Service\WorkOrderService;
 use OCA\MaintenanceCheck\Service\WorkOrderStateMachine;
+use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\Notification\IManager as INotificationManager;
+use OCA\MaintenanceCheck\BackgroundJob\OverdueReminderJob;
+use OCA\MaintenanceCheck\Notification\Notifier;
+use OCA\MaintenanceCheck\Service\WoCommentService;
+use OCA\MaintenanceCheck\Service\OverdueReminderService;
+use OCA\MaintenanceCheck\Service\KpiService;
+use OCA\MaintenanceCheck\Service\FailureCodeService;
+use OCA\MaintenanceCheck\Service\ExceptionBoardService;
+use OCA\MaintenanceCheck\Service\EquipDocService;
 use OCA\MaintenanceCheck\Command\SeedReferenceDatasetCommand;
 use OCA\MaintenanceCheck\Command\UpgradeBackupCommand;
 use OCP\AppFramework\App;
@@ -139,6 +153,7 @@ class Application extends App implements IBootstrap
 	public function register(IRegistrationContext $context): void
 	{
 		$context->registerEventListener(UserDeletedEvent::class, UserDeletedListener::class);
+		$context->registerNotifierService(Notifier::class);
 		// ── Mappers ─────────────────────────────────────────────────────
 		$context->registerService(CustomerMapper::class, static function ($c): CustomerMapper {
 			return new CustomerMapper($c->get(IDBConnection::class));
@@ -206,6 +221,20 @@ class Application extends App implements IBootstrap
 		$context->registerService(WoSkillMapper::class, static function ($c): WoSkillMapper {
 			return new WoSkillMapper($c->get(IDBConnection::class));
 		});
+
+		$context->registerService(FailureCodeMapper::class, static function ($c): FailureCodeMapper {
+			return new FailureCodeMapper($c->get(IDBConnection::class));
+		});
+		$context->registerService(EquipDocMapper::class, static function ($c): EquipDocMapper {
+			return new EquipDocMapper($c->get(IDBConnection::class));
+		});
+		$context->registerService(WoCommentMapper::class, static function ($c): WoCommentMapper {
+			return new WoCommentMapper($c->get(IDBConnection::class));
+		});
+		$context->registerService(NotifLogMapper::class, static function ($c): NotifLogMapper {
+			return new NotifLogMapper($c->get(IDBConnection::class));
+		});
+
 		$context->registerService(DayTourMapper::class, static function ($c): DayTourMapper {
 			return new DayTourMapper($c->get(IDBConnection::class));
 		});
@@ -574,6 +603,62 @@ class Application extends App implements IBootstrap
 		});
 		$context->registerService(UpgradeBackupCommand::class, static function ($c): UpgradeBackupCommand {
 			return new UpgradeBackupCommand($c->get(UpgradeBackupService::class));
+		});
+
+		
+		$context->registerService(FailureCodeService::class, static function ($c): FailureCodeService {
+			return new FailureCodeService(
+				$c->get(FailureCodeMapper::class),
+				$c->get(InputValidator::class),
+			);
+		});
+		$context->registerService(EquipDocService::class, static function ($c): EquipDocService {
+			return new EquipDocService(
+				$c->get(EquipDocMapper::class),
+				$c->get(EquipmentMapper::class),
+				$c->get(InputValidator::class),
+				$c->get(Clock::class),
+			);
+		});
+		$context->registerService(WoCommentService::class, static function ($c): WoCommentService {
+			return new WoCommentService(
+				$c->get(WoCommentMapper::class),
+				$c->get(WorkOrderMapper::class),
+				$c->get(WorkOrderAccessPolicy::class),
+				$c->get(InputValidator::class),
+				$c->get(Clock::class),
+			);
+		});
+		$context->registerService(KpiService::class, static function ($c): KpiService {
+			return new KpiService(
+				$c->get(IDBConnection::class),
+				$c->get(Clock::class),
+			);
+		});
+		$context->registerService(ExceptionBoardService::class, static function ($c): ExceptionBoardService {
+			return new ExceptionBoardService(
+				$c->get(IDBConnection::class),
+				$c->get(KitService::class),
+				$c->get(Clock::class),
+				$c->get(InputValidator::class),
+			);
+		});
+		$context->registerService(OverdueReminderService::class, static function ($c): OverdueReminderService {
+			return new OverdueReminderService(
+				$c->get(IDBConnection::class),
+				$c->get(NotifLogMapper::class),
+				$c->get(INotificationManager::class),
+				$c->get(AccessControlService::class),
+				$c->get(Clock::class),
+				$c->get(ITimeFactory::class),
+				$c->get(LoggerInterface::class),
+			);
+		});
+		$context->registerService(OverdueReminderJob::class, static function ($c): OverdueReminderJob {
+			return new OverdueReminderJob(
+				$c->get(ITimeFactory::class),
+				$c->get(OverdueReminderService::class),
+			);
 		});
 
 		// ── Repair steps (resolved by occ upgrade — full arity mandatory)

@@ -220,6 +220,27 @@ class WorkOrderController extends Controller
 		return new DataDownloadResponse($signature['content'], $signature['name'], $signature['mime']);
 	}
 
+	// ── Comments (W6) ───────────────────────────────────────────────────
+
+	#[NoAdminRequired]
+	public function comments(int $id): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->workOrders->get($id, $uid);
+		return new JSONResponse($this->comments->list($id));
+	}
+
+	#[NoAdminRequired]
+	public function addComment(int $id): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$isOffice = $this->access->isOffice($uid);
+		return new JSONResponse(
+			$this->comments->create($uid, $id, $this->jsonBody(), $isOffice),
+			Http::STATUS_CREATED,
+		);
+	}
+
 	// ── PDFs (W3) ───────────────────────────────────────────────────────
 
 	#[NoAdminRequired]

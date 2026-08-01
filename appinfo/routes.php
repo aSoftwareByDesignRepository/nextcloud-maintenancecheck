@@ -19,6 +19,8 @@ return [
 		['name' => 'page#workOrderShow', 'url' => '/work-orders/{id}', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'page#dispatch', 'url' => '/dispatch', 'verb' => 'GET'],
 		['name' => 'page#tours', 'url' => '/tours', 'verb' => 'GET'],
+		['name' => 'page#kpi', 'url' => '/kpi', 'verb' => 'GET'],
+		['name' => 'page#exceptions', 'url' => '/exceptions', 'verb' => 'GET'],
 
 		// ── Customers ──────────────────────────────────────────────────
 		['name' => 'customer#index', 'url' => '/api/customers', 'verb' => 'GET'],
@@ -176,5 +178,23 @@ return [
 		['name' => 'mobile#tourToday', 'url' => '/mobile/v1/tours/today', 'verb' => 'GET'],
 		['name' => 'mobile#equipmentMeters', 'url' => '/mobile/v1/equipment/{equipmentId}/meters', 'verb' => 'GET', 'requirements' => ['equipmentId' => '\\d+']],
 		['name' => 'mobile#addMeterReading', 'url' => '/mobile/v1/meters/{id}/readings', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
+		['name' => 'mobile#workOrderComments', 'url' => '/mobile/v1/work-orders/{id}/comments', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
+		['name' => 'mobile#workOrderAddComment', 'url' => '/mobile/v1/work-orders/{id}/comments', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
+		['name' => 'mobile#equipmentDocs', 'url' => '/mobile/v1/equipment/{equipmentId}/docs', 'verb' => 'GET', 'requirements' => ['equipmentId' => '\\d+']],
+		['name' => 'mobile#failureCodes', 'url' => '/mobile/v1/failure-codes', 'verb' => 'GET'],
+
+		// ── W6 ops / docs / comments ───────────────────────────────────
+		['name' => 'ops#kpi', 'url' => '/api/ops/kpi', 'verb' => 'GET'],
+		['name' => 'ops#kpiCsv', 'url' => '/api/ops/kpi.csv', 'verb' => 'GET'],
+		['name' => 'ops#exceptions', 'url' => '/api/ops/exceptions', 'verb' => 'GET'],
+		['name' => 'ops#failureCodes', 'url' => '/api/failure-codes', 'verb' => 'GET'],
+		['name' => 'ops#createFailureCode', 'url' => '/api/failure-codes', 'verb' => 'POST'],
+		['name' => 'ops#updateFailureCode', 'url' => '/api/failure-codes/{id}', 'verb' => 'PUT', 'requirements' => ['id' => '\\d+']],
+		['name' => 'ops#reminderDryRun', 'url' => '/api/ops/reminders/dry-run', 'verb' => 'POST'],
+		['name' => 'equip_doc#index', 'url' => '/api/equipment/{equipmentId}/docs', 'verb' => 'GET', 'requirements' => ['equipmentId' => '\\d+']],
+		['name' => 'equip_doc#create', 'url' => '/api/equipment/{equipmentId}/docs', 'verb' => 'POST', 'requirements' => ['equipmentId' => '\\d+']],
+		['name' => 'equip_doc#destroy', 'url' => '/api/equip-docs/{id}', 'verb' => 'DELETE', 'requirements' => ['id' => '\\d+']],
+		['name' => 'work_order#comments', 'url' => '/api/work-orders/{id}/comments', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
+		['name' => 'work_order#addComment', 'url' => '/api/work-orders/{id}/comments', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 	],
 ];
