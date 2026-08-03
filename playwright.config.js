@@ -43,5 +43,13 @@ export default defineConfig({
 	projects: [
 		{ name: 'chromium-1280', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },
 		{ name: 'chromium-320', use: { ...devices['Desktop Chrome'], viewport: { width: 320, height: 640 } } },
+		{
+			name: 'chromium-store',
+			use: {
+				...devices['Desktop Chrome'],
+				viewport: { width: 1920, height: 1040 },
+				deviceScaleFactor: 1,
+			},
+		},
 	],
 })

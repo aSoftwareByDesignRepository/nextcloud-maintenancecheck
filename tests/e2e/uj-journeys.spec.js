@@ -1012,11 +1012,11 @@ test.describe('UJ journeys', () => {
 
 	test('UJ-1 Alt B technician: New customer hidden; POST → 403', async ({ page }) => {
 		const admin = adminCreds()
-		const tech = {
-			username: process.env.NC_TECH_USER || 'mn_e2e_tech',
-			password: process.env.NC_TECH_PASS || 'Mn-E2e-Tech-7!xK',
-		}
+		const techUser = process.env.NC_TECH_USER
+		const techPass = process.env.NC_TECH_PASS
 		test.skip(!admin, 'Requires NC_E2E_* or NC_ADMIN_*')
+		test.skip(!techUser || !techPass, 'Requires NC_TECH_USER / NC_TECH_PASS in tests/e2e/.env')
+		const tech = { username: techUser, password: techPass }
 
 		await login(page, admin)
 		await openApp(page, '/apps/maintenancecheck/settings')

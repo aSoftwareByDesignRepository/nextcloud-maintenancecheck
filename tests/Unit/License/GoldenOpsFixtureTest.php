@@ -9,7 +9,9 @@ use OCA\MaintenanceCheck\License\Mn2Codec;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Phase 0.3 / G2-2 — ops MN2 golden must verify on the real consumer codec.
+ * Optional cross-check against vendor ops golden fixtures.
+ * Enable with MN_OPS_FIXTURES_DIR pointing at a directory of golden JSON files.
+ * Standalone clones skip — app fixtures under tests/fixtures/ remain the public SoT.
  */
 final class GoldenOpsFixtureTest extends TestCase
 {
@@ -20,10 +22,22 @@ final class GoldenOpsFixtureTest extends TestCase
 		}
 	}
 
+	private static function opsFixturePath(string $filename): ?string
+	{
+		$dir = getenv('MN_OPS_FIXTURES_DIR');
+		if (!is_string($dir) || trim($dir) === '') {
+			return null;
+		}
+		$path = rtrim($dir, '/') . '/' . $filename;
+		return is_file($path) ? $path : null;
+	}
+
 	public function testOpsGoldenWireVerifies(): void
 	{
-		$opsFixture = dirname(__DIR__, 4) . '/sbdlicenseops/tests/fixtures/license_mn2_golden.json';
-		self::assertFileExists($opsFixture);
+		$opsFixture = self::opsFixturePath('license_mn2_golden.json');
+		if ($opsFixture === null) {
+			self::markTestSkipped('Set MN_OPS_FIXTURES_DIR to run optional vendor ops golden checks.');
+		}
 		$data = json_decode((string)file_get_contents($opsFixture), true, 512, JSON_THROW_ON_ERROR);
 		putenv('MN_VENDOR_PUBLIC_KEY_B64=' . (string)$data['publicKeyB64']);
 		putenv('MN_ALLOW_VENDOR_KEY_OVERRIDE=1');
@@ -42,7 +56,10 @@ final class GoldenOpsFixtureTest extends TestCase
 
 	public function testForeignAzc2Rejected(): void
 	{
-		$opsFixture = dirname(__DIR__, 4) . '/sbdlicenseops/tests/fixtures/license_azc2_golden.json';
+		$opsFixture = self::opsFixturePath('license_azc2_golden.json');
+		if ($opsFixture === null) {
+			self::markTestSkipped('Set MN_OPS_FIXTURES_DIR to run optional vendor ops golden checks.');
+		}
 		$data = json_decode((string)file_get_contents($opsFixture), true, 512, JSON_THROW_ON_ERROR);
 		putenv('MN_VENDOR_PUBLIC_KEY_B64=' . (string)$data['publicKeyB64']);
 		putenv('MN_ALLOW_VENDOR_KEY_OVERRIDE=1');

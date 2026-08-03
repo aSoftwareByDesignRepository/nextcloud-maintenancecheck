@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Prepare the shared Nextcloud Docker stack for MaintenanceCheck Playwright E2E.
 # Run from: nextcloud/apps/maintenancecheck/scripts/e2e-prep.sh
+#
+# Credentials must come from the environment or tests/e2e/.env (gitignored).
+# Never commit real passwords; copy tests/e2e/.env.example → .env first.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
@@ -16,9 +19,14 @@ if [[ -f "${ENV_FILE}" ]]; then
 fi
 
 ADMIN_USER="${NC_ADMIN_USER:-admin}"
-ADMIN_PASS="${NC_ADMIN_PASS:-E2eAdminT3st!}"
+ADMIN_PASS="${NC_ADMIN_PASS:-}"
 E2E_USER="${NC_E2E_USER:-mn_e2e}"
-E2E_PASS="${NC_E2E_PASS:-Mn-E2e-Pass-7!xK}"
+E2E_PASS="${NC_E2E_PASS:-}"
+
+if [[ -z "${ADMIN_PASS}" || -z "${E2E_PASS}" ]]; then
+	echo "error: set NC_ADMIN_PASS and NC_E2E_PASS (or create tests/e2e/.env from .env.example)" >&2
+	exit 1
+fi
 
 cd "${NC_DIR}"
 

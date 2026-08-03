@@ -24,7 +24,7 @@ use OCP\IURLGenerator;
 use OCP\Util;
 
 /**
- * Page shell (Check-family, MobilityCheck pattern). The L2 gate runs in
+ * Page shell (Check-family pattern). The L2 gate runs in
  * AppAccessMiddleware; here we only compute role flags for role-aware
  * rendering (§11.4 — server stays the enforcement authority).
  */

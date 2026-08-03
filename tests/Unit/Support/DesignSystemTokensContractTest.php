@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Design-system checklist gates for MaintenanceCheck feature CSS.
- * @see planning/design-system/checklist.md
  */
 final class DesignSystemTokensContractTest extends TestCase
 {

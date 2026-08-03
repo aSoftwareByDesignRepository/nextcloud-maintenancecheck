@@ -67,7 +67,7 @@ final class SettingsSections
 			[
 				'id' => 'inventory',
 				'title' => $l->t('Inventory stock issue'),
-				'hint' => $l->t('Optional stock deduction from InventoryCheck when a work order finishes.'),
+				'hint' => $l->t('Optional stock deduction when a compatible inventory app is installed. Off by default.'),
 				'icon' => 'package',
 				'hasJsHost' => true,
 			],

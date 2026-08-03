@@ -1,6 +1,6 @@
-# Accessibility / UAT artifacts (AC-19 / AC-20)
+# Accessibility / UAT artifacts
 
-## AC-19 — automated + documented keyboard pass
+## Automated + keyboard pass
 
 Automated: `npx playwright test tests/e2e/a11y-smoke.spec.js tests/e2e/uj-journeys.spec.js`
 (axe-core on due, customers, equipment, visits, catalogs, settings, customer detail,
@@ -17,7 +17,7 @@ Manual keyboard / screen-reader checklist (release gate — run once per release
 
 Sign-off: record date + tester in the release notes when shipping.
 
-## AC-20 — §2a MobilityCheck side-by-side
+## Store / release screenshots
 
 ```bash
 npx playwright test tests/e2e/uat-screenshots.spec.js --project=chromium-1280
@@ -26,15 +26,14 @@ npx playwright test tests/e2e/uat-screenshots.spec.js --project=chromium-1280
 Outputs land in this folder:
 
 - `maintenancecheck-due-board-1280.png`
-- `mobilitycheck-shell-1280.png` (when MobilityCheck is enabled)
 
-Auditor verdict target: &lt;30 s = “another Check app”.
+Promote polished frames to `screenshots/maintenancecheck-screenshot-NN.png` and keep `appinfo/info.xml` in sync before an App Store release.
 
-## MSI (SPEC §14.4)
+## MSI (mutation score)
 
 ```bash
 # Prefer Docker for DB-backed mutation runners:
-docker compose exec nextcloud bash -lc \
+docker compose exec -u www-data nextcloud bash -lc \
   'cd /var/www/html/custom_apps/maintenancecheck && php tests/Mutation/msi-report.php'
 ```
 

@@ -287,7 +287,7 @@
 
 	/**
 	 * Pure table model for design-system §3.7 lists (Node-safe).
-	 * Mirrors InventoryCheck tableOrCards column contract without touching the DOM.
+	 * Mirrors Check-family tableOrCards column contract without touching the DOM.
 	 *
 	 * @param {unknown} columns
 	 * @param {unknown} rows
@@ -425,7 +425,7 @@
 	}
 
 	/**
-	 * Design-system data table (§3.7) — InventoryCheck / AZC parity.
+	 * Design-system data table (§3.7) — Check-family / AZC parity.
 	 * Markup: .mn-table-wrap.table-container > table.mn-table.table.table--hover.mn-table--responsive
 	 * Columns: { id|key, label, className?, actions?, render?(row) }
 	 * Options: { rowClass?(row), tableClass?, caption? }
@@ -2597,15 +2597,15 @@
 				el('p', { class: 'mn-callout__title', text: tr('Field vs CRM customers') }),
 				el('p', {
 					class: 'mn-callout__text',
-					text: tr('This register is for field work. CustomerCheck is the CRM — the same name is not the same record. Link them on purpose; nothing merges silently.'),
+					text: tr('This register is for field work. A matching name in another business app is not the same record. Link records on purpose; nothing merges silently.'),
 				}),
 				el('p', { class: 'mn-callout__hint' }, [
 					el('a', {
 						class: 'mn-btn mn-btn--secondary mn-btn--compact',
-						href: (window.OC && OC.generateUrl)
-							? OC.generateUrl('/apps/customercheck/companies')
-							: '/index.php/apps/customercheck/companies',
-						text: tr('Open CustomerCheck'),
+						href: 'https://nextcloud.software-by-design.de/',
+						target: '_blank',
+						rel: 'noopener noreferrer',
+						text: tr('Learn more on our website'),
 					}),
 				]),
 			]);
@@ -6141,7 +6141,7 @@
 			]));
 			flangeBox.appendChild(el('p', {
 				class: 'mn-field__hint',
-				text: tr('Requires InventoryCheck with its Maintenance flange enabled in InventoryCheck Settings. Failures never undo the finished work order.'),
+				text: tr('Optional when a compatible inventory app is installed and enabled. Failures never undo the finished work order.'),
 			}));
 
 			var policy = el('select', { class: 'mn-input' });

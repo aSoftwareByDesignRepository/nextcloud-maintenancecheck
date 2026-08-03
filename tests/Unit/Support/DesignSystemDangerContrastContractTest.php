@@ -10,8 +10,6 @@ use PHPUnit\Framework\TestCase;
  * WCAG 1.4.3 gate: NC 30+ maps --color-error to a pale tint (#FFE7E7).
  * Solid danger buttons must use --color-element-error / --mn-danger-fill.
  * White-on-tint is the Cancel-visit illegible-pink failure mode.
- *
- * @see planning/design-system/DESIGN-SYSTEM.md §3.1 Hard rule
  */
 final class DesignSystemDangerContrastContractTest extends TestCase
 {
@@ -136,22 +134,6 @@ final class DesignSystemDangerContrastContractTest extends TestCase
 		$this->assertStringContainsString('--color-element-error', $tokens);
 		$this->assertStringContainsString('Never put white', $tokens);
 		$this->assertStringContainsString('pale', strtolower($tokens));
-
-		// Workspace planning docs (host); skipped inside NC container where planning/ is not mounted.
-		$planning = dirname($this->root, 3) . '/planning/design-system/DESIGN-SYSTEM.md';
-		if (!is_file($planning)) {
-			$planning = dirname($this->root, 4) . '/planning/design-system/DESIGN-SYSTEM.md';
-		}
-		if (is_file($planning)) {
-			$doc = (string)file_get_contents($planning);
-			$this->assertStringContainsString('--color-element-error', $doc);
-			$this->assertStringContainsString('Hard rule (WCAG 1.4.3)', $doc);
-			$this->assertStringContainsString('pale tint', $doc);
-			$checklist = dirname($planning) . '/checklist.md';
-			$this->assertFileExists($checklist);
-			$this->assertStringContainsString('--color-element-error', (string)file_get_contents($checklist));
-			$this->assertStringContainsString('never `--color-error` tint + white text', (string)file_get_contents($checklist));
-		}
 	}
 
 	public function testDarkThemesDarkenDangerFillForWhiteOnFillText(): void

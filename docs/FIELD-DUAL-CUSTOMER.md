@@ -1,25 +1,16 @@
-# Field Pack: MaintenanceCheck vs CRM customers (AC-S2.5)
+# Field register vs other business apps (AC-S2.5)
 
-MaintenanceCheck and CustomerCheck both have a **customer** concept. They are **not** the same database row.
+MaintenanceCheck keeps a **field register**: sites, equipment, work orders and tours.
 
-## Why two registers?
+Other Nextcloud business apps may also have an organisation or company concept. Those are **not** the same database rows. A matching name (“Acme GmbH” in two apps) is coincidence until you link records on purpose. There is **no silent merge** across apps.
 
-| App | Purpose |
-|-----|---------|
-| **MaintenanceCheck** | Field register: sites, equipment, work orders, tours |
-| **CustomerCheck** | CRM: companies, agreements, pipeline, money |
+## Practical guidance
 
-A name match (“Acme GmbH” in both) is **coincidence until you link intentionally**. There is **no silent merge** across apps.
-
-## Optional link path
-
-1. Keep the MN customer for field work (equipment + work orders).
-2. In CustomerCheck, open or create the CRM company.
-3. Use **Create / link ProjectCheck or TicketCheck customer** on the CRM company form when those apps are installed.
-4. Do **not** delete the MN customer hoping CRM will “take over” — visits and WOs stay on the MN row.
-
-Inventory stock issues (F6) reference the **work order**, not the CRM company. Uninstalling InventoryCheck must not block closing a work order.
+1. Keep the MaintenanceCheck customer for field work (equipment and work orders).
+2. If you also run a CRM or related Check app, create or open the organisation there separately.
+3. Do **not** delete the MaintenanceCheck customer hoping another app will “take over” — visits and work orders stay on the MaintenanceCheck row.
+4. Optional stock movements after a work order closes refer to the **work order**, not a CRM company. Closing a job must never depend on another app being installed.
 
 ## Support
 
-More suite context: [Check Productivity Suite](https://nextcloud.software-by-design.de/) · Sponsors: https://github.com/sponsors/aSoftwareByDesignRepository
+Suite overview: [Check Productivity Suite](https://nextcloud.software-by-design.de/) · Sponsors: https://github.com/sponsors/aSoftwareByDesignRepository

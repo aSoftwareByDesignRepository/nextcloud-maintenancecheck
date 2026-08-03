@@ -7,9 +7,8 @@ namespace OCA\MaintenanceCheck\Config;
 /**
  * Embedded vendor Ed25519 public key (32 bytes) for MN2 verification.
  *
- * The default is the production vendor public key (same key family as
- * SbdLicenseOps). Customer servers need no configuration; the key is never
- * fetched remotely (N5).
+ * The default is the production vendor public key. Customer servers need no
+ * configuration; the key is never fetched remotely (N5).
  *
  * Env override `MN_VENDOR_PUBLIC_KEY_B64` is allowed ONLY under PHPUnit (or
  * when `MN_ALLOW_VENDOR_KEY_OVERRIDE=1` is set for harnesses). Production
@@ -19,7 +18,7 @@ namespace OCA\MaintenanceCheck\Config;
 final class VendorPublicKey
 {
 	/**
-	 * Production vendor public key — verifies licenses signed by SbdLicenseOps.
+	 * Production vendor public key — verifies MN2 licenses signed by the vendor.
 	 */
 	public const DEFAULT_PUBLIC_KEY_B64 = 'naLgi4THUgwJCRoUehq20QU4uJsLVHzuKV04NhkITn8';
 
