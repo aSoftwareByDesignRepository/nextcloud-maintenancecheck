@@ -137,8 +137,7 @@ class AccessControlService
 	}
 
 	/**
-	 * §4.4 (legacy) / portfolio §2.1: system admins always pass; dedicated app admins are OR'd.
-	 * Prefer {@see requireAppAdmin} for policy writes that delegated admins may perform.
+	 * §4.4: `app_admin_user_ids` is writable by L0 (NC admin) only.
 	 */
 	public function requireSystemAdmin(string $userId): void
 	{
@@ -186,9 +185,13 @@ class AccessControlService
 		);
 	}
 
-	
+	public function setAccessRestrictionEnabled(bool $enabled): void
+	{
+		$this->config->setAppValue(Application::APP_ID, self::KEY_ACCESS_RESTRICTION, $enabled ? '1' : '0');
+	}
+
 	/**
-	 * Portfolio §2.1 / user lifecycle: strip deleted UIDs from app-admin and allow lists.
+	 * Portfolio §2.1 / user lifecycle: strip deleted UIDs from ACL lists.
 	 * Idempotent — missing uid is a no-op.
 	 */
 	public function purgeUser(string $userId): void
@@ -196,7 +199,7 @@ class AccessControlService
 		if ($userId === '') {
 			return;
 		}
-		foreach ([self::KEY_APP_ADMINS, self::KEY_ACCESS_ALLOWED_USER_IDS] as $key) {
+		foreach ([self::KEY_APP_ADMINS, self::KEY_ACCESS_ALLOWED_USER_IDS, self::KEY_OFFICE_USER_IDS] as $key) {
 			$ids = $this->getJsonIdList($key);
 			$filtered = array_values(array_filter(
 				$ids,
@@ -206,11 +209,6 @@ class AccessControlService
 				$this->setJsonIdList($key, $filtered);
 			}
 		}
-	}
-
-	public function setAccessRestrictionEnabled(bool $enabled): void
-	{
-		$this->config->setAppValue(Application::APP_ID, self::KEY_ACCESS_RESTRICTION, $enabled ? '1' : '0');
 	}
 
 	private function userMatchesAllowList(string $userId): bool

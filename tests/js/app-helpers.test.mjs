@@ -112,6 +112,28 @@ test('statusBadge returns A4 descriptor without DOM (icon + text, never colour a
 	);
 });
 
+test('visitSubjectTitle never repeats identical customer/equipment labels', () => {
+	assert.equal(MnApp.visitSubjectTitle({ customerName: 'ov-1', equipmentLabel: 'ov-1' }), 'ov-1');
+	assert.equal(MnApp.visitSubjectTitle({ customerName: 'Acme', equipmentLabel: 'Pump' }), 'Pump');
+	assert.equal(MnApp.visitSubjectTitle({ customerName: 'Acme', equipmentLabel: '' }), 'Acme');
+	assert.equal(MnApp.visitSubjectTitle({}), 'Visit');
+});
+
+test('visitSubjectSub drops duplicate customer and bilingual Inspection leftovers', () => {
+	assert.equal(
+		MnApp.visitSubjectSub({ customerName: 'ov-1', equipmentLabel: 'ov-1', maintTypeName: 'Inspection / Prüfung' }),
+		'Inspection',
+	);
+	assert.equal(
+		MnApp.visitSubjectSub({ customerName: 'Acme', equipmentLabel: 'Pump', maintTypeName: 'Filter change' }),
+		'Acme · Filter change',
+	);
+	assert.equal(
+		MnApp.displayMaintTypeName({ isInspection: true, maintTypeName: 'Inspection / Prüfung' }),
+		'Inspection',
+	);
+});
+
 test('todayYmd prefers server calendar date (S1)', () => {
 	MnApp.setServerToday('2026-07-24');
 	assert.equal(MnApp.todayYmd(), '2026-07-24');
@@ -196,6 +218,25 @@ test('list pages use design-system tableOrCards (not orphaned mn-row cards)', ()
 	assert.match(source, /equipmentTable\(/);
 	// Dense office lists must not keep the old card-row renderer.
 	assert.doesNotMatch(source, /function equipmentRow\(/);
+	// Due board + ops boards: design-system tables (no visit-card / mn-list stacks).
+	assert.match(source, /function dueBucketTable\(/);
+	assert.doesNotMatch(source, /function visitCard\(/);
+	assert.doesNotMatch(source, /function workOrderDueCard\(/);
+	assert.doesNotMatch(source, /mn-visit-card/);
+});
+
+test('ops boards (exceptions/kpi/tours/kit) use tableOrCards not ul.mn-list stacks', async () => {
+	const wo = await readFile(join(root, 'js', 'work-order-pages.js'), 'utf8');
+	assert.match(wo, /function pageExceptions\(/);
+	assert.match(wo, /function pageKpi\(/);
+	assert.match(wo, /tableOrCards\(\[/);
+	assert.match(wo, /caption:\s*tr\('Exceptions'\)/);
+	assert.match(wo, /caption:\s*tr\('Open work orders by status'\)/);
+	assert.match(wo, /caption:\s*tr\('Stops'\)/);
+	assert.match(wo, /caption:\s*tr\('Kit \/ parts'\)/);
+	assert.doesNotMatch(wo, /class:\s*'mn-list'/);
+	assert.doesNotMatch(wo, /mn-tour-stops/);
+	assert.match(wo, /MnApp\.__dom/);
 });
 
 test('list loads guard against stale responses (loadSeq)', () => {
@@ -237,4 +278,37 @@ test('A9 touch targets: chip remove and toast close are ≥44px in CSS', async (
 	assert.match(css, /\.mn-toast__close\s*\{[^}]*min-width:\s*44px/s);
 	assert.match(css, /\.mn-toast__close\s*\{[^}]*min-height:\s*44px/s);
 	assert.match(css, /\.mn-btn--compact\s*\{[^}]*min-height:\s*44px/s);
+});
+
+test('catalogs page: chip panels, no dead Status column, click-name edit', async () => {
+	const tpl = await readFile(join(root, 'templates', 'catalogs.php'), 'utf8');
+	const css = await readFile(join(root, 'css', 'app.css'), 'utf8');
+	assert.match(tpl, /class="mn-catalogs"/);
+	assert.match(tpl, /mn-catalogs-toolbar/);
+	assert.match(tpl, /data-mn-catalog=/);
+	assert.match(tpl, /mn-catalog-panel/);
+	assert.match(tpl, /catalogs_quickstart_v2/);
+	assert.doesNotMatch(tpl, /mn-catalogs__pair/);
+	assert.doesNotMatch(tpl, /class="mn-columns"/);
+	assert.match(css, /\.mn-catalogs-toolbar/);
+	assert.match(css, /\.mn-catalog-panel\[hidden\]/);
+	assert.match(source, /function catalogNameCell\(/);
+	assert.match(source, /tr\('Procedure saved\.'\)/);
+	assert.match(source, /tr\('No procedures yet'\)/);
+	assert.match(source, /tr\('No skills yet'\)/);
+	assert.match(source, /tr\('No kit templates yet'\)/);
+	assert.match(source, /showCatalogPanel/);
+	assert.match(source, /Skills load when you pick a person\./);
+	assert.doesNotMatch(source, /tr\('Load skills'\)/);
+
+	const catalogsStart = source.indexOf('function pageCatalogs(');
+	const catalogsEnd = source.indexOf('// ── Page: settings', catalogsStart);
+	assert.ok(catalogsStart > 0 && catalogsEnd > catalogsStart, 'pageCatalogs slice');
+	const catalogsSlice = source.slice(catalogsStart, catalogsEnd);
+	assert.match(catalogsSlice, /catalogNameCell\(/);
+	assert.match(catalogsSlice, /inactive:\s*!type\.active/);
+	assert.match(catalogsSlice, /visitOverflowMenu\(\[/);
+	// No dedicated Status column inside catalogs (badge is inline on the name).
+	assert.doesNotMatch(catalogsSlice, /id:\s*'status'/);
+	assert.doesNotMatch(catalogsSlice, /label:\s*tr\('Status'\)/);
 });

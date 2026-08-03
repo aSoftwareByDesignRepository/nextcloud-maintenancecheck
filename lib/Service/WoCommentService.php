@@ -7,7 +7,6 @@ namespace OCA\MaintenanceCheck\Service;
 use OCA\MaintenanceCheck\Db\WoComment;
 use OCA\MaintenanceCheck\Db\WoCommentMapper;
 use OCA\MaintenanceCheck\Db\WorkOrderMapper;
-use OCA\MaintenanceCheck\Exception\PermissionDeniedException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
 
 /**

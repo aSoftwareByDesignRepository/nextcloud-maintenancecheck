@@ -8,6 +8,7 @@ use OCA\MaintenanceCheck\Db\TourStopMapper;
 use OCA\MaintenanceCheck\Db\WorkOrder;
 use OCA\MaintenanceCheck\Db\WorkOrderMapper;
 use OCA\MaintenanceCheck\Exception\ValidationException;
+use OCP\IUserManager;
 
 /**
  * W3 dispatch board (CORE §10.4, UC-DL): open work orders in a date window,
@@ -29,6 +30,7 @@ class DispatchService
 		private readonly CapacityService $capacity,
 		private readonly IntervalCalculator $intervals,
 		private readonly Clock $clock,
+		private readonly IUserManager $userManager,
 	) {
 	}
 
@@ -49,7 +51,7 @@ class DispatchService
 		}
 
 		$orders = $this->workOrders->findForDispatch($from, $to);
-		$rows = $this->workOrderService->enrich($orders);
+		$rows = $this->withDisplayNames($this->workOrderService->enrich($orders));
 		$tourWoIds = $this->tourStops->tourIdsByWorkOrder(array_map(static fn (WorkOrder $wo) => (int)$wo->getId(), $orders));
 
 		// day → lane → rows; remember per-lane minutes for capacity cells.
@@ -67,6 +69,9 @@ class DispatchService
 			foreach ($byDay[$day] ?? [] as $laneUid => $laneRows) {
 				$lane = [
 					'uid' => $laneUid,
+					'displayName' => $laneUid === self::LANE_UNASSIGNED
+						? null
+						: ($this->userManager->get($laneUid)?->getDisplayName() ?? $laneUid),
 					'workOrders' => $laneRows,
 				];
 				if ($laneUid !== self::LANE_UNASSIGNED) {
@@ -83,19 +88,37 @@ class DispatchService
 				if ($b['uid'] === self::LANE_UNASSIGNED) {
 					return 1;
 				}
-				return strcmp($a['uid'], $b['uid']);
+				return strcmp((string)($a['displayName'] ?? $a['uid']), (string)($b['displayName'] ?? $b['uid']));
 			});
 			$days[] = ['date' => $day, 'lanes' => $lanes];
 		}
 
 		// Open WOs without a due date never disappear from planning (§8 A2).
-		$noDueDate = $this->workOrderService->enrich($this->workOrders->findOpenWithoutDueDate());
+		$noDueDate = $this->withDisplayNames($this->workOrderService->enrich($this->workOrders->findOpenWithoutDueDate()));
 		foreach ($noDueDate as &$row) {
 			$row['inTourId'] = null;
 		}
 		unset($row);
 
 		return ['from' => $from, 'to' => $to, 'days' => $days, 'noDueDate' => $noDueDate];
+	}
+
+	/**
+	 * @param list<array<string, mixed>> $rows
+	 * @return list<array<string, mixed>>
+	 */
+	private function withDisplayNames(array $rows): array
+	{
+		foreach ($rows as &$row) {
+			$uid = $row['primaryUserId'] ?? null;
+			if ($uid === null || $uid === '') {
+				$row['primaryUserDisplayName'] = null;
+				continue;
+			}
+			$row['primaryUserDisplayName'] = $this->userManager->get((string)$uid)?->getDisplayName() ?? (string)$uid;
+		}
+		unset($row);
+		return $rows;
 	}
 
 	private function validatedDate(?string $value, string $default): string

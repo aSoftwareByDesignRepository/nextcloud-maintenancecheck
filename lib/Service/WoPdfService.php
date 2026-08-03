@@ -66,6 +66,97 @@ class WoPdfService
 		return $this->render($html, 'servicebericht-' . (string)$detail['number']);
 	}
 
+	/**
+	 * W7 Prüfnachweis / Inspection evidence report (CORE §21 W7-R8).
+	 * Never labelled as Zertifikat / Konformitätsbescheinigung.
+	 *
+	 * @return array{filename: string, mime: string, content: string}
+	 */
+	public function inspectionEvidence(int $workOrderId): array
+	{
+		$wo = $this->workOrders->findById($workOrderId);
+		if ($wo->getStatus() !== WorkOrder::STATUS_DONE) {
+			throw new ConflictException('wo_not_done', 'Inspection evidence is available once the work order is done.');
+		}
+		if ($wo->getKind() !== WorkOrder::KIND_INSPECTION) {
+			throw new ConflictException('invalid_kind', 'Inspection evidence is only for inspection work orders.');
+		}
+		$detail = $this->workOrderService->get($workOrderId);
+		$html = $this->buildInspectionEvidenceHtml($detail);
+		return $this->render($html, 'pruefnachweis-' . (string)$detail['number']);
+	}
+
+	/**
+	 * @param array<string, mixed> $detail
+	 */
+	private function buildInspectionEvidenceHtml(array $detail): string
+	{
+		$e = static fn (?string $s): string => htmlspecialchars((string)$s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+		$title = $this->l->t('Inspection evidence report');
+		$disclaimer = $this->l->t(
+			'This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement.',
+		);
+		$number = $e((string)($detail['number'] ?? ''));
+		$result = $e((string)($detail['result'] ?? ''));
+		$inspector = $e((string)($detail['inspectorName'] ?? ''));
+		$note = $e((string)($detail['inspectorNote'] ?? ''));
+		$equip = $e((string)($detail['equipmentLabel'] ?? ''));
+		$photosById = [];
+		foreach (is_array($detail['photos'] ?? null) ? $detail['photos'] : [] as $photo) {
+			if (is_array($photo) && isset($photo['id'])) {
+				$photosById[(int)$photo['id']] = $photo;
+			}
+		}
+		$rows = '';
+		$linkedThumbs = '';
+		foreach (($detail['defects'] ?? []) as $defect) {
+			if (!is_array($defect)) {
+				continue;
+			}
+			$photoId = isset($defect['photoFileId']) ? (int)$defect['photoFileId'] : 0;
+			$photoCell = '—';
+			if ($photoId > 0 && isset($photosById[$photoId])) {
+				$photo = $photosById[$photoId];
+				$photoCell = $e((string)($photo['originalName'] ?? $photo['fileName'] ?? ('#' . $photoId)));
+				try {
+					$bytes = $this->storage->readPhoto((int)$detail['id'], (string)$photo['fileName']);
+					$mime = (string)($photo['mime'] ?? 'image/jpeg');
+					$linkedThumbs .= '<img alt="" src="data:' . $e($mime) . ';base64,'
+						. base64_encode($bytes) . '" style="max-width:120px;max-height:90px;margin:4px"/>';
+				} catch (\Throwable) {
+					// Soft-fail: row still lists the linked photo id.
+				}
+			} elseif ($photoId > 0) {
+				$photoCell = '#' . $photoId;
+			}
+			$rows .= '<tr><td>' . $e((string)($defect['code'] ?? '')) . '</td><td>'
+				. $e((string)($defect['body'] ?? '')) . '</td><td>' . $photoCell . '</td></tr>';
+		}
+		if ($rows === '') {
+			$rows = '<tr><td colspan="3">' . $e($this->l->t('No defects recorded.')) . '</td></tr>';
+		}
+		$linkedHtml = $linkedThumbs !== ''
+			? '<h2>' . $e($this->l->t('Defect photos')) . '</h2><div class="thumbs">' . $linkedThumbs . '</div>'
+			: '';
+		return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' . $e($title) . '</title>'
+			. '<style>body{font-family:DejaVu Sans,sans-serif;font-size:12px;color:#111}'
+			. 'h1{font-size:18px}table{width:100%;border-collapse:collapse;margin-top:12px}'
+			. 'td,th{border:1px solid #ccc;padding:6px;text-align:left}'
+			. '.disclaimer{margin-top:24px;padding:10px;border:1px solid #999;font-size:11px}</style></head><body>'
+			. '<h1>' . $e($title) . '</h1>'
+			. '<p><strong>' . $e($this->l->t('Work order')) . ':</strong> ' . $number . '</p>'
+			. '<p><strong>' . $e($this->l->t('Equipment')) . ':</strong> ' . $equip . '</p>'
+			. '<p><strong>' . $e($this->l->t('Result')) . ':</strong> ' . $result . '</p>'
+			. '<p><strong>' . $e($this->l->t('Inspector')) . ':</strong> ' . $inspector . '</p>'
+			. ($note !== '' ? '<p><strong>' . $e($this->l->t('Inspector note')) . ':</strong> ' . $note . '</p>' : '')
+			. '<h2>' . $e($this->l->t('Defects')) . '</h2>'
+			. '<table><thead><tr><th>' . $e($this->l->t('Code')) . '</th><th>' . $e($this->l->t('Description')) . '</th><th>' . $e($this->l->t('Photo')) . '</th></tr></thead><tbody>'
+			. $rows . '</tbody></table>'
+			. $linkedHtml
+			. '<div class="disclaimer">' . $e($disclaimer) . '</div>'
+			. '</body></html>';
+	}
+
 	// ── Internals ───────────────────────────────────────────────────────
 
 	/**

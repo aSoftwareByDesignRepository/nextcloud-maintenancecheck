@@ -67,6 +67,12 @@ runMutations(dirname(__DIR__, 2), 'VisitServiceTest', [
 		'replace' => 'return $this->close($uid, $visitId, Visit::STATUS_SKIPPED, $doneOn, $body, static fn (string $done): string => $done);',
 	],
 	[
+		'name' => 'inspection-gate-dropped',
+		'file' => $file,
+		'search' => "\$openVisit = \$this->visits->findById(\$visitId);\n\t\t\$this->assertCloseableWithoutInspectionWorkOrder(\$openVisit);",
+		'replace' => "\$openVisit = \$this->visits->findById(\$visitId);\n\t\t// mutant: inspection obligation gate dropped",
+	],
+	[
 		'name' => 'dbbool-uses-php-cast-on-strings',
 		'file' => $file,
 		'search' => "if (is_string(\$value)) {\n\t\t\t\$normalized = strtolower(trim(\$value));\n\t\t\treturn \$normalized === '1'\n\t\t\t\t|| \$normalized === 't'\n\t\t\t\t|| \$normalized === 'true'\n\t\t\t\t|| \$normalized === 'yes'\n\t\t\t\t|| \$normalized === 'on';\n\t\t}",

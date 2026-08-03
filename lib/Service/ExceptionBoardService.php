@@ -9,13 +9,15 @@ use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
- * W6 exception board (CORE §20.3, AC-W6-10): blocked, overdue, kit-incomplete.
+ * W6 exception board (CORE §20.3, AC-W6-10): blocked, overdue, kit-incomplete, skills_missing.
  */
 class ExceptionBoardService
 {
 	public function __construct(
 		private readonly IDBConnection $db,
 		private readonly KitService $kits,
+		private readonly SkillService $skills,
+		private readonly PolicyService $policies,
 		private readonly Clock $clock,
 		private readonly InputValidator $validator,
 	) {
@@ -24,17 +26,18 @@ class ExceptionBoardService
 	/**
 	 * @return array{data: list<array<string, mixed>>, total: int, limit: int, offset: int}
 	 */
-	public function list(?string $limit, ?string $offset, ?string $filter = null): array
+	public function list(?string $limit, ?string $offset, ?string $filter = null, ?string $assigneeUid = null): array
 	{
 		$page = $this->validator->pagination($limit, $offset);
 		$today = $this->clock->today();
 		$want = $filter === null || $filter === '' ? 'all' : $filter;
-		if (!in_array($want, ['all', 'blocked', 'overdue', 'kit'], true)) {
+		if (!in_array($want, ['all', 'blocked', 'overdue', 'kit', 'skills'], true)) {
 			$want = 'all';
 		}
 
-		$candidates = $this->loadOpenCandidates();
+		$candidates = $this->loadOpenCandidates($assigneeUid);
 		$rows = [];
+		$skillsMode = $this->policies->skillsEnforcement();
 		foreach ($candidates as $wo) {
 			$reasons = [];
 			if ($wo['status'] === WorkOrder::STATUS_BLOCKED) {
@@ -52,6 +55,20 @@ class ExceptionBoardService
 					$kitIncomplete = true;
 				}
 			}
+			$skillsMissing = false;
+			$primary = $wo['primaryUserId'];
+			if (
+				is_string($primary)
+				&& $primary !== ''
+				&& $skillsMode !== PolicyService::ENFORCEMENT_OFF
+				&& in_array($wo['status'], [WorkOrder::STATUS_PLANNED, WorkOrder::STATUS_READY, WorkOrder::STATUS_IN_PROGRESS, WorkOrder::STATUS_BLOCKED], true)
+			) {
+				$missing = $this->skills->missingSkillsFor((int)$wo['id'], $primary);
+				if ($missing !== []) {
+					$reasons[] = 'skills_missing';
+					$skillsMissing = true;
+				}
+			}
 			if ($reasons === []) {
 				continue;
 			}
@@ -64,6 +81,9 @@ class ExceptionBoardService
 			if ($want === 'kit' && !$kitIncomplete) {
 				continue;
 			}
+			if ($want === 'skills' && !$skillsMissing) {
+				continue;
+			}
 			$wo['exceptionReasons'] = $reasons;
 			$rows[] = $wo;
 		}
@@ -71,8 +91,9 @@ class ExceptionBoardService
 		usort($rows, static function (array $a, array $b): int {
 			$prio = static fn (array $r): int => match (true) {
 				in_array('blocked', $r['exceptionReasons'], true) => 0,
-				in_array('overdue', $r['exceptionReasons'], true) => 1,
-				default => 2,
+				in_array('skills_missing', $r['exceptionReasons'], true) => 1,
+				in_array('overdue', $r['exceptionReasons'], true) => 2,
+				default => 3,
 			};
 			$cmp = $prio($a) <=> $prio($b);
 			if ($cmp !== 0) {
@@ -94,7 +115,7 @@ class ExceptionBoardService
 	/**
 	 * @return list<array<string, mixed>>
 	 */
-	private function loadOpenCandidates(): array
+	private function loadOpenCandidates(?string $assigneeUid): array
 	{
 		$open = [
 			WorkOrder::STATUS_DRAFT,
@@ -110,6 +131,9 @@ class ExceptionBoardService
 			->orderBy('due_on', 'ASC')
 			->addOrderBy('id', 'ASC')
 			->setMaxResults(500);
+		if ($assigneeUid !== null && $assigneeUid !== '') {
+			$qb->andWhere($qb->expr()->eq('primary_user_id', $qb->createNamedParameter($assigneeUid)));
+		}
 		$result = $qb->executeQuery();
 		$out = [];
 		while ($row = $result->fetch()) {

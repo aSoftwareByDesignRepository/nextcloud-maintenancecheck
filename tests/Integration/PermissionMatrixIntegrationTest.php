@@ -420,7 +420,8 @@ final class PermissionMatrixIntegrationTest extends IntegrationTestCase
 	{
 		$this->loginAs(self::TECH);
 		$page = \OC::$server->get(\OCA\MaintenanceCheck\Controller\PageController::class);
-		$response = $page->settings();
+		$response = $page->settingsSection('access');
+		$this->assertInstanceOf(\OCP\AppFramework\Http\TemplateResponse::class, $response);
 		$params = $response->getParams();
 		$this->assertFalse($params['isAppAdmin'], 'technician must not see admin settings / Support & us');
 		$this->assertFalse($params['isOffice']);
@@ -430,10 +431,45 @@ final class PermissionMatrixIntegrationTest extends IntegrationTestCase
 	{
 		$this->loginAs(self::ADMIN);
 		$page = \OC::$server->get(\OCA\MaintenanceCheck\Controller\PageController::class);
-		$response = $page->settings();
+		$response = $page->settingsSection('access');
+		$this->assertInstanceOf(\OCP\AppFramework\Http\TemplateResponse::class, $response);
 		$params = $response->getParams();
 		$this->assertTrue($params['isAppAdmin']);
 		$this->assertTrue($params['isOffice'], 'app admin is always office');
+		$this->assertArrayHasKey('settingsSections', $params);
+		$this->assertArrayHasKey('settingsSectionUrls', $params);
+		$this->assertSame('access', $params['settingsSection'] ?? 'missing');
+	}
+
+	public function testP9SettingsHubRedirectsToDefaultSection(): void
+	{
+		$this->loginAs(self::ADMIN);
+		$page = \OC::$server->get(\OCA\MaintenanceCheck\Controller\PageController::class);
+		$response = $page->settings();
+		$this->assertInstanceOf(\OCP\AppFramework\Http\RedirectResponse::class, $response);
+		// URLGenerator may return '' in CLI PHPUnit; web + e2e assert /settings → /settings/access.
+	}
+
+	public function testP9SettingsSectionInvalidRedirectsToDefault(): void
+	{
+		$this->loginAs(self::ADMIN);
+		$page = \OC::$server->get(\OCA\MaintenanceCheck\Controller\PageController::class);
+		$response = $page->settingsSection('not-a-section');
+		$this->assertInstanceOf(\OCP\AppFramework\Http\RedirectResponse::class, $response);
+	}
+
+	public function testP9SettingsSectionPoliciesReturnsUnderpageParams(): void
+	{
+		$this->loginAs(self::ADMIN);
+		$page = \OC::$server->get(\OCA\MaintenanceCheck\Controller\PageController::class);
+		$response = $page->settingsSection('policies');
+		$this->assertInstanceOf(\OCP\AppFramework\Http\TemplateResponse::class, $response);
+		$params = $response->getParams();
+		$this->assertSame('settings-policies', $params['pageId']);
+		$this->assertSame('policies', $params['settingsSection']);
+		$this->assertTrue($params['isAppAdmin']);
+		$this->assertArrayHasKey('settingsSectionMeta', $params);
+		$this->assertSame('policies', $params['settingsSectionMeta']['id'] ?? null);
 	}
 
 	// ── S12 access preview ──────────────────────────────────────────────

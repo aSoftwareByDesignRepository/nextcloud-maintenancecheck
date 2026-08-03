@@ -27,6 +27,13 @@ final class BuiltinProcedurePackSeeder
 		'builtin-shk-de-v1.json',
 		'builtin-security-de-v1.json',
 		'builtin-electro-de-v1.json',
+		// W7 Prüfpflichten seed packs (CORE §21.6 AC-W7-1) — DE + EN
+		'de-portable-electrical-v1.json',
+		'de-ladders-v1.json',
+		'de-fire-extinguisher-v1.json',
+		'en-portable-electrical-v1.json',
+		'en-ladders-v1.json',
+		'en-fire-extinguisher-v1.json',
 	];
 
 	public function __construct(

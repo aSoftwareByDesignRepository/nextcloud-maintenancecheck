@@ -232,6 +232,7 @@ class InputValidator
 			'notes' => $this->boundedOptionalString($body, 'notes', 10000, 'notes_too_long'),
 			'active' => $this->boolOrDefault($body, 'active', true),
 			'warrantyEnd' => $this->optionalYmd($body, 'warrantyEnd'),
+			'equipmentClass' => $this->boundedOptionalString($body, 'equipmentClass', 64, 'equipment_class_too_long'),
 		];
 	}
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\MaintenanceCheck\Repair;
 
+use OCA\MaintenanceCheck\Service\EquipmentClassService;
 use OCA\MaintenanceCheck\Service\FailureCodeService;
 use OC\DB\Connection;
 use OC\DB\MigrationService;
@@ -79,11 +80,37 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 
 		$seeded = $this->seedCatalogs();
 		$seeded += $this->seedFailureCodes();
+		$seeded += $this->seedEquipmentClasses();
+		$this->renameBilingualInspectionMaintType($output);
 		$output->info(sprintf(
 			'MaintenanceCheck: all %d tables are present; seeded %d catalog row(s).',
 			count(UninstallDropTables::TABLES),
 			$seeded,
 		));
+	}
+
+	/**
+	 * Bachus: catalog rows must never show "Inspection / Prüfung" in the UI.
+	 */
+	private function renameBilingualInspectionMaintType(IOutput $output): void
+	{
+		if (!$this->connection->tableExists('mn_maint_types')) {
+			return;
+		}
+		foreach (['Inspection / Prüfung', 'Prüfung / Inspection'] as $legacy) {
+			$qb = $this->connection->getQueryBuilder();
+			$qb->update('mn_maint_types')
+				->set('name', $qb->createNamedParameter('Inspection'))
+				->where($qb->expr()->eq('name', $qb->createNamedParameter($legacy)));
+			$updated = $qb->executeStatement();
+			if ($updated > 0) {
+				$output->info(sprintf(
+					'MaintenanceCheck: renamed %d bilingual maint type row(s) from "%s" to Inspection.',
+					$updated,
+					$legacy
+				));
+			}
+		}
 	}
 
 	/**
@@ -103,6 +130,41 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 			return 0;
 		}
 		return $this->seedTable('mn_failure_codes', FailureCodeService::SEED);
+	}
+
+	/**
+	 * W7 equipment classes — same codes as EquipmentClassService::SEED (install/repair, not only lazy list).
+	 */
+	private function seedEquipmentClasses(): int
+	{
+		if (!$this->connection->tableExists('mn_equipment_classes')) {
+			return 0;
+		}
+		$inserted = 0;
+		foreach (EquipmentClassService::SEED as $row) {
+			$qb = $this->connection->getQueryBuilder();
+			$qb->select('id')->from('mn_equipment_classes')
+				->where($qb->expr()->eq('code', $qb->createNamedParameter($row['code'])));
+			$result = $qb->executeQuery();
+			$exists = $result->fetch() !== false;
+			$result->closeCursor();
+			if ($exists) {
+				continue;
+			}
+			$qb = $this->connection->getQueryBuilder();
+			$qb->insert('mn_equipment_classes')->values([
+				'code' => $qb->createNamedParameter($row['code']),
+				'name_de' => $qb->createNamedParameter($row['nameDe']),
+				'name_en' => $qb->createNamedParameter($row['nameEn']),
+				'default_interval_unit' => $qb->createNamedParameter($row['unit']),
+				'default_interval_count' => $qb->createNamedParameter($row['count'], \PDO::PARAM_INT),
+				'sort_order' => $qb->createNamedParameter($row['sort'], \PDO::PARAM_INT),
+				'active' => $qb->createNamedParameter(true, \PDO::PARAM_BOOL),
+			]);
+			$qb->executeStatement();
+			$inserted++;
+		}
+		return $inserted;
 	}
 
 	/**

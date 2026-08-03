@@ -183,6 +183,19 @@ class WorkOrderLifecycleIntegrationTest extends IntegrationTestCase
 		}
 	}
 
+	public function testOpenOrCreateFromVisitReturnsExistingWithoutConflict(): void
+	{
+		$seed = $this->seedVisit();
+		$first = $this->workOrders->openOrCreateFromVisit(self::UID, $seed['visitId'], [
+			'procedureId' => $this->procedureId,
+		]);
+		$second = $this->workOrders->openOrCreateFromVisit(self::UID, $seed['visitId'], [
+			'procedureId' => $this->procedureId,
+		]);
+		$this->assertSame((int)$first['id'], (int)$second['id']);
+		$this->assertSame($first['number'], $second['number']);
+	}
+
 	/**
 	 * AC-W1-2: Done on a preventive WO completes the linked visit and rolls
 	 * the next due identically to VisitService::complete for the same interval.
@@ -297,7 +310,10 @@ class WorkOrderLifecycleIntegrationTest extends IntegrationTestCase
 			'tourDate' => $this->today,
 			'techUid' => $tech,
 		]);
+		$this->assertNotSame('', (string)($tour['techDisplayName'] ?? ''));
 		$this->tours->addStop((int)$tour['id'], ['workOrderId' => (int)$wo['id']]);
+		$detail = $this->tours->get((int)$tour['id']);
+		$this->assertNotSame('', (string)($detail['stops'][0]['workOrder']['customerName'] ?? ''));
 		$this->tours->update((int)$tour['id'], ['orderLocked' => true]);
 		try {
 			$this->tours->suggestOrder((int)$tour['id']);

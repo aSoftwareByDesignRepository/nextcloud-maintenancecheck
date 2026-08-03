@@ -41,12 +41,19 @@
 		"test:mutation:license": "php tests/Mutation/run-license-mutations.php",
 		"test:mutation:access": "php tests/Mutation/run-access-mutations.php",
 		"test:mutation:support-us": "php tests/Mutation/run-support-us-links-mutations.php",
-		"test:mutation": "composer test:mutation:interval && composer test:mutation:visits && composer test:mutation:visit-service && composer test:mutation:license && composer test:mutation:access && composer test:mutation:support-us",
+		"test:mutation:inspection-close": "php tests/Mutation/run-inspection-close-mutations.php",
+		"test:mutation:inspection-followup": "php tests/Mutation/run-inspection-followup-mutations.php",
+		"test:mutation:due-query-kind": "php tests/Mutation/run-due-query-kind-mutations.php",
+		"test:mutation:equip-doc": "php tests/Mutation/run-equip-doc-mutations.php",
+		"test:mutation:download-csrf": "php tests/Mutation/run-download-csrf-mutations.php",
+		"test:mutation:danger-contrast": "php tests/Mutation/run-danger-contrast-mutations.php",
+		"test:mutation": "composer test:mutation:interval && composer test:mutation:visits && composer test:mutation:visit-service && composer test:mutation:license && composer test:mutation:access && composer test:mutation:support-us && composer test:mutation:inspection-close && composer test:mutation:inspection-followup && composer test:mutation:due-query-kind && composer test:mutation:equip-doc && composer test:mutation:download-csrf && composer test:mutation:danger-contrast",
 		"test:msi": "php tests/Mutation/msi-report.php",
 		"test:postgres-races": "php scripts/run-postgres-visit-races.php",
 		"test:gauntlet": "composer test:all && composer test:js && composer test:msi && composer test:postgres-races",
 		"test:a11y": "npx playwright test tests/e2e/a11y-smoke.spec.js",
-		"test:e2e": "npx playwright test"
+		"test:e2e": "npx playwright test",
+		"test:banlist": "php scripts/check-legal-overclaim-banlist.php"
 	},
 	"config": {
 		"optimize-autoloader": true,

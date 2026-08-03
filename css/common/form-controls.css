@@ -11,9 +11,9 @@
 	--mn-form-border-focus: var(--color-primary-element, #0082c9);
 	--mn-form-ring: color-mix(in srgb, var(--color-primary-element, #0082c9) 28%, transparent);
 	--mn-form-disabled-bg: var(--color-background-dark, var(--color-background-hover));
-	--mn-form-error: var(--color-error, #db0606);
-	--mn-form-error-ring: color-mix(in srgb, var(--color-error, #db0606) 28%, transparent);
-	--mn-form-success: var(--color-success, #2d7b46);
+	--mn-form-error: var(--mn-danger-ink, var(--color-element-error, #c90000));
+	--mn-form-error-ring: color-mix(in srgb, var(--mn-danger-fill, var(--color-element-error, #c90000)) 28%, transparent);
+	--mn-form-success: var(--mn-success-ink, var(--color-element-success, #099f05));
 	--mn-form-radius: var(--mn-radius-sm, 6px);
 }
 
@@ -231,16 +231,23 @@ body[data-theme-dark-highcontrast] #content.app-maintenancecheck #app-content .m
 	-webkit-appearance: auto;
 }
 
-/* Filter / form labels */
+/* Filter / form labels — never restyle switch / date-part labels as block field labels */
 #content.app-maintenancecheck #app-content .form-label,
-#content.app-maintenancecheck #app-content .mn-filter-field label,
-#content.app-maintenancecheck #app-content .mn-field label,
+#content.app-maintenancecheck #app-content .mn-filter-field > label.mn-filter-field__label,
+#content.app-maintenancecheck #app-content .mn-filter-field > .mn-filter-field__label,
+#content.app-maintenancecheck #app-content .mn-field > label,
 #content.app-maintenancecheck #app-content label.form-label {
 	display: block;
 	font-size: var(--mn-fs-sm, 0.875rem);
 	font-weight: 600;
 	color: var(--mn-form-fg);
 	margin-bottom: var(--mn-space-2, 0.5rem);
+}
+#content.app-maintenancecheck #app-content .mn-filter-field .mn-switch,
+#content.app-maintenancecheck #app-content .mn-filter-field label.mn-switch {
+	display: inline-flex;
+	margin-bottom: 0;
+	font-weight: inherit;
 }
 
 /* Combobox-ish NC / custom listboxes */

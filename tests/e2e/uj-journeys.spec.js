@@ -461,6 +461,13 @@ test.describe('UJ journeys', () => {
 
 		const a = await seedWo('A')
 		const b = await seedWo('B')
+		const existingTours = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/tours?date=${serverToday}`)
+		expectOk(existingTours, 'list tours')
+		for (const row of (existingTours.data.data || [])) {
+			if (row.techUid === admin.username) {
+				await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/tours/${row.id}`)
+			}
+		}
 		const tour = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/tours', {
 			tourDate: serverToday,
 			techUid: admin.username,
@@ -483,7 +490,15 @@ test.describe('UJ journeys', () => {
 
 		await openApp(page, '/apps/maintenancecheck/tours')
 		await expect(page.locator('#mn-tours-board')).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByRole('button', { name: /suggest order|reihenfolge vorschlagen/i }).first()).toBeVisible()
+		await expect(page.locator('#mn-tours-board')).not.toHaveAttribute('aria-busy', 'true', { timeout: 30_000 })
+		await expect(page.locator('#mn-tours-toolbar')).toBeVisible()
+		await expect(page.locator('#mn-tours-board .mn-tour-card')).toHaveCount(0)
+		await expect(page.locator('.mn-tour').first()).toBeVisible({ timeout: 15_000 })
+		const more = page.locator('.mn-tour').first().locator('.mn-tour__actions .mn-overflow__toggle')
+		await expect(more).toBeVisible()
+		await more.click()
+		await expect(page.getByRole('menuitem', { name: /suggest order|reihenfolge vorschlagen/i }).first()).toBeVisible()
+		await page.keyboard.press('Escape')
 		await axeMain(page)
 
 		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${a.woId}/transition`, { to: 'ready' })
@@ -494,8 +509,13 @@ test.describe('UJ journeys', () => {
 		expect(pdf.status).toBe(200)
 
 		await openApp(page, `/apps/maintenancecheck/work-orders/${a.woId}`)
-		await expect(page.getByRole('link', { name: /service report|servicebericht/i }).first()).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByRole('link', { name: /job pack|einsatzmappe/i })).toHaveCount(0)
+		await expect(page.locator('#mn-wo-detail')).toBeVisible({ timeout: 15_000 })
+		const woMore = page.locator('#mn-wo-detail .mn-overflow__toggle, .mn-wo-actions .mn-overflow__toggle').first()
+		await expect(woMore).toBeVisible({ timeout: 15_000 })
+		await woMore.click()
+		await expect(page.getByRole('menuitem', { name: /service report|servicebericht/i }).first()).toBeVisible()
+		await expect(page.getByRole('menuitem', { name: /job pack|einsatzmappe/i })).toHaveCount(0)
+		await page.keyboard.press('Escape')
 		await axeMain(page)
 
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${a.customerId}?force=1`)
@@ -675,8 +695,9 @@ test.describe('UJ journeys', () => {
 		await expect(page.getByText(/plant north/i).first()).toBeVisible()
 		await axeMain(page)
 
-		await openApp(page, '/apps/maintenancecheck/settings')
+		await openApp(page, '/apps/maintenancecheck/settings/policies')
 		await expect(page.locator('#mn-settings-policies')).toBeVisible({ timeout: 30_000 })
+		await openApp(page, '/apps/maintenancecheck/settings/capacity')
 		await expect(page.locator('#mn-settings-capacity')).toBeVisible()
 		const policies = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/config/policies', {
 			skillsEnforcement: 'warn',
@@ -728,7 +749,7 @@ test.describe('UJ journeys', () => {
 		const admin = adminCreds()
 		test.skip(!admin, 'Requires NC_E2E_* or NC_ADMIN_* for settings / license')
 		await login(page, admin)
-		await openApp(page, '/apps/maintenancecheck/settings')
+		await openApp(page, '/apps/maintenancecheck/settings/license')
 		await expect(page.locator('#mn-settings-license, .mn-empty').first()).toBeVisible({ timeout: 30_000 })
 		await axeMain(page)
 
@@ -1020,7 +1041,7 @@ test.describe('UJ journeys', () => {
 		expect(denied.data.error.code).toBe('permission_denied')
 	})
 
-	test('UJ-2 UI complete dialog: axe + Esc returns focus', async ({ page }) => {
+	test('UJ-2 Bachus: one-tap Complete; Complete with details opens dialog (axe + Esc)', async ({ page }) => {
 		const admin = primaryCreds()
 		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
 		await login(page, admin)
@@ -1047,9 +1068,37 @@ test.describe('UJ journeys', () => {
 		})
 
 		await openApp(page, '/apps/maintenancecheck/')
+		await expect(page.locator('#mn-due-toolbar, #mn-due-board').first()).toBeVisible({ timeout: 15_000 })
 		const completeBtn = page.getByRole('button', { name: /^complete$|^abschließen$/i }).first()
 		await expect(completeBtn).toBeVisible({ timeout: 15_000 })
+
+		// Happy path: Complete must NOT open a dialog (one-tap).
 		await completeBtn.click()
+		await expect(page.locator('[role="dialog"]')).toHaveCount(0, { timeout: 5_000 })
+		await expect(page.getByText(/UJ2UI|Visit completed|Besuch/i).first()).toBeVisible({ timeout: 15_000 }).catch(() => {})
+		// Board should refresh without the completed visit requiring a modal confirm.
+		await axeMain(page)
+
+		// Seed a second visit for the details-dialog path.
+		const equipment2 = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+			label: 'UJ2UI unit B',
+			customerId: customer.data.id,
+			equipTypeId: types.data.data[0].id,
+		})
+		expectOk(equipment2, 'equipment2')
+		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment2.data.id}/plans`, {
+			maintTypeId: maint.data.data[0].id,
+			intervalUnit: 'week',
+			intervalCount: 1,
+			firstDueOn: serverToday,
+		})
+		await openApp(page, '/apps/maintenancecheck/')
+		const moreBtn = page.getByRole('button', { name: /^more$|^mehr$|more actions|weitere/i }).first()
+		await expect(moreBtn).toBeVisible({ timeout: 15_000 })
+		await moreBtn.click()
+		const editDetails = page.getByRole('menuitem', { name: /complete with details|mit details abschließen|edit details|details bearbeiten/i }).first()
+		await expect(editDetails).toBeVisible()
+		await editDetails.click()
 
 		const dialog = page.locator('[role="dialog"]').first()
 		await expect(dialog).toBeVisible()
@@ -1066,7 +1115,7 @@ test.describe('UJ journeys', () => {
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
 	})
 
-	test('AX4 dispatch keyboard focuses jobs; AX3 status announce contract on WO detail', async ({ page }) => {
+	test('AX4 dispatch keyboard focuses jobs; Assign CTA + axe; AX3 status announce on WO detail', async ({ page }) => {
 		const admin = primaryCreds()
 		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
 		await login(page, admin)
@@ -1076,7 +1125,8 @@ test.describe('UJ journeys', () => {
 		expectOk(types, 'equip-types')
 		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
 		expectOk(maint, 'maint-types')
-		const today = new Date().toISOString().slice(0, 10)
+		const serverToday = await page.locator('#app-content').getAttribute('data-mn-server-today')
+		expect(serverToday).toMatch(/^\d{4}-\d{2}-\d{2}$/)
 		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
 			name: `AX4 ${Date.now()}`,
 		})
@@ -1091,7 +1141,7 @@ test.describe('UJ journeys', () => {
 			maintTypeId: maint.data.data[0].id,
 			intervalUnit: 'month',
 			intervalCount: 1,
-			firstDueOn: today,
+			firstDueOn: serverToday,
 		})
 		expectOk(plan, 'plan')
 		const procs = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/procedures?limit=5&offset=0')
@@ -1100,7 +1150,7 @@ test.describe('UJ journeys', () => {
 		const visitId = plan.data.openVisit?.id || plan.data.openVisitId
 		const woBody = {
 			estimatedMinutes: 30,
-			dueOn: today,
+			dueOn: serverToday,
 		}
 		if (procedureId) {
 			woBody.procedureId = procedureId
@@ -1110,16 +1160,18 @@ test.describe('UJ journeys', () => {
 		}
 		const wo = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/visits/${visitId}/work-orders`, woBody)
 		expectOk(wo, 'create WO')
-		const assign = await api(page, 'PUT', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/assign`, {
-			primaryUserId: admin.username,
-		})
-		expectOk(assign, 'assign')
 
 		await openApp(page, '/apps/maintenancecheck/dispatch')
 		await expect(page.locator('#mn-dispatch-board')).toBeVisible({ timeout: 15_000 })
+		await expect(page.locator('#mn-dispatch-board')).not.toHaveAttribute('aria-busy', 'true', { timeout: 30_000 })
+		await expect(page.locator('#mn-dispatch-toolbar')).toBeVisible()
+		await expect(page.locator('[data-mn-dispatch-filter="unassigned"]')).toHaveAttribute('aria-pressed', 'true')
+		await expect(page.locator('#mn-dispatch-board .mn-card')).toHaveCount(0)
+		await expect(page.locator('#mn-dispatch-board .mn-dispatch-lane')).toHaveCount(0)
 		const jobs = page.locator('a.mn-dispatch-job')
 		await expect(jobs.first()).toBeVisible({ timeout: 15_000 })
-		await expect(page.locator('.mn-dispatch-hint')).toBeVisible()
+		await expect(page.locator('.mn-dispatch-hint')).toBeAttached()
+		await expect(page.getByRole('button', { name: /^(Assign|Zuweisen)$/i }).first()).toBeVisible()
 		await jobs.first().focus()
 		if ((await jobs.count()) >= 2) {
 			await page.keyboard.press('ArrowDown')
@@ -1128,6 +1180,23 @@ test.describe('UJ journeys', () => {
 			await expect(jobs.first()).toBeFocused()
 		}
 		await axeMain(page)
+
+		await page.getByRole('button', { name: /^(Assign|Zuweisen)$/i }).first().click()
+		const dialog = page.locator('[role="dialog"]').first()
+		await expect(dialog).toBeVisible()
+		await expect(dialog.getByRole('searchbox').or(dialog.locator('input[type="search"]')).first()).toBeVisible()
+		const axeDialog = await new AxeBuilder({ page })
+			.include('[role="dialog"]')
+			.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+			.analyze()
+		expect(axeDialog.violations, JSON.stringify(axeDialog.violations, null, 2)).toEqual([])
+		await page.keyboard.press('Escape')
+		await expect(dialog).toBeHidden()
+
+		const assign = await api(page, 'PUT', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/assign`, {
+			primaryUserId: admin.username,
+		})
+		expectOk(assign, 'assign')
 
 		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
 		await expect(page.locator('#mn-wo-detail')).toBeVisible({ timeout: 15_000 })
@@ -1162,7 +1231,7 @@ test.describe('UJ journeys', () => {
 					&& license.data?.state?.valid === false
 			}, { timeout: 20_000 }).toBeTruthy()
 
-			await openApp(page, '/apps/maintenancecheck/settings')
+			await openApp(page, '/apps/maintenancecheck/settings/license')
 			await expect(page.locator('#mn-settings-license')).toBeVisible({ timeout: 30_000 })
 			await expect(page.getByText(/^Expired$|^Abgelaufen$/i).first()).toBeVisible({ timeout: 20_000 })
 			await expect(page.getByText(/e2e-expired/i).first()).toBeVisible()

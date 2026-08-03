@@ -12,7 +12,7 @@ final class WorkOrderUiTemplatesContractTest extends TestCase
 	public function testWorkOrderTemplatesExist(): void
 	{
 		$root = dirname(__DIR__, 2) . '/templates';
-		foreach (['work-orders.php', 'work-order-detail.php', 'dispatch.php', 'tours.php'] as $file) {
+		foreach (['work-orders.php', 'work-order-detail.php', 'dispatch.php', 'tours.php', 'kpi.php', 'exceptions.php'] as $file) {
 			$this->assertFileExists($root . '/' . $file, "Missing template $file");
 			$src = (string)file_get_contents($root . '/' . $file);
 			$this->assertStringContainsString('page-start.php', $src);
@@ -31,6 +31,11 @@ final class WorkOrderUiTemplatesContractTest extends TestCase
 		$src = (string)file_get_contents($js);
 		$this->assertStringContainsString("registerPage('work-orders'", $src);
 		$this->assertStringContainsString("registerPage('work-order-detail'", $src);
+		$this->assertStringContainsString("registerPage('kpi'", $src);
+		$this->assertStringContainsString("registerPage('exceptions'", $src);
+		$this->assertStringContainsString('requesterName', $src);
+		$this->assertStringContainsString('failureCode', $src);
+		$this->assertStringContainsString('laborMinutes', $src);
 		$this->assertStringContainsString('checklist', $src);
 		$this->assertStringContainsString('apiUpload', $src);
 		$this->assertStringContainsString('showBootFailure', $src);

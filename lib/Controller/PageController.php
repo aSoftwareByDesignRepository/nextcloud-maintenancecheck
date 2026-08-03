@@ -11,6 +11,7 @@ use OCA\MaintenanceCheck\Service\EquipmentService;
 use OCA\MaintenanceCheck\Service\LicenseService;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
+use OCA\MaintenanceCheck\Support\SettingsSections;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -45,7 +46,7 @@ class PageController extends Controller
 	#[NoCSRFRequired]
 	public function due(): TemplateResponse
 	{
-		return $this->page('due', $this->l->t('Due board'), $this->l->t('Everything that needs a visit — overdue first.'));
+		return $this->page('due', $this->l->t('Due board'), $this->l->t('Tap Complete on overdue and today cards. Use More for details or skip.'));
 	}
 
 	#[NoAdminRequired]
@@ -59,28 +60,28 @@ class PageController extends Controller
 	#[NoCSRFRequired]
 	public function customers(): TemplateResponse
 	{
-		return $this->page('customers', $this->l->t('Customers'), $this->l->t('The organisations and sites you service.'));
+		return $this->page('customers', $this->l->t('Customers'), $this->l->t('Add organisations you service — then open one to add equipment and plans.'));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function customer(int $id): TemplateResponse
 	{
-		return $this->page('customer-detail', $this->l->t('Customer'), $this->l->t('Master data and equipment of this customer.'), $id);
+		return $this->page('customer-detail', $this->l->t('Customer'), $this->l->t('Master data, sites and equipment for this organisation.'), $id);
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function equipment(): TemplateResponse
 	{
-		return $this->page('equipment', $this->l->t('Equipment'), $this->l->t('Every unit you maintain, across all customers.'));
+		return $this->page('equipment', $this->l->t('Equipment'), $this->l->t('Search every unit. Create new equipment on a customer page.'));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function equipmentShow(int $id): TemplateResponse
 	{
-		return $this->page('equipment-detail', $this->l->t('Equipment'), $this->l->t('Plans and visit history for this unit.'), $id);
+		return $this->page('equipment-detail', $this->l->t('Equipment'), $this->l->t('Add a plan so visits appear on the due board. Meters and inspections are optional.'), $id);
 	}
 
 	/**
@@ -109,67 +110,112 @@ class PageController extends Controller
 	#[NoCSRFRequired]
 	public function visits(): TemplateResponse
 	{
-		return $this->page('visits', $this->l->t('Visits'), $this->l->t('Complete history with filters.'));
+		return $this->page('visits', $this->l->t('Visits'), $this->l->t('Filter history by status or date. Open a row for details.'));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function catalogs(): TemplateResponse
 	{
-		return $this->page('catalogs', $this->l->t('Catalogs'), $this->l->t('Equipment types, maintenance types, procedures, kits and skills.'));
+		return $this->page('catalogs', $this->l->t('Catalogs'), $this->l->t('Pick a list, then add or edit — set once, reuse everywhere.'));
 	}
 
+	/**
+	 * Legacy /settings entry — always land on the first real underpage (no hub).
+	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
-	public function settings(): TemplateResponse
+	public function settings(): RedirectResponse
 	{
-		return $this->page('settings', $this->l->t('Settings'), $this->l->t('Access, roles, license and support.'));
+		return new RedirectResponse(
+			$this->urlGenerator->linkToRoute(
+				'maintenancecheck.page.settingsSection',
+				['section' => SettingsSections::DEFAULT],
+			),
+		);
+	}
+
+	/**
+	 * Settings underpage (access, roles, inventory, policies, capacity, license, support).
+	 * Invalid section ids redirect to the default underpage — never render an empty shell.
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function settingsSection(string $section): TemplateResponse|RedirectResponse
+	{
+		$section = strtolower(trim($section));
+		if (!SettingsSections::isValid($section)) {
+			return new RedirectResponse(
+				$this->urlGenerator->linkToRoute(
+					'maintenancecheck.page.settingsSection',
+					['section' => SettingsSections::DEFAULT],
+				),
+			);
+		}
+		$meta = SettingsSections::get($this->l, $section);
+		$title = (string)($meta['title'] ?? $section);
+		$hint = (string)($meta['hint'] ?? '');
+		return $this->page(
+			'settings-section',
+			$title,
+			$hint,
+			null,
+			array_merge($this->settingsPageParams(), [
+				'pageId' => 'settings-' . $section,
+				'settingsSection' => $section,
+				'settingsSectionMeta' => $meta,
+			]),
+		);
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function workOrders(): TemplateResponse
 	{
-		return $this->page('work-orders', $this->l->t('Work orders'), $this->l->t('Planned and corrective work with checklists and photos.'));
+		return $this->page('work-orders', $this->l->t('Work orders'), $this->l->t('Open a job to run the checklist and add photos. Office can create new jobs here.'));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function workOrderShow(int $id): TemplateResponse
 	{
-		return $this->page('work-order-detail', $this->l->t('Work order'), $this->l->t('Checklist, kit, photos and report for this job.'), $id);
+		return $this->page('work-order-detail', $this->l->t('Work order'), $this->l->t('One job sheet — status, checklist, evidence.'), $id);
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function dispatch(): TemplateResponse
 	{
-		return $this->page('dispatch', $this->l->t('Dispatch'), $this->l->t('Who does what, and when — assign open work orders.'));
+		return $this->page('dispatch', $this->l->t('Dispatch'), $this->l->t('Tap Assign on a job — search and pick, never type an id.'));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function tours(): TemplateResponse
 	{
-		return $this->page('tours', $this->l->t('Day tours'), $this->l->t('Stop-by-stop plans for each technician’s day.'));
+		return $this->page('tours', $this->l->t('Day tours'), $this->l->t('Pick the day, create a tour, add stops — then open a stop to work.'));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function kpi(): TemplateResponse
 	{
-		return $this->page('kpi', $this->l->t('Ops KPI'), $this->l->t('PM compliance, overdue work and MTTR for the last 30 days.'));
+		return $this->page('kpi', $this->l->t('Ops KPI'), $this->l->t('Compliance, overdue work and MTTR — pick 30 or 90 days.'));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function exceptions(): TemplateResponse
 	{
-		return $this->page('exceptions', $this->l->t('Exceptions'), $this->l->t('Blocked, overdue and incomplete kits — what needs attention.'));
+		return $this->page('exceptions', $this->l->t('Exceptions'), $this->l->t('Open a job and clear the blocker.'));
 	}
 
-	private function page(string $pageId, string $title, string $hint, ?int $entityId = null): TemplateResponse
+	/**
+	 * @param array<string, mixed> $extra Extra template params (may override pageId for underpages).
+	 */
+	private function page(string $template, string $title, string $hint, ?int $entityId = null, array $extra = []): TemplateResponse
 	{
+		$pageId = array_key_exists('pageId', $extra) ? (string)$extra['pageId'] : $template;
 		Util::addStyle(Application::APP_ID, 'app');
 		Util::addScript(Application::APP_ID, 'app');
 		if (in_array($pageId, ['work-orders', 'work-order-detail', 'dispatch', 'tours', 'kpi', 'exceptions'], true)) {
@@ -180,7 +226,7 @@ class PageController extends Controller
 		$isAppAdmin = $this->access->isAppAdmin($uid);
 		$isOffice = $this->access->isOffice($uid);
 
-		return new TemplateResponse(Application::APP_ID, $pageId, [
+		$params = array_merge([
 			'pageId' => $pageId,
 			'pageTitle' => $title,
 			'pageHint' => $hint,
@@ -197,11 +243,44 @@ class PageController extends Controller
 				? $this->l->t('Administrator')
 				: ($isOffice ? $this->l->t('Office') : $this->l->t('Technician')),
 			'urlsJson' => json_encode($this->urls(), JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP),
-		]);
+			'settingsSections' => SettingsSections::all($this->l),
+			'settingsSection' => '',
+			'settingsSectionUrls' => $this->settingsSectionUrls(),
+		], $extra);
+		$params['pageId'] = $pageId;
+
+		return new TemplateResponse(Application::APP_ID, $template, $params);
 	}
 
 	/**
-	 * @return array<string, array<string, string>>
+	 * @return array<string, mixed>
+	 */
+	private function settingsPageParams(): array
+	{
+		return [
+			'settingsSections' => SettingsSections::all($this->l),
+			'settingsSection' => '',
+			'settingsSectionUrls' => $this->settingsSectionUrls(),
+		];
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	private function settingsSectionUrls(): array
+	{
+		$urls = [];
+		foreach (SettingsSections::ids() as $sectionId) {
+			$urls[$sectionId] = $this->urlGenerator->linkToRoute(
+				'maintenancecheck.page.settingsSection',
+				['section' => $sectionId],
+			);
+		}
+		return $urls;
+	}
+
+	/**
+	 * @return array{pages: array<string, mixed>, api: array<string, string>}
 	 */
 	private function urls(): array
 	{
@@ -213,7 +292,8 @@ class PageController extends Controller
 				'equipment' => $route('page.equipment'),
 				'visits' => $route('page.visits'),
 				'catalogs' => $route('page.catalogs'),
-				'settings' => $route('page.settings'),
+				'settings' => $route('page.settingsSection', ['section' => SettingsSections::DEFAULT]),
+				'settingsSections' => $this->settingsSectionUrls(),
 				'workOrders' => $route('page.workOrders'),
 				'dispatch' => $route('page.dispatch'),
 				'tours' => $route('page.tours'),
@@ -225,6 +305,7 @@ class PageController extends Controller
 				'equipment' => $route('equipment.index'),
 				'visits' => $route('visit.index'),
 				'visitsDue' => $route('visit.due'),
+				'equipmentClasses' => $route('inspection_obligation.classes'),
 				// Item routes: JS appends "/{id}" (and "/plans", "/schedule", …).
 				'plans' => preg_replace('#/0$#', '', $route('plan.update', ['id' => 0])),
 				'equipTypes' => $route('catalog.equipTypes'),
@@ -251,6 +332,8 @@ class PageController extends Controller
 				'kpiCsv' => $route('ops.kpiCsv'),
 				'exceptions' => $route('ops.exceptions'),
 				'failureCodes' => $route('ops.failureCodes'),
+				// Prefix: JS appends "/{id}/download" (W6-R2 materialised blobs — never /f/{fileId}).
+				'equipDocs' => preg_replace('#/0/download$#', '', $route('equip_doc.download', ['id' => 0])),
 				// Item routes: JS appends "/{id}…".
 				'sites' => preg_replace('#/0$#', '', $route('site.update', ['id' => 0])),
 				'meters' => preg_replace('#/0$#', '', $route('meter.update', ['id' => 0])),

@@ -34,6 +34,19 @@ class WorkOrderMapper extends QBMapper
 		}
 	}
 
+	public function findBySourceWoId(int $sourceWoId): ?WorkOrder
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())
+			->where($qb->expr()->eq('source_wo_id', $qb->createNamedParameter($sourceWoId, \PDO::PARAM_INT)))
+			->setMaxResults(1);
+		try {
+			return $this->findEntity($qb);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+	}
+
 	public function exists(int $id): bool
 	{
 		$qb = $this->db->getQueryBuilder();
@@ -279,7 +292,7 @@ class WorkOrderMapper extends QBMapper
 	}
 
 	/**
-	 * Due board (CORE §13.1): open preventive WOs with a due date in range.
+	 * Due board (CORE §13.1 + W7): open preventive/inspection WOs with due date in range.
 	 * Excludes cancelled/done; optional mine filter matches list semantics.
 	 *
 	 * @return list<WorkOrder>
@@ -288,7 +301,10 @@ class WorkOrderMapper extends QBMapper
 	{
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')->from($this->getTableName())
-			->where($qb->expr()->eq('kind', $qb->createNamedParameter(WorkOrder::KIND_PREVENTIVE)))
+			->where($qb->expr()->in('kind', $qb->createNamedParameter(
+				[WorkOrder::KIND_PREVENTIVE, WorkOrder::KIND_INSPECTION],
+				IQueryBuilder::PARAM_STR_ARRAY,
+			)))
 			->andWhere($qb->expr()->notIn('status', $qb->createNamedParameter(WorkOrder::TERMINAL_STATUSES, IQueryBuilder::PARAM_STR_ARRAY)))
 			->andWhere($qb->expr()->isNotNull('due_on'))
 			->andWhere($qb->expr()->lte('due_on', $qb->createNamedParameter($maxDueOn)));

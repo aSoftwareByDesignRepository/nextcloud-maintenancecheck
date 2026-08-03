@@ -26,7 +26,12 @@ final class MobileCapabilitiesTest extends TestCase
 		$this->assertTrue($caps['woComments']);
 		$this->assertTrue($caps['equipmentDocs']);
 		$this->assertTrue($caps['opsAlerts']);
-		$this->assertSame('1.0.0', $caps['minAppVersion']);
-		$this->assertCount(15, $caps);
+		$this->assertTrue($caps['inspectionObligations']);
+		$this->assertTrue($caps['inspectionResults']);
+		$this->assertTrue($caps['defectFollowUp']);
+		$this->assertTrue($caps['inspectionEvidencePdf']);
+		$this->assertSame(MobileCapabilities::MIN_APP_VERSION, $caps['minAppVersion']);
+		$this->assertSame(MobileCapabilities::COMPANION_MIN, $caps['maintenancecheck.companion.min']);
+		$this->assertCount(20, $caps);
 	}
 }

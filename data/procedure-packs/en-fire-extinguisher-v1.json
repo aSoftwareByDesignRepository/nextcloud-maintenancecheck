@@ -1,0 +1,56 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "en-fire-extinguisher",
+  "vertical": "security",
+  "locale": "en",
+  "version": 1,
+  "pack_legal_disclaimer": "Template checklist for fire extinguisher presence and condition checks. Not legal advice and not a certification.",
+  "pack_legal_disclaimer_de": "Vorlagen-Checkliste für Feuerlöscher-Prüfungen als operativer Nachweis. Keine Rechtsberatung und keine Zertifizierung.",
+  "pack_legal_disclaimer_en": "Template checklist for fire extinguisher presence and condition checks. Not legal advice and not a certification.",
+  "procedures": [
+    {
+      "code": "extinguisher_recurring",
+      "title": "Fire extinguisher — recurring inspection",
+      "items": [
+        {
+          "code": "present",
+          "label": "Extinguisher present at designated location?",
+          "required": true,
+          "sort_order": 10
+        },
+        {
+          "code": "seal",
+          "label": "Seal / safety pin intact?",
+          "required": true,
+          "sort_order": 20
+        },
+        {
+          "code": "gauge",
+          "label": "Pressure gauge in green range (if present)?",
+          "required": true,
+          "sort_order": 30
+        },
+        {
+          "code": "tag",
+          "label": "Location sign / inventory marking OK?",
+          "required": true,
+          "sort_order": 40
+        },
+        {
+          "code": "fail_found",
+          "label": "Defect found?",
+          "required": true,
+          "sort_order": 50
+        },
+        {
+          "code": "fail_note",
+          "label": "Briefly describe the defect",
+          "required": true,
+          "sort_order": 60,
+          "show_if_item_code": "fail_found",
+          "show_if_result": "fail"
+        }
+      ]
+    }
+  ]
+}

@@ -43,6 +43,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setQrTokenRotatedAt(?int $v)
  * @method string|null getWarrantyEnd()
  * @method void setWarrantyEnd(?string $v)
+ * @method string|null getEquipmentClass()
+ * @method void setEquipmentClass(?string $v)
  */
 class Equipment extends Entity
 {
@@ -64,6 +66,7 @@ class Equipment extends Entity
 	protected ?string $qrTokenHash = null;
 	protected ?int $qrTokenRotatedAt = null;
 	protected ?string $warrantyEnd = null;
+	protected ?string $equipmentClass = null;
 
 	public function __construct()
 	{
@@ -86,6 +89,7 @@ class Equipment extends Entity
 		$this->addType('qrTokenHash', 'string');
 		$this->addType('qrTokenRotatedAt', 'integer');
 		$this->addType('warrantyEnd', 'string');
+		$this->addType('equipmentClass', 'string');
 	}
 
 	/**
@@ -113,6 +117,7 @@ class Equipment extends Entity
 			'hasQrToken' => $this->qrTokenHash !== null && $this->qrTokenHash !== '',
 			'qrTokenRotatedAt' => $this->qrTokenRotatedAt,
 			'warrantyEnd' => $this->warrantyEnd,
+			'equipmentClass' => $this->equipmentClass,
 		];
 	}
 

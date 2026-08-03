@@ -10,7 +10,7 @@ require __DIR__ . '/harness.php';
 
 $file = 'lib/Service/MobileCapabilities.php';
 
-runMutations(dirname(__DIR__, 2), 'MobileCapabilitiesTest|MobileGateServiceTest|W6FieldOpsContractTest', [
+runMutations(dirname(__DIR__, 2), 'MobileCapabilitiesTest|MobileGateServiceTest|W6FieldOpsContractTest|W7CapabilitiesAndClassesContractTest', [
 	[
 		'name' => 'visits-false',
 		'file' => $file,
@@ -58,5 +58,17 @@ runMutations(dirname(__DIR__, 2), 'MobileCapabilitiesTest|MobileGateServiceTest|
 		'file' => $file,
 		'search' => "'failureCodes' => true,",
 		'replace' => "'failureCodes' => false,",
+	],
+	[
+		'name' => 'inspection-results-false',
+		'file' => $file,
+		'search' => "'inspectionResults' => true,",
+		'replace' => "'inspectionResults' => false,",
+	],
+	[
+		'name' => 'bootstrap-policies-dropped',
+		'file' => 'lib/Service/MobileGateService.php',
+		'search' => "'policies' => [\n\t\t\t\t'failureCodeOnCorrective' => \$this->policies->failureCodeOnCorrective(),\n\t\t\t\t'defectFollowUp' => \$this->policies->defectFollowUp(),\n\t\t\t\t'inspectionResultRequired' => \$this->policies->inspectionResultRequired(),\n\t\t\t],",
+		'replace' => "'policies' => [],",
 	],
 ]);

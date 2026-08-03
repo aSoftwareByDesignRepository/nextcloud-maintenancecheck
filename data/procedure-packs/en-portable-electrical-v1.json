@@ -1,0 +1,53 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "en-portable-electrical",
+  "vertical": "electro",
+  "locale": "en",
+  "version": 1,
+  "pack_legal_disclaimer": "Template checklist for operator documentation of portable electrical equipment inspections. Not legal advice and not a certification.",
+  "pack_legal_disclaimer_de": "Vorlagen-Checkliste für wiederkehrende Prüfungen ortsveränderlicher elektrischer Betriebsmittel als operativer Nachweis. Keine Rechtsberatung und keine Zertifizierung.",
+  "pack_legal_disclaimer_en": "Template checklist for operator documentation of portable electrical equipment inspections. Not legal advice and not a certification.",
+  "required_skills": [
+    "electro_portable"
+  ],
+  "procedures": [
+    {
+      "code": "portable_electrical_recurring",
+      "title": "Portable electrical equipment — visual and function check",
+      "items": [
+        {
+          "code": "housing",
+          "label": "Housing and plug undamaged?",
+          "required": true,
+          "sort_order": 10
+        },
+        {
+          "code": "cable",
+          "label": "Cable without breaks or crushing?",
+          "required": true,
+          "sort_order": 20
+        },
+        {
+          "code": "function",
+          "label": "Function test passed?",
+          "required": true,
+          "sort_order": 30
+        },
+        {
+          "code": "fail_found",
+          "label": "Defect found?",
+          "required": true,
+          "sort_order": 40
+        },
+        {
+          "code": "quarantine",
+          "label": "Device labelled / quarantine noted",
+          "required": true,
+          "sort_order": 50,
+          "show_if_item_code": "fail_found",
+          "show_if_result": "fail"
+        }
+      ]
+    }
+  ]
+}

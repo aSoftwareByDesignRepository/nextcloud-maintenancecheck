@@ -8,6 +8,7 @@ use OCA\MaintenanceCheck\Exception\MobileGateException;
 use OCA\MaintenanceCheck\Service\LicenseService;
 use OCA\MaintenanceCheck\Service\MobileCapabilities;
 use OCA\MaintenanceCheck\Service\MobileGateService;
+use OCP\App\IAppManager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -32,7 +33,18 @@ final class MobileGateServiceTest extends TestCase
 
 		$license = $this->createMock(LicenseService::class);
 		$license->method('gateState')->with('tech1')->willReturn($state);
-		return new MobileGateService($license);
+		$license->method('status')->willReturn([
+			'state' => ['validUntil' => '2027-12-31'],
+			'seats' => ['assigned' => 1, 'limit' => 5],
+			'mobileAppStatus' => LicenseService::MOBILE_APP_STATUS,
+		]);
+		$apps = $this->createMock(IAppManager::class);
+		$apps->method('isEnabledForUser')->with('notifications')->willReturn(true);
+		$policies = $this->createMock(\OCA\MaintenanceCheck\Service\PolicyService::class);
+		$policies->method('failureCodeOnCorrective')->willReturn('warn');
+		$policies->method('defectFollowUp')->willReturn('warn');
+		$policies->method('inspectionResultRequired')->willReturn(true);
+		return new MobileGateService($license, $apps, $policies);
 	}
 
 	public function testAllRungsPass(): void
@@ -96,10 +108,10 @@ final class MobileGateServiceTest extends TestCase
 		$this->assertFalse($payload['seatAssigned']);
 		$this->assertFalse($payload['seatWithinLimit']);
 		$this->assertSame(LicenseService::MOBILE_APP_STATUS, $payload['mobileAppStatus']);
-		$this->assertSame(
-			['uid' => 'tech1', 'displayName' => 'Tech One', 'isOffice' => false],
-			$payload['user'],
-		);
+		$this->assertSame('tech1', $payload['user']['userId']);
+		$this->assertSame('tech1', $payload['user']['uid']);
+		$this->assertSame('Tech One', $payload['user']['displayName']);
+		$this->assertFalse($payload['user']['isOffice']);
 		$this->assertTrue($payload['capabilities']['visits']);
 		$this->assertTrue($payload['capabilities']['workOrders']);
 		$this->assertTrue($payload['capabilities']['qr']);
@@ -107,15 +119,45 @@ final class MobileGateServiceTest extends TestCase
 		$this->assertTrue($payload['capabilities']['serviceReport']);
 		$this->assertTrue($payload['capabilities']['meters']);
 		$this->assertSame(MobileCapabilities::MIN_APP_VERSION, $payload['capabilities']['minAppVersion']);
+		$this->assertSame(MobileCapabilities::COMPANION_MIN, $payload['capabilities']['maintenancecheck.companion.min']);
+		$this->assertTrue($payload['pushAvailable']);
+		$this->assertTrue($payload['capabilities']['push']);
+		$this->assertSame('warn', $payload['policies']['failureCodeOnCorrective']);
+		$this->assertSame('warn', $payload['policies']['defectFollowUp']);
+		$this->assertTrue($payload['policies']['inspectionResultRequired']);
 	}
 
 	public function testBootstrapExposesWireParts(): void
 	{
-		$payload = $this->gate([])->bootstrapPayload('tech1', 'Tech One', true);
-		$this->assertSame(
-			['format' => 'MN2', 'payloadB64' => 'PAYLOAD', 'signatureB64' => 'SIG'],
-			$payload['licensing'],
-		);
+		$license = $this->createMock(LicenseService::class);
+		$license->method('gateState')->with('tech1')->willReturn([
+			'hasLicense' => true,
+			'licenseValid' => true,
+			'seatAssigned' => true,
+			'seatWithinLimit' => true,
+			'payloadB64' => 'PAYLOAD',
+			'signatureB64' => 'SIG',
+		]);
+		$license->method('status')->willReturn([
+			'state' => ['validUntil' => '2027-12-31'],
+			'seats' => ['assigned' => 1, 'limit' => 5],
+			'mobileAppStatus' => LicenseService::MOBILE_APP_STATUS,
+		]);
+		$apps = $this->createMock(IAppManager::class);
+		$apps->method('isEnabledForUser')->with('notifications')->willReturn(true);
+		$policies = $this->createMock(\OCA\MaintenanceCheck\Service\PolicyService::class);
+		$policies->method('failureCodeOnCorrective')->willReturn('required');
+		$policies->method('defectFollowUp')->willReturn('auto');
+		$policies->method('inspectionResultRequired')->willReturn(true);
+		$payload = (new MobileGateService($license, $apps, $policies))->bootstrapPayload('tech1', 'Tech One', true);
+
+		$this->assertSame('MN2', $payload['licensing']['format']);
+		$this->assertSame('PAYLOAD', $payload['licensing']['payloadB64']);
+		$this->assertSame('SIG', $payload['licensing']['signatureB64']);
+		$this->assertSame('PAYLOAD', $payload['licensing']['envelope']['payloadB64']);
+		$this->assertTrue($payload['licensing']['mobile']['enabledForUser']);
+		$this->assertSame('2027-12-31', $payload['licensing']['mobile']['expiresAt']);
+		$this->assertNotSame('', $payload['licensing']['vendorPublicKeyB64']);
 		$this->assertTrue($payload['seatAssigned']);
 		$this->assertTrue($payload['user']['isOffice']);
 	}

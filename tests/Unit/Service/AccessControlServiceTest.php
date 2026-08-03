@@ -178,6 +178,7 @@ final class AccessControlServiceTest extends TestCase
 		$this->setList(AccessControlService::KEY_OFFICE_USER_IDS, ['heidi']);
 		$this->assertTrue($this->acl->isOffice('heidi'));
 		$this->assertFalse($this->acl->isOffice('ivan'), 'unlisted user is technician');
+		$this->assertSame(['heidi'], $this->acl->officeUserIds());
 	}
 
 	public function testOfficeByGroup(): void

@@ -12,6 +12,7 @@ use OCA\MaintenanceCheck\Service\ProcedureService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -79,7 +80,12 @@ class ProcedureController extends Controller
 		return new JSONResponse(['deleted' => true]);
 	}
 
+	/**
+	 * NoCSRFRequired is intentional: pack export opens via window.open /
+	 * <a href> (no requesttoken). Session auth + office ACL still apply.
+	 */
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function exportPack(?string $pack = null, ?string $vertical = null): DataDownloadResponse
 	{
 		$uid = $this->access->currentUserId();

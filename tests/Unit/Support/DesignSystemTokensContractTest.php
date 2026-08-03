@@ -34,6 +34,9 @@ final class DesignSystemTokensContractTest extends TestCase
 			'--mn-shadow-lg:',
 			'--mn-signature-surface:',
 			'--mn-overlay-top:',
+			'--mn-danger-fill:',
+			'--mn-danger-on-fill:',
+			'--mn-danger-ink:',
 		] as $token) {
 			$this->assertStringContainsString($token, $css, $token);
 		}
@@ -155,6 +158,22 @@ final class DesignSystemTokensContractTest extends TestCase
 		$this->assertMatchesRegularExpression(
 			'/\.mn-btn--sm\s*\{[^}]*min-height:\s*44px/s',
 			$chrome
+		);
+	}
+
+	public function testTableBodiesDefaultToInsetHeadedCardsUseSoloForLists(): void
+	{
+		$chrome = (string)file_get_contents($this->root . '/css/common/shell-chrome.css');
+		$this->assertMatchesRegularExpression(
+			'/\.mn-card__body--table\s*\{[^}]*padding:\s*var\(--mn-space-5/s',
+			$chrome,
+			'DESIGN-SYSTEM principle 14 / §3.7: headed/default table body keeps space-5 inset'
+		);
+		$app = (string)file_get_contents($this->root . '/css/app.css');
+		$this->assertMatchesRegularExpression(
+			'/\.mn-card\.mn-card--table-solo\s+\.mn-table-wrap[\s\S]*?border:\s*none/s',
+			$app,
+			'principle 14: table-solo must strip wrap border (single frame)'
 		);
 	}
 

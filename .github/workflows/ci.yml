@@ -55,6 +55,10 @@ jobs:
           find lib tests templates -name '*.php' -print0 \
             | xargs -0 -n1 -P4 php -l
 
+      # AC-W7-11: fail closed on legal overclaim phrases in l10n + packs.
+      - name: Legal overclaim ban-list
+        run: composer test:banlist
+
   test:
     name: PHPUnit (PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest

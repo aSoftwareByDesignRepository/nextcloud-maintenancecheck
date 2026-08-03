@@ -74,24 +74,25 @@ body {
 	--maintenancecheck-color-primary: var(--color-primary-element);
 	--maintenancecheck-color-primary-element: var(--color-primary-element);
 	--maintenancecheck-color-primary-light: color-mix(in srgb, var(--color-primary-element) 28%, transparent);
-	--maintenancecheck-color-error: var(--color-error);
-	--maintenancecheck-color-error-light: color-mix(in srgb, var(--color-error) 28%, transparent);
-	--maintenancecheck-color-success-light: color-mix(in srgb, var(--color-success) 28%, transparent);
-	--maintenancecheck-color-warning-light: color-mix(in srgb, var(--color-warning) 28%, transparent);
+	/* Ink + solid fill — never the pale NC --color-error tint for chrome */
+	--maintenancecheck-color-error: var(--mn-danger-ink, var(--color-error-text, var(--color-element-error, #8a0000)));
+	--maintenancecheck-color-error-light: var(--mn-tint-danger);
+	--maintenancecheck-color-success-light: var(--mn-tint-success);
+	--maintenancecheck-color-warning-light: var(--mn-tint-warning);
 
 	/* Borders & focus */
 	--maintenancecheck-color-border: var(--color-border);
 	--maintenancecheck-color-border-focus: var(--color-primary-element);
-	--maintenancecheck-color-border-warning: var(--color-warning);
+	--maintenancecheck-color-border-warning: var(--mn-warning-border, var(--color-element-warning, #bf7900));
 
 	/* Forms */
 	--maintenancecheck-color-form-background: var(--color-main-background);
 	--maintenancecheck-color-form-border: var(--color-border);
 	--maintenancecheck-color-form-border-focus: var(--color-primary-element);
-	--maintenancecheck-color-form-border-error: var(--color-error);
-	--maintenancecheck-color-form-border-success: var(--color-success);
+	--maintenancecheck-color-form-border-error: var(--mn-danger-border, var(--color-element-error, #c90000));
+	--maintenancecheck-color-form-border-success: var(--mn-success-border, var(--color-element-success, #099f05));
 	--maintenancecheck-color-form-label: var(--color-main-text);
-	--maintenancecheck-color-form-required: var(--color-error);
+	--maintenancecheck-color-form-required: var(--mn-danger-ink, var(--color-error-text, #8a0000));
 
 	/* Tables */
 	--maintenancecheck-color-table-border: var(--color-border);

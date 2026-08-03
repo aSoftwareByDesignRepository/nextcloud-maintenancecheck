@@ -6,6 +6,8 @@ namespace OCA\MaintenanceCheck\Tests\Unit\Service;
 
 use OCA\MaintenanceCheck\Db\CustomerMapper;
 use OCA\MaintenanceCheck\Db\EquipmentMapper;
+use OCA\MaintenanceCheck\Db\InspectionObligation;
+use OCA\MaintenanceCheck\Db\InspectionObligationMapper;
 use OCA\MaintenanceCheck\Db\MaintTypeMapper;
 use OCA\MaintenanceCheck\Db\Plan;
 use OCA\MaintenanceCheck\Db\PlanMapper;
@@ -39,6 +41,7 @@ final class VisitServiceTest extends TestCase
 	private PlanMapper&MockObject $plans;
 	private Clock&MockObject $clock;
 	private IUserManager&MockObject $users;
+	private InspectionObligationMapper&MockObject $obligations;
 	private VisitService $service;
 
 	protected function setUp(): void
@@ -48,6 +51,7 @@ final class VisitServiceTest extends TestCase
 		$this->plans = $this->createMock(PlanMapper::class);
 		$this->clock = $this->createMock(Clock::class);
 		$this->users = $this->createMock(IUserManager::class);
+		$this->obligations = $this->createMock(InspectionObligationMapper::class);
 
 		$intervals = new IntervalCalculator();
 		$validator = new InputValidator($intervals);
@@ -59,6 +63,8 @@ final class VisitServiceTest extends TestCase
 		$this->db->method('beginTransaction');
 		$this->db->method('commit');
 		$this->db->method('rollBack');
+
+		$this->obligations->method('findByPlanId')->willReturn(null);
 
 		$this->service = new VisitService(
 			$this->db,
@@ -76,11 +82,14 @@ final class VisitServiceTest extends TestCase
 			$this->createMock(ProjectCheckHoursDeepLinkService::class),
 			$this->createMock(ArbeitszeitCheckDeepLinkService::class),
 			$this->createMock(MeterService::class),
+			$this->obligations,
 		);
 	}
 
 	public function testCompleteConflictsWhenConditionalCloseLoses(): void
 	{
+		$open = $this->visitEntity(42, 1, 'scheduled');
+		$this->visits->expects($this->once())->method('findById')->with(42)->willReturn($open);
 		$this->visits->expects($this->once())->method('closeScheduled')->willReturn(false);
 		$this->visits->expects($this->once())->method('exists')->with(42)->willReturn(true);
 
@@ -94,11 +103,90 @@ final class VisitServiceTest extends TestCase
 
 	public function testCompleteNotFoundWhenVisitMissingAfterLostClose(): void
 	{
-		$this->visits->method('closeScheduled')->willReturn(false);
-		$this->visits->method('exists')->willReturn(false);
+		$this->visits->method('findById')->willThrowException(new NotFoundException());
 
 		$this->expectException(NotFoundException::class);
 		$this->service->complete('tech', 99, []);
+	}
+
+	public function testCompleteRejectsInspectionObligationVisit(): void
+	{
+		$open = $this->visitEntity(55, 9, 'scheduled');
+		$obl = new InspectionObligation();
+		$obl->setId(77);
+		$obl->setPlanId(9);
+
+		$this->visits->expects($this->once())->method('findById')->with(55)->willReturn($open);
+		$intervals = new IntervalCalculator();
+		$validator = new InputValidator($intervals);
+		$obligations = $this->createMock(InspectionObligationMapper::class);
+		$obligations->expects($this->once())->method('findByPlanId')->with(9)->willReturn($obl);
+		$service = new VisitService(
+			$this->db,
+			$this->visits,
+			$this->plans,
+			$this->createMock(CustomerMapper::class),
+			$this->createMock(EquipmentMapper::class),
+			$this->createMock(MaintTypeMapper::class),
+			$intervals,
+			new DueBoard($intervals),
+			$validator,
+			$this->clock,
+			$this->users,
+			$this->createMock(WorkOrderMapper::class),
+			$this->createMock(ProjectCheckHoursDeepLinkService::class),
+			$this->createMock(ArbeitszeitCheckDeepLinkService::class),
+			$this->createMock(MeterService::class),
+			$obligations,
+		);
+		$this->visits->expects($this->never())->method('closeScheduled');
+
+		try {
+			$service->complete('tech', 55, []);
+			$this->fail('expected ConflictException');
+		} catch (ConflictException $e) {
+			$this->assertSame('inspection_requires_work_order', $e->getErrorCode());
+			$this->assertSame(77, $e->getDetails()['obligationId'] ?? null);
+		}
+	}
+
+	public function testSkipRejectsInspectionObligationVisit(): void
+	{
+		$open = $this->visitEntity(56, 10, 'scheduled');
+		$obl = new InspectionObligation();
+		$obl->setId(88);
+		$obl->setPlanId(10);
+		$intervals = new IntervalCalculator();
+		$validator = new InputValidator($intervals);
+		$obligations = $this->createMock(InspectionObligationMapper::class);
+		$obligations->method('findByPlanId')->with(10)->willReturn($obl);
+		$service = new VisitService(
+			$this->db,
+			$this->visits,
+			$this->plans,
+			$this->createMock(CustomerMapper::class),
+			$this->createMock(EquipmentMapper::class),
+			$this->createMock(MaintTypeMapper::class),
+			$intervals,
+			new DueBoard($intervals),
+			$validator,
+			$this->clock,
+			$this->users,
+			$this->createMock(WorkOrderMapper::class),
+			$this->createMock(ProjectCheckHoursDeepLinkService::class),
+			$this->createMock(ArbeitszeitCheckDeepLinkService::class),
+			$this->createMock(MeterService::class),
+			$obligations,
+		);
+		$this->visits->method('findById')->willReturn($open);
+		$this->visits->expects($this->never())->method('closeScheduled');
+
+		try {
+			$service->skip('tech', 56, ['reason' => 'not today']);
+			$this->fail('expected ConflictException');
+		} catch (ConflictException $e) {
+			$this->assertSame('inspection_requires_work_order', $e->getErrorCode());
+		}
 	}
 
 	public function testCompletePassesDoneStatusToConditionalClose(): void

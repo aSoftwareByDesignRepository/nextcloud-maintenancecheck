@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace OCA\MaintenanceCheck\Service;
 
+use OCA\MaintenanceCheck\Db\CustomerMapper;
 use OCA\MaintenanceCheck\Db\DayTour;
 use OCA\MaintenanceCheck\Db\DayTourMapper;
+use OCA\MaintenanceCheck\Db\EquipmentMapper;
 use OCA\MaintenanceCheck\Db\SiteMapper;
 use OCA\MaintenanceCheck\Db\TourStop;
 use OCA\MaintenanceCheck\Db\TourStopMapper;
-use OCA\MaintenanceCheck\Db\WorkOrder;
 use OCA\MaintenanceCheck\Db\WorkOrderMapper;
 use OCA\MaintenanceCheck\Exception\ConflictException;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 use OCP\IUserManager;
 
@@ -437,16 +439,28 @@ class TourService
 	private function detail(DayTour $tour): array
 	{
 		$row = $tour->toApi();
+		$techUid = $tour->getTechUid();
+		$row['techDisplayName'] = $this->userManager->get($techUid)?->getDisplayName() ?? $techUid;
+
 		$stops = $this->stops->findByTour((int)$tour->getId());
-		$woIds = array_map(static fn (TourStop $s) => $s->getWorkOrderId(), $stops);
 		$woById = [];
-		foreach ($woIds as $woId) {
+		$customerIds = [];
+		$equipmentIds = [];
+		foreach ($stops as $stop) {
 			try {
-				$woById[$woId] = $this->workOrders->findById($woId);
+				$wo = $this->workOrders->findById($stop->getWorkOrderId());
+				$woById[$stop->getWorkOrderId()] = $wo;
+				$customerIds[$wo->getCustomerId()] = true;
+				if ($wo->getEquipmentId() !== null) {
+					$equipmentIds[$wo->getEquipmentId()] = true;
+				}
 			} catch (NotFoundException) {
-				// stop points at a vanished WO — skip it in the payload
+				// stop points at a vanished WO — skip enrichment
 			}
 		}
+		$customerNames = $this->nameMap(CustomerMapper::TABLE, 'name', array_keys($customerIds));
+		$equipmentLabels = $this->nameMap(EquipmentMapper::TABLE, 'label', array_keys($equipmentIds));
+
 		$stopRows = [];
 		foreach ($stops as $stop) {
 			$stopRow = $stop->toApi();
@@ -459,11 +473,38 @@ class TourService
 				'priority' => $wo->getPriority(),
 				'dueOn' => $wo->getDueOn(),
 				'estimatedMinutes' => $wo->getEstimatedMinutes(),
+				'customerName' => $customerNames[$wo->getCustomerId()] ?? '',
+				'equipmentLabel' => $wo->getEquipmentId() !== null
+					? ($equipmentLabels[$wo->getEquipmentId()] ?? '')
+					: '',
 			] : null;
 			$stopRows[] = $stopRow;
 		}
 		$row['stops'] = $stopRows;
 		return $row;
+	}
+
+	/**
+	 * @param list<int> $ids
+	 * @return array<int, string>
+	 */
+	private function nameMap(string $table, string $column, array $ids): array
+	{
+		$map = [];
+		if ($ids === []) {
+			return $map;
+		}
+		foreach (array_chunk($ids, 500) as $chunk) {
+			$qb = $this->db->getQueryBuilder();
+			$qb->select('id', $column)->from($table)
+				->where($qb->expr()->in('id', $qb->createNamedParameter($chunk, IQueryBuilder::PARAM_INT_ARRAY)));
+			$result = $qb->executeQuery();
+			while (($row = $result->fetch()) !== false) {
+				$map[(int)$row['id']] = (string)$row[$column];
+			}
+			$result->closeCursor();
+		}
+		return $map;
 	}
 
 	private function validatedDate(?string $date): string

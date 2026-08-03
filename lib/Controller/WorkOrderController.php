@@ -16,6 +16,7 @@ use OCA\MaintenanceCheck\Service\WorkOrderService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -170,7 +171,12 @@ class WorkOrderController extends Controller
 		return new JSONResponse($this->evidence->addPhoto($uid, $id, $content, $originalName), Http::STATUS_CREATED);
 	}
 
+	/**
+	 * NoCSRFRequired is intentional: photo chips are plain <a href> navigation
+	 * (no requesttoken header). Session auth + WO ACL still apply.
+	 */
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function downloadPhoto(int $id, int $photoId): DataDownloadResponse
 	{
 		$uid = $this->access->currentUserId();
@@ -211,7 +217,12 @@ class WorkOrderController extends Controller
 		return new JSONResponse($this->evidence->setSignature($uid, $id, $png, $signerName));
 	}
 
+	/**
+	 * NoCSRFRequired is intentional: signature GETs must work as browser
+	 * downloads without a requesttoken header. Session auth + WO ACL still apply.
+	 */
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function downloadSignature(int $id): DataDownloadResponse
 	{
 		$uid = $this->access->currentUserId();
@@ -242,8 +253,14 @@ class WorkOrderController extends Controller
 	}
 
 	// ── PDFs (W3) ───────────────────────────────────────────────────────
+	//
+	// NoCSRFRequired is intentional on every PDF GET: the web UI opens these
+	// via overflow <a href target=_blank> (browser navigation cannot send
+	// requesttoken). Mutations stay CSRF-protected. Session cookie auth and
+	// WorkOrderService ACL still gate every download.
 
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function jobPackPdf(int $id): DataDownloadResponse
 	{
 		$uid = $this->access->currentUserId();
@@ -253,11 +270,22 @@ class WorkOrderController extends Controller
 	}
 
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function serviceberichtPdf(int $id): DataDownloadResponse
 	{
 		$uid = $this->access->currentUserId();
 		$this->workOrders->get($id, $uid);
 		$pdf = $this->pdf->servicebericht($id);
+		return new DataDownloadResponse($pdf['content'], $pdf['filename'] ?? $pdf['name'], $pdf['mime'] ?? $pdf['contentType']);
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function inspectionEvidencePdf(int $id): DataDownloadResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->workOrders->get($id, $uid);
+		$pdf = $this->pdf->inspectionEvidence($id);
 		return new DataDownloadResponse($pdf['content'], $pdf['filename'] ?? $pdf['name'], $pdf['mime'] ?? $pdf['contentType']);
 	}
 

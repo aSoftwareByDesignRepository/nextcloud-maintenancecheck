@@ -26,9 +26,9 @@
 .toast--warning,
 #app-content.mn-app .alert--warning,
 .modal-backdrop .alert--warning {
-	border-color: var(--color-warning-text, var(--color-warning, #a37200));
+	border-color: var(--mn-warning-ink);
 	border-left-width: 5px;
-	border-left-color: var(--color-warning-text, var(--color-warning, #a37200));
+	border-left-color: var(--mn-warning-ink);
 	background: var(--mn-tint-warning);
 }
 
@@ -38,9 +38,9 @@
 .toast--success,
 #app-content.mn-app .alert--success,
 .modal-backdrop .alert--success {
-	border-color: var(--color-success-text, var(--color-success, #2d7b46));
+	border-color: var(--mn-success-ink);
 	border-left-width: 5px;
-	border-left-color: var(--color-success-text, var(--color-success, #2d7b46));
+	border-left-color: var(--mn-success-ink);
 	background: var(--mn-tint-success);
 }
 
@@ -53,9 +53,9 @@
 .toast--error,
 #app-content.mn-app .alert--error,
 .modal-backdrop .alert--error {
-	border-color: var(--color-error-text, var(--color-error, #db0606));
+	border-color: var(--mn-danger-ink);
 	border-left-width: 5px;
-	border-left-color: var(--color-error-text, var(--color-error, #db0606));
+	border-left-color: var(--mn-danger-ink);
 	background: var(--mn-tint-danger);
 }
 

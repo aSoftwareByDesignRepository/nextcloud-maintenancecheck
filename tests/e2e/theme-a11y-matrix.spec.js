@@ -23,7 +23,7 @@ const routes = [
 	{ id: 'due', path: '/apps/maintenancecheck/', ready: '#mn-due-board, .mn-empty' },
 	{ id: 'work-orders', path: '/apps/maintenancecheck/work-orders', ready: '#mn-wo-list, .mn-empty, #mn-main-content' },
 	{ id: 'customers', path: '/apps/maintenancecheck/customers', ready: '#mn-customer-list, .mn-empty' },
-	{ id: 'settings', path: '/apps/maintenancecheck/settings', ready: '#mn-settings-access, .mn-empty' },
+	{ id: 'settings', path: '/apps/maintenancecheck/settings/access', ready: '#mn-settings-access, .mn-empty' },
 ]
 
 const overflowViewports = [

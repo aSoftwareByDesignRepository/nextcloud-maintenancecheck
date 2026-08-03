@@ -6,11 +6,13 @@ namespace OCA\MaintenanceCheck\Service;
 
 use OCA\MaintenanceCheck\Db\CustomerMapper;
 use OCA\MaintenanceCheck\Db\EquipmentMapper;
+use OCA\MaintenanceCheck\Db\InspectionObligationMapper;
 use OCA\MaintenanceCheck\Db\MaintTypeMapper;
 use OCA\MaintenanceCheck\Db\Plan;
 use OCA\MaintenanceCheck\Db\PlanMapper;
 use OCA\MaintenanceCheck\Db\Visit;
 use OCA\MaintenanceCheck\Db\VisitMapper;
+use OCA\MaintenanceCheck\Db\WorkOrder;
 use OCA\MaintenanceCheck\Db\WorkOrderMapper;
 use OCA\MaintenanceCheck\Exception\ConflictException;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
@@ -45,18 +47,36 @@ class VisitService
 		private readonly ProjectCheckHoursDeepLinkService $hoursDeepLink,
 		private readonly ArbeitszeitCheckDeepLinkService $recordTimeDeepLink,
 		private readonly MeterService $meters,
+		private readonly InspectionObligationMapper $inspectionObligations,
 	) {
 	}
 
 	// ── Queries ─────────────────────────────────────────────────────────
 
 	/**
+	 * Single visit by id with due-board enrichment (AC-C companion VisitDetail).
+	 * Does not depend on the due-horizon bucket — open or closed visits resolve.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function get(string $currentUid, int $id): array
+	{
+		// All authenticated app users may read visit detail (same as due board reads).
+		$enriched = $this->enrich([$this->visits->findById($id)]);
+		return $enriched[0];
+	}
+
+	/**
 	 * S8 due board: single query, server-side bucketing.
 	 *
 	 * @return array<string, mixed>
 	 */
-	public function due(string $currentUid, bool $mine): array
+	public function due(string $currentUid, bool $mine, ?string $kind = null): array
 	{
+		if ($kind !== null && $kind !== '' && $kind !== 'inspection' && $kind !== 'all') {
+			throw new ValidationException('invalid_query', 'kind must be inspection or all.');
+		}
+		$inspectionOnly = $kind === 'inspection';
 		$today = $this->clock->today();
 		$maxDue = $this->dueBoard->maxDueOn($today);
 		$rows = $this->visits->findDue($maxDue, $mine ? $currentUid : null);
@@ -69,15 +89,23 @@ class VisitService
 		$visitIdsOnBoard = [];
 		foreach ($this->enrich($rows) as $row) {
 			$row['rowKind'] = 'visit';
+			$row['isInspection'] = $this->rowLooksLikeInspection($row);
+			if ($inspectionOnly && !$row['isInspection']) {
+				continue;
+			}
 			$bucket = $this->dueBoard->bucketFor($row['dueOn'], $today);
 			if ($bucket !== null) {
 				$buckets[$bucket][] = $row;
 				$visitIdsOnBoard[(int)$row['id']] = true;
 			}
 		}
-		// CORE §13.1: PM visits + open preventive WOs. Skip WOs whose linked
+		// CORE §13.1 + W7: open preventive/inspection WOs. Skip WOs whose linked
 		// visit is already on the board (badge already covers that job).
 		foreach ($this->enrichOpenPreventiveWorkOrders($maxDue, $mine ? $currentUid : null, $visitIdsOnBoard) as $woRow) {
+			$woRow['isInspection'] = (($woRow['kind'] ?? '') === WorkOrder::KIND_INSPECTION);
+			if ($inspectionOnly && !$woRow['isInspection']) {
+				continue;
+			}
 			$bucket = $this->dueBoard->bucketFor($woRow['dueOn'], $today);
 			if ($bucket !== null) {
 				$buckets[$bucket][] = $woRow;
@@ -95,6 +123,7 @@ class VisitService
 				'later' => count($buckets[DueBoard::BUCKET_LATER]),
 			],
 			'today_date' => $today,
+			'kind' => $inspectionOnly ? 'inspection' : 'all',
 		];
 	}
 
@@ -272,11 +301,12 @@ class VisitService
 
 	/**
 	 * W1 (AC-W1-2): complete a visit as part of a work-order `done` — the
-	 * caller owns the transaction. Behaviour matches complete()'s roll path.
+	 * caller owns the transaction. Behaviour matches complete()'s roll path
+	 * unless `$rollNext` is false (CORE I2 fail_blocks_roll).
 	 *
 	 * @return array{closed: bool, visit: ?Visit, nextVisit: ?Visit}
 	 */
-	public function completeWithinTransaction(string $uid, int $visitId, string $doneOn, int $now): array
+	public function completeWithinTransaction(string $uid, int $visitId, string $doneOn, int $now, bool $rollNext = true): array
 	{
 		$closed = $this->visits->closeScheduled($visitId, [
 			'status' => Visit::STATUS_DONE,
@@ -289,6 +319,9 @@ class VisitService
 			return ['closed' => false, 'visit' => null, 'nextVisit' => null];
 		}
 		$visit = $this->visits->findById($visitId);
+		if (!$rollNext) {
+			return ['closed' => true, 'visit' => $visit, 'nextVisit' => null];
+		}
 		$rolled = $this->rollNextVisit($visit, $doneOn, $now);
 		return ['closed' => true, 'visit' => $visit, 'nextVisit' => $rolled['nextVisit']];
 	}
@@ -305,6 +338,12 @@ class VisitService
 	 */
 	private function close(string $uid, int $visitId, string $status, string $doneOn, array $body, callable $anchor): array
 	{
+		// CORE §21 I3 / AC-W7-3…5: obligation visits must close via inspection WO
+		// (result, inspector, defects, failBlocksRoll). Plain complete/skip would
+		// roll next due without evidence — fail closed here.
+		$openVisit = $this->visits->findById($visitId);
+		$this->assertCloseableWithoutInspectionWorkOrder($openVisit);
+
 		$notes = array_key_exists('notes', $body) ? $this->validator->visitNotes($body) : false;
 		$now = $this->clock->now();
 		$today = $this->clock->today();
@@ -473,7 +512,9 @@ class VisitService
 			$row['triggerKind'] = $meta['triggerKind'] ?? 'interval';
 			$row['meterCode'] = $meta['meterCode'] ?? null;
 			$row['meterThreshold'] = $meta['meterThreshold'] ?? null;
+			$row['contractNotes'] = $meta['contractNotes'] ?? null;
 			$row['openWorkOrder'] = $openWoByVisit[(int)$visit->getId()] ?? null;
+			$row['isInspection'] = $this->rowLooksLikeInspection($row);
 			$result[] = $row;
 		}
 		return $result;
@@ -560,12 +601,54 @@ class VisitService
 					'id' => (int)$wo->getId(),
 					'number' => $number,
 					'status' => $wo->getStatus(),
+					'kind' => $wo->getKind(),
 					'logHoursUrl' => $this->hoursDeepLink->buildLogHoursUrl($number),
 					'recordTimeUrl' => $this->recordTimeDeepLink->buildRecordTimeUrl($number),
 				];
 			}
 		}
 		return $map;
+	}
+
+	/**
+	 * W7: obligation-linked plans carry a stable contractNotes prefix.
+	 *
+	 * @param array<string, mixed> $row
+	 */
+	private function rowLooksLikeInspection(array $row): bool
+	{
+		if (($row['kind'] ?? '') === WorkOrder::KIND_INSPECTION) {
+			return true;
+		}
+		$notes = (string)($row['contractNotes'] ?? '');
+		if (str_starts_with($notes, 'W7 inspection obligation:')) {
+			return true;
+		}
+		$open = $row['openWorkOrder'] ?? null;
+		if (is_array($open) && ($open['kind'] ?? '') === WorkOrder::KIND_INSPECTION) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Plain visit complete/skip must not close Prüfpflichten visits (CORE I3).
+	 * WO Done still uses {@see completeWithinTransaction()} and is unaffected.
+	 */
+	private function assertCloseableWithoutInspectionWorkOrder(Visit $visit): void
+	{
+		$obligation = $this->inspectionObligations->findByPlanId($visit->getPlanId());
+		if ($obligation === null) {
+			return;
+		}
+		throw new ConflictException(
+			'inspection_requires_work_order',
+			'Inspection visits must be closed via an inspection work order (result and inspector required).',
+			[
+				'planId' => $visit->getPlanId(),
+				'obligationId' => (int)$obligation->getId(),
+			],
+		);
 	}
 
 	/**
@@ -597,7 +680,7 @@ class VisitService
 		$map = [];
 		foreach (array_chunk($ids, 500) as $chunk) {
 			$qb = $this->db->getQueryBuilder();
-			$qb->select('id', 'interval_unit', 'interval_count', 'active', 'trigger_kind', 'meter_code', 'meter_threshold')
+			$qb->select('id', 'interval_unit', 'interval_count', 'active', 'trigger_kind', 'meter_code', 'meter_threshold', 'contract_notes')
 				->from(PlanMapper::TABLE)
 				->where($qb->expr()->in('id', $qb->createNamedParameter($chunk, IQueryBuilder::PARAM_INT_ARRAY)));
 			$result = $qb->executeQuery();
@@ -612,6 +695,9 @@ class VisitService
 						: null,
 					'meterThreshold' => $row['meter_threshold'] !== null && $row['meter_threshold'] !== ''
 						? (string)$row['meter_threshold']
+						: null,
+					'contractNotes' => $row['contract_notes'] !== null && $row['contract_notes'] !== ''
+						? (string)$row['contract_notes']
 						: null,
 				];
 			}

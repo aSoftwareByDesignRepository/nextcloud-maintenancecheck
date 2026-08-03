@@ -60,20 +60,46 @@ body {
 	--mn-border: color-mix(in srgb, var(--color-main-text) 12%, transparent);
 	--mn-border-strong: color-mix(in srgb, var(--color-main-text) 24%, transparent);
 
+	/*
+	 * NC 30+ semantic colour split (CRITICAL for WCAG):
+	 *   --color-error / --color-warning / --color-success  → pale SURFACE tints
+	 *   --color-element-error / -warning / -success         → solid ELEMENT fills
+	 *   --color-*-text                                      → ink on main-background / tints
+	 * Never put white / --color-primary-text on --color-error (tint) — that is the
+	 * "Cancel visit" pale-pink button failure mode.
+	 *
+	 * Dark themes publish a *bright* --color-element-error (#FF5050 / #ff0f0f) meant
+	 * as accent ink on dark surfaces. White on that fill fails AA (~3.2:1). Darken
+	 * the solid CTA fill under data-theme-dark* so on-fill text stays ≥ 4.5:1.
+	 */
+	--mn-danger-fill: var(--color-element-error, #c90000);
+	--mn-danger-fill-hover: color-mix(in srgb, var(--color-element-error, #c90000) 82%, var(--color-main-text));
+	--mn-danger-on-fill: var(--color-primary-text, #ffffff);
+	--mn-danger-ink: var(--color-error-text, var(--color-element-error, #8a0000));
+	--mn-danger-border: var(--color-border-error, var(--color-element-error, #c90000));
+
+	--mn-warning-fill: var(--color-element-warning, #bf7900);
+	--mn-warning-ink: var(--color-warning-text, var(--color-element-warning, #664700));
+	--mn-warning-border: var(--color-element-warning, var(--color-warning-text, #bf7900));
+
+	--mn-success-fill: var(--color-element-success, #099f05);
+	--mn-success-ink: var(--color-success-text, var(--color-element-success, #005416));
+	--mn-success-border: var(--color-border-success, var(--color-element-success, #099f05));
+
 	/* Mix with main background — not transparent — so callouts stay visible on all NC themes */
-	--mn-tint-success: color-mix(in srgb, var(--color-success-text, var(--color-success)) 18%, var(--color-main-background));
-	--mn-tint-warning: color-mix(in srgb, var(--color-warning-text, var(--color-warning)) 22%, var(--color-main-background));
-	--mn-tint-danger: color-mix(in srgb, var(--color-error-text, var(--color-error)) 18%, var(--color-main-background));
+	--mn-tint-success: color-mix(in srgb, var(--color-success-text, var(--color-element-success, #099f05)) 18%, var(--color-main-background));
+	--mn-tint-warning: color-mix(in srgb, var(--color-warning-text, var(--color-element-warning, #bf7900)) 22%, var(--color-main-background));
+	--mn-tint-danger: color-mix(in srgb, var(--color-error-text, var(--color-element-error, #c90000)) 18%, var(--color-main-background));
 	--mn-tint-info: color-mix(in srgb, var(--color-primary-element) 16%, var(--color-main-background));
 
 	/*
 	 * Notification icon wells — pale tint + semantic stroke (see .mn-page-header__icon).
-	 * NC *-text tokens are tuned per theme for contrast on main-background.
+	 * NC *-text / element-* tokens are tuned per theme for contrast on main-background.
 	 */
 	--mn-notif-fg-info: var(--color-primary-element, #00679e);
-	--mn-notif-fg-warning: var(--color-warning-text, var(--color-warning, #a37200));
-	--mn-notif-fg-success: var(--color-success-text, var(--color-success, #2d7b46));
-	--mn-notif-fg-danger: var(--color-error-text, var(--color-error, #db0606));
+	--mn-notif-fg-warning: var(--mn-warning-ink);
+	--mn-notif-fg-success: var(--mn-success-ink);
+	--mn-notif-fg-danger: var(--mn-danger-ink);
 
 	--mn-shadow-sm: 0 1px 2px color-mix(in srgb, var(--color-main-text) 8%, transparent);
 	--mn-shadow-md: 0 8px 24px color-mix(in srgb, var(--color-main-text) 12%, transparent);
@@ -85,4 +111,19 @@ body {
 
 	/* Signature pad stays light for ink contrast on every NC theme */
 	--mn-signature-surface: var(--mn-print-surface, #fff);
+}
+
+/*
+ * Dark + dark-highcontrast: NC --color-element-error is a bright accent
+ * (#FF5050 / #ff0f0f). White labels on that fill fail WCAG AA. Mix toward
+ * the dark main background so --mn-danger-on-fill (white) stays ≥ 4.5:1
+ * without introducing raw hex outside var() fallbacks.
+ */
+body[data-theme-dark],
+body[data-theme-dark-highcontrast] {
+	--mn-danger-fill: color-mix(in srgb, var(--color-element-error, #ff5050) 52%, var(--color-main-background));
+	--mn-danger-fill-hover: color-mix(in srgb, var(--color-element-error, #ff5050) 64%, var(--color-main-background));
+	--mn-danger-on-fill: var(--color-primary-text, #ffffff);
+	/* Borders/icons on dark surfaces can keep the bright accent */
+	--mn-danger-border: var(--color-element-error, #ff5050);
 }

@@ -9,6 +9,7 @@ use OCA\MaintenanceCheck\Exception\PermissionDeniedException;
 use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Service\SkillService;
 use OCA\MaintenanceCheck\Service\WoChecklistService;
+use OCA\MaintenanceCheck\Service\WoCommentService;
 use OCA\MaintenanceCheck\Service\WoEvidenceService;
 use OCA\MaintenanceCheck\Service\WoPdfService;
 use OCA\MaintenanceCheck\Service\WorkOrderService;
@@ -32,6 +33,7 @@ final class WorkOrderControllerCreateTest extends TestCase
 			$this->createMock(WoEvidenceService::class),
 			$this->createMock(SkillService::class),
 			$this->createMock(WoPdfService::class),
+			$this->createMock(WoCommentService::class),
 		);
 	}
 

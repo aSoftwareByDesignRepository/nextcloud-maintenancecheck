@@ -1,0 +1,50 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "de-ladders",
+  "vertical": "facility",
+  "locale": "de",
+  "version": 1,
+  "pack_legal_disclaimer": "Template checklist for ladder / step inspections as an operational evidence pack. Not legal advice and not a certification.",
+  "procedures": [
+    {
+      "code": "leiter_wiederkehrend",
+      "title": "Leitern und Tritte — wiederkehrende Prüfung",
+      "items": [
+        {
+          "code": "structure",
+          "label": "Holme / Sprossen ohne Risse oder Verformung?",
+          "required": true,
+          "sort_order": 10
+        },
+        {
+          "code": "feet",
+          "label": "Füße / Anti-Rutsch vorhanden und fest?",
+          "required": true,
+          "sort_order": 20
+        },
+        {
+          "code": "label",
+          "label": "Kennzeichnung / Inventarnummer lesbar?",
+          "required": true,
+          "sort_order": 30
+        },
+        {
+          "code": "fail_found",
+          "label": "Mangel gefunden?",
+          "required": true,
+          "sort_order": 40
+        },
+        {
+          "code": "photo_fail",
+          "label": "Foto des Mangels aufgenommen",
+          "required": true,
+          "sort_order": 50,
+          "show_if_item_code": "fail_found",
+          "show_if_result": "fail"
+        }
+      ]
+    }
+  ],
+  "pack_legal_disclaimer_de": "Vorlagen-Checkliste für Leitern- und Tritte-Prüfungen als operativer Nachweis. Keine Rechtsberatung und keine Zertifizierung.",
+  "pack_legal_disclaimer_en": "Template checklist for ladder / step inspections as an operational evidence pack. Not legal advice and not a certification."
+}

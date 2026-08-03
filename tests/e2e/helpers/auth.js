@@ -54,3 +54,45 @@ export function primaryCreds() {
 export function adminCreds() {
 	return credsFromEnv('E2E') || credsFromEnv('ADMIN')
 }
+
+/**
+ * Ordered credential candidates: E2E first, then ADMIN.
+ * Used by loginWithFallback when mn_e2e password is stale.
+ */
+export function credsCandidates() {
+	const out = []
+	const e2e = credsFromEnv('E2E')
+	const admin = credsFromEnv('ADMIN')
+	if (e2e) out.push(e2e)
+	if (admin && (!e2e || admin.username !== e2e.username)) out.push(admin)
+	return out
+}
+
+/** Try E2E then ADMIN; surfaces the last login error. */
+export async function loginWithFallback(page) {
+	const candidates = credsCandidates()
+	if (!candidates.length) {
+		throw new Error('No NC_E2E_* or NC_ADMIN_* credentials configured')
+	}
+	let lastError = null
+	for (const creds of candidates) {
+		try {
+			await login(page, creds)
+			return creds
+		} catch (err) {
+			lastError = err
+		}
+	}
+	throw lastError || new Error('Login failed for all credential candidates')
+}
+
+/** Fail hard in CI when credentials missing; skip locally. */
+export function requireCredsOrSkip(test, prefix = 'E2E') {
+	const creds = credsFromEnv(prefix) || (prefix === 'E2E' ? primaryCreds() : null)
+	if (creds) return creds
+	if (process.env.CI) {
+		throw new Error(`CI requires NC_${prefix}_USER / NC_${prefix}_PASS (or NC_ADMIN_*)`)
+	}
+	test.skip(true, `Requires NC_${prefix}_USER / NC_${prefix}_PASS (or NC_ADMIN_*)`)
+	return null
+}

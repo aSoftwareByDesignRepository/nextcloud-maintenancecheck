@@ -15,6 +15,7 @@ return [
 		['name' => 'page#visits', 'url' => '/visits', 'verb' => 'GET'],
 		['name' => 'page#catalogs', 'url' => '/catalogs', 'verb' => 'GET'],
 		['name' => 'page#settings', 'url' => '/settings', 'verb' => 'GET'],
+		['name' => 'page#settingsSection', 'url' => '/settings/{section}', 'verb' => 'GET', 'requirements' => ['section' => '[a-z0-9-]+']],
 		['name' => 'page#workOrders', 'url' => '/work-orders', 'verb' => 'GET'],
 		['name' => 'page#workOrderShow', 'url' => '/work-orders/{id}', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'page#dispatch', 'url' => '/dispatch', 'verb' => 'GET'],
@@ -47,6 +48,7 @@ return [
 		// ── Visits ─────────────────────────────────────────────────────
 		['name' => 'visit#index', 'url' => '/api/visits', 'verb' => 'GET'],
 		['name' => 'visit#due', 'url' => '/api/visits/due', 'verb' => 'GET'],
+		['name' => 'visit#show', 'url' => '/api/visits/{id}', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'visit#update', 'url' => '/api/visits/{id}', 'verb' => 'PUT', 'requirements' => ['id' => '\\d+']],
 		['name' => 'visit#complete', 'url' => '/api/visits/{id}/complete', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 		['name' => 'visit#skip', 'url' => '/api/visits/{id}/skip', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
@@ -97,6 +99,7 @@ return [
 		['name' => 'work_order#downloadSignature', 'url' => '/api/work-orders/{id}/signature', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'work_order#jobPackPdf', 'url' => '/api/work-orders/{id}/pdf/job-pack', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'work_order#serviceberichtPdf', 'url' => '/api/work-orders/{id}/pdf/servicebericht', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
+		['name' => 'work_order#inspectionEvidencePdf', 'url' => '/api/work-orders/{id}/pdf/inspection-evidence', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 
 		// ── Kits (W2) ──────────────────────────────────────────────────
 		['name' => 'kit#indexTemplates', 'url' => '/api/kit-templates', 'verb' => 'GET'],
@@ -162,10 +165,12 @@ return [
 		['name' => 'mobile#equipmentByQr', 'url' => '/mobile/v1/equipment/by-qr/{token}', 'verb' => 'GET', 'requirements' => ['token' => '[A-Za-z0-9.:_\\-]{8,200}']],
 		['name' => 'mobile#equipment', 'url' => '/mobile/v1/equipment/{id}', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#visits', 'url' => '/mobile/v1/visits', 'verb' => 'GET'],
+		['name' => 'mobile#visit', 'url' => '/mobile/v1/visits/{id}', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#complete', 'url' => '/mobile/v1/visits/{id}/complete', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#skip', 'url' => '/mobile/v1/visits/{id}/skip', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#customers', 'url' => '/mobile/v1/customers', 'verb' => 'GET'],
 		['name' => 'mobile#workOrders', 'url' => '/mobile/v1/work-orders', 'verb' => 'GET'],
+		['name' => 'mobile#createWorkOrderFromVisit', 'url' => '/mobile/v1/visits/{visitId}/work-orders', 'verb' => 'POST', 'requirements' => ['visitId' => '\\d+']],
 		['name' => 'mobile#workOrder', 'url' => '/mobile/v1/work-orders/{id}', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#workOrderTransition', 'url' => '/mobile/v1/work-orders/{id}/transition', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#workOrderChecklist', 'url' => '/mobile/v1/work-orders/{id}/checklist/{itemCode}', 'verb' => 'PUT', 'requirements' => ['id' => '\\d+', 'itemCode' => '[A-Za-z0-9._-]{1,64}']],
@@ -175,13 +180,19 @@ return [
 		['name' => 'mobile#workOrderPackLine', 'url' => '/mobile/v1/work-orders/{id}/kit/lines/{lineId}/pack', 'verb' => 'POST', 'requirements' => ['id' => '\\d+', 'lineId' => '\\d+']],
 		['name' => 'mobile#workOrderSignature', 'url' => '/mobile/v1/work-orders/{id}/signature', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#servicebericht', 'url' => '/mobile/v1/work-orders/{id}/pdf/servicebericht', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
+		['name' => 'mobile#inspectionEvidence', 'url' => '/mobile/v1/work-orders/{id}/pdf/inspection-evidence', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
+		// COMP §9.2 alias (same handler)
+		['name' => 'mobile#inspectionEvidenceAlias', 'url' => '/mobile/v1/work-orders/{id}/inspection-evidence.pdf', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
+		['name' => 'mobile#equipmentObligations', 'url' => '/mobile/v1/equipment/{equipmentId}/obligations', 'verb' => 'GET', 'requirements' => ['equipmentId' => '\\d+']],
 		['name' => 'mobile#tourToday', 'url' => '/mobile/v1/tours/today', 'verb' => 'GET'],
 		['name' => 'mobile#equipmentMeters', 'url' => '/mobile/v1/equipment/{equipmentId}/meters', 'verb' => 'GET', 'requirements' => ['equipmentId' => '\\d+']],
 		['name' => 'mobile#addMeterReading', 'url' => '/mobile/v1/meters/{id}/readings', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#workOrderComments', 'url' => '/mobile/v1/work-orders/{id}/comments', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#workOrderAddComment', 'url' => '/mobile/v1/work-orders/{id}/comments', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#equipmentDocs', 'url' => '/mobile/v1/equipment/{equipmentId}/docs', 'verb' => 'GET', 'requirements' => ['equipmentId' => '\\d+']],
+		['name' => 'mobile#downloadEquipDoc', 'url' => '/mobile/v1/equip-docs/{id}/download', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#failureCodes', 'url' => '/mobile/v1/failure-codes', 'verb' => 'GET'],
+		['name' => 'mobile#exceptions', 'url' => '/mobile/v1/exceptions', 'verb' => 'GET'],
 
 		// ── W6 ops / docs / comments ───────────────────────────────────
 		['name' => 'ops#kpi', 'url' => '/api/ops/kpi', 'verb' => 'GET'],
@@ -193,7 +204,13 @@ return [
 		['name' => 'ops#reminderDryRun', 'url' => '/api/ops/reminders/dry-run', 'verb' => 'POST'],
 		['name' => 'equip_doc#index', 'url' => '/api/equipment/{equipmentId}/docs', 'verb' => 'GET', 'requirements' => ['equipmentId' => '\\d+']],
 		['name' => 'equip_doc#create', 'url' => '/api/equipment/{equipmentId}/docs', 'verb' => 'POST', 'requirements' => ['equipmentId' => '\\d+']],
+
+		// W7 Prüfpflichten — classes + obligations (office create)
+		['name' => 'inspection_obligation#classes', 'url' => '/api/equipment-classes', 'verb' => 'GET'],
+		['name' => 'inspection_obligation#index', 'url' => '/api/equipment/{equipmentId}/obligations', 'verb' => 'GET', 'requirements' => ['equipmentId' => '\\d+']],
+		['name' => 'inspection_obligation#create', 'url' => '/api/equipment/{equipmentId}/obligations', 'verb' => 'POST', 'requirements' => ['equipmentId' => '\\d+']],
 		['name' => 'equip_doc#destroy', 'url' => '/api/equip-docs/{id}', 'verb' => 'DELETE', 'requirements' => ['id' => '\\d+']],
+		['name' => 'equip_doc#download', 'url' => '/api/equip-docs/{id}/download', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'work_order#comments', 'url' => '/api/work-orders/{id}/comments', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'work_order#addComment', 'url' => '/api/work-orders/{id}/comments', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 	],

@@ -6,6 +6,7 @@ namespace OCA\MaintenanceCheck\Controller;
 
 use OCA\MaintenanceCheck\AppInfo\Application;
 use OCA\MaintenanceCheck\Service\AccessControlService;
+use OCA\MaintenanceCheck\Service\DueQueryKind;
 use OCA\MaintenanceCheck\Service\VisitService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -54,9 +55,19 @@ class VisitController extends Controller
 	}
 
 	#[NoAdminRequired]
-	public function due(?string $mine = null): JSONResponse
+	public function due(?string $mine = null, ?string $kind = null, ?string $filter = null): JSONResponse
 	{
-		return new JSONResponse($this->visits->due($this->access->currentUserId(), $mine === '1'));
+		return new JSONResponse($this->visits->due(
+			$this->access->currentUserId(),
+			$mine === '1',
+			DueQueryKind::resolve($kind, $filter),
+		));
+	}
+
+	#[NoAdminRequired]
+	public function show(int $id): JSONResponse
+	{
+		return new JSONResponse($this->visits->get($this->access->currentUserId(), $id));
 	}
 
 	#[NoAdminRequired]

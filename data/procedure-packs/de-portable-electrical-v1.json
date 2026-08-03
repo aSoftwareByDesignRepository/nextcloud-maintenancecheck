@@ -1,0 +1,53 @@
+{
+  "format": "mn_procedure_pack_v1",
+  "pack_code": "de-portable-electrical",
+  "vertical": "electro",
+  "locale": "de",
+  "version": 1,
+  "pack_legal_disclaimer": "Template checklist for operator documentation of portable electrical equipment inspections. Not legal advice and not a certification.",
+  "required_skills": [
+    "electro_portable"
+  ],
+  "procedures": [
+    {
+      "code": "ovbm_wiederkehrend",
+      "title": "Ortsveränderliche elektrische Betriebsmittel — Sicht- und Funktionsprüfung",
+      "items": [
+        {
+          "code": "housing",
+          "label": "Gehäuse und Stecker unbeschädigt?",
+          "required": true,
+          "sort_order": 10
+        },
+        {
+          "code": "cable",
+          "label": "Leitung ohne Bruch / Quetschung?",
+          "required": true,
+          "sort_order": 20
+        },
+        {
+          "code": "function",
+          "label": "Funktionstest bestanden?",
+          "required": true,
+          "sort_order": 30
+        },
+        {
+          "code": "fail_found",
+          "label": "Mangel gefunden?",
+          "required": true,
+          "sort_order": 40
+        },
+        {
+          "code": "quarantine",
+          "label": "Gerät gekennzeichnet / Quarantäne notiert",
+          "required": true,
+          "sort_order": 50,
+          "show_if_item_code": "fail_found",
+          "show_if_result": "fail"
+        }
+      ]
+    }
+  ],
+  "pack_legal_disclaimer_de": "Vorlagen-Checkliste für wiederkehrende Prüfungen ortsveränderlicher elektrischer Betriebsmittel als operativer Nachweis. Keine Rechtsberatung und keine Zertifizierung.",
+  "pack_legal_disclaimer_en": "Template checklist for operator documentation of portable electrical equipment inspections. Not legal advice and not a certification."
+}

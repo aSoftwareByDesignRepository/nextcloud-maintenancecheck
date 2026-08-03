@@ -80,6 +80,16 @@ use OCP\AppFramework\Db\Entity;
  * @method void setFailureCode(?string $v)
  * @method int|null getLaborMinutes()
  * @method void setLaborMinutes(?int $v)
+ * @method string|null getResult()
+ * @method void setResult(?string $v)
+ * @method string|null getInspectorName()
+ * @method void setInspectorName(?string $v)
+ * @method string|null getInspectorNote()
+ * @method void setInspectorNote(?string $v)
+ * @method int|null getSourceWoId()
+ * @method void setSourceWoId(?int $v)
+ * @method int|null getObligationId()
+ * @method void setObligationId(?int $v)
  */
 class WorkOrder extends Entity
 {
@@ -163,6 +173,16 @@ class WorkOrder extends Entity
 	protected ?string $accessNotes = null;
 	protected ?string $failureCode = null;
 	protected ?int $laborMinutes = null;
+	protected ?string $result = null;
+	protected ?string $inspectorName = null;
+	protected ?string $inspectorNote = null;
+	protected ?int $sourceWoId = null;
+	protected ?int $obligationId = null;
+
+	public const RESULT_PASS = 'pass';
+	public const RESULT_FAIL = 'fail';
+	public const RESULT_CONDITIONAL = 'conditional';
+	public const RESULTS = [self::RESULT_PASS, self::RESULT_FAIL, self::RESULT_CONDITIONAL];
 
 	/** Max job-duration evidence minutes (W6-R4): 24×60. */
 	public const MAX_LABOR_MINUTES = 1440;
@@ -205,6 +225,11 @@ class WorkOrder extends Entity
 		$this->addType('accessNotes', 'string');
 		$this->addType('failureCode', 'string');
 		$this->addType('laborMinutes', 'integer');
+		$this->addType('result', 'string');
+		$this->addType('inspectorName', 'string');
+		$this->addType('inspectorNote', 'string');
+		$this->addType('sourceWoId', 'integer');
+		$this->addType('obligationId', 'integer');
 	}
 
 	public function isTerminal(): bool
@@ -292,6 +317,11 @@ class WorkOrder extends Entity
 			'accessNotes' => $this->accessNotes,
 			'failureCode' => $this->failureCode,
 			'laborMinutes' => $this->laborMinutes,
+			'result' => $this->result,
+			'inspectorName' => $this->inspectorName,
+			'inspectorNote' => $this->inspectorNote,
+			'sourceWoId' => $this->sourceWoId,
+			'obligationId' => $this->obligationId,
 		];
 	}
 }

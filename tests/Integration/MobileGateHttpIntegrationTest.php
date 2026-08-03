@@ -144,6 +144,11 @@ final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 			\OC::$server->get(KitService::class),
 			\OC::$server->get(TourService::class),
 			\OC::$server->get(MeterService::class),
+			\OC::$server->get(\OCA\MaintenanceCheck\Service\WoCommentService::class),
+			\OC::$server->get(\OCA\MaintenanceCheck\Service\EquipDocService::class),
+			\OC::$server->get(\OCA\MaintenanceCheck\Service\FailureCodeService::class),
+			\OC::$server->get(\OCA\MaintenanceCheck\Service\ExceptionBoardService::class),
+			\OC::$server->get(\OCA\MaintenanceCheck\Service\InspectionObligationService::class),
 		);
 	}
 
@@ -248,6 +253,8 @@ final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 		$this->assertNull($data['licensing']);
 		$this->assertFalse($data['seatAssigned']);
 		$this->assertSame(self::UID, $data['user']['uid']);
+		$this->assertArrayHasKey('policies', $data);
+		$this->assertContains($data['policies']['failureCodeOnCorrective'], ['off', 'warn', 'required']);
 	}
 
 	public function testMobileDomainRoutesWorkWhenGated(): void
@@ -265,10 +272,12 @@ final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 			'code' => 'mn_gate_mt_' . bin2hex(random_bytes(3)),
 			'name' => 'Gate Maint',
 		]);
-		$customer = Server::get(CustomerService::class)->create(self::ADMIN, ['name' => 'Gate Customer']);
+		$suffix = bin2hex(random_bytes(4));
+		$customerName = 'Gate Customer ' . $suffix;
+		$customer = Server::get(CustomerService::class)->create(self::ADMIN, ['name' => $customerName]);
 		$this->customerIds[] = (int)$customer['id'];
 		$equipment = Server::get(EquipmentService::class)->create(self::ADMIN, [
-			'label' => 'Gate Unit',
+			'label' => 'Gate Unit ' . $suffix,
 			'customerId' => (int)$customer['id'],
 			'equipTypeId' => (int)$equipType['id'],
 		]);
@@ -292,12 +301,15 @@ final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 
 		$summary = $controller->equipment((int)$equipment['id']);
 		$this->assertSame(Http::STATUS_OK, $summary->getStatus());
-		$this->assertSame('Gate Unit', $summary->getData()['label']);
+		$this->assertSame('Gate Unit ' . $suffix, $summary->getData()['label']);
 		$this->assertNotEmpty($summary->getData()['activePlans']);
 		$this->assertArrayHasKey('recentVisits', $summary->getData());
 
-		$customers = $controller->customers('Gate', '50', '0');
-		$this->assertSame(1, $customers->getData()['total']);
+		// Unique search token — avoids flakes from leftover "Gate Customer" rows.
+		$customers = $controller->customers($suffix, '50', '0');
+		$customerPage = $customers->getData();
+		$this->assertSame(1, $customerPage['total']);
+		$this->assertSame($customerName, $customerPage['data'][0]['name'] ?? null);
 
 		$visits = $controller->visits(null, null, 'scheduled', null, null, (string)$equipment['id'], null, '50', '0');
 		$this->assertGreaterThanOrEqual(1, $visits->getData()['total']);

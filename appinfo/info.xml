@@ -21,6 +21,8 @@ MaintenanceCheck keeps the equipment you service at customer sites on a clear sc
 - Job kits, skills gates, dispatch board and day tours
 - Servicebericht PDF and van job-pack PDF
 - Complete or skip a visit — the next due date rolls automatically
+- Corrective / reactive work: failure codes, job duration (evidence), comments, equipment docs, request intake
+- Recurring equipment inspections (Prüfpflichten): equipment classes, obligation packs, pass/fail/defect close, Prüfnachweis operational evidence PDF (not a legal certificate)
 - Office / technician roles, optional access restriction
 - Official mobile seats via MN2 license (web stays free)
 
@@ -42,6 +44,8 @@ MaintenanceCheck verwaltet die Anlagen, die Sie beim Kunden warten — und macht
 - Materialkits, Qualifikationsprüfungen, Disposition und Tagestouren
 - Servicebericht-PDF und Job-Pack-PDF für den Van
 - Einsatz abschließen oder aussetzen — der nächste Termin wird automatisch fortgeschrieben
+- Korrektur-/Reaktionsaufträge: Fehlercodes, Einsatzdauer (Nachweis), Kommentare, Anlagendokumente, Anfrage-Eingang
+- Wiederkehrende Anlagenprüfungen (Prüfpflichten): Anlagenklassen, Pflichtpakete, Bestanden/Mangel/Fehler, Prüfnachweis als betrieblicher Nachweis-PDF (kein Rechtszertifikat)
 - Büro-/Techniker-Rollen, optionale Zugriffsbeschränkung
 - Offizielle Mobile-Sitze über MN2-Lizenz (Web bleibt kostenlos)
 
@@ -51,7 +55,7 @@ MaintenanceCheck verwaltet die Anlagen, die Sie beim Kunden warten — und macht
 - PHP 8.2–8.5
 - MySQL/MariaDB oder PostgreSQL
 	]]></description>
-	<version>1.1.0</version>
+	<version>1.2.6</version>
 	<licence>AGPL-3.0-or-later</licence>
 	<author mail="info@software-by-design.de" homepage="https://nextcloud.software-by-design.de">Alexander Mäule</author>
 	<namespace>MaintenanceCheck</namespace>

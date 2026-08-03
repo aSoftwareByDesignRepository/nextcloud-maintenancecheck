@@ -13,6 +13,7 @@ use OCA\MaintenanceCheck\Service\OverdueReminderService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -40,10 +41,18 @@ class OpsController extends Controller
 		if ($days !== null && $days !== '' && preg_match('/^\d+$/', $days)) {
 			$window = (int)$days;
 		}
+		if (!in_array($window, [30, 90], true)) {
+			$window = 30;
+		}
 		return new JSONResponse($this->kpi->snapshot($window));
 	}
 
+	/**
+	 * NoCSRFRequired is intentional: KPI CSV is opened via <a href> (no
+	 * requesttoken). Session auth + office ACL still apply.
+	 */
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function kpiCsv(?string $days = null): DataDownloadResponse
 	{
 		$this->access->requireOffice($this->access->currentUserId());

@@ -6,11 +6,13 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
-test('MN navigation shell uses AZ collapsible register/admin', () => {
+test('MN navigation shell uses AZ collapsible register + settings underpages', () => {
 	const nav = readFileSync(join(root, 'templates/common/navigation.php'), 'utf8');
 	assert.match(nav, /mn-register-subnav/);
-	assert.match(nav, /mn-admin-subnav/);
 	assert.match(nav, /nav-parent-toggle/);
+	assert.match(nav, /Open settings/);
+	assert.match(nav, /mn-settings-subnav/);
+	assert.doesNotMatch(nav, /mn-admin-subnav/);
 	const js = readFileSync(join(root, 'js/common/navigation.js'), 'utf8');
 	assert.match(js, /aria-expanded/);
 });
@@ -21,13 +23,40 @@ test('MN dialogs use modal-backdrop and inert unlock', () => {
 	assert.match(src, /removeAttribute\('inert'\)/);
 });
 
-test('MN list pages use AZ filter-panel cards not bare toolbars', () => {
-	for (const page of ['customers.php', 'equipment.php', 'due.php', 'visits.php', 'work-orders.php']) {
+test('MN list pages use AZ filter-panel cards (visits + due use flat Bachus toolbars)', () => {
+	for (const page of ['customers.php', 'equipment.php', 'work-orders.php']) {
 		const tpl = readFileSync(join(root, 'templates', page), 'utf8');
 		assert.match(tpl, /mn-filter-panel/, `${page} missing mn-filter-panel`);
 		assert.doesNotMatch(tpl, /class="mn-toolbar"/, `${page} still uses bare mn-toolbar`);
 	}
+	const visits = readFileSync(join(root, 'templates/visits.php'), 'utf8');
+	assert.match(visits, /mn-visits-toolbar/);
+	assert.doesNotMatch(visits, /mn-filter-panel/);
+	const due = readFileSync(join(root, 'templates/due.php'), 'utf8');
+	assert.match(due, /mn-due-toolbar/);
+	assert.match(due, /mn-due-kind-all/);
+	assert.doesNotMatch(due, /mn-filter-panel/);
 });
+
+test('MN visits filter uses live status + when chips (no Apply click)', () => {
+	const tpl = readFileSync(join(root, 'templates/visits.php'), 'utf8');
+	assert.match(tpl, /mn-filter-status-chips/);
+	assert.match(tpl, /mn-filter-when-chips/);
+	assert.match(tpl, /mn-visits-toolbar/);
+	assert.doesNotMatch(tpl, /Apply filters/);
+	const app = readFileSync(join(root, 'js/app.js'), 'utf8');
+	assert.match(app, /Date range was swapped so From is before To\./);
+	assert.match(app, /function syncReset\(/);
+	assert.match(app, /function setWhen\(/);
+	assert.match(app, /statusChips\.addEventListener\('click'/);
+	assert.match(app, /whenChips\.addEventListener\('click'/);
+	const wo = readFileSync(join(root, 'templates/work-orders.php'), 'utf8');
+	assert.doesNotMatch(wo, /Apply filters/);
+	const woJs = readFileSync(join(root, 'js/work-order-pages.js'), 'utf8');
+	assert.match(woJs, /statusSelect\.addEventListener\('change',\s*applyFilters\)/);
+	assert.match(woJs, /qInput\.addEventListener\('input',\s*runSearch\)/);
+});
+
 
 test('MN work-order pages script registers phone execute modules', () => {
 	const src = readFileSync(join(root, 'js/work-order-pages.js'), 'utf8');
@@ -57,6 +86,9 @@ test('MN work-order pages script registers phone execute modules', () => {
 	assert.match(app, /case 'in_progress'/);
 	assert.match(app, /Create work order/);
 	assert.match(app, /recordTimeUrl/);
+	assert.match(app, /quickCompleteVisit/);
+	assert.match(app, /Complete with details/);
+	assert.match(app, /visitOverflowMenu/);
 	assert.match(app, /options\.overflow === false/);
 	assert.match(app, /MutationObserver/);
 	assert.doesNotMatch(app, /addEventListener\(\s*['"]DOMNodeRemoved['"]/);

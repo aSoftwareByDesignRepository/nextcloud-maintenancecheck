@@ -94,6 +94,28 @@ class SkillService
 		return $this->skills->update($skill)->toApi();
 	}
 
+
+	/**
+	 * Idempotent catalog ensure (W7 AC-W7-12 electro_portable).
+	 */
+	public function ensureByCode(string $code, string $name): int
+	{
+		$existing = $this->skills->findByCode($code);
+		if ($existing !== null) {
+			return (int)$existing->getId();
+		}
+		try {
+			$created = $this->create(['code' => $code, 'name' => $name]);
+			return (int)$created['id'];
+		} catch (ConflictException) {
+			$again = $this->skills->findByCode($code);
+			if ($again === null) {
+				throw new ConflictException('code_exists', 'Skill create raced and vanished.');
+			}
+			return (int)$again->getId();
+		}
+	}
+
 	// ── User grants ─────────────────────────────────────────────────────
 
 	/**

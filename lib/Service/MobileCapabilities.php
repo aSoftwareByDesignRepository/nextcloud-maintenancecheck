@@ -16,18 +16,11 @@ final class MobileCapabilities
 	/** Minimum official companion version that understands this map. */
 	public const MIN_APP_VERSION = '1.0.0';
 
+	/** Companion API floor — clients fail closed to app_outdated when missing/mismatched. */
+	public const COMPANION_MIN = 1;
+
 	/**
-	 * @return array{
-	 *   visits: bool,
-	 *   workOrders: bool,
-	 *   tours: bool,
-	 *   kits: bool,
-	 *   qr: bool,
-	 *   conditionalChecklist: bool,
-	 *   serviceReport: bool,
-	 *   meters: bool,
-	 *   minAppVersion: string
-	 * }
+	 * @return array<string, bool|string|int>
 	 */
 	public static function current(): array
 	{
@@ -46,7 +39,13 @@ final class MobileCapabilities
 			'woComments' => true,
 			'equipmentDocs' => true,
 			'opsAlerts' => true,
+			'inspectionObligations' => true,
+			'inspectionResults' => true,
+			'defectFollowUp' => true,
+			'inspectionEvidencePdf' => true,
 			'minAppVersion' => self::MIN_APP_VERSION,
+			// Clients that omit this key fail closed (resolveMobileAccess → app_outdated).
+			'maintenancecheck.companion.min' => self::COMPANION_MIN,
 		];
 	}
 }

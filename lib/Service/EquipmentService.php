@@ -325,6 +325,10 @@ class EquipmentService
 		if (array_key_exists('warrantyEnd', $fields)) {
 			$equipment->setWarrantyEnd($fields['warrantyEnd']);
 		}
+		if (array_key_exists('equipmentClass', $fields)) {
+			$class = $fields['equipmentClass'];
+			$equipment->setEquipmentClass($class === null || $class === '' ? null : (string)$class);
+		}
 	}
 
 	private function issueQrToken(Equipment $equipment, int $now): string

@@ -47,6 +47,9 @@ use OCA\MaintenanceCheck\Db\WoCommentMapper;
 use OCA\MaintenanceCheck\Db\NotifLogMapper;
 use OCA\MaintenanceCheck\Db\FailureCodeMapper;
 use OCA\MaintenanceCheck\Db\EquipDocMapper;
+use OCA\MaintenanceCheck\Db\EquipmentClassMapper;
+use OCA\MaintenanceCheck\Db\InspectionDefectMapper;
+use OCA\MaintenanceCheck\Db\InspectionObligationMapper;
 use OCA\MaintenanceCheck\Middleware\AppAccessMiddleware;
 use OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema;
 use OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks;
@@ -101,8 +104,12 @@ use OCA\MaintenanceCheck\Service\WoCommentService;
 use OCA\MaintenanceCheck\Service\OverdueReminderService;
 use OCA\MaintenanceCheck\Service\KpiService;
 use OCA\MaintenanceCheck\Service\FailureCodeService;
+use OCA\MaintenanceCheck\Service\EquipmentClassService;
+use OCA\MaintenanceCheck\Service\InspectionClosePolicy;
+use OCA\MaintenanceCheck\Service\InspectionObligationService;
 use OCA\MaintenanceCheck\Service\ExceptionBoardService;
 use OCA\MaintenanceCheck\Service\EquipDocService;
+use OCA\MaintenanceCheck\Service\EquipDocStorage;
 use OCA\MaintenanceCheck\Command\SeedReferenceDatasetCommand;
 use OCA\MaintenanceCheck\Command\UpgradeBackupCommand;
 use OCP\AppFramework\App;
@@ -227,6 +234,15 @@ class Application extends App implements IBootstrap
 		});
 		$context->registerService(EquipDocMapper::class, static function ($c): EquipDocMapper {
 			return new EquipDocMapper($c->get(IDBConnection::class));
+		});
+		$context->registerService(EquipmentClassMapper::class, static function ($c): EquipmentClassMapper {
+			return new EquipmentClassMapper($c->get(IDBConnection::class));
+		});
+		$context->registerService(InspectionObligationMapper::class, static function ($c): InspectionObligationMapper {
+			return new InspectionObligationMapper($c->get(IDBConnection::class));
+		});
+		$context->registerService(InspectionDefectMapper::class, static function ($c): InspectionDefectMapper {
+			return new InspectionDefectMapper($c->get(IDBConnection::class));
 		});
 		$context->registerService(WoCommentMapper::class, static function ($c): WoCommentMapper {
 			return new WoCommentMapper($c->get(IDBConnection::class));
@@ -385,6 +401,7 @@ class Application extends App implements IBootstrap
 				$c->get(ProjectCheckHoursDeepLinkService::class),
 				$c->get(ArbeitszeitCheckDeepLinkService::class),
 				$c->get(MeterService::class),
+				$c->get(InspectionObligationMapper::class),
 			);
 		});
 		$context->registerService(LicenseService::class, static function ($c): LicenseService {
@@ -515,6 +532,30 @@ class Application extends App implements IBootstrap
 				$c->get(MeterService::class),
 				$c->get(WorkOrderAccessPolicy::class),
 				$c->get(FailureCodeService::class),
+				$c->get(InspectionClosePolicy::class),
+				$c->get(InspectionDefectMapper::class),
+				$c->get(InspectionObligationMapper::class),
+			);
+		});
+		$context->registerService(InspectionClosePolicy::class, static function (): InspectionClosePolicy {
+			return new InspectionClosePolicy();
+		});
+		$context->registerService(EquipmentClassService::class, static function ($c): EquipmentClassService {
+			return new EquipmentClassService($c->get(EquipmentClassMapper::class));
+		});
+		$context->registerService(InspectionObligationService::class, static function ($c): InspectionObligationService {
+			return new InspectionObligationService(
+				$c->get(InspectionObligationMapper::class),
+				$c->get(EquipmentMapper::class),
+				$c->get(PlanMapper::class),
+				$c->get(VisitMapper::class),
+				$c->get(EquipmentClassService::class),
+				$c->get(CatalogService::class),
+				$c->get(PlanService::class),
+				$c->get(IntervalCalculator::class),
+				$c->get(Clock::class),
+				$c->get(InputValidator::class),
+				$c->get(AccessControlService::class),
 			);
 		});
 		$context->registerService(SkillsAssignPolicy::class, static function (): SkillsAssignPolicy {
@@ -553,6 +594,7 @@ class Application extends App implements IBootstrap
 				$c->get(CapacityService::class),
 				$c->get(IntervalCalculator::class),
 				$c->get(Clock::class),
+				$c->get(IUserManager::class),
 			);
 		});
 		$context->registerService(MeterService::class, static function ($c): MeterService {
@@ -578,7 +620,11 @@ class Application extends App implements IBootstrap
 			);
 		});
 		$context->registerService(MobileGateService::class, static function ($c): MobileGateService {
-			return new MobileGateService($c->get(LicenseService::class));
+			return new MobileGateService(
+				$c->get(LicenseService::class),
+				$c->get(\OCP\App\IAppManager::class),
+				$c->get(PolicyService::class),
+			);
 		});
 		$context->registerService(ReferenceDatasetSeeder::class, static function ($c): ReferenceDatasetSeeder {
 			return new ReferenceDatasetSeeder(
@@ -613,12 +659,19 @@ class Application extends App implements IBootstrap
 				$c->get(InputValidator::class),
 			);
 		});
+		$context->registerService(EquipDocStorage::class, static function ($c): EquipDocStorage {
+			return new EquipDocStorage(
+				$c->get(\OCP\Files\AppData\IAppDataFactory::class),
+			);
+		});
 		$context->registerService(EquipDocService::class, static function ($c): EquipDocService {
 			return new EquipDocService(
 				$c->get(EquipDocMapper::class),
 				$c->get(EquipmentMapper::class),
 				$c->get(InputValidator::class),
 				$c->get(Clock::class),
+				$c->get(\OCP\Files\IRootFolder::class),
+				$c->get(EquipDocStorage::class),
 			);
 		});
 		$context->registerService(WoCommentService::class, static function ($c): WoCommentService {
@@ -640,6 +693,8 @@ class Application extends App implements IBootstrap
 			return new ExceptionBoardService(
 				$c->get(IDBConnection::class),
 				$c->get(KitService::class),
+				$c->get(SkillService::class),
+				$c->get(PolicyService::class),
 				$c->get(Clock::class),
 				$c->get(InputValidator::class),
 			);

@@ -39,8 +39,10 @@ $pageIcons = [
 	'work-order-detail' => 'clipboard-list',
 	'dispatch' => 'kanban',
 	'tours' => 'route',
+	'kpi' => 'gauge',
+	'exceptions' => 'alert-triangle',
 ];
-$headerIcon = $pageIcons[$pageId] ?? 'wrench';
+$headerIcon = $pageIcons[$pageId] ?? (str_starts_with($pageId, 'settings-') ? 'settings' : 'wrench');
 $navUrls = json_decode($urlsJson, true)['pages'] ?? [];
 $homeUrl = (string)($navUrls['due'] ?? '#');
 
@@ -63,6 +65,12 @@ if ($pageId === 'customer-detail') {
 		'id' => 'mn-back-link',
 		'href' => (string)($navUrls['workOrders'] ?? '#'),
 		'label' => $l->t('Work orders'),
+	];
+} elseif (str_starts_with($pageId, 'settings-')) {
+	$parentCrumb = [
+		'id' => 'mn-back-settings',
+		'href' => (string)($navUrls['settings'] ?? '#'),
+		'label' => $l->t('Settings'),
 	];
 }
 

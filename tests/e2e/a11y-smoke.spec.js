@@ -16,7 +16,9 @@ const a11yRoutes = [
 	{ path: '/apps/maintenancecheck/work-orders', ready: '#mn-wo-list, .mn-empty, #mn-main-content', creds: 'E2E' },
 	{ path: '/apps/maintenancecheck/dispatch', ready: '#mn-dispatch-board, .mn-empty, #mn-main-content', creds: 'E2E' },
 	{ path: '/apps/maintenancecheck/tours', ready: '#mn-tours-board, .mn-empty, #mn-main-content', creds: 'E2E' },
-	{ path: '/apps/maintenancecheck/settings', ready: '#mn-settings-access, .mn-empty', creds: 'E2E' },
+	{ path: '/apps/maintenancecheck/kpi', ready: '#mn-kpi-snapshot, #mn-main-content', creds: 'E2E' },
+	{ path: '/apps/maintenancecheck/exceptions', ready: '#mn-exceptions-board, #mn-main-content', creds: 'E2E' },
+	{ path: '/apps/maintenancecheck/settings/access', ready: '#mn-settings-access, .mn-empty', creds: 'E2E' },
 ]
 
 test('a11y smoke WCAG 2.1 AA: work-order detail', async ({ page }) => {

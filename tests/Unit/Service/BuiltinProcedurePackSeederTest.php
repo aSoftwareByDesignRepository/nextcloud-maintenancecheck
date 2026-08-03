@@ -17,7 +17,7 @@ final class BuiltinProcedurePackSeederTest extends TestCase
 {
 	public function testPackFilesConstantListsThreeVerticals(): void
 	{
-		$this->assertCount(9, BuiltinProcedurePackSeeder::PACK_FILES);
+		$this->assertCount(15, BuiltinProcedurePackSeeder::PACK_FILES);
 		$joined = implode(',', BuiltinProcedurePackSeeder::PACK_FILES);
 		$this->assertStringContainsString('shk', $joined);
 		$this->assertStringContainsString('security', $joined);
@@ -28,6 +28,12 @@ final class BuiltinProcedurePackSeederTest extends TestCase
 		$this->assertStringContainsString('shk-de', $joined);
 		$this->assertStringContainsString('security-de', $joined);
 		$this->assertStringContainsString('electro-de', $joined);
+		$this->assertStringContainsString('de-portable-electrical', $joined);
+		$this->assertStringContainsString('de-ladders', $joined);
+		$this->assertStringContainsString('de-fire-extinguisher', $joined);
+		$this->assertStringContainsString('en-portable-electrical', $joined);
+		$this->assertStringContainsString('en-ladders', $joined);
+		$this->assertStringContainsString('en-fire-extinguisher', $joined);
 		foreach (BuiltinProcedurePackSeeder::PACK_FILES as $file) {
 			$this->assertStringEndsWith('.json', $file);
 		}
@@ -64,14 +70,14 @@ final class BuiltinProcedurePackSeederTest extends TestCase
 		);
 		$result = $seeder->ensureInstalled();
 		$this->assertSame([], $result['installed']);
-		$this->assertCount(9, $result['skipped']);
+		$this->assertCount(15, $result['skipped']);
 		$this->assertSame([], $result['failed']);
 	}
 
 	public function testEnsureInstalledImportsMissingPacks(): void
 	{
 		$procedures = $this->createMock(ProcedureService::class);
-		$procedures->expects($this->exactly(9))->method('importPack')->willReturn([
+		$procedures->expects($this->exactly(15))->method('importPack')->willReturn([
 			'packCode' => 'x',
 			'imported' => 1,
 			'replaced' => 0,
@@ -88,7 +94,7 @@ final class BuiltinProcedurePackSeederTest extends TestCase
 			new NullLogger(),
 		);
 		$result = $seeder->ensureInstalled();
-		$this->assertCount(9, $result['installed']);
+		$this->assertCount(15, $result['installed']);
 		$this->assertSame([], $result['skipped']);
 		$this->assertSame([], $result['failed']);
 	}

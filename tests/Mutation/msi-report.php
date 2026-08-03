@@ -35,6 +35,12 @@ $runners = [
 	['file' => 'tests/Mutation/run-skills-mutations.php', 'bucket' => 'service'],
 	['file' => 'tests/Mutation/run-w1w4-mutations.php', 'bucket' => 'service'],
 	['file' => 'tests/Mutation/run-capabilities-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-inspection-close-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-inspection-followup-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-due-query-kind-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-equip-doc-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-download-csrf-mutations.php', 'bucket' => 'service'],
+	['file' => 'tests/Mutation/run-danger-contrast-mutations.php', 'bucket' => 'service'],
 ];
 
 $totals = ['hot' => ['killed' => 0, 'total' => 0], 'service' => ['killed' => 0, 'total' => 0]];

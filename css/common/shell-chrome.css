@@ -109,7 +109,9 @@
 	margin-top: var(--mn-space-5, 24px);
 }
 #content.app-maintenancecheck #app-content .mn-section:first-child,
-#content.app-maintenancecheck #app-content .mn-main > .mn-section:first-of-type {
+#content.app-maintenancecheck #app-content .mn-main > .mn-section:first-of-type,
+#content.app-maintenancecheck #app-content .mn-main > .mn-card:first-of-type,
+#content.app-maintenancecheck #app-content .mn-main > .mn-filter-panel:first-of-type {
 	margin-top: 0;
 }
 #content.app-maintenancecheck #app-content .mn-section__title,
@@ -120,15 +122,60 @@
 	line-height: var(--mn-line-tight, 1.2);
 	color: var(--mn-text, var(--color-main-text));
 }
+/*
+ * Bachus / AZ parity: structured cards (Visits, Customers, …) must match Filter.
+ * Plain .mn-card { padding } above is (2,2,0) — without this peer rule, list
+ * headers stay inset on white and look nothing like mn-filter-panel__head.
+ */
+#content.app-maintenancecheck #app-content .mn-card:has(.mn-card__header),
+#content.app-maintenancecheck #app-content .mn-card:has(.mn-card__body),
 #content.app-maintenancecheck #app-content .mn-filter-panel {
 	padding: 0;
 	overflow: hidden;
 }
 #content.app-maintenancecheck #app-content .mn-filter-panel__head,
-#content.app-maintenancecheck #app-content .mn-filter-panel > header {
+#content.app-maintenancecheck #app-content .mn-filter-panel > header,
+#content.app-maintenancecheck #app-content .mn-card__header {
 	padding: var(--mn-space-5, 24px);
 	border-bottom: 1px solid var(--mn-border, var(--color-border));
 	background: var(--mn-bg-soft, color-mix(in srgb, var(--color-main-background) 96%, var(--color-main-text) 4%));
+}
+#content.app-maintenancecheck #app-content .mn-card__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--mn-space-3, 12px) var(--mn-space-4, 16px);
+}
+#content.app-maintenancecheck #app-content .mn-card__header .mn-card__title {
+	margin: 0;
+}
+#content.app-maintenancecheck #app-content .mn-card__header .mn-card__lead {
+	margin: var(--mn-space-2, 8px) 0 0;
+	max-width: 65ch;
+	font-size: var(--mn-fs-sm, 0.875rem);
+	line-height: var(--mn-line-base, 1.5);
+	color: var(--mn-muted, var(--color-text-maxcontrast));
+}
+#content.app-maintenancecheck #app-content .mn-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mn-space-4, 16px);
+	padding: var(--mn-space-5, 24px);
+}
+/*
+ * Bachus / CustomerCheck §3.7 — two legal table frames (never both at once):
+ *
+ * 1) Soft-header card: body keeps space-5 + bordered wrap = inset island.
+ * 2) table-solo (no header): card IS the frame; body padding 0 + wrap border
+ *    stripped — otherwise you get box-in-a-box (card border + wrap border).
+ */
+#content.app-maintenancecheck #app-content .mn-card:has(.mn-card__header) > .mn-card__body--table {
+	padding: var(--mn-space-5, 24px);
+}
+#content.app-maintenancecheck #app-content .mn-card__body--table {
+	/* Default for headed/detail cards; table-solo overrides below in app.css */
+	padding: var(--mn-space-5, 24px);
 }
 /* Pad the body once — nested form must not double-pad (legacy mn-filterbar bug). */
 #content.app-maintenancecheck #app-content .mn-filter-panel__body {
@@ -179,10 +226,10 @@
 	outline: 3px solid var(--color-primary-element);
 	outline-offset: 2px;
 }
-/* Empty states — AZ-like bordered soft panel */
+/* Empty states — soft panel (solid border; no dashed clutter) */
 #content.app-maintenancecheck #app-content .mn-empty,
 #content.app-maintenancecheck #app-content .mn-empty-state {
-	border: 1px dashed var(--mn-border-strong, var(--color-border));
+	border: 1px solid var(--mn-border, var(--color-border));
 	border-radius: var(--mn-radius-md, 12px);
 	padding: var(--mn-space-6, 32px) var(--mn-space-5, 24px);
 	text-align: center;
@@ -541,8 +588,9 @@
 }
 .mn-btn--danger,
 .mn-app .btn--danger {
-	background: var(--color-error, #cc4646);
-	color: var(--color-primary-text, #fff);
+	background: var(--mn-danger-fill);
+	border-color: var(--mn-danger-fill);
+	color: var(--mn-danger-on-fill);
 	min-height: 48px;
 	min-width: 48px;
 }
@@ -576,8 +624,17 @@
 #content.app-maintenancecheck a.mn-btn--danger,
 .mn-dialog-overlay button.mn-btn--danger,
 .mn-dialog-overlay a.mn-btn--danger {
-	background: var(--color-error, #cc4646);
-	color: var(--color-primary-text, #fff);
+	background: var(--mn-danger-fill);
+	border-color: var(--mn-danger-fill);
+	color: var(--mn-danger-on-fill);
+}
+#content.app-maintenancecheck button.mn-btn--danger:hover:not(:disabled),
+#content.app-maintenancecheck a.mn-btn--danger:hover,
+.mn-dialog-overlay button.mn-btn--danger:hover:not(:disabled),
+.mn-dialog-overlay a.mn-btn--danger:hover {
+	background: var(--mn-danger-fill-hover);
+	border-color: var(--mn-danger-fill-hover);
+	color: var(--mn-danger-on-fill);
 }
 #content.app-maintenancecheck button.mn-btn--ghost,
 #content.app-maintenancecheck a.mn-btn--ghost,

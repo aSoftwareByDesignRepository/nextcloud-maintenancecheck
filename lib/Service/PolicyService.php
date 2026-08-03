@@ -24,6 +24,9 @@ class PolicyService
 	public const KEY_CAPACITY_WARN_RATIO = 'capacity_warn_ratio';
 	public const KEY_REQUIRE_EQUIPMENT_ON_WO = 'require_equipment_on_wo';
 	public const KEY_FAILURE_CODE_ON_CORRECTIVE = 'failure_code_on_corrective';
+	public const KEY_DEFECT_FOLLOW_UP = 'defect_follow_up';
+	public const KEY_INSPECTION_RESULT_REQUIRED = 'inspection_result_required';
+	public const KEY_FAIL_BLOCKS_ROLL = 'fail_blocks_roll';
 
 	public const ENFORCEMENT_OFF = 'off';
 	public const ENFORCEMENT_WARN = 'warn';
@@ -38,6 +41,16 @@ class PolicyService
 		self::FAILURE_CODE_OFF,
 		self::FAILURE_CODE_WARN,
 		self::FAILURE_CODE_REQUIRED,
+	];
+
+	/** W7-R5: off | warn | auto (default warn). */
+	public const DEFECT_FOLLOW_OFF = 'off';
+	public const DEFECT_FOLLOW_WARN = 'warn';
+	public const DEFECT_FOLLOW_AUTO = 'auto';
+	public const DEFECT_FOLLOW_POLICIES = [
+		self::DEFECT_FOLLOW_OFF,
+		self::DEFECT_FOLLOW_WARN,
+		self::DEFECT_FOLLOW_AUTO,
 	];
 
 	public function __construct(
@@ -95,6 +108,28 @@ class PolicyService
 		return in_array($value, self::FAILURE_CODE_POLICIES, true) ? $value : self::FAILURE_CODE_WARN;
 	}
 
+	/** W7-R5 — default `warn`. */
+	public function defectFollowUp(): string
+	{
+		$value = $this->config->getAppValue(Application::APP_ID, self::KEY_DEFECT_FOLLOW_UP, self::DEFECT_FOLLOW_WARN);
+		return in_array($value, self::DEFECT_FOLLOW_POLICIES, true) ? $value : self::DEFECT_FOLLOW_WARN;
+	}
+
+	/** W7 — default true for inspection kind. */
+	public function inspectionResultRequired(): bool
+	{
+		return $this->config->getAppValue(Application::APP_ID, self::KEY_INSPECTION_RESULT_REQUIRED, '1') === '1';
+	}
+
+	/**
+	 * CORE I2 — when true, a fail inspection Done closes the visit without
+	 * rolling the next due (overdue risk stays on the corrective). Default false.
+	 */
+	public function failBlocksRoll(): bool
+	{
+		return $this->config->getAppValue(Application::APP_ID, self::KEY_FAIL_BLOCKS_ROLL, '0') === '1';
+	}
+
 	/**
 	 * @return array<string, mixed> full policy snapshot for the settings UI
 	 */
@@ -108,6 +143,9 @@ class PolicyService
 			'capacityWarnRatio' => $this->capacityWarnRatio(),
 			'requireEquipmentOnWo' => $this->requireEquipmentOnWo(),
 			'failureCodeOnCorrective' => $this->failureCodeOnCorrective(),
+			'defectFollowUp' => $this->defectFollowUp(),
+			'inspectionResultRequired' => $this->inspectionResultRequired(),
+			'failBlocksRoll' => $this->failBlocksRoll(),
 		];
 	}
 
@@ -177,6 +215,33 @@ class PolicyService
 				]);
 			}
 			$this->config->setAppValue(Application::APP_ID, self::KEY_FAILURE_CODE_ON_CORRECTIVE, $value);
+		}
+		if (array_key_exists('defectFollowUp', $body)) {
+			$value = $body['defectFollowUp'];
+			if (!is_string($value) || !in_array($value, self::DEFECT_FOLLOW_POLICIES, true)) {
+				throw new ValidationException('validation_failed', 'defectFollowUp must be off, warn, or auto.', [
+					['field' => 'defectFollowUp', 'code' => 'invalid_value'],
+				]);
+			}
+			$this->config->setAppValue(Application::APP_ID, self::KEY_DEFECT_FOLLOW_UP, $value);
+		}
+		if (array_key_exists('inspectionResultRequired', $body)) {
+			$value = $body['inspectionResultRequired'];
+			if (!is_bool($value)) {
+				throw new ValidationException('validation_failed', 'inspectionResultRequired must be a boolean.', [
+					['field' => 'inspectionResultRequired', 'code' => 'invalid_type'],
+				]);
+			}
+			$this->config->setAppValue(Application::APP_ID, self::KEY_INSPECTION_RESULT_REQUIRED, $value ? '1' : '0');
+		}
+		if (array_key_exists('failBlocksRoll', $body)) {
+			$value = $body['failBlocksRoll'];
+			if (!is_bool($value)) {
+				throw new ValidationException('validation_failed', 'failBlocksRoll must be a boolean.', [
+					['field' => 'failBlocksRoll', 'code' => 'invalid_type'],
+				]);
+			}
+			$this->config->setAppValue(Application::APP_ID, self::KEY_FAIL_BLOCKS_ROLL, $value ? '1' : '0');
 		}
 		return $this->snapshot();
 	}

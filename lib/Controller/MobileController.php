@@ -9,8 +9,10 @@ use OCA\MaintenanceCheck\Exception\PermissionDeniedException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
 use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Service\CustomerService;
+use OCA\MaintenanceCheck\Service\DueQueryKind;
 use OCA\MaintenanceCheck\Service\EquipDocService;
 use OCA\MaintenanceCheck\Service\EquipmentService;
+use OCA\MaintenanceCheck\Service\ExceptionBoardService;
 use OCA\MaintenanceCheck\Service\FailureCodeService;
 use OCA\MaintenanceCheck\Service\KitService;
 use OCA\MaintenanceCheck\Service\MeterService;
@@ -60,6 +62,8 @@ class MobileController extends Controller
 		private readonly WoCommentService $comments,
 		private readonly EquipDocService $equipDocs,
 		private readonly FailureCodeService $failureCodes,
+		private readonly ExceptionBoardService $exceptions,
+		private readonly \OCA\MaintenanceCheck\Service\InspectionObligationService $obligations,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -75,11 +79,15 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
-	public function due(?string $mine = null): JSONResponse
+	public function due(?string $mine = null, ?string $kind = null, ?string $filter = null): JSONResponse
 	{
 		$uid = $this->access->currentUserId();
 		$this->gate->assertGatePassed($uid);
-		return new JSONResponse($this->visits->due($uid, $mine === '1'));
+		return new JSONResponse($this->visits->due(
+			$uid,
+			$mine === '1',
+			DueQueryKind::resolve($kind, $filter),
+		));
 	}
 
 	#[NoAdminRequired]
@@ -126,6 +134,15 @@ class MobileController extends Controller
 			'limit' => $limit,
 			'offset' => $offset,
 		]));
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function visit(int $id): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		return new JSONResponse($this->visits->get($uid, $id));
 	}
 
 	#[NoAdminRequired]
@@ -177,6 +194,21 @@ class MobileController extends Controller
 			'limit' => $limit,
 			'offset' => $offset,
 		]));
+	}
+
+	/**
+	 * UC-PRUEF — create or open the inspection (or preventive) WO for a visit.
+	 * Idempotent: concurrent field taps return the same work order.
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function createWorkOrderFromVisit(int $visitId): JSONResponse
+	{
+		$this->assertSafeMutationChannel();
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		$created = $this->workOrders->openOrCreateFromVisit($uid, $visitId, $this->jsonBody());
+		return new JSONResponse($created, Http::STATUS_CREATED);
 	}
 
 	#[NoAdminRequired]
@@ -292,6 +324,36 @@ class MobileController extends Controller
 		$this->workOrders->get($id, $uid);
 		$pdf = $this->pdf->servicebericht($id);
 		return new DataDownloadResponse($pdf['content'], $pdf['filename'] ?? $pdf['name'], $pdf['mime'] ?? $pdf['contentType']);
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function inspectionEvidence(int $id): DataDownloadResponse|JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		$this->workOrders->get($id, $uid);
+		$pdf = $this->pdf->inspectionEvidence($id);
+		return new DataDownloadResponse($pdf['content'], $pdf['filename'] ?? $pdf['name'], $pdf['mime'] ?? $pdf['contentType']);
+	}
+
+	/** COMP §9.2 path alias. */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function inspectionEvidenceAlias(int $id): DataDownloadResponse|JSONResponse
+	{
+		return $this->inspectionEvidence($id);
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function equipmentObligations(int $equipmentId): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		return new JSONResponse([
+			'data' => $this->obligations->listForEquipment($uid, $equipmentId),
+		]);
 	}
 
 	// ── Tours + meters ──────────────────────────────────────────────────
@@ -414,11 +476,31 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	public function downloadEquipDoc(int $id): DataDownloadResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		$file = $this->equipDocs->readFileForDownload($uid, $id);
+		return new DataDownloadResponse($file['content'], $file['name'], $file['mime']);
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function failureCodes(): JSONResponse
 	{
 		$uid = $this->access->currentUserId();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->failureCodes->list(null, null, true));
+	}
+
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function exceptions(?string $filter = null, ?string $limit = null, ?string $offset = null, ?string $mine = null): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		$assignee = $mine === '0' && $this->access->isOffice($uid) ? null : $uid;
+		return new JSONResponse($this->exceptions->list($limit, $offset, $filter, $assignee));
 	}
 
 	/**
@@ -429,6 +511,7 @@ class MobileController extends Controller
 		$params = $this->request->getParams();
 		unset(
 			$params['id'],
+			$params['visitId'],
 			$params['token'],
 			$params['itemCode'],
 			$params['lineId'],

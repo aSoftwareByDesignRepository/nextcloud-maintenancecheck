@@ -76,6 +76,8 @@ final class W6FieldOpsIntegrationTest extends IntegrationTestCase
 		self::assertSame('Hausmeister Müller', $wo['requesterName']);
 		self::assertSame('Boiler cold since morning', $wo['symptom']);
 		self::assertSame('Gate 1234 · dog in yard', $wo['accessNotes']);
+		// AC-W6-2: preferred window is site enrichment on get/create response.
+		self::assertSame('Mo–Fr 08–12', $wo['preferredWindow']);
 	}
 
 	public function testWarrantyWarnOnCorrectiveCreate(): void
@@ -211,6 +213,59 @@ final class W6FieldOpsIntegrationTest extends IntegrationTestCase
 		self::assertArrayHasKey('skipped', $first);
 		$second = $this->reminders->run(true);
 		self::assertSame($first['visits'] + $first['workOrders'], $second['visits'] + $second['workOrders']);
+	}
+
+	/** AC-W6-9: at most one NC notification per overdue entity per calendar day. */
+	public function testOverdueReminderSendsOncePerEntityPerDay(): void
+	{
+		$customerId = $this->seedCustomer('W6 Reminder Co ' . bin2hex(random_bytes(3)));
+		$equipmentId = $this->seedEquipment($customerId, 'Overdue pump');
+		$catalog = Server::get(\OCA\MaintenanceCheck\Service\CatalogService::class);
+		$maint = $catalog->list('maint', '10', '0');
+		$maintTypeId = (int)($maint['data'][0]['id'] ?? 0);
+		self::assertGreaterThan(0, $maintTypeId);
+
+		$plans = Server::get(\OCA\MaintenanceCheck\Service\PlanService::class);
+		$visits = Server::get(\OCA\MaintenanceCheck\Service\VisitService::class);
+		$clock = Server::get(Clock::class);
+		$log = Server::get(\OCA\MaintenanceCheck\Db\NotifLogMapper::class);
+		$plan = $plans->create('admin', $equipmentId, [
+			'maintTypeId' => $maintTypeId,
+			'intervalUnit' => 'month',
+			'intervalCount' => 1,
+			'firstDueOn' => '2020-01-15',
+		]);
+		$visitId = (int)($plan['openVisit']['id'] ?? 0);
+		self::assertGreaterThan(0, $visitId);
+		$visits->assign($visitId, ['userId' => 'admin']);
+
+		$today = $clock->today();
+		$dedupe = sprintf(
+			'%s:visit:%d:%s:%s',
+			OverdueReminderService::TYPE_VISIT_OVERDUE,
+			$visitId,
+			$today,
+			'admin',
+		);
+
+		$dry = $this->reminders->run(true);
+		self::assertGreaterThanOrEqual(1, $dry['visits'], 'dry-run must see the seeded overdue assigned visit');
+		self::assertFalse($log->wasSent($dedupe), 'dry-run must not reserve a notification slot');
+
+		$first = $this->reminders->run(false);
+		self::assertTrue(
+			$log->wasSent($dedupe),
+			'live run must reserve the daily dedupe key (even if NC notify transport fails)',
+		);
+		self::assertGreaterThanOrEqual(
+			1,
+			$first['visits'] + $first['skipped'],
+			'live run must attempt notify or skip for the seeded visit',
+		);
+
+		$second = $this->reminders->run(false);
+		self::assertSame(0, $second['visits'], 'second live run must not re-notify the same visit today');
+		self::assertGreaterThanOrEqual(1, $second['skipped']);
 	}
 
 	/**

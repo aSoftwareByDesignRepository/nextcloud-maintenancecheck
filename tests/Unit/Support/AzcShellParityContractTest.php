@@ -33,12 +33,16 @@ final class AzcShellParityContractTest extends TestCase
 		}
 	}
 
-	public function testNavigationUsesCollapsibleRegisterAndAdmin(): void
+	public function testNavigationUsesCollapsibleRegisterAndSettingsUnderpages(): void
 	{
 		$nav = (string)file_get_contents($this->root . '/templates/common/navigation.php');
-		foreach (['nav-menu', 'nav-item-has-children', 'nav-submenu', 'mn-register-subnav', 'mn-admin-subnav', 'sidebar-header'] as $token) {
+		foreach (['nav-menu', 'nav-item-has-children', 'nav-submenu', 'mn-register-subnav', 'sidebar-header', 'Open settings', 'mn-settings-subnav'] as $token) {
 			$this->assertStringContainsString($token, $nav, $token);
 		}
+		// Bachus: Settings is nested under itself (Access…Support), never Administration.
+		$this->assertStringNotContainsString('mn-admin-subnav', $nav);
+		$this->assertStringContainsString("t('Access')", $nav);
+		$this->assertStringContainsString("t('License & mobile')", $nav);
 	}
 
 	public function testPageChromeHasBreadcrumbIconScopeStrip(): void
@@ -64,11 +68,142 @@ final class AzcShellParityContractTest extends TestCase
 		$this->assertFileExists($this->root . '/css/common/notification-surfaces.css');
 	}
 
-	public function testVisitsPageUsesFilterPanel(): void
+	public function testVisitsPageUsesFlatLiveToolbar(): void
 	{
 		$tpl = (string)file_get_contents($this->root . '/templates/visits.php');
-		$this->assertStringContainsString('mn-filter-panel', $tpl);
-		$this->assertStringContainsString('mn-filter-grid', $tpl);
+		$this->assertStringContainsString('mn-visits-toolbar', $tpl);
+		$this->assertStringContainsString('mn-filter-status-chips', $tpl);
+		$this->assertStringContainsString('mn-filter-when-chips', $tpl);
+		$this->assertStringContainsString('mn-card--table-solo', $tpl);
+		$this->assertStringContainsString('mn-sr-only', $tpl);
+		$this->assertStringNotContainsString('mn-filter-panel', $tpl);
+		$this->assertStringNotContainsString('mn-card__header', $tpl);
+		$this->assertStringNotContainsString('mn-card__lead', $tpl);
+		$this->assertStringNotContainsString('Apply filters', $tpl);
+	}
+
+	public function testListAndBoardTablesAreTableSolo(): void
+	{
+		foreach ([
+			'templates/customers.php',
+			'templates/equipment.php',
+			'templates/work-orders.php',
+			'templates/dispatch.php',
+			'templates/tours.php',
+			'templates/exceptions.php',
+			'templates/catalogs.php',
+			'templates/kpi.php',
+			'templates/customer-detail.php',
+			'templates/equipment-detail.php',
+		] as $rel) {
+			$tpl = (string)file_get_contents($this->root . '/' . $rel);
+			$this->assertStringContainsString('mn-card--table-solo', $tpl, $rel);
+			$this->assertStringNotContainsString('mn-card__header', $tpl, $rel);
+			$this->assertStringNotContainsString('mn-card__lead', $tpl, $rel);
+		}
+		$css = (string)file_get_contents($this->root . '/css/app.css');
+		$this->assertStringContainsString('.mn-table-toolbar', $css);
+		$this->assertStringContainsString('.mn-exceptions-toolbar', $css);
+	}
+
+	/**
+	 * Headed table cards keep CustomerCheck inset; table-solo is a single frame
+	 * (no box-in-a-box — DESIGN-SYSTEM principle 14 / §3.3 / §3.7).
+	 */
+	public function testStructuredCardsMatchFilterPanelChromeSpecificity(): void
+	{
+		$chrome = (string)file_get_contents($this->root . '/css/common/shell-chrome.css');
+		$this->assertMatchesRegularExpression(
+			'/#content\.app-maintenancecheck\s+#app-content\s+\.mn-card:has\(\.mn-card__header\)[\s\S]*?padding:\s*0/s',
+			$chrome,
+			'Structured list cards need padding:0 at #content specificity (Filter parity)'
+		);
+		$this->assertMatchesRegularExpression(
+			'/#content\.app-maintenancecheck\s+#app-content\s+\.mn-card__header\s*\{[^}]*background:\s*var\(--mn-bg-soft/s',
+			$chrome,
+			'List card headers must share Filter soft-band chrome'
+		);
+		$this->assertMatchesRegularExpression(
+			'/#content\.app-maintenancecheck\s+#app-content\s+\.mn-card__body--table\s*\{[^}]*padding:\s*var\(--mn-space-5/s',
+			$chrome,
+			'Default/headed table bodies keep space-5 inset'
+		);
+	}
+
+	public function testTableSoloIsSingleFrameNotBoxInBox(): void
+	{
+		$app = (string)file_get_contents($this->root . '/css/app.css');
+		$this->assertMatchesRegularExpression(
+			'/\.mn-card\.mn-card--table-solo\s*>\s*\.mn-card__body--table[\s\S]*?padding:\s*0/s',
+			$app,
+			'table-solo body must be flush (card is the frame)'
+		);
+		$this->assertMatchesRegularExpression(
+			'/\.mn-card\.mn-card--table-solo\s+\.mn-table-wrap[\s\S]*?border:\s*none/s',
+			$app,
+			'table-solo must strip wrap border to avoid box-in-a-box'
+		);
+		$chrome = (string)file_get_contents($this->root . '/css/common/shell-chrome.css');
+		$this->assertMatchesRegularExpression(
+			'/#content\.app-maintenancecheck\s+#app-content\s+\.mn-table-wrap\s*\{[^}]*border:\s*1px/s',
+			$chrome
+		);
+	}
+
+	public function testFilterPanelFormsStretchLtrNeverLegacyFilterbar(): void
+	{
+		$patterns = (string)file_get_contents($this->root . '/css/common/page-patterns.css');
+		$this->assertMatchesRegularExpression(
+			'/\.mn-filter-panel__form\s*\{[^}]*align-items:\s*stretch/s',
+			$patterns,
+			'Filter forms must stretch LTR (never flex-end right-shove)'
+		);
+		$this->assertStringContainsString('mn-filter-panel__form.mn-filterbar', $patterns);
+
+		foreach ($this->filterListTemplates() as $rel) {
+			$tpl = (string)file_get_contents($this->root . '/' . $rel);
+			$this->assertStringNotContainsString(
+				'mn-filter-panel__form mn-filterbar',
+				$tpl,
+				$rel . ' must not combine filter-panel form with legacy mn-filterbar'
+			);
+			$this->assertStringContainsString('mn-filter-panel__form', $tpl, $rel);
+		}
+
+		$customers = (string)file_get_contents($this->root . '/templates/customers.php');
+		$equipment = (string)file_get_contents($this->root . '/templates/equipment.php');
+		$this->assertStringContainsString('mn-filter-grid--search', $customers);
+		$this->assertStringContainsString('mn-filter-grid--search', $equipment);
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function filterListTemplates(): array
+	{
+		return [
+			'templates/customers.php',
+			'templates/equipment.php',
+			'templates/work-orders.php',
+		];
+	}
+
+	public function testAllListFiltersUseFilterPanelHeadChrome(): void
+	{
+		foreach ($this->filterListTemplates() as $rel) {
+			$tpl = (string)file_get_contents($this->root . '/' . $rel);
+			preg_match_all('/<section[^>]*\bmn-filter-panel\b[^>]*>[\s\S]*?<\/section>/', $tpl, $blocks);
+			$this->assertNotEmpty($blocks[0], $rel . ' missing filter panel');
+			foreach ($blocks[0] as $i => $block) {
+				$label = $rel . ' panel#' . $i;
+				$this->assertStringContainsString('mn-filter-panel__head', $block, $label);
+				$this->assertStringContainsString('mn-filter-panel__intro', $block, $label);
+				$this->assertStringContainsString('mn-filter-panel__body', $block, $label);
+				$this->assertStringNotContainsString('mn-card__header', $block, $label);
+				$this->assertStringNotContainsString('mn-card__title', $block, $label);
+				$this->assertStringNotContainsString('mn-card__lead', $block, $label);
+			}
+		}
 	}
 
 	public function testToastUsesAzcSemanticClasses(): void
@@ -160,6 +295,27 @@ final class AzcShellParityContractTest extends TestCase
 		}
 	}
 
+	public function testEveryCardHeaderUsesHeaderTextWrapper(): void
+	{
+		$files = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator($this->root . '/templates', \FilesystemIterator::SKIP_DOTS)
+		);
+		foreach ($files as $file) {
+			if (!$file->isFile() || $file->getExtension() !== 'php') {
+				continue;
+			}
+			$tpl = (string)file_get_contents($file->getPathname());
+			if (!str_contains($tpl, 'mn-card__header')) {
+				continue;
+			}
+			preg_match_all('/<header class="mn-card__header[^"]*">([\s\S]*?)<\/header>/', $tpl, $blocks);
+			foreach ($blocks[1] as $i => $inner) {
+				$label = $file->getFilename() . ' header#' . $i;
+				$this->assertStringContainsString('mn-card__header-text', $inner, $label);
+			}
+		}
+	}
+
 	public function testAppJsShipsTableOrCardsHelper(): void
 	{
 		$js = (string)file_get_contents($this->root . '/js/app.js');
@@ -178,25 +334,45 @@ final class AzcShellParityContractTest extends TestCase
 	{
 		$tpl = (string)file_get_contents($this->root . '/templates/catalogs.php');
 		$this->assertStringContainsString('mn-card', $tpl);
+		$this->assertStringContainsString('mn-card--table-solo', $tpl);
+		$this->assertStringContainsString('mn-table-toolbar', $tpl);
 		$this->assertStringContainsString('mn-card__body--table', $tpl);
+		$this->assertStringContainsString('mn-catalogs', $tpl);
+		$this->assertStringContainsString('mn-catalogs-toolbar', $tpl);
+		$this->assertStringContainsString('data-mn-catalog=', $tpl);
+		$this->assertStringContainsString('mn-catalog-panel', $tpl);
+		$this->assertStringNotContainsString('mn-catalogs__pair', $tpl);
 		$this->assertStringNotContainsString('mn-section', $tpl);
+		$this->assertStringNotContainsString('class="mn-columns"', $tpl);
+		$this->assertStringNotContainsString('mn-card__header', $tpl);
+		$this->assertStringNotContainsString('mn-card__lead', $tpl);
 	}
 
 	public function testDetailAndSettingsUseCardChromeWithoutDuplicateBreadcrumbs(): void
 	{
-		foreach (['customer-detail.php', 'equipment-detail.php', 'settings.php'] as $file) {
+		foreach (['customer-detail.php', 'equipment-detail.php'] as $file) {
 			$tpl = (string)file_get_contents($this->root . '/templates/' . $file);
 			$this->assertStringContainsString('mn-card', $tpl, $file);
+			$this->assertStringContainsString('mn-card--table-solo', $tpl, $file);
 			$this->assertStringNotContainsString('mn-section', $tpl, $file);
 			$this->assertStringNotContainsString('<nav class="mn-breadcrumb"', $tpl, $file . ' must not duplicate shell breadcrumb');
 		}
+		$section = (string)file_get_contents($this->root . '/templates/settings-section.php');
+		$this->assertStringContainsString('mn-settings', $section);
+		$this->assertStringContainsString('parts/settings-subnav.php', $section);
+		$this->assertStringNotContainsString('<nav class="mn-breadcrumb"', $section);
+		$this->assertFileDoesNotExist($this->root . '/templates/settings.php');
+		$access = (string)file_get_contents($this->root . '/templates/settings/access.php');
+		$this->assertStringContainsString('mn-card', $access);
 		$wo = (string)file_get_contents($this->root . '/templates/work-order-detail.php');
 		$this->assertStringNotContainsString('<nav class="mn-breadcrumb"', $wo);
 		$shell = (string)file_get_contents($this->root . '/templates/common/page-start.php');
 		$this->assertStringContainsString("pageId === 'customer-detail'", $shell);
 		$this->assertStringContainsString("pageId === 'equipment-detail'", $shell);
 		$this->assertStringContainsString("pageId === 'work-order-detail'", $shell);
+		$this->assertStringContainsString("str_starts_with(\$pageId, 'settings-')", $shell);
 		$this->assertStringContainsString('mn-back-link', $shell);
+		$this->assertStringContainsString('mn-back-settings', $shell);
 	}
 
 	public function testRequiredFieldsUseAriaRequired(): void
@@ -215,6 +391,26 @@ final class AzcShellParityContractTest extends TestCase
 			'/function pageDue\(\)[\s\S]*?var loadSeq = 0;[\s\S]*?if \(seq !== loadSeq\)/',
 			$js
 		);
+		$this->assertStringContainsString('function dueBucketTable(', $js);
+		$this->assertStringNotContainsString('function visitCard(', $js);
+		$this->assertStringNotContainsString('mn-visit-card', $js);
+		$tpl = (string)file_get_contents($this->root . '/templates/due.php');
+		$this->assertStringContainsString('mn-card__body--table', $tpl);
+		$this->assertStringContainsString('data-bucket-list="overdue"', $tpl);
+	}
+
+	public function testOpsBoardsUseTableChrome(): void
+	{
+		$wo = (string)file_get_contents($this->root . '/js/work-order-pages.js');
+		$this->assertStringContainsString("caption: tr('Exceptions')", $wo);
+		$this->assertStringContainsString("caption: tr('Open work orders by status')", $wo);
+		$this->assertStringContainsString("caption: tr('Stops')", $wo);
+		$this->assertStringNotContainsString('mn-tour-stops', $wo);
+		$this->assertDoesNotMatchRegularExpression("/class:\\s*'mn-list'/", $wo);
+		foreach (['exceptions.php', 'tours.php', 'dispatch.php'] as $file) {
+			$tpl = (string)file_get_contents($this->root . '/templates/' . $file);
+			$this->assertStringContainsString('mn-card__body--table', $tpl, $file);
+		}
 	}
 
 	public function testBadgesDefineNeutralAndUseWeight600(): void
@@ -225,7 +421,7 @@ final class AzcShellParityContractTest extends TestCase
 			'/\.mn-badge\s*\{[^}]*font-weight:\s*600/s',
 			$css
 		);
-		$this->assertStringContainsString('.mn-badge:not(:has(.mn-badge__dot))::before', $css);
+		$this->assertStringContainsString('.mn-badge:not(:has(.mn-badge__dot)):not(:has(.mn-badge__icon))::before', $css);
 	}
 
 

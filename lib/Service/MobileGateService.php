@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace OCA\MaintenanceCheck\Service;
 
+use OCA\MaintenanceCheck\AppInfo\Application;
+use OCA\MaintenanceCheck\Config\VendorPublicKey;
 use OCA\MaintenanceCheck\Exception\MobileGateException;
+use OCA\MaintenanceCheck\License\Mn2Codec;
+use OCP\App\IAppManager;
 
 /**
  * SPEC §9.1 gate ladder for /mobile/v1/* routes.
@@ -22,6 +26,8 @@ class MobileGateService
 {
 	public function __construct(
 		private readonly LicenseService $license,
+		private readonly IAppManager $appManager,
+		private readonly PolicyService $policies,
 	) {
 	}
 
@@ -43,25 +49,57 @@ class MobileGateService
 	}
 
 	/**
-	 * Bootstrap payload (SPEC §9.2) — reports instead of gating so the app
-	 * can render the LicenseGate screen with accurate copy.
+	 * Bootstrap payload (SPEC §9.2 / COMPANION §9.2) — reports instead of gating
+	 * so the official app can render LicenseGate with accurate copy.
 	 *
 	 * @return array<string, mixed>
 	 */
 	public function bootstrapPayload(string $uid, string $displayName, bool $isOffice): array
 	{
 		$state = $this->license->gateState($uid);
-		return [
-			'licensing' => $state['hasLicense'] ? [
-				'format' => 'MN2',
+		$enabledForUser = $state['seatAssigned'] && $state['seatWithinLimit'] && $state['licenseValid'];
+		$status = $this->license->status();
+		$expiresAt = is_array($status['state'] ?? null) ? ($status['state']['validUntil'] ?? null) : null;
+		$pushAvailable = $this->appManager->isEnabledForUser('notifications');
+
+		$licensing = null;
+		if ($state['hasLicense'] && $state['payloadB64'] !== null && $state['signatureB64'] !== null) {
+			$licensing = [
+				'format' => Mn2Codec::FORMAT,
 				'payloadB64' => $state['payloadB64'],
 				'signatureB64' => $state['signatureB64'],
-			] : null,
+				'envelope' => [
+					'format' => Mn2Codec::FORMAT,
+					'payloadB64' => $state['payloadB64'],
+					'signatureB64' => $state['signatureB64'],
+				],
+				'vendorPublicKeyB64' => VendorPublicKey::publicKeyB64(),
+				'mobile' => [
+					'enabledForUser' => $enabledForUser,
+					'expiresAt' => is_string($expiresAt) ? $expiresAt : null,
+				],
+			];
+		}
+
+		$capabilities = MobileCapabilities::current();
+		$capabilities['push'] = $pushAvailable;
+
+		return [
+			'appId' => Application::APP_ID,
+			'apiVersion' => 1,
+			'capabilities' => $capabilities,
+			'policies' => [
+				'failureCodeOnCorrective' => $this->policies->failureCodeOnCorrective(),
+				'defectFollowUp' => $this->policies->defectFollowUp(),
+				'inspectionResultRequired' => $this->policies->inspectionResultRequired(),
+			],
+			'licensing' => $licensing,
 			'seatAssigned' => $state['seatAssigned'],
 			'seatWithinLimit' => $state['seatWithinLimit'],
+			'pushAvailable' => $pushAvailable,
 			'mobileAppStatus' => LicenseService::MOBILE_APP_STATUS,
-			'capabilities' => MobileCapabilities::current(),
 			'user' => [
+				'userId' => $uid,
 				'uid' => $uid,
 				'displayName' => $displayName,
 				'isOffice' => $isOffice,

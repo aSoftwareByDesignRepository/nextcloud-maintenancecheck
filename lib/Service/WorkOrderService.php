@@ -15,6 +15,7 @@ use OCA\MaintenanceCheck\Db\WoPhotoMapper;
 use OCA\MaintenanceCheck\Db\WoSignatureMapper;
 use OCA\MaintenanceCheck\Db\WorkOrder;
 use OCA\MaintenanceCheck\Db\WorkOrderMapper;
+use OCA\MaintenanceCheck\Db\InspectionObligationMapper;
 use OCA\MaintenanceCheck\Event\WorkOrderClosedEvent;
 use OCA\MaintenanceCheck\Exception\ConflictException;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
@@ -52,6 +53,12 @@ class WorkOrderService
 	/** CORE assumption A4 — crew 1–4 (primary + ≤3 helpers). */
 	private const MAX_HELPERS = 3;
 
+	/** @var array{uid: string, sourceId: int, title: string, customerId: int, equipmentId: ?int, siteId: ?int, description: string, symptom: string, primaryUserId: ?string}|null */
+	private ?array $pendingInspectionFollowUp = null;
+	private ?string $lastDefectFollowUpMode = null;
+	private ?int $lastCorrectiveWoId = null;
+	private bool $lastDefectFollowUpFailed = false;
+
 	public function __construct(
 		private readonly IDBConnection $db,
 		private readonly WorkOrderMapper $workOrders,
@@ -83,6 +90,9 @@ class WorkOrderService
 		private readonly MeterService $meters,
 		private readonly WorkOrderAccessPolicy $woAccess,
 		private readonly FailureCodeService $failureCodes,
+		private readonly InspectionClosePolicy $inspectionClose,
+		private readonly \OCA\MaintenanceCheck\Db\InspectionDefectMapper $inspectionDefects,
+		private readonly InspectionObligationMapper $inspectionObligations,
 	) {
 	}
 
@@ -184,6 +194,10 @@ class WorkOrderService
 		$row['requiredSkills'] = $this->skills->woSkillsDetail($id);
 		$signature = $this->signatures->findByWorkOrder($id);
 		$row['signature'] = $signature?->toApi();
+		$row['defects'] = array_map(
+			static fn ($d) => $d->toApi(),
+			$this->inspectionDefects->findByWorkOrder($id),
+		);
 		$stop = $this->tourStops->findByWorkOrder($id);
 		$row['tourStop'] = $stop?->toApi();
 
@@ -200,6 +214,7 @@ class WorkOrderService
 
 		$row['siteName'] = null;
 		$row['siteAddress'] = null;
+		$row['preferredWindow'] = null;
 		$row['equipmentSerialNo'] = null;
 		$siteId = $wo->getSiteId();
 		if ($siteId !== null) {
@@ -207,6 +222,8 @@ class WorkOrderService
 				$site = $this->sites->findById($siteId)->toApi();
 				$row['siteName'] = $site['name'] ?? null;
 				$row['siteAddress'] = $this->formatAddress($site);
+				$window = trim((string)($site['preferredWindow'] ?? ''));
+				$row['preferredWindow'] = $window !== '' ? $window : null;
 			} catch (NotFoundException) {
 				// orphaned FK — leave null
 			}
@@ -313,7 +330,17 @@ class WorkOrderService
 		$wo->setRequesterPhone($intake['requesterPhone']);
 		$wo->setSymptom($intake['symptom']);
 		$wo->setAccessNotes($intake['accessNotes']);
+		if (array_key_exists('sourceWoId', $body) && is_int($body['sourceWoId']) && $body['sourceWoId'] > 0) {
+			$wo->setSourceWoId($body['sourceWoId']);
+		}
+		if (array_key_exists('obligationId', $body) && is_int($body['obligationId']) && $body['obligationId'] > 0) {
+			$wo->setObligationId($body['obligationId']);
+		}
+		if (array_key_exists('visitId', $body) && is_int($body['visitId']) && $body['visitId'] > 0) {
+			$wo->setVisitId($body['visitId']);
+		}
 		// AC-W6-2: copy site defaults when WO access_notes not explicitly set.
+		// Preferred window is enriched on read from the site (not duplicated on WO).
 		if ($wo->getAccessNotes() === null && $fields['siteId'] !== null) {
 			try {
 				$site = $this->sites->findById($fields['siteId']);
@@ -351,6 +378,42 @@ class WorkOrderService
 		$detail = $this->get((int)$wo->getId());
 		$detail['warnings'] = $warnings;
 		return $detail;
+	}
+
+	/**
+	 * Field / companion path (UC-PRUEF): open the linked WO or create one.
+	 * Idempotent under concurrent taps — visit_already_linked returns the winner.
+	 * When the caller omits procedure fields and the obligation has none, skip
+	 * the procedure so the WO lands Planned (tech can execute immediately).
+	 *
+	 * @param array<string, mixed> $body
+	 * @return array<string, mixed>
+	 */
+	public function openOrCreateFromVisit(string $uid, int $visitId, array $body): array
+	{
+		if (!array_key_exists('procedureId', $body) && !array_key_exists('procedureSkipped', $body)) {
+			try {
+				$visit = $this->visits->findById($visitId);
+				$obligation = $this->inspectionObligations->findByPlanId($visit->getPlanId());
+				if ($obligation !== null && $obligation->getProcedureId() === null) {
+					$body['procedureSkipped'] = true;
+					$body['procedureSkipReason'] = 'Opened in the field without a procedure template.';
+				}
+			} catch (NotFoundException) {
+				// createFromVisit will raise NotFound after the visit lock.
+			}
+		}
+		try {
+			return $this->createFromVisit($uid, $visitId, $body);
+		} catch (ConflictException $e) {
+			if ($e->getErrorCode() === 'visit_already_linked') {
+				$woId = (int)($e->getDetails()['workOrderId'] ?? 0);
+				if ($woId > 0) {
+					return $this->get($woId, $uid);
+				}
+			}
+			throw $e;
+		}
 	}
 
 	/**
@@ -393,8 +456,9 @@ class WorkOrderService
 					]);
 				}
 
+				$obligation = $this->inspectionObligations->findByPlanId($visit->getPlanId());
 				$wo = new WorkOrder();
-				$wo->setKind(WorkOrder::KIND_PREVENTIVE);
+				$wo->setKind($obligation !== null ? WorkOrder::KIND_INSPECTION : WorkOrder::KIND_PREVENTIVE);
 				$wo->setStatus(WorkOrder::STATUS_DRAFT);
 				$wo->setPriority($priority);
 				$wo->setCustomerId($visit->getCustomerId());
@@ -407,6 +471,13 @@ class WorkOrderService
 				$wo->setPrimaryUserId($visit->getAssignedUid());
 				$wo->setProcedureSkipped($skip['skipped']);
 				$wo->setProcedureSkipReason($skip['reason']);
+				if ($obligation !== null) {
+					$wo->setObligationId((int)$obligation->getId());
+					if ($obligation->getProcedureId() !== null && $procedureId === null) {
+						$wo->setProcedureId($obligation->getProcedureId());
+						$procedureId = $obligation->getProcedureId();
+					}
+				}
 				$wo->setCreatedAt($now);
 				$wo->setUpdatedAt($now);
 				$wo->setCreatedBy($uid);
@@ -422,6 +493,7 @@ class WorkOrderService
 				if ($procedureId !== null) {
 					$this->checklist->snapshotProcedure((int)$wo->getId(), $procedureId);
 				}
+				$this->attachInspectionSkillsIfNeeded($wo, $obligation?->getClassCode());
 				$this->db->commit();
 				return $this->get((int)$wo->getId());
 			} catch (ConflictException | NotFoundException | ValidationException | PermissionDeniedException $e) {
@@ -654,6 +726,11 @@ class WorkOrderService
 		}
 		$this->assertTransitionPermission($to, $body, $isOffice);
 
+		$this->pendingInspectionFollowUp = null;
+		$this->lastDefectFollowUpMode = null;
+		$this->lastCorrectiveWoId = null;
+		$this->lastDefectFollowUpFailed = false;
+
 		$now = $this->clock->now();
 		$flange = null;
 
@@ -727,7 +804,25 @@ class WorkOrderService
 		if ($flange !== null) {
 			$this->dispatchInventoryFlange($uid, $id, $flange);
 		}
-		return $this->get($id);
+		if ($this->pendingInspectionFollowUp !== null) {
+			$job = $this->pendingInspectionFollowUp;
+			$this->pendingInspectionFollowUp = null;
+			$this->runPendingInspectionFollowUp($job);
+		}
+		$detail = $this->get($id);
+		if ($this->lastDefectFollowUpMode !== null) {
+			$detail['defectFollowUp'] = $this->lastDefectFollowUpMode;
+			if ($this->lastCorrectiveWoId !== null) {
+				$detail['correctiveWorkOrderId'] = $this->lastCorrectiveWoId;
+			}
+			$this->lastDefectFollowUpMode = null;
+			$this->lastCorrectiveWoId = null;
+		}
+		if ($this->lastDefectFollowUpFailed) {
+			$detail['defectFollowUpFailed'] = true;
+			$this->lastDefectFollowUpFailed = false;
+		}
+		return $detail;
 	}
 
 	// ── Transition internals ────────────────────────────────────────────
@@ -901,12 +996,23 @@ class WorkOrderService
 
 		// W6 close-rich: failure code + labor minutes (evidence, not ArbZG).
 		$this->applyCloseRichFields($wo, $body, $set);
+		// W7 inspection close: result / inspector / defects (+ optional auto corrective).
+		$this->applyInspectionCloseFields($uid, $wo, $body, $set, $now);
 
 		// AC-W1-2 / invariant D2: only a *linked* visit is completed; the
-		// roll is identical to visit-complete (same code path).
+		// roll is identical to visit-complete (same code path) unless CORE I2
+		// fail_blocks_roll applies to a fail inspection.
 		$visitId = $wo->getVisitId();
 		if ($visitId !== null) {
-			$rolled = $this->visitService->completeWithinTransaction($uid, $visitId, $doneOn, $now);
+			$rollNext = true;
+			if (
+				$wo->getKind() === WorkOrder::KIND_INSPECTION
+				&& $this->policies->failBlocksRoll()
+				&& ($set['result'] ?? $wo->getResult()) === WorkOrder::RESULT_FAIL
+			) {
+				$rollNext = false;
+			}
+			$rolled = $this->visitService->completeWithinTransaction($uid, $visitId, $doneOn, $now, $rollNext);
 			if (!$rolled['closed']) {
 				$visit = $this->visits->findById($visitId);
 				if ($visit->getStatus() !== Visit::STATUS_DONE) {
@@ -976,6 +1082,188 @@ class WorkOrderService
 				]);
 			}
 			$set['labor_minutes'] = $minutes;
+		}
+	}
+
+	/**
+	 * AC-W7-12: portable electrical inspections require electro_portable skill.
+	 */
+	private function attachInspectionSkillsIfNeeded(WorkOrder $wo, ?string $classCode): void
+	{
+		if ($wo->getKind() !== WorkOrder::KIND_INSPECTION) {
+			return;
+		}
+		$code = $classCode;
+		if (($code === null || $code === '') && $wo->getEquipmentId() !== null) {
+			try {
+				$code = $this->equipment->findById($wo->getEquipmentId())->getEquipmentClass();
+			} catch (NotFoundException) {
+				$code = null;
+			}
+		}
+		if ($code !== 'portable_electrical') {
+			return;
+		}
+		$skillId = $this->skills->ensureByCode('electro_portable', 'Portable electrical inspection');
+		$this->skills->setWoSkills((int)$wo->getId(), ['skillIds' => [$skillId]]);
+	}
+
+	/**
+	 * W7 Done payload for kind=inspection (CORE §21 AC-W7-3…5).
+	 *
+	 * @param array<string, mixed> $body
+	 * @param array<string, string|int|bool|null> $set
+	 */
+	private function applyInspectionCloseFields(string $uid, WorkOrder $wo, array $body, array &$set, int $now): void
+	{
+		if ($wo->getKind() !== WorkOrder::KIND_INSPECTION) {
+			return;
+		}
+		$normalized = $this->inspectionClose->validateAndNormalize(
+			$wo,
+			$body,
+			$this->policies->inspectionResultRequired(),
+		);
+		if ($normalized['result'] !== '') {
+			$set['result'] = $normalized['result'];
+		}
+		if ($normalized['inspectorName'] !== '') {
+			$set['inspector_name'] = $normalized['inspectorName'];
+		}
+		if ($normalized['inspectorNote'] !== null) {
+			$set['inspector_note'] = $normalized['inspectorNote'];
+		}
+
+		$this->assertDefectPhotosBelongToWorkOrder((int)$wo->getId(), $normalized['defects']);
+		foreach ($normalized['defects'] as $defect) {
+			$row = new \OCA\MaintenanceCheck\Db\InspectionDefect();
+			$row->setWoId((int)$wo->getId());
+			$row->setCode($defect['code']);
+			$row->setBody($defect['body']);
+			$row->setPhotoFileId($defect['photoFileId']);
+			$row->setCreatedAt($now);
+			$row->setCreatedBy($uid);
+			$this->inspectionDefects->insert($row);
+		}
+
+		$follow = $this->policies->defectFollowUp();
+		if (
+			$follow === PolicyService::DEFECT_FOLLOW_AUTO
+			&& $normalized['result'] !== ''
+			&& $normalized['result'] !== WorkOrder::RESULT_PASS
+		) {
+			// Deferred until after the Done transaction commits (same pattern as inventory flange).
+			$this->lastDefectFollowUpMode = PolicyService::DEFECT_FOLLOW_AUTO;
+			$firstDefect = (string)($normalized['defects'][0]['body'] ?? $wo->getTitle());
+			$this->pendingInspectionFollowUp = [
+				'uid' => $uid,
+				'sourceId' => (int)$wo->getId(),
+				'title' => 'Follow-up · ' . $wo->getNumber(),
+				'customerId' => $wo->getCustomerId(),
+				'equipmentId' => $wo->getEquipmentId(),
+				'siteId' => $wo->getSiteId(),
+				'description' => 'Auto-opened from inspection ' . $wo->getNumber() . ': ' . $firstDefect,
+				'symptom' => mb_substr($firstDefect, 0, 512),
+				'primaryUserId' => $wo->getPrimaryUserId(),
+			];
+		} elseif (
+			$follow === PolicyService::DEFECT_FOLLOW_WARN
+			&& $normalized['result'] !== ''
+			&& $normalized['result'] !== WorkOrder::RESULT_PASS
+		) {
+			$this->lastDefectFollowUpMode = PolicyService::DEFECT_FOLLOW_WARN;
+		}
+	}
+
+	/**
+	 * Idempotent auto-corrective WO linked via source_wo_id (AC-W7-5).
+	 * UNIQUE(source_wo_id) is the concurrency arbiter; losers re-read the winner.
+	 *
+	 * @param array{uid: string, sourceId: int, title: string, customerId: int, equipmentId: ?int, siteId: ?int, description: string, symptom: string, primaryUserId: ?string} $job
+	 */
+	private function runPendingInspectionFollowUp(array $job): void
+	{
+		$existing = $this->workOrders->findBySourceWoId($job['sourceId']);
+		$existingId = $existing !== null ? (int)$existing->getId() : null;
+		if (InspectionFollowUpGuard::decide($existingId) === 'reuse') {
+			$this->lastCorrectiveWoId = $existingId;
+			return;
+		}
+		try {
+			$created = $this->create($job['uid'], [
+				'title' => $job['title'],
+				'kind' => WorkOrder::KIND_CORRECTIVE,
+				'customerId' => $job['customerId'],
+				'equipmentId' => $job['equipmentId'],
+				'siteId' => $job['siteId'],
+				'description' => $job['description'],
+				'symptom' => $job['symptom'],
+				'sourceWoId' => $job['sourceId'],
+				'status' => WorkOrder::STATUS_PLANNED,
+				'procedureSkipped' => true,
+				'procedureSkipReason' => 'Auto follow-up from inspection defect',
+			], true);
+			$correctiveId = (int)$created['id'];
+			$this->lastCorrectiveWoId = $correctiveId;
+			$assignee = $job['primaryUserId'] ?? null;
+			if (is_string($assignee) && $assignee !== '') {
+				try {
+					$this->assign($job['uid'], $correctiveId, [
+						'primaryUserId' => $assignee,
+						'force' => true,
+					]);
+				} catch (\Throwable $e) {
+					$this->logger->warning('Inspection follow-up assignee copy failed for WO ' . $correctiveId, [
+						'exception' => $e,
+					]);
+				}
+			}
+		} catch (\Throwable $e) {
+			// Unique race: another request inserted the follow-up first.
+			$winner = $this->workOrders->findBySourceWoId($job['sourceId']);
+			if ($winner !== null && InspectionFollowUpGuard::decide((int)$winner->getId()) === 'reuse') {
+				$this->lastCorrectiveWoId = (int)$winner->getId();
+				return;
+			}
+			if ($e instanceof \OCP\DB\Exception && $this->isUniqueViolation($e)) {
+				$this->logger->warning('Inspection auto-corrective unique race without readable winner for WO ' . $job['sourceId'], [
+					'exception' => $e,
+				]);
+				$this->lastDefectFollowUpFailed = true;
+				return;
+			}
+			// Non-unique failures must not look like success — surface on Done payload.
+			$this->logger->error('Inspection auto-corrective follow-up failed for WO ' . $job['sourceId'], [
+				'exception' => $e,
+			]);
+			$this->lastDefectFollowUpFailed = true;
+		}
+	}
+
+	/**
+	 * photoFileId on defects is the mn_wo_photos.id for THIS work order (W7-R6).
+	 *
+	 * @param list<array{code: string, body: string, photoFileId: ?int}> $defects
+	 */
+	private function assertDefectPhotosBelongToWorkOrder(int $woId, array $defects): void
+	{
+		foreach ($defects as $i => $defect) {
+			$photoId = $defect['photoFileId'] ?? null;
+			if ($photoId === null) {
+				continue;
+			}
+			try {
+				$photo = $this->photos->findById($photoId);
+			} catch (NotFoundException) {
+				throw new ValidationException('validation_failed', 'Defect photo was not found on this work order.', [
+					['field' => 'defects[' . $i . '].photoFileId', 'code' => 'photo_not_found'],
+				]);
+			}
+			if ($photo->getWorkOrderId() !== $woId) {
+				throw new ValidationException('validation_failed', 'Defect photo must belong to this work order.', [
+					['field' => 'defects[' . $i . '].photoFileId', 'code' => 'photo_wrong_work_order'],
+				]);
+			}
 		}
 	}
 
