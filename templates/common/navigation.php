@@ -17,6 +17,9 @@ use OCP\Util;
  */
 
 Util::addScript('maintenancecheck', 'common/navigation');
+// Soft keyboard: keep focused notes/inputs above the IME on phones.
+Util::addScript('maintenancecheck', 'common/keep-focused-visible');
+
 
 $navUrls = json_decode($urlsJson, true)['pages'] ?? [];
 $mnNavIcon = static function (string $name): string {

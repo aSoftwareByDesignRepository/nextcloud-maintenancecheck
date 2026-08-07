@@ -42,7 +42,7 @@ MaintenanceCheck runs recurring and corrective maintenance on the Nextcloud you 
 ### Clear limits
 
 - Prüfnachweis PDFs are operational evidence — not legal certificates. Checklists are templates, not legal advice.
-- Customers are a field register. Same name elsewhere ≠ same record. See [docs/FIELD-DUAL-CUSTOMER.md](docs/FIELD-DUAL-CUSTOMER.md).
+- Customers are a field register. Same name elsewhere ≠ same record. See [docs/FIELD-DUAL-CUSTOMER.md](docs/FIELD-DUAL-CUSTOMER.md) (AC-S2.5).
 - Optional stock deduction after close stays off by default and never blocks finishing a job.
 
 ### Requirements

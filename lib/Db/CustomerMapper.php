@@ -123,4 +123,76 @@ class CustomerMapper extends QBMapper
 
 		return ['data' => $this->findEntities($qb), 'total' => $total];
 	}
+
+	public function findByPcCustomerId(int $pcCustomerId): ?Customer
+	{
+		if ($pcCustomerId <= 0) {
+			return null;
+		}
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())
+			->where($qb->expr()->eq('pc_customer_id', $qb->createNamedParameter($pcCustomerId, \PDO::PARAM_INT)))
+			->setMaxResults(1);
+		try {
+			return $this->findEntity($qb);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+	}
+
+	public function findByCrmCompanyId(int $crmCompanyId): ?Customer
+	{
+		if ($crmCompanyId <= 0) {
+			return null;
+		}
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())
+			->where($qb->expr()->eq('crm_company_id', $qb->createNamedParameter($crmCompanyId, \PDO::PARAM_INT)))
+			->setMaxResults(1);
+		try {
+			return $this->findEntity($qb);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return array{mnLinkedPc:int,mnLinkedCrm:int,mnUnlinked:int}
+	 */
+	public function identityLinkCounts(): array
+	{
+		$totalQb = $this->db->getQueryBuilder();
+		$totalQb->select($totalQb->func()->count('id', 'cnt'))->from($this->getTableName());
+		$tr = $totalQb->executeQuery();
+		$total = (int)($tr->fetchOne() ?: 0);
+		$tr->closeCursor();
+
+		$pcQb = $this->db->getQueryBuilder();
+		$pcQb->select($pcQb->func()->count('id', 'cnt'))->from($this->getTableName())
+			->where($pcQb->expr()->isNotNull('pc_customer_id'));
+		$pr = $pcQb->executeQuery();
+		$pc = (int)($pr->fetchOne() ?: 0);
+		$pr->closeCursor();
+
+		$crmQb = $this->db->getQueryBuilder();
+		$crmQb->select($crmQb->func()->count('id', 'cnt'))->from($this->getTableName())
+			->where($crmQb->expr()->isNotNull('crm_company_id'));
+		$cr = $crmQb->executeQuery();
+		$crm = (int)($cr->fetchOne() ?: 0);
+		$cr->closeCursor();
+
+		$unlinkedQb = $this->db->getQueryBuilder();
+		$unlinkedQb->select($unlinkedQb->func()->count('id', 'cnt'))->from($this->getTableName())
+			->where($unlinkedQb->expr()->isNull('pc_customer_id'))
+			->andWhere($unlinkedQb->expr()->isNull('crm_company_id'));
+		$ur = $unlinkedQb->executeQuery();
+		$unlinked = (int)($ur->fetchOne() ?: 0);
+		$ur->closeCursor();
+
+		return [
+			'mnLinkedPc' => $pc,
+			'mnLinkedCrm' => $crm,
+			'mnUnlinked' => $unlinked > 0 ? $unlinked : max(0, $total - max($pc, $crm)),
+		];
+	}
 }

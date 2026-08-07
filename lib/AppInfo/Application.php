@@ -62,6 +62,7 @@ use OCA\MaintenanceCheck\Service\CatalogService;
 use OCA\MaintenanceCheck\Service\ChecklistPolicy;
 use OCA\MaintenanceCheck\Service\Clock;
 use OCA\MaintenanceCheck\Service\CustomerService;
+use OCA\MaintenanceCheck\Public\CrmFieldCustomerFacade;
 use OCA\MaintenanceCheck\Service\DispatchService;
 use OCA\MaintenanceCheck\Service\DueBoard;
 use OCA\MaintenanceCheck\Service\EquipmentService;
@@ -313,6 +314,15 @@ class Application extends App implements IBootstrap
 				$c->get(IUserSession::class),
 			);
 		});
+		$context->registerService(CrmFieldCustomerFacade::class, static function ($c): CrmFieldCustomerFacade {
+			return new CrmFieldCustomerFacade(
+				$c->get(CustomerMapper::class),
+				$c->get(AccessControlService::class),
+				$c->get(InputValidator::class),
+				$c->get(Clock::class),
+				$c->get(IConfig::class),
+			);
+		});
 		$context->registerService(CustomerService::class, static function ($c): CustomerService {
 			return new CustomerService(
 				$c->get(IDBConnection::class),
@@ -322,6 +332,7 @@ class Application extends App implements IBootstrap
 				$c->get(VisitMapper::class),
 				$c->get(InputValidator::class),
 				$c->get(Clock::class),
+				$c->get(CrmFieldCustomerFacade::class),
 			);
 		});
 		$context->registerService(EquipmentService::class, static function ($c): EquipmentService {

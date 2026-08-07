@@ -23,9 +23,7 @@ final class UpgradeBackupCatalog
 
 	/** @var list<string> App-data folder names (under appdata_<instance>/maintenancecheck/) to include in snapshots. */
 	public const APPDATA_FOLDERS = [
-		'wo-photos',
-		'equip-docs',
-		'wo-signatures',
+
 	];
 
 	public const CONFIG_MAX_SNAPSHOTS = 'upgrade_backup_max_snapshots';
@@ -74,7 +72,7 @@ final class UpgradeBackupCatalog
 		'mn_work_orders',
 	];
 
-	/** @var list<string> Parents before children so restores never orphan rows. */
+	/** @var list<string> */
 	public const RESTORE_TABLE_ORDER = [
 		'mn_customers',
 		'mn_day_tours',

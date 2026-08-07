@@ -6,8 +6,9 @@ namespace OCA\MaintenanceCheck\Tests\Integration;
 
 use OCA\MaintenanceCheck\Repair\BackupBeforeUpdate;
 use OCP\Migration\IOutput;
+use Test\TestCase;
 
-final class BackupBeforeUpdateIntegrationTest extends IntegrationTestCase
+final class BackupBeforeUpdateIntegrationTest extends TestCase
 {
 	public function testPreMigrationRepairStepRunsInContainer(): void
 	{

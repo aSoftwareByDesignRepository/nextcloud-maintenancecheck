@@ -33,6 +33,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setUpdatedAt(int $v)
  * @method string getCreatedBy()
  * @method void setCreatedBy(string $v)
+ * @method int|null getPcCustomerId()
+ * @method void setPcCustomerId(?int $v)
+ * @method int|null getCrmCompanyId()
+ * @method void setCrmCompanyId(?int $v)
  */
 class Customer extends Entity
 {
@@ -49,6 +53,8 @@ class Customer extends Entity
 	protected int $createdAt = 0;
 	protected int $updatedAt = 0;
 	protected string $createdBy = '';
+	protected ?int $pcCustomerId = null;
+	protected ?int $crmCompanyId = null;
 
 	public function __construct()
 	{
@@ -65,6 +71,8 @@ class Customer extends Entity
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
 		$this->addType('createdBy', 'string');
+		$this->addType('pcCustomerId', 'integer');
+		$this->addType('crmCompanyId', 'integer');
 	}
 
 	/**
@@ -87,6 +95,8 @@ class Customer extends Entity
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,
 			'createdBy' => $this->createdBy,
+			'pcCustomerId' => $this->pcCustomerId,
+			'crmCompanyId' => $this->crmCompanyId,
 		];
 	}
 }

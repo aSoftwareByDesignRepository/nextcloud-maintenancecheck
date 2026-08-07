@@ -24,6 +24,7 @@ class CustomerService
 		private readonly VisitMapper $visits,
 		private readonly InputValidator $validator,
 		private readonly Clock $clock,
+		private readonly ?\OCA\MaintenanceCheck\Public\CrmFieldCustomerFacade $fieldFacade = null,
 	) {
 	}
 
@@ -58,7 +59,34 @@ class CustomerService
 			'plans' => $this->plans->countForEquipmentIds($equipmentIds),
 			'visits' => $this->visits->countForCustomer($id),
 		];
+		$data['softLinkUi'] = $this->softLinkUiEnabled();
+		$pc = (int)($data['pcCustomerId'] ?? 0);
+		$crm = (int)($data['crmCompanyId'] ?? 0);
+		if ($pc > 0) {
+			$data['identityStatePc'] = 'linked';
+			$data['identityLabelPc'] = 'Linked to ProjectCheck';
+		} else {
+			$data['identityStatePc'] = 'not_linked';
+			$data['identityLabelPc'] = 'Not linked to ProjectCheck';
+		}
+		if ($crm > 0) {
+			$data['identityStateCrm'] = 'linked';
+			$data['identityLabelCrm'] = 'Linked to CustomerCheck';
+		} else {
+			$data['identityStateCrm'] = 'not_linked';
+			$data['identityLabelCrm'] = 'Not linked to CustomerCheck';
+		}
+
 		return $data;
+	}
+
+	public function softLinkUiEnabled(): bool
+	{
+		if ($this->fieldFacade === null) {
+			return true;
+		}
+
+		return $this->fieldFacade->softLinkUiEnabled();
 	}
 
 	/**
@@ -157,5 +185,14 @@ class CustomerService
 		$customer->setPhone($fields['phone']);
 		$customer->setNotes($fields['notes']);
 		$customer->setActive($fields['active']);
+		// Soft links are optional; only touch when keys present so CRUD stays stable.
+		if (array_key_exists('pcCustomerId', $fields)) {
+			$pc = $fields['pcCustomerId'];
+			$customer->setPcCustomerId($pc === null || $pc === '' ? null : (int)$pc);
+		}
+		if (array_key_exists('crmCompanyId', $fields)) {
+			$crm = $fields['crmCompanyId'];
+			$customer->setCrmCompanyId($crm === null || $crm === '' ? null : (int)$crm);
+		}
 	}
 }

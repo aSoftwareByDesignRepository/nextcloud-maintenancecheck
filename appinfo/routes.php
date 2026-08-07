@@ -29,6 +29,8 @@ return [
 		['name' => 'customer#create', 'url' => '/api/customers', 'verb' => 'POST'],
 		['name' => 'customer#update', 'url' => '/api/customers/{id}', 'verb' => 'PUT', 'requirements' => ['id' => '\\d+']],
 		['name' => 'customer#destroy', 'url' => '/api/customers/{id}', 'verb' => 'DELETE', 'requirements' => ['id' => '\\d+']],
+		['name' => 'customer#ensureLink', 'url' => '/api/customers/{id}/ensure-link', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
+		['name' => 'customer#unlinkIdentity', 'url' => '/api/customers/{id}/unlink-identity', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 
 		// ── Equipment ──────────────────────────────────────────────────
 		['name' => 'equipment#index', 'url' => '/api/equipment', 'verb' => 'GET'],

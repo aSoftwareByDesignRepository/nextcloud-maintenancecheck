@@ -7,8 +7,9 @@ namespace OCA\MaintenanceCheck\Tests\Integration;
 use OCA\MaintenanceCheck\Exception\UpgradeBackupException;
 use OCA\MaintenanceCheck\Service\UpgradeBackupService;
 use OCP\IDBConnection;
+use Test\TestCase;
 
-final class UpgradeBackupIntegrationTest extends IntegrationTestCase
+final class UpgradeBackupIntegrationTest extends TestCase
 {
 	private UpgradeBackupService $backupService;
 	private IDBConnection $db;

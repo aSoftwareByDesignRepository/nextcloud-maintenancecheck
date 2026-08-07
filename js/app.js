@@ -2610,6 +2610,78 @@
 				]),
 			]);
 			detail.appendChild(dual);
+			if (current.softLinkUi !== false) {
+				var pcLinked = !!(current.pcCustomerId);
+				var crmLinked = !!(current.crmCompanyId);
+				var linkBox = el('aside', {
+					class: 'mn-callout',
+					role: 'region',
+					'aria-label': tr('Field register identity'),
+				}, [
+					el('p', { class: 'mn-callout__title', text: tr('Field register') }),
+					el('p', {
+						class: 'mn-callout__text',
+						text: (current.identityLabelPc || (pcLinked ? tr('Linked to ProjectCheck') : tr('Not linked to ProjectCheck')))
+							+ ' · '
+							+ (current.identityLabelCrm || (crmLinked ? tr('Linked to CRM hub') : tr('Not linked to CRM hub'))),
+					}),
+				]);
+				if (ctx.isOffice) {
+					var linkActions = el('div', { class: 'mn-detail__actions', style: 'margin-top:0.75rem;gap:0.5rem;flex-wrap:wrap;display:flex;' });
+					linkActions.appendChild(el('button', {
+						type: 'button',
+						class: 'mn-btn mn-btn--secondary',
+						style: 'min-height:44px;min-width:44px;',
+						text: tr('Link ProjectCheck id'),
+						onClick: function () {
+							var raw = window.prompt(tr('ProjectCheck customer id'));
+							var id = parseInt(raw || '', 10);
+							if (!id) return;
+							api('POST', '/api/customers/' + current.id + '/ensure-link', {
+								pcCustomerId: id,
+								updatedAt: current.updatedAt,
+							}).then(function () { load(); }).catch(function (err) {
+								window.alert((err && err.message) || tr('Could not save link'));
+							});
+						},
+					}));
+					linkActions.appendChild(el('button', {
+						type: 'button',
+						class: 'mn-btn mn-btn--secondary',
+						style: 'min-height:44px;min-width:44px;',
+						text: tr('Link CRM company id'),
+						onClick: function () {
+							var raw = window.prompt(tr('CRM company id'));
+							var id = parseInt(raw || '', 10);
+							if (!id) return;
+							api('POST', '/api/customers/' + current.id + '/ensure-link', {
+								crmCompanyId: id,
+								updatedAt: current.updatedAt,
+							}).then(function () { load(); }).catch(function (err) {
+								window.alert((err && err.message) || tr('Could not save link'));
+							});
+						},
+					}));
+					if (pcLinked || crmLinked) {
+						linkActions.appendChild(el('button', {
+							type: 'button',
+							class: 'mn-btn mn-btn--tertiary',
+							style: 'min-height:44px;min-width:44px;',
+							text: tr('Unlink identity'),
+							onClick: function () {
+								if (!window.confirm(tr('Clear soft links? Field work stays on this customer.'))) return;
+								api('POST', '/api/customers/' + current.id + '/unlink-identity', {
+									updatedAt: current.updatedAt,
+								}).then(function () { load(); }).catch(function (err) {
+									window.alert((err && err.message) || tr('Could not unlink'));
+								});
+							},
+						}));
+					}
+					linkBox.appendChild(linkActions);
+				}
+				detail.appendChild(linkBox);
+			}
 			if (ctx.isOffice) {
 				var actions = el('div', { class: 'mn-detail__actions' }, [
 					el('button', {

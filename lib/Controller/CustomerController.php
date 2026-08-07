@@ -23,6 +23,7 @@ class CustomerController extends Controller
 		IRequest $request,
 		private readonly AccessControlService $access,
 		private readonly CustomerService $customers,
+		private readonly \OCA\MaintenanceCheck\Public\CrmFieldCustomerFacade $fieldIdentity,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -67,6 +68,35 @@ class CustomerController extends Controller
 	/**
 	 * @return array<string, mixed>
 	 */
+
+	#[NoAdminRequired]
+	public function ensureLink(int $id): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->access->requireOffice($uid);
+		$body = $this->jsonBody();
+		$pc = array_key_exists('pcCustomerId', $body) ? (int)$body['pcCustomerId'] : null;
+		$crm = array_key_exists('crmCompanyId', $body) ? (int)$body['crmCompanyId'] : null;
+		$updatedAt = isset($body['updatedAt']) ? (int)$body['updatedAt'] : null;
+		return new JSONResponse($this->fieldIdentity->ensureLink($id, $uid, $pc, $crm, $updatedAt));
+	}
+
+	#[NoAdminRequired]
+	public function unlinkIdentity(int $id): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->access->requireOffice($uid);
+		$body = $this->jsonBody();
+		$clearPc = !empty($body['clearPc']) || !empty($body['unlinkPc']);
+		$clearCrm = !empty($body['clearCrm']) || !empty($body['unlinkCrm']);
+		if (!$clearPc && !$clearCrm) {
+			$clearPc = true;
+			$clearCrm = true;
+		}
+		$updatedAt = isset($body['updatedAt']) ? (int)$body['updatedAt'] : null;
+		return new JSONResponse($this->fieldIdentity->unlink($id, $uid, $clearPc, $clearCrm, $updatedAt));
+	}
+
 	private function jsonBody(): array
 	{
 		$params = $this->request->getParams();
