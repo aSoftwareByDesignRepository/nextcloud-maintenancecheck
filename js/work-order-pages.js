@@ -177,7 +177,7 @@
 				if (!li.hasAttribute('tabindex')) {
 					li.setAttribute('tabindex', '-1');
 				}
-				li.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 				window.setTimeout(function () {
 					try { li.focus(); } catch (e2) { /* ignore */ }
 				}, 40);
