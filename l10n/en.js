@@ -1019,4 +1019,5 @@ OC.L10N.register(
 	"{n} minutes per day" : "{n} minutes per day",
 	"{n} results" : "{n} results",
 	"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently." : "“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently."
-});
+	}
+);
