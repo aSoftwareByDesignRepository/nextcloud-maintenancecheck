@@ -1,0 +1,11 @@
+{
+    "Model": "Model urządzenia",
+    "Status: {status}": "Stan: {status}",
+    "Ask a Nextcloud or MaintenanceCheck administrator to add you in Settings → Access.": "Poproś administratora Nextcloud lub MaintenanceCheck o dodanie dostępu w Ustawieniach → Dostęp.",
+    "Create the first one to categorise your data.": "Utwórz pierwszy wpis, aby skategoryzować dane.",
+    "Focus the board on visits assigned to you.": "Skup tablicę na wizytach przypisanych do bieżącego użytkownika.",
+    "How your team refers to this unit, e.g. “Boiler cellar left”.": "Jak zespół określa tę jednostkę, np. «Kotłownia piwnica lewa».",
+    "These users manage settings, catalogs and the license in addition to Nextcloud admins.": "Wymienieni użytkownicy zarządzają ustawieniami, katalogami i licencją oprócz administratorów Nextcloud.",
+    "You are not allowed to use MaintenanceCheck right now.": "Korzystanie z MaintenanceCheck jest obecnie niedozwolone.",
+    "Your organisation restricts MaintenanceCheck access. You are not on the allow-list.": "Organizacja ogranicza dostęp do MaintenanceCheck. Brak wpisu na liście dozwolonych."
+}

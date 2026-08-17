@@ -1,0 +1,21 @@
+{
+    "Checklist": "Controlelijst",
+    "Contract": "Overeenkomst",
+    "Label": "Etiket",
+    "Meter": "Meterstand",
+    "Meters": "Meterstanden",
+    "Model": "Modelnaam",
+    "Procedure": "Werkwijze",
+    "Procedures": "Werkwijzen",
+    "Status: {status}": "Toestand: {status}",
+    "Type": "Soort",
+    "Ask the office to plan your stops.": "Vraag het kantoor om haltes te plannen.",
+    "Big button moves the job. Checklist when you start. More for kit and comments.": "Grote knop verplaatst de opdracht. Controlelijst bij start. Meer voor uitrusting en opmerkingen.",
+    "Every unit you maintain, across all customers.": "Elke eenheid die wordt onderhouden, over alle klanten.",
+    "Filter by status or search the number — the list updates as you change it. Use Only my jobs if you are a technician.": "Filter op status of doorzoek het nummer — de lijst wordt bijgewerkt wanneer deze wordt gewijzigd. Gebruik Alleen mijn opdrachten als er als technicus wordt gewerkt.",
+    "No tour for you": "Geen rondleiding toegewezen",
+    "Paste the MN2 key exactly as you received it.": "Plak de MN2-sleutel precies zoals ontvangen.",
+    "Skills load when you pick a person.": "Vaardigheden worden geladen wanneer een persoon wordt gekozen.",
+    "This plan is inactive. Activate it before scheduling a visit.": "Dit plan is inactief. Activeer het voordat een bezoek wordt gepland.",
+    "Your organisation restricts MaintenanceCheck access. You are not on the allow-list.": "De organisatie beperkt de toegang tot MaintenanceCheck. Geen vermelding op de toegestane lijst."
+}
