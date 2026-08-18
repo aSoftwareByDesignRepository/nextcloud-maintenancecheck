@@ -184,9 +184,9 @@ class PageController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
-	public function dispatch(): TemplateResponse
+	public function dispatch(): TemplateResponse|RedirectResponse
 	{
-		return $this->page('dispatch', $this->l->t('Dispatch'), $this->l->t('Tap Assign on a job — search and pick, never type an id.'));
+		return $this->officePage('dispatch', $this->l->t('Dispatch'), $this->l->t('Tap Assign on a job — search and pick, never type an id.'));
 	}
 
 	#[NoAdminRequired]
@@ -198,16 +198,31 @@ class PageController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
-	public function kpi(): TemplateResponse
+	public function kpi(): TemplateResponse|RedirectResponse
 	{
-		return $this->page('kpi', $this->l->t('Ops KPI'), $this->l->t('Compliance, overdue work and MTTR — pick 30 or 90 days.'));
+		return $this->officePage('kpi', $this->l->t('Ops KPI'), $this->l->t('Compliance, overdue work and MTTR — pick 30 or 90 days.'));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
-	public function exceptions(): TemplateResponse
+	public function exceptions(): TemplateResponse|RedirectResponse
 	{
-		return $this->page('exceptions', $this->l->t('Exceptions'), $this->l->t('Open a job and clear the blocker.'));
+		return $this->officePage('exceptions', $this->l->t('Exceptions'), $this->l->t('Open a job and clear the blocker.'));
+	}
+
+	/**
+	 * Planning pages (dispatch / KPI / exceptions) are office-only in the
+	 * nav. Direct URLs must not render the shell for technicians — the API
+	 * already 403s; sending them back to the due board avoids a dead page.
+	 */
+	private function officePage(string $template, string $title, string $hint): TemplateResponse|RedirectResponse
+	{
+		if (!$this->access->isOffice($this->access->currentUserId())) {
+			return new RedirectResponse(
+				$this->urlGenerator->linkToRoute('maintenancecheck.page.due'),
+			);
+		}
+		return $this->page($template, $title, $hint);
 	}
 
 	/**
@@ -218,6 +233,7 @@ class PageController extends Controller
 		$pageId = array_key_exists('pageId', $extra) ? (string)$extra['pageId'] : $template;
 		Util::addStyle(Application::APP_ID, 'app');
 		Util::addScript(Application::APP_ID, 'app');
+		Util::addScript(Application::APP_ID, 'common/app-feedback');
 		if (in_array($pageId, ['work-orders', 'work-order-detail', 'dispatch', 'tours', 'kpi', 'exceptions'], true)) {
 			Util::addScript(Application::APP_ID, 'work-order-pages');
 		}

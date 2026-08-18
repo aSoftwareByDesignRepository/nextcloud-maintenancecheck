@@ -222,4 +222,5 @@ $mnNavLabel = static function (string $name, string $hint) use ($l): void {
 				</li>
 			<?php endif; ?>
 		</ul>
+	<?php include __DIR__ . '/../parts/feedback-nav-footer.php'; ?>
 	</div>
