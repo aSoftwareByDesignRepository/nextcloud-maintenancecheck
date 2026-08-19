@@ -33,6 +33,8 @@ declare(strict_types=1);
  * Exit 0 on pass; non-zero on failure.
  */
 
+require_once dirname(__DIR__) . '/tests/Support/WorkerStdoutToken.php';
+
 $dsn = getenv('MN_PG_DSN') ?: 'pgsql:host=deskcheck-postgres;port=5432;dbname=mn_race';
 $user = getenv('MN_PG_USER') ?: 'deskcheck';
 $pass = getenv('MN_PG_PASS') ?: 'deskcheck';
@@ -272,7 +274,7 @@ function raceTwo(string $self, array $argsA, array $argsB, array $env): array
 		fclose($pipes[$i][1]);
 		fclose($pipes[$i][2]);
 		$code = proc_close($proc);
-		$token = trim(explode("\n", trim($stdout))[0] ?? '');
+		$token = \OCA\MaintenanceCheck\Tests\Support\WorkerStdoutToken::first($stdout);
 		if ($token === '') {
 			fwrite(STDERR, "Worker $i empty stdout (exit=$code stderr=$stderr)\n");
 			exit(2);

@@ -165,8 +165,10 @@ test.describe('Bachus UX journeys', () => {
 		await expect(menu).toBeVisible({ timeout: 10_000 })
 		await expect(menu.getByRole('menuitem', { name: /create work order|arbeitsauftrag anlegen/i })).toBeVisible()
 		await expect(menu.getByRole('menuitem', { name: /complete with details|mit details abschließen/i })).toBeVisible()
-		await expect(menu.getByRole('menuitem', { name: /^skip$|^überspringen$/i })).toBeVisible()
-		await expect(menu.getByRole('menuitem', { name: /skip with reason|mit grund überspringen/i })).toBeVisible()
+		// l10n: "Skip" => "Aussetzen" in German, not just "überspringen".
+		// keep English + older German strings as compatibility.
+		await expect(menu.getByRole('menuitem', { name: /^skip$|^aussetzen$|^überspringen$/i })).toBeVisible()
+		await expect(menu.getByRole('menuitem', { name: /skip with reason|mit begründung überspringen|mit grund überspringen/i })).toBeVisible()
 		await page.keyboard.press('Escape')
 		await expect(page.locator('.mn-overflow__menu:not([hidden])')).toHaveCount(0)
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
@@ -425,7 +427,8 @@ test.describe('Bachus UX journeys', () => {
 			await page.keyboard.press('Enter')
 		}
 		await expect(more).toHaveAttribute('open', '')
-		await expect(page.getByRole('heading', { name: /kit \/ parts/i }).first()).toBeVisible()
+		// l10n: "Kit / parts" => "Kit / Teile" in German.
+		await expect(page.getByRole('heading', { name: /kit\s*\/\s*(parts|teile)/i }).first()).toBeVisible()
 		await axeMain(page)
 
 		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/transition`, { to: 'ready' })
@@ -433,8 +436,9 @@ test.describe('Bachus UX journeys', () => {
 		await page.reload()
 		await expect(page.locator('#mn-wo-detail')).not.toHaveAttribute('aria-busy', 'true', { timeout: 30_000 })
 		await expect(page.locator('#mn-wo-detail .mn-wo-evidence')).toBeVisible()
-		await expect(page.getByRole('heading', { name: /^checklist$/i }).first()).toBeVisible()
-		await expect(page.getByRole('heading', { name: /^evidence$/i }).first()).toBeVisible()
+		// l10n: Checklist => Checkliste, Evidence => Nachweise (de)
+		await expect(page.getByRole('heading', { name: /^(checklist|checkliste)$/i }).first()).toBeVisible()
+		await expect(page.getByRole('heading', { name: /^(evidence|nachweise)$/i }).first()).toBeVisible()
 		expect(await page.locator('#mn-wo-detail > .mn-card').count()).toBe(1)
 		await expect(page.getByRole('button', { name: /complete|abschließen/i }).first()).toBeVisible()
 		await axeMain(page)

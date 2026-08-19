@@ -56,12 +56,15 @@ class InventoryFlangeServiceTest extends TestCase
 				}
 				return $default;
 			});
-		// In this workspace StockIssueFacade may exist — if so, skip unavailable assert.
-		if (class_exists('OCA\\InventoryCheck\\Public\\StockIssueFacade')) {
-			$this->markTestSkipped('InventoryCheck StockIssueFacade is present in this tree.');
-		}
-		$result = $this->service->issueForWorkOrder('tech', 9, [['sku' => 'FILTER-42', 'qty' => 2]]);
+		$svc = new class ($this->config, $this->createMock(LoggerInterface::class)) extends InventoryFlangeService {
+			protected function siblingFacadeAvailable(): bool
+			{
+				return false;
+			}
+		};
+		$result = $svc->issueForWorkOrder('tech', 9, [['sku' => 'FILTER-42', 'qty' => 2]]);
 		$this->assertSame('unavailable', $result['sync']);
+		$this->assertSame('sibling_unavailable', $result['code']);
 	}
 
 	public function testFacadeThrowableSoftFailsWithoutPropagating(): void

@@ -31,8 +31,8 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUserManager;
 use OCP\IUserSession;
-use OCP\Server;
 
 /**
  * Mobile API v1 (SPEC §9 + COMPANION §9.2). Rungs 1–2 of the gate are enforced
@@ -40,7 +40,8 @@ use OCP\Server;
  * `bootstrap` skips 3–6 and reports state + capabilities instead.
  *
  * CSRF posture (N5): mutations reject cookie-only requests that lack a valid
- * requesttoken; app-password Authorization is accepted.
+ * CSRF token. App-password Basic credentials are accepted only when they
+ * checkPassword as the current session UID — header shape alone is not enough.
  */
 class MobileController extends Controller
 {
@@ -64,6 +65,7 @@ class MobileController extends Controller
 		private readonly FailureCodeService $failureCodes,
 		private readonly ExceptionBoardService $exceptions,
 		private readonly \OCA\MaintenanceCheck\Service\InspectionObligationService $obligations,
+		private readonly IUserManager $userManager,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -387,37 +389,50 @@ class MobileController extends Controller
 	}
 
 	/**
-	 * N5: mutations accept app-password Authorization OR a valid CSRF
-	 * requesttoken. Cookie-only posts without a token are rejected.
+	 * N5: mutations accept a valid CSRF token OR Basic credentials that
+	 * checkPassword as the current user. Forged Bearer/Basic headers must not
+	 * skip CSRF for a cookie session.
 	 */
 	private function assertSafeMutationChannel(): void
 	{
-		$auth = trim((string)$this->request->getHeader('Authorization'));
-		if ($auth !== '' && preg_match('/^(Basic|Bearer)\s+\S+/i', $auth) === 1) {
+		if ($this->request->passesCSRFCheck()) {
 			return;
 		}
-
-		$token = trim((string)(
-			$this->request->getHeader('requesttoken')
-			?: $this->request->getParam('requesttoken')
-			?: ''
-		));
-		if ($token !== '' && $this->isRequestTokenValid($token)) {
+		if ($this->authorizationBasicAuthenticatesCurrentUser()) {
 			return;
 		}
 
 		throw new PermissionDeniedException();
 	}
 
-	private function isRequestTokenValid(string $token): bool
+	/**
+	 * True only when Authorization Basic credentials checkPassword as the
+	 * current session UID (blocks presence-only Bearer/Basic CSRF escapes).
+	 */
+	private function authorizationBasicAuthenticatesCurrentUser(): bool
 	{
-		try {
-			/** @var \OC\Security\CSRF\CsrfTokenManager $manager */
-			$manager = Server::get(\OC\Security\CSRF\CsrfTokenManager::class);
-			return $manager->isTokenValid(new \OC\Security\CSRF\CsrfToken($token));
-		} catch (\Throwable) {
+		$auth = trim((string)$this->request->getHeader('Authorization'));
+		if (preg_match('/^Basic\s+(\S+)$/i', $auth, $m) !== 1) {
 			return false;
 		}
+		$decoded = base64_decode($m[1], true);
+		if ($decoded === false || !str_contains($decoded, ':')) {
+			return false;
+		}
+		[$login, $secret] = explode(':', $decoded, 2);
+		if ($login === '' || $secret === '') {
+			return false;
+		}
+		$current = $this->userSession->getUser();
+		if ($current === null) {
+			return false;
+		}
+		$authed = $this->userManager->checkPassword($login, $secret);
+		if ($authed === false) {
+			return false;
+		}
+
+		return hash_equals($current->getUID(), $authed->getUID());
 	}
 
 	private function readUploadedBinary(): string

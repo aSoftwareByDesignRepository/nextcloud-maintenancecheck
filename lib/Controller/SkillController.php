@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\MaintenanceCheck\Controller;
 
 use OCA\MaintenanceCheck\AppInfo\Application;
+use OCA\MaintenanceCheck\Exception\PermissionDeniedException;
 use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Service\SkillService;
 use OCP\AppFramework\Controller;
@@ -14,8 +15,8 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 
 /**
- * W2 skills: catalog + per-user grants. Reads: every app user (badges,
- * dispatch hints). Mutations: office.
+ * W2 skills: catalog reads are P2 (job badges). Per-user grants: office or
+ * self. Mutations: office. Technicians must not read another uid's grants.
  */
 class SkillController extends Controller
 {
@@ -50,6 +51,10 @@ class SkillController extends Controller
 	#[NoAdminRequired]
 	public function userSkills(string $uid): JSONResponse
 	{
+		$actor = $this->access->currentUserId();
+		if ($actor !== $uid && !$this->access->isOffice($actor)) {
+			throw new PermissionDeniedException();
+		}
 		return new JSONResponse($this->skills->userSkills($uid));
 	}
 

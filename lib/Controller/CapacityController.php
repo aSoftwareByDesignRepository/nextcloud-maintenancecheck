@@ -13,8 +13,8 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 
 /**
- * W4 per-user daily capacity. Office manages; assessment is available to
- * every app user (the dispatch UI shows it read-only).
+ * W4 per-user daily capacity. Office manages the list; assign-time
+ * assessment lives on the work-order assign path, not this endpoint.
  */
 class CapacityController extends Controller
 {
@@ -29,6 +29,7 @@ class CapacityController extends Controller
 	#[NoAdminRequired]
 	public function index(): JSONResponse
 	{
+		$this->access->requireOffice($this->access->currentUserId());
 		return new JSONResponse($this->capacity->list());
 	}
 

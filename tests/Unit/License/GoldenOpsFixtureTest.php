@@ -26,10 +26,15 @@ final class GoldenOpsFixtureTest extends TestCase
 	{
 		$dir = getenv('MN_OPS_FIXTURES_DIR');
 		if (!is_string($dir) || trim($dir) === '') {
-			return null;
+			$dir = dirname(__DIR__, 2) . '/fixtures';
 		}
 		$path = rtrim($dir, '/') . '/' . $filename;
-		return is_file($path) ? $path : null;
+		if (is_file($path)) {
+			return $path;
+		}
+		$alias = str_replace('_golden', '', $filename);
+		$aliasPath = rtrim($dir, '/') . '/' . $alias;
+		return is_file($aliasPath) ? $aliasPath : null;
 	}
 
 	public function testOpsGoldenWireVerifies(): void

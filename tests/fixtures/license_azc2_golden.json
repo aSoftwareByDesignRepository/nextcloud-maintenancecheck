@@ -1,0 +1,15 @@
+{
+    "seedLabel": "arbeitszeitcheck-azc2-test-signing-v1",
+    "publicKeyB64": "-WT78_07UKj8JKtoVuwzRr3Y30fDXnlb0CBi_1sMdIc",
+    "payload": {
+        "v": 2,
+        "customerId": "test",
+        "issuedAt": "2026-06-10",
+        "validUntil": "2027-12-31",
+        "mobileSeats": 5,
+        "terminalDevices": 0
+    },
+    "payloadB64": "eyJ2IjoyLCJjdXN0b21lcklkIjoidGVzdCIsImlzc3VlZEF0IjoiMjAyNi0wNi0xMCIsInZhbGlkVW50aWwiOiIyMDI3LTEyLTMxIiwibW9iaWxlU2VhdHMiOjUsInRlcm1pbmFsRGV2aWNlcyI6MH0",
+    "signatureB64": "v5LfFU8YMhTVIwco5L73Q_Ap-2wTDR4UomlDPS3_F4oUFsz40zyw2RKmUXJM-Zbo-dHPwmh4LM3KYcVLAnjxBg",
+    "wireKey": "AZC2.eyJ2IjoyLCJjdXN0b21lcklkIjoidGVzdCIsImlzc3VlZEF0IjoiMjAyNi0wNi0xMCIsInZhbGlkVW50aWwiOiIyMDI3LTEyLTMxIiwibW9iaWxlU2VhdHMiOjUsInRlcm1pbmFsRGV2aWNlcyI6MH0.v5LfFU8YMhTVIwco5L73Q_Ap-2wTDR4UomlDPS3_F4oUFsz40zyw2RKmUXJM-Zbo-dHPwmh4LM3KYcVLAnjxBg"
+}

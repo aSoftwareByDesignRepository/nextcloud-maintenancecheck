@@ -20,6 +20,8 @@ use OCP\IRequest;
 
 /**
  * W6 ops surfaces: KPI, exception board, failure codes, reminder dry-run.
+ * KPI JSON/CSV and the web exception board are office-only (nav + API).
+ * Failure-code reads stay P2; writes stay office.
  */
 class OpsController extends Controller
 {
@@ -37,6 +39,7 @@ class OpsController extends Controller
 	#[NoAdminRequired]
 	public function kpi(?string $days = null): JSONResponse
 	{
+		$this->access->requireOffice($this->access->currentUserId());
 		$window = 30;
 		if ($days !== null && $days !== '' && preg_match('/^\d+$/', $days)) {
 			$window = (int)$days;
@@ -67,6 +70,7 @@ class OpsController extends Controller
 	#[NoAdminRequired]
 	public function exceptions(?string $filter = null, ?string $limit = null, ?string $offset = null): JSONResponse
 	{
+		$this->access->requireOffice($this->access->currentUserId());
 		return new JSONResponse($this->exceptions->list($limit, $offset, $filter));
 	}
 

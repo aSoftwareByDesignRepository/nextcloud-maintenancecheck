@@ -12,6 +12,7 @@ use OCA\MaintenanceCheck\Service\CustomerService;
 use OCA\MaintenanceCheck\Service\EquipmentService;
 use OCA\MaintenanceCheck\Service\PlanService;
 use OCA\MaintenanceCheck\Service\VisitService;
+use OCA\MaintenanceCheck\Tests\Support\WorkerStdoutToken;
 use OCP\IDBConnection;
 use OCP\Server;
 
@@ -282,7 +283,7 @@ final class ConcurrencyRaceIntegrationTest extends IntegrationTestCase
 			fclose($pipes[$i][1]);
 			fclose($pipes[$i][2]);
 			$code = proc_close($proc);
-			$token = trim(explode("\n", trim($stdout))[0] ?? '');
+			$token = WorkerStdoutToken::first($stdout);
 			if ($token === '') {
 				$this->fail("Seat worker $i produced empty stdout (exit=$code stderr=$stderr)");
 			}
@@ -432,7 +433,7 @@ final class ConcurrencyRaceIntegrationTest extends IntegrationTestCase
 			fclose($pipes[$i][1]);
 			fclose($pipes[$i][2]);
 			$code = proc_close($proc);
-			$token = trim(explode("\n", trim($stdout))[0] ?? '');
+			$token = WorkerStdoutToken::first($stdout);
 			if ($token === '') {
 				$this->fail("Capacity assign worker $i produced empty stdout (exit=$code stderr=$stderr)");
 			}
@@ -480,7 +481,7 @@ final class ConcurrencyRaceIntegrationTest extends IntegrationTestCase
 			fclose($pipes[$i][1]);
 			fclose($pipes[$i][2]);
 			$code = proc_close($proc);
-			$token = trim(explode("\n", trim($stdout))[0] ?? '');
+			$token = WorkerStdoutToken::first($stdout);
 			if ($token === '') {
 				$this->fail("WO done worker $i produced empty stdout (exit=$code stderr=$stderr)");
 			}
@@ -533,7 +534,7 @@ final class ConcurrencyRaceIntegrationTest extends IntegrationTestCase
 			fclose($pipes[$i][1]);
 			fclose($pipes[$i][2]);
 			$code = proc_close($proc);
-			$token = trim(explode("\n", trim($stdout))[0] ?? '');
+			$token = WorkerStdoutToken::first($stdout);
 			if ($token === '') {
 				$this->fail("Worker $i produced empty stdout (exit=$code stderr=$stderr)");
 			}

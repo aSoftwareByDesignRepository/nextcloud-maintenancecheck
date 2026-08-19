@@ -124,7 +124,7 @@ class InventoryFlangeService
 			return ['sync' => 'ok', 'code' => null];
 		}
 
-		if ($this->issueInvoker === null && (!class_exists(self::FACADE) || !class_exists(self::REQUEST))) {
+		if ($this->issueInvoker === null && !$this->siblingFacadeAvailable()) {
 			return ['sync' => 'unavailable', 'code' => 'sibling_unavailable'];
 		}
 
@@ -170,5 +170,15 @@ class InventoryFlangeService
 			locationId: $locationId,
 		);
 		return $facade->issueBySkuBundle($request);
+	}
+
+	/**
+	 * Test seam: a subclass can pretend InventoryCheck is not installed even
+	 * when this workspace has the sibling app (otherwise the unavailable
+	 * branch is permanently skipped).
+	 */
+	protected function siblingFacadeAvailable(): bool
+	{
+		return class_exists(self::FACADE) && class_exists(self::REQUEST);
 	}
 }

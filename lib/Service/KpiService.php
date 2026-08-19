@@ -49,15 +49,8 @@ class KpiService
 		$mttr = $this->mttrProxy($from, $today);
 		$insp = $this->inspectionCompliance($from, $today);
 
-		$denom = $pm['onTime'] + $pm['late'] + $pm['stillOverdue'];
-		$compliance = $denom > 0
-			? round(100.0 * $pm['onTime'] / $denom, 1)
-			: null;
-
-		$inspDenom = $insp['onTime'] + $insp['late'] + $insp['stillOverdue'];
-		$inspCompliance = $inspDenom > 0
-			? round(100.0 * $insp['onTime'] / $inspDenom, 1)
-			: null;
+		$compliance = self::ratioPercent($pm['onTime'], $pm['late'], $pm['stillOverdue']);
+		$inspCompliance = self::ratioPercent($insp['onTime'], $insp['late'], $insp['stillOverdue']);
 
 		return [
 			'windowDays' => $windowDays,
@@ -105,6 +98,19 @@ class KpiService
 			$lines[] = 'open_wo_' . $status . ',' . $count;
 		}
 		return implode("\n", $lines) . "\n";
+	}
+
+	/**
+	 * On-time share of a completed+overdue set. Null when the denominator is 0
+	 * so the UI can show "n/a" instead of a fake 0%.
+	 */
+	public static function ratioPercent(int $onTime, int $late, int $stillOverdue): ?float
+	{
+		$denom = $onTime + $late + $stillOverdue;
+		if ($denom <= 0) {
+			return null;
+		}
+		return round(100.0 * $onTime / $denom, 1);
 	}
 
 	/**

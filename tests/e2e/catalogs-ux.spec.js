@@ -90,7 +90,8 @@ test.describe('catalogs Bachus UX', () => {
 
 		// Header: New procedure + pack More — not three primary header buttons.
 		const procActions = page.locator('#mn-procedures-actions')
-		await expect(procActions.getByRole('button', { name: /new procedure|neues verfahren/i })).toBeVisible()
+		// l10n: "New procedure" => "Neue Prozedur" (de), so accept both.
+		await expect(procActions.getByRole('button', { name: /new procedure|neue prozedur|neues verfahren/i })).toBeVisible()
 		await expect(procActions.locator('> .mn-btn', { hasText: /^Export pack$/i })).toHaveCount(0)
 		await expect(procActions.locator('> .mn-btn', { hasText: /^Import pack$/i })).toHaveCount(0)
 

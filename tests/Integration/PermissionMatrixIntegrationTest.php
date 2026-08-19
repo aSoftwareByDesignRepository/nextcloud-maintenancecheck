@@ -502,4 +502,47 @@ final class PermissionMatrixIntegrationTest extends IntegrationTestCase
 		$ok = $ctrl->userAccess(self::TECH)->getData();
 		$this->assertTrue($ok['canUseApp']);
 	}
+
+	public function testPlanningApiRejectsTechnicianForKpiAndExceptions(): void
+	{
+		$this->loginAs(self::TECH);
+		$ops = \OC::$server->get(\OCA\MaintenanceCheck\Controller\OpsController::class);
+		$this->invokeExpectingPermissionDenied($ops, 'kpi', fn () => $ops->kpi());
+		$this->invokeExpectingPermissionDenied($ops, 'exceptions', fn () => $ops->exceptions());
+		$dispatch = \OC::$server->get(\OCA\MaintenanceCheck\Controller\DispatchController::class);
+		$this->invokeExpectingPermissionDenied($dispatch, 'board', fn () => $dispatch->board());
+	}
+
+	public function testTechnicianCannotReadAnotherUsersSkillGrants(): void
+	{
+		$this->loginAs(self::TECH);
+		$skills = \OC::$server->get(\OCA\MaintenanceCheck\Controller\SkillController::class);
+		$this->invokeExpectingPermissionDenied(
+			$skills,
+			'userSkills',
+			fn () => $skills->userSkills(self::OFFICE),
+		);
+		$own = $skills->userSkills(self::TECH);
+		$this->assertSame(self::TECH, $own->getData()['uid']);
+	}
+
+	public function testPlanningPagesRedirectTechnicianAwayFromOfficeBoards(): void
+	{
+		$this->loginAs(self::TECH);
+		$page = \OC::$server->get(\OCA\MaintenanceCheck\Controller\PageController::class);
+		foreach (['dispatch', 'kpi', 'exceptions'] as $method) {
+			$response = $page->{$method}();
+			$this->assertInstanceOf(\OCP\AppFramework\Http\RedirectResponse::class, $response, $method . ' must bounce technicians');
+		}
+	}
+
+	public function testPlanningPagesStayForOffice(): void
+	{
+		$this->loginAs(self::OFFICE);
+		$page = \OC::$server->get(\OCA\MaintenanceCheck\Controller\PageController::class);
+		foreach (['dispatch', 'kpi', 'exceptions'] as $method) {
+			$response = $page->{$method}();
+			$this->assertInstanceOf(\OCP\AppFramework\Http\TemplateResponse::class, $response, $method . ' must render for office');
+		}
+	}
 }

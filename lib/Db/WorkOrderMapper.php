@@ -195,10 +195,7 @@ class WorkOrderMapper extends QBMapper
 				$qb->andWhere($qb->expr()->eq('equipment_id', $qb->createNamedParameter($filters['equipmentId'], \PDO::PARAM_INT)));
 			}
 			if (isset($filters['mineUid'])) {
-				$qb->andWhere($qb->expr()->orX(
-					$qb->expr()->eq('primary_user_id', $qb->createNamedParameter($filters['mineUid'])),
-					$qb->expr()->isNull('primary_user_id'),
-				));
+				$this->constrainToMine($qb, $filters['mineUid']);
 			}
 			if (isset($filters['primaryUid'])) {
 				$qb->andWhere($qb->expr()->eq('primary_user_id', $qb->createNamedParameter($filters['primaryUid'])));
@@ -231,8 +228,8 @@ class WorkOrderMapper extends QBMapper
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*');
 		$apply($qb);
-		$qb->orderBy('due_on', 'ASC')->addOrderBy('id', 'ASC')
-			->setMaxResults($limit)->setFirstResult($offset);
+		$this->applyMineAwareSort($qb, isset($filters['mineUid']) ? (string)$filters['mineUid'] : null);
+		$qb->setMaxResults($limit)->setFirstResult($offset);
 
 		return ['data' => $this->findEntities($qb), 'total' => $total];
 	}
@@ -309,13 +306,46 @@ class WorkOrderMapper extends QBMapper
 			->andWhere($qb->expr()->isNotNull('due_on'))
 			->andWhere($qb->expr()->lte('due_on', $qb->createNamedParameter($maxDueOn)));
 		if ($mineUid !== null) {
-			$qb->andWhere($qb->expr()->orX(
-				$qb->expr()->eq('primary_user_id', $qb->createNamedParameter($mineUid)),
-				$qb->expr()->isNull('primary_user_id'),
-			));
+			$this->constrainToMine($qb, $mineUid);
 		}
-		$qb->orderBy('due_on', 'ASC')->addOrderBy('id', 'ASC')->setMaxResults(1000);
+		$this->applyMineAwareSort($qb, $mineUid);
+		$qb->setMaxResults(1000);
 		return $this->findEntities($qb);
+	}
+
+	/**
+	 * CORE §7 list/due-board scope: primary assignee, unassigned pool, or
+	 * JSON helper list. Must stay aligned with WorkOrder::isAssigneeOrPool().
+	 */
+	private function constrainToMine(IQueryBuilder $qb, string $mineUid): void
+	{
+		$helperNeedle = '%' . $this->db->escapeLikeParameter('"' . $mineUid . '"') . '%';
+		$qb->andWhere($qb->expr()->orX(
+			$qb->expr()->eq('primary_user_id', $qb->createNamedParameter($mineUid)),
+			$qb->expr()->isNull('primary_user_id'),
+			$qb->expr()->eq('primary_user_id', $qb->createNamedParameter('')),
+			$qb->expr()->like('helper_uids', $qb->createNamedParameter($helperNeedle)),
+		));
+	}
+
+	/**
+	 * When listing "mine", assigned + helper rows must sort before the
+	 * unassigned pool so pagination cannot hide the job the technician is
+	 * actually on. Pool remains visible (CORE §7); it just comes after.
+	 */
+	private function applyMineAwareSort(IQueryBuilder $qb, ?string $mineUid): void
+	{
+		if ($mineUid !== null && $mineUid !== '') {
+			$uidParam = $qb->createNamedParameter($mineUid);
+			$helperNeedle = '%' . $this->db->escapeLikeParameter('"' . $mineUid . '"') . '%';
+			$helperParam = $qb->createNamedParameter($helperNeedle);
+			$rank = 'CASE WHEN '
+				. $qb->expr()->eq('primary_user_id', $uidParam)
+				. ' OR ' . $qb->expr()->like('helper_uids', $helperParam)
+				. ' THEN 0 ELSE 1 END';
+			$qb->orderBy($qb->createFunction($rank), 'ASC');
+		}
+		$qb->addOrderBy('due_on', 'ASC')->addOrderBy('id', 'ASC');
 	}
 
 	public function countForProcedure(int $procedureId): int

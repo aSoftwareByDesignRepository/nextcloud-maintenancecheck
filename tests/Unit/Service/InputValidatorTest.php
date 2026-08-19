@@ -117,6 +117,8 @@ final class InputValidatorTest extends TestCase
 		$this->assertThrowsCode('invalid_query', fn () => $this->v->pagination('1.5', null));
 		$this->assertThrowsCode('invalid_query', fn () => $this->v->pagination(null, '-1'));
 		$this->assertThrowsCode('invalid_query', fn () => $this->v->pagination(null, 'x'));
+		$this->assertSame(['limit' => 50, 'offset' => InputValidator::MAX_OFFSET], $this->v->pagination(null, (string)InputValidator::MAX_OFFSET));
+		$this->assertThrowsCode('invalid_query', fn () => $this->v->pagination(null, (string)(InputValidator::MAX_OFFSET + 1)));
 	}
 
 	// ── Search (S13) ────────────────────────────────────────────────────

@@ -61,6 +61,8 @@ function runMutations(string $appRoot, string $testFilter, array $mutants): neve
 		file_put_contents($path, $mutated);
 		$cmd = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($phpunit)
 			. ' -c ' . escapeshellarg($config)
+			. ' --testsuite unit'
+			. ' --cache-result-file=/tmp/mn-phpunit.cache'
 			. ' --filter ' . escapeshellarg($testFilter)
 			. ' 2>&1';
 		$out = [];
@@ -101,11 +103,19 @@ function restoreMutationOriginals(string $appRoot): int
 		if ($content === false || !is_file($target)) {
 			continue;
 		}
-		if (file_get_contents($target) !== $content) {
-			file_put_contents($target, $content);
-			$restored++;
-			fwrite(STDERR, "Restored after interrupted mutation: {$rel}\n");
+		$current = file_get_contents($target);
+		if ($current === false || $current === $content) {
+			continue;
 		}
+		// Only rewind files left mid-mutant. A stale .bak from an older
+		// revision must not clobber legitimate source that landed after the
+		// last harness run (that is how applyMineAwareSort was wiped).
+		if (!str_contains($current, '// mutant:')) {
+			continue;
+		}
+		file_put_contents($target, $content);
+		$restored++;
+		fwrite(STDERR, "Restored after interrupted mutation: {$rel}\n");
 	}
 	return $restored;
 }

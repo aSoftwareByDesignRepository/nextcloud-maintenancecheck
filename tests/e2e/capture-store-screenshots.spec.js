@@ -97,8 +97,7 @@ async function dismissHints(page) {
 
 async function openApp(page, path) {
 	await page.goto(path)
-	await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 45_000 })
-	await dismissHints(page)
+	await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 90_000 })
 	// Re-apply hide if cards already rendered
 	await page.locator('.mn-hint-dismiss').evaluateAll((btns) => btns.forEach((b) => b.click())).catch(() => {})
 	await page.waitForTimeout(500)
@@ -295,7 +294,12 @@ async function typeSearch(page, text) {
 }
 
 test.describe('App Store screenshots', () => {
-	test('seed demo and capture store screenshots', async ({ page }) => {
+	test.setTimeout(240_000)
+	test('seed demo and capture store screenshots', async ({ page }, testInfo) => {
+		test.skip(
+			testInfo.project.name !== 'chromium-store',
+			'App-store screenshot capture is only baselined for chromium-store viewport/project',
+		)
 		const admin = primaryCreds()
 		test.skip(!admin, 'Requires NC_E2E_* or NC_ADMIN_*')
 

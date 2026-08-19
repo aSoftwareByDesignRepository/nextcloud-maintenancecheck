@@ -16,6 +16,8 @@ use OCA\MaintenanceCheck\Exception\ValidationException;
 class InputValidator
 {
 	public const TEN_YEARS_MIN_DATE = '2000-01-01';
+	/** Hard cap so OFFSET cannot be used as an unbounded table scan. */
+	public const MAX_OFFSET = 10000;
 
 	public function __construct(
 		private readonly IntervalCalculator $intervals,
@@ -118,6 +120,9 @@ class InputValidator
 				throw new ValidationException('invalid_query', 'offset must be a non-negative integer.');
 			}
 			$offsetValue = (int)$offset;
+			if ($offsetValue > self::MAX_OFFSET) {
+				throw new ValidationException('invalid_query', 'offset must be at most ' . self::MAX_OFFSET . '.');
+			}
 		}
 		return ['limit' => $limitValue, 'offset' => $offsetValue];
 	}

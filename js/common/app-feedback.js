@@ -127,6 +127,71 @@
 		}
 	}
 
+	function installPopover() {
+		var trigger = document.querySelector('.' + PREFIX + '-nav-footer__trigger');
+		if (!trigger) {
+			return;
+		}
+		var menuId = trigger.getAttribute('aria-controls');
+		if (!menuId) {
+			return;
+		}
+		var menu = document.getElementById(menuId);
+		if (!menu) {
+			return;
+		}
+
+		function isOpen() {
+			return trigger.getAttribute('aria-expanded') === 'true';
+		}
+
+		function openMenu() {
+			menu.hidden = false;
+			trigger.setAttribute('aria-expanded', 'true');
+			var first = menu.querySelector('a, button');
+			if (first) {
+				first.focus();
+			}
+		}
+
+		function closeMenu(restoreFocus) {
+			menu.hidden = true;
+			trigger.setAttribute('aria-expanded', 'false');
+			if (restoreFocus) {
+				trigger.focus();
+			}
+		}
+
+		trigger.addEventListener('click', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			if (isOpen()) {
+				closeMenu(true);
+			} else {
+				openMenu();
+			}
+		});
+
+		menu.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				closeMenu(true);
+			}
+		});
+
+		document.addEventListener('click', function (e) {
+			if (isOpen() && !trigger.contains(e.target) && !menu.contains(e.target)) {
+				closeMenu(false);
+			}
+		});
+
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape' && isOpen()) {
+				closeMenu(true);
+			}
+		});
+	}
+
 	function attachReportLink(toast, errorCode) {
 		if (!toast || toast.getAttribute('data-app-feedback-bound') === '1') {
 			return;
@@ -202,6 +267,7 @@
 		buildMailto: buildMailto,
 		install: function () {
 			refreshNavHrefs();
+			installPopover();
 			installToastHooks();
 		},
 	};

@@ -115,19 +115,21 @@ final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 	}
 
 	/**
-	 * Mobile mutations require Authorization (app password) or a CSRF
-	 * requesttoken (N5). Container-resolved IRequest has neither in PHPUnit,
-	 * so build a controller whose request presents a Bearer channel — the
-	 * same shape the official app sends after NC session auth.
+	 * Mobile mutations require a valid CSRF token or Basic credentials that
+	 * checkPassword as the current user (N5). The official companion sends
+	 * `Authorization: Basic loginName:appPassword`. Presence of a Bearer
+	 * header is not enough.
 	 */
 	private function mobileControllerWithMutationAuth(): MobileController
 	{
 		$request = $this->createMock(IRequest::class);
-		$request->method('getHeader')->willReturnCallback(static function (string $name): string {
-			return strcasecmp($name, 'Authorization') === 0 ? 'Bearer mn-integration-test' : '';
+		$basic = 'Basic ' . base64_encode(self::UID . ':' . self::PASS);
+		$request->method('getHeader')->willReturnCallback(static function (string $name) use ($basic): string {
+			return strcasecmp($name, 'Authorization') === 0 ? $basic : '';
 		});
 		$request->method('getParam')->willReturn(null);
 		$request->method('getParams')->willReturn([]);
+		$request->method('passesCSRFCheck')->willReturn(false);
 
 		return new MobileController(
 			$request,
@@ -149,6 +151,7 @@ final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 			\OC::$server->get(\OCA\MaintenanceCheck\Service\FailureCodeService::class),
 			\OC::$server->get(\OCA\MaintenanceCheck\Service\ExceptionBoardService::class),
 			\OC::$server->get(\OCA\MaintenanceCheck\Service\InspectionObligationService::class),
+			\OC::$server->get(IUserManager::class),
 		);
 	}
 

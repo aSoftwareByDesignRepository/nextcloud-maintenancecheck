@@ -23,4 +23,5 @@ $supportUsCssPrefix = 'mn';
 $supportUsShellPrefix = 'mn';
 $supportUsBtnPrimaryClass = 'mn-btn mn-btn--primary';
 $supportUsBtnSecondaryClass = 'mn-btn mn-btn--secondary';
+$supportUsPresentation = 'page';
 require __DIR__ . '/../parts/support-us-section.php';

@@ -312,3 +312,10 @@ test('catalogs page: chip panels, no dead Status column, click-name edit', async
 	assert.doesNotMatch(catalogsSlice, /id:\s*'status'/);
 	assert.doesNotMatch(catalogsSlice, /label:\s*tr\('Status'\)/);
 });
+
+test('fetch rejection maps to network_error on both JSON and upload channels', () => {
+	const throws = [...source.matchAll(/throw new ApiError\(\s*0,\s*'network_error'/g)];
+	assert.equal(throws.length, 2, 'api() and apiUpload() must each throw network_error on fetch failure');
+	assert.match(source, /Could not reach the server\. Check your connection and try again\./);
+	assert.match(source, /function handleGlobalError\(/);
+});

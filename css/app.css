@@ -2925,76 +2925,118 @@ textarea {
 #app-navigation .mn-nav-footer,
 .mn-nav .mn-nav-footer,
 .mn-app-nav .mn-nav-footer {
+	position: relative;
 	margin-top: auto;
 	flex-shrink: 0;
 	min-width: 0;
 	width: 100%;
 	box-sizing: border-box;
-	padding: var(--mn-space-4, 1rem)
+	padding: var(--mn-space-3, 0.75rem)
 		var(--mn-space-3, 0.75rem)
-		max(var(--mn-space-5, 1.5rem), env(safe-area-inset-bottom, 0px));
+		max(var(--mn-space-4, 1rem), env(safe-area-inset-bottom, 0px));
 	border-top: 1px solid var(--mn-border, color-mix(in srgb, var(--color-main-text) 12%, var(--color-main-background)));
 	background: var(--color-main-background);
 	z-index: 1;
 }
 
-.mn-nav-footer__title {
-	margin: 0 0 var(--mn-space-2, 0.5rem);
-	font-size: var(--mn-fs-xs, 0.75rem);
-	font-weight: 600;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
-	color: var(--color-text-maxcontrast);
-}
-
-.mn-nav-footer__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--mn-space-1, 0.25rem);
-}
-
-.mn-nav-footer__link {
+.mn-nav-footer__trigger {
 	display: flex;
 	align-items: center;
+	gap: var(--mn-space-2, 0.5rem);
 	width: 100%;
-	/* WCAG 2.5.5: px, not rem — Nextcloud root font is 15px (2.75rem = 41.25px). */
 	min-height: 44px;
 	min-width: 44px;
 	padding: var(--mn-space-2, 0.5rem);
+	border: none;
 	border-radius: var(--mn-radius-sm, 6px);
-	box-sizing: border-box;
+	background: transparent;
 	color: var(--color-text-maxcontrast);
-	text-decoration: none;
+	font: inherit;
 	font-size: var(--mn-fs-sm, 0.875rem);
+	font-weight: 600;
 	line-height: var(--mn-line-base, 1.45);
-	white-space: normal;
-	overflow-wrap: anywhere;
+	cursor: pointer;
+	box-sizing: border-box;
+	text-align: start;
 }
 
-.mn-nav-footer__link:hover {
+.mn-nav-footer__trigger:hover {
 	background: var(--color-background-hover);
 	color: var(--color-main-text);
 }
 
-.mn-nav-footer__link:focus-visible {
+.mn-nav-footer__trigger:focus-visible {
 	outline: 2px solid var(--color-primary-element);
 	outline-offset: 2px;
 }
 
-.mn-nav-footer__link:focus:not(:focus-visible),
-.mn-nav-footer__toast-link:focus:not(:focus-visible) {
+.mn-nav-footer__trigger:focus:not(:focus-visible) {
 	outline: none;
 }
 
-.mn-nav-footer__hint {
-	margin: var(--mn-space-2, 0.5rem) 0 0;
-	font-size: var(--mn-fs-xs, 0.75rem);
-	line-height: 1.45;
+.mn-nav-footer__trigger .mn-icon {
+	display: inline-flex;
+	flex-shrink: 0;
+}
+
+.mn-nav-footer__menu {
+	position: absolute;
+	bottom: calc(100% + 4px);
+	left: var(--mn-space-2, 0.5rem);
+	right: var(--mn-space-2, 0.5rem);
+	min-width: 200px;
+	max-width: min(320px, 90vw);
+	padding: var(--mn-space-1, 0.25rem);
+	margin: 0;
+	background: var(--color-main-background);
+	border: 1px solid var(--color-border, var(--color-border-dark));
+	border-radius: var(--mn-radius-md, 12px);
+	box-shadow: var(--mn-shadow-md, 0 8px 24px color-mix(in srgb, var(--color-main-text) 12%, transparent));
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	z-index: 50;
+}
+
+.mn-nav-footer__menu[hidden] {
+	display: none !important;
+}
+
+.mn-nav-footer__menu-item {
+	display: flex;
+	align-items: center;
+	gap: var(--mn-space-2, 0.5rem);
+	min-height: 44px;
+	min-width: 44px;
+	width: 100%;
+	padding: var(--mn-space-2, 0.5rem) var(--mn-space-3, 0.75rem);
+	border: 0;
+	border-radius: var(--mn-radius-sm, 8px);
+	background: transparent;
+	color: var(--color-main-text);
+	font: inherit;
+	font-size: var(--mn-fs-sm, 0.875rem);
+	font-weight: 600;
+	text-align: start;
+	text-decoration: none;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+
+.mn-nav-footer__menu-item:hover,
+.mn-nav-footer__menu-item:focus-visible {
+	background: var(--color-background-hover);
+	outline: none;
+}
+
+.mn-nav-footer__menu-item:focus:not(:focus-visible) {
+	outline: none;
+}
+
+.mn-nav-footer__menu-item .mn-icon {
+	display: inline-flex;
+	flex-shrink: 0;
 	color: var(--color-text-maxcontrast);
-	overflow-wrap: anywhere;
 }
 
 .mn-nav-footer__new-tab {
@@ -3030,6 +3072,10 @@ textarea {
 	outline-offset: 2px;
 }
 
+.mn-nav-footer__toast-link:focus:not(:focus-visible) {
+	outline: none;
+}
+
 @media (prefers-contrast: more) {
 	#app-navigation .mn-nav-footer,
 	.mn-nav .mn-nav-footer,
@@ -3038,27 +3084,35 @@ textarea {
 		border-top-color: var(--color-main-text);
 	}
 
-	.mn-nav-footer__link:focus-visible,
+	.mn-nav-footer__trigger:focus-visible,
+	.mn-nav-footer__menu-item:focus-visible,
 	.mn-nav-footer__toast-link:focus-visible {
 		outline-width: 3px;
 	}
 }
 
 @media (forced-colors: active) {
-	.mn-nav-footer__link,
+	.mn-nav-footer__trigger,
+	.mn-nav-footer__menu-item,
 	.mn-nav-footer__toast-link {
 		forced-color-adjust: none;
 		color: LinkText;
 	}
 
-	.mn-nav-footer__link:focus-visible,
+	.mn-nav-footer__menu {
+		border: 2px solid CanvasText;
+	}
+
+	.mn-nav-footer__trigger:focus-visible,
+	.mn-nav-footer__menu-item:focus-visible,
 	.mn-nav-footer__toast-link:focus-visible {
 		outline: 3px solid Highlight;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.mn-nav-footer__link,
+	.mn-nav-footer__trigger,
+	.mn-nav-footer__menu-item,
 	.mn-nav-footer__toast-link {
 		transition: none;
 	}

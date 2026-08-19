@@ -71,19 +71,11 @@ final class SupportUsSectionContractTest extends TestCase {
 
 	public function testSupportUsLivesOnDedicatedAdminPageNotSettingsEmbed(): void {
 		$root = dirname(__DIR__, 3);
-		$page = $root . '/templates/admin-support-us.php';
-		if (!is_file($page)) {
-			$page = $root . '/templates/support-us.php';
-		}
-		if (!is_file($page)) {
-			self::markTestSkipped('No dedicated Support & us page in this app');
-		}
+		$page = $root . '/templates/settings/support.php';
+		$this->assertFileExists($page, 'Support & us must be the settings/support underpage');
 		$src = (string)file_get_contents($page);
-		self::assertStringContainsString('support-us-section.php', $src);
-		self::assertStringContainsString("supportUsPresentation = 'page'", $src);
-		if (is_file($root . '/img/vendor-logo-mark.png')) {
-			self::assertStringContainsString('vendor-logo-mark.png', $src);
-		}
+		$this->assertStringContainsString('support-us-section.php', $src);
+		$this->assertStringContainsString("supportUsPresentation = 'page'", $src);
 		$settings = $root . '/templates/admin-settings.php';
 		if (is_file($settings)) {
 			$adminSettings = (string)file_get_contents($settings);

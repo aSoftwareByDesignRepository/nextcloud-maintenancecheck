@@ -42,4 +42,10 @@ runMutations(dirname(__DIR__, 2), 'InventoryFlangeServiceTest', [
 		'search' => "if (\$lines === []) {\n\t\t\treturn ['sync' => 'ok', 'code' => null];\n\t\t}",
 		'replace' => "if (\$lines === []) {\n\t\t\treturn ['sync' => 'failed', 'code' => 'empty'];\n\t\t}",
 	],
+	[
+		'name' => 'unavailable-treated-as-ok',
+		'file' => $file,
+		'search' => "return ['sync' => 'unavailable', 'code' => 'sibling_unavailable'];",
+		'replace' => "return ['sync' => 'ok', 'code' => null];",
+	],
 ]);

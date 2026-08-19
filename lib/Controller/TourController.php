@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\MaintenanceCheck\Controller;
 
 use OCA\MaintenanceCheck\AppInfo\Application;
+use OCA\MaintenanceCheck\Exception\PermissionDeniedException;
 use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Service\TourService;
 use OCP\AppFramework\Controller;
@@ -14,8 +15,9 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 
 /**
- * W3 day tours. Reads: every app user (technicians open their own tour).
- * Mutations: office (dispatch owns the day plan).
+ * W3 day tours. Office reads every tour of the day. Technicians read only
+ * their own tour (same envelope shape). Mutations: office (dispatch owns
+ * the day plan).
  */
 class TourController extends Controller
 {
@@ -30,13 +32,26 @@ class TourController extends Controller
 	#[NoAdminRequired]
 	public function index(?string $date = null): JSONResponse
 	{
+		$uid = $this->access->currentUserId();
+		if (!$this->access->isOffice($uid)) {
+			$mine = $this->tours->todayForTech($uid, $date);
+			return new JSONResponse([
+				'data' => $mine['tour'] !== null ? [$mine['tour']] : [],
+				'date' => $mine['date'],
+			]);
+		}
 		return new JSONResponse($this->tours->forDate($date));
 	}
 
 	#[NoAdminRequired]
 	public function show(int $id): JSONResponse
 	{
-		return new JSONResponse($this->tours->get($id));
+		$uid = $this->access->currentUserId();
+		$tour = $this->tours->get($id);
+		if (!$this->access->isOffice($uid) && (string)($tour['techUid'] ?? '') !== $uid) {
+			throw new PermissionDeniedException();
+		}
+		return new JSONResponse($tour);
 	}
 
 	#[NoAdminRequired]

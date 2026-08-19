@@ -67,12 +67,10 @@ final class W6FieldOpsContractTest extends TestCase
 
 	public function testKpiComplianceFormulaOnTimeOnly(): void
 	{
-		// Pure formula lock: onTime / (onTime + late + overdue)
-		$onTime = 8;
-		$late = 1;
-		$overdue = 1;
-		$pct = round(100.0 * $onTime / ($onTime + $late + $overdue), 1);
-		self::assertSame(80.0, $pct);
+		self::assertSame(80.0, \OCA\MaintenanceCheck\Service\KpiService::ratioPercent(8, 1, 1));
+		self::assertNull(\OCA\MaintenanceCheck\Service\KpiService::ratioPercent(0, 0, 0));
+		self::assertSame(100.0, \OCA\MaintenanceCheck\Service\KpiService::ratioPercent(3, 0, 0));
+		self::assertSame(0.0, \OCA\MaintenanceCheck\Service\KpiService::ratioPercent(0, 2, 2));
 	}
 
 	public function testLaborMinutesBoundConstant(): void

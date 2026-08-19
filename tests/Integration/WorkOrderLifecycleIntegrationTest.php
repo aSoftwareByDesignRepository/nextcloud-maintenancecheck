@@ -265,6 +265,114 @@ class WorkOrderLifecycleIntegrationTest extends IntegrationTestCase
 		$this->workOrders->transition($intruder, (int)$wo['id'], ['to' => 'in_progress'], false);
 	}
 
+	/** CORE §7: sequential WO id is not a free read of someone else's assigned job. */
+	public function testUnrelatedTechCannotReadAssignedWorkOrderById(): void
+	{
+		$seed = $this->seedVisit();
+		$assignee = $this->createTempUser();
+		$intruder = $this->createTempUser();
+		$wo = $this->workOrders->createFromVisit(self::UID, $seed['visitId'], [
+			'procedureSkipped' => true,
+			'procedureSkipReason' => 'Read ACL fixture reason',
+		]);
+		$this->workOrders->assign(self::UID, (int)$wo['id'], [
+			'primaryUserId' => $assignee,
+			'force' => true,
+		]);
+
+		$this->expectException(\OCA\MaintenanceCheck\Exception\PermissionDeniedException::class);
+		$this->workOrders->get((int)$wo['id'], $intruder);
+	}
+
+	/** CORE §7: helpers can execute and must appear on their own "mine" list. */
+	public function testHelperSeesAssignedWorkOrderOnMineList(): void
+	{
+		$seed = $this->seedVisit();
+		$primary = $this->createTempUser();
+		$helper = $this->createTempUser();
+		$stranger = $this->createTempUser();
+		$wo = $this->workOrders->createFromVisit(self::UID, $seed['visitId'], [
+			'procedureSkipped' => true,
+			'procedureSkipReason' => 'Helper mine-list fixture reason',
+		]);
+		$this->workOrders->assign(self::UID, (int)$wo['id'], [
+			'primaryUserId' => $primary,
+			'helperUids' => [$helper],
+			'force' => true,
+		]);
+
+		$detail = $this->workOrders->get((int)$wo['id']);
+		$this->assertContains($helper, $detail['helperUids'], 'assign must persist helperUids as a list');
+
+		$mine = $this->workOrders->list($helper, [
+			'mine' => '1',
+			'equipmentId' => (string)$seed['equipmentId'],
+			'limit' => '50',
+			'offset' => '0',
+		]);
+		$ids = array_map(static fn (array $row): int => (int)$row['id'], $mine['data']);
+		$this->assertContains((int)$wo['id'], $ids, 'helper must see the job on mine=1 for this equipment');
+
+		$other = $this->workOrders->list($stranger, ['mine' => '1', 'limit' => '50', 'offset' => '0']);
+		$otherIds = array_map(static fn (array $row): int => (int)$row['id'], $other['data']);
+		$this->assertNotContains((int)$wo['id'], $otherIds, 'unrelated tech must not see an assigned job');
+	}
+
+	/**
+	 * Assigned/helper rows must sort ahead of the unassigned pool so a helper
+	 * job cannot vanish behind 50 older pool drafts on page 1.
+	 */
+	public function testHelperMineListRanksAssignedAheadOfPoolOnFirstPage(): void
+	{
+		$seed = $this->seedVisit();
+		$primary = $this->createTempUser();
+		$helper = $this->createTempUser();
+		$mapper = Server::get(\OCA\MaintenanceCheck\Db\WorkOrderMapper::class);
+		$now = time();
+		for ($i = 0; $i < 50; $i++) {
+			$pool = new \OCA\MaintenanceCheck\Db\WorkOrder();
+			$pool->setNumber('MNQA' . substr(bin2hex(random_bytes(8)), 0, 16) . sprintf('%02d', $i));
+			$pool->setKind(\OCA\MaintenanceCheck\Db\WorkOrder::KIND_CORRECTIVE);
+			$pool->setStatus(\OCA\MaintenanceCheck\Db\WorkOrder::STATUS_DRAFT);
+			$pool->setPriority(\OCA\MaintenanceCheck\Db\WorkOrder::PRIORITY_NORMAL);
+			$pool->setCustomerId($seed['customerId']);
+			$pool->setTitle('Pool filler ' . $i);
+			$pool->setDueOn('2000-01-01');
+			$pool->setProcedureSkipped(false);
+			$pool->setCreatedAt($now);
+			$pool->setUpdatedAt($now);
+			$pool->setCreatedBy(self::UID);
+			$mapper->insert($pool);
+		}
+
+		$wo = $this->workOrders->createFromVisit(self::UID, $seed['visitId'], [
+			'procedureSkipped' => true,
+			'procedureSkipReason' => 'Helper pagination fixture reason',
+		]);
+		$this->workOrders->assign(self::UID, (int)$wo['id'], [
+			'primaryUserId' => $primary,
+			'helperUids' => [$helper],
+			'force' => true,
+		]);
+
+		$mine = $this->workOrders->list($helper, [
+			'mine' => '1',
+			'limit' => '50',
+			'offset' => '0',
+		]);
+		$ids = array_map(static fn (array $row): int => (int)$row['id'], $mine['data']);
+		$this->assertContains(
+			(int)$wo['id'],
+			$ids,
+			'helper WO must be on page 1 even when 50 older pool jobs exist',
+		);
+		$this->assertSame(
+			(int)$wo['id'],
+			$ids[0],
+			'assigned/helper jobs must sort before the unassigned pool',
+		);
+	}
+
 	public function testReadyBlockedUntilKitPackedOrOverridden(): void
 	{
 		$seed = $this->seedVisit();

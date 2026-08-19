@@ -19,6 +19,12 @@ const a11yRoutes = [
 	{ path: '/apps/maintenancecheck/kpi', ready: '#mn-kpi-snapshot, #mn-main-content', creds: 'E2E' },
 	{ path: '/apps/maintenancecheck/exceptions', ready: '#mn-exceptions-board, #mn-main-content', creds: 'E2E' },
 	{ path: '/apps/maintenancecheck/settings/access', ready: '#mn-settings-access, .mn-empty', creds: 'E2E' },
+	{ path: '/apps/maintenancecheck/settings/roles', ready: '#mn-settings-roles, #mn-main-content', creds: 'E2E' },
+	{ path: '/apps/maintenancecheck/settings/inventory', ready: '#mn-settings-inventory-flange, #mn-main-content', creds: 'E2E' },
+	{ path: '/apps/maintenancecheck/settings/policies', ready: '#mn-settings-policies, #mn-main-content', creds: 'E2E' },
+	{ path: '/apps/maintenancecheck/settings/capacity', ready: '#mn-settings-capacity, #mn-main-content', creds: 'E2E' },
+	{ path: '/apps/maintenancecheck/settings/license', ready: '#mn-settings-license, #mn-main-content', creds: 'E2E' },
+	{ path: '/apps/maintenancecheck/settings/support', ready: '#mn-support-us, [data-support-us="1"]', creds: 'E2E' },
 ]
 
 test('a11y smoke WCAG 2.1 AA: work-order detail', async ({ page }) => {
