@@ -6,7 +6,6 @@
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
 	<id>maintenancecheck</id>
 	<name>MaintenanceCheck</name>
-	<name lang="de">MaintenanceCheck</name>
 	<summary>Stop missing maintenance visits — due board, work orders and Servicebericht on your Nextcloud</summary>
 	<summary lang="de">Keine Wartung mehr verpassen — Fälligkeiten, Arbeitsaufträge und Servicebericht in Ihrer Nextcloud</summary>
 	<description><![CDATA[
@@ -31,6 +30,10 @@ MaintenanceCheck runs recurring and corrective maintenance on the Nextcloud you 
 - Prüfnachweis PDFs are operational evidence packs — not legal certificates. Seeded checklists are templates, not legal advice.
 - Customers here are a field register. Same name in another business app ≠ same record; nothing merges on its own.
 - Optional stock deduction after close stays off by default and never blocks finishing a job.
+
+## Early release — feedback welcome
+
+This is the first App Store release. The app is fully functional and tested, but has not yet seen wide real-world use. Bug reports and feature requests are very welcome: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
 
 ## Requirements
 
@@ -59,13 +62,265 @@ MaintenanceCheck steuert wiederkehrende und korrigierende Wartung in der Nextclo
 - Kunden hier sind ein Außenregister. Gleicher Name in einer anderen Fach-App ≠ derselbe Datensatz; nichts wird still zusammengeführt.
 - Optionale Bestandsabzüge nach Abschluss bleiben standardmäßig aus und blockieren den Abschluss nicht.
 
+## Erste Veröffentlichung — Feedback willkommen
+
+Dies ist die erste App-Store-Version. Die App ist voll funktionsfähig und getestet, wurde aber noch nicht breit im Praxiseinsatz erprobt. Fehlerberichte und Funktionswünsche sind sehr willkommen: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
 ## Voraussetzungen
 
 - Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB oder PostgreSQL
 	]]></description>
+	<description lang="fr"><![CDATA[
+# Savoir ce qui est dû. Terminer sur le terrain.
+
+MaintenanceCheck exécute la maintenance récurrente et corrective sur la Nextcloud que vous hébergez déjà. Réunissez les clients, sites et équipements dans un seul registre. Planifiez par calendrier ou compteur. Transformez les visites à venir en ordres de travail avec checklists, photos et signatures optionnelles — puis remettez au bureau un PDF de Servicebericht.
+
+**Application web gratuite** (AGPL-3.0-or-later). Applications associées : https://nextcloud.software-by-design.de/
+
+## Pourquoi les équipes l’installent
+
+- **Voir d’abord le travail en retard** — tableau des échéances (en retard, aujourd’hui, dans les 7 prochains jours et les semaines à venir), plus les tâches ouvertes
+- **Terminer avec des preuves** — checklists conditionnelles, photos, signature optionnelle ; kits de tâches et validations de compétences lorsque vous en avez besoin
+- **Planifier la journée** — dispatch, tournées, suggestions de capacité, tableau des exceptions et un instantané d’indicateur KPI ops (CSV)
+- **Garder le registre propre** — clients, sites, équipements, autocollants QR imprimables
+- **Gérer le « break/fix »** — réception corrective, codes d’incident, minutes de tâche, commentaires, documents et fin de garantie
+- **Soutenir les inspections récurrentes** — packs d’obligations (incl. modèles DE/EN), clôture réussite/échec/conditionnelle, PDF Prüfnachweis
+- **Rester maître** — rôles bureau vs technicien, liste d’autorisation optionnelle, notifications Nextcloud en retard
+
+## Limites claires
+
+- Les PDF Prüfnachweis sont des packs de preuves opérationnelles — pas des certificats légaux. Les checklists préremplies sont des modèles, pas un conseil juridique.
+- Les clients constituent ici un registre terrain. Le même nom dans une autre application métier ≠ le même enregistrement ; rien ne se fusionne automatiquement.
+- La déduction optionnelle de stock après clôture reste désactivée par défaut et n’empêche jamais de terminer une tâche.
+
+## Première version — retours bienvenus
+
+Il s’agit de la première publication App Store. L’application est entièrement fonctionnelle et testée, mais n’a pas encore vu une utilisation réelle à grande échelle. Les rapports de bugs et demandes de fonctionnalités sont très bienvenus : https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
+## Exigences
+
+- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB ou PostgreSQL
+	]]></description>
+	<description lang="es"><![CDATA[
+# Sepa qué está pendiente. Cierre el asunto en el lugar.
+
+MaintenanceCheck ejecuta el mantenimiento recurrente y correctivo en la Nextcloud que ya tiene. Ponga a los clientes, sedes y equipos en un único registro. Planifique por calendario o por contador. Convierta las visitas vencidas en órdenes de trabajo con checklists, fotos y firmas opcionales — y luego entréguele a la oficina un PDF de Servicebericht.
+
+**Aplicación web gratuita** (AGPL-3.0-or-later). Aplicaciones asociadas: https://nextcloud.software-by-design.de/
+
+## Por qué las equipos la instalan
+
+- **Vea primero lo atrasado** — tablero de vencimientos para atrasado, hoy, los próximos 7 días y las semanas siguientes, además de los trabajos abiertos
+- **Termine con evidencias** — checklists condicionales, fotos, firma opcional; kits de tareas y verificaciones de habilidades cuando las necesite
+- **Planifique el día** — despacho, recorridos del día, pistas de capacidad, tablero de excepciones y una instantánea de KPI de operaciones (CSV)
+- **Mantenga el registro ordenado** — clientes, sedes, equipos, pegatinas QR imprimibles
+- **Gestione el trabajo correctivo «break/fix»** — alta correctiva, códigos de fallo, minutos de tarea, comentarios, documentos y fin de la garantía
+- **Apoye las inspecciones recurrentes** — paquetes de obligaciones (incl. iniciadores DE/EN), cierre según aprobado/no aprobado/condicional, PDF Prüfnachweis
+- **Mantenga el control** — roles de oficina vs. técnico, lista de permitidos opcional, notificaciones Nextcloud de atrasos
+
+## Límites claros
+
+- Los PDF Prüfnachweis son paquetes de evidencia operativa — no certificados legales. Las checklists preconfiguradas son plantillas, no asesoramiento legal.
+- Los clientes aquí son un registro de campo. El mismo nombre en otra aplicación de negocio ≠ el mismo registro; no se fusiona nada por sí solo.
+- La deducción opcional de stock tras el cierre se mantiene desactivada por defecto y nunca impide terminar una tarea.
+
+## Primera versión — ¡sus comentarios son bienvenidos!
+
+Esta es la primera publicación de App Store. La aplicación está completamente funcional y probada, pero aún no ha tenido mucho uso en entornos reales. Los informes de errores y las solicitudes de nuevas funciones son muy bienvenidos: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
+## Requisitos
+
+- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB o PostgreSQL
+	]]></description>
+	<description lang="da"><![CDATA[
+# Vid, hvad der skal laves. Afslut det ude i felten.
+
+MaintenanceCheck kører tilbagevendende og korrigerende vedligeholdelse på den Nextcloud, I allerede hoster. Saml kunder, lokationer og udstyr i ét register. Planlæg efter kalender eller måler. Gør de planlagte besøg til arbejdsordrer med checklister, fotos og valgfri signatur — og overdrag derefter kontoret en Servicebericht-PDF.
+
+**Gratis webapp** (AGPL-3.0-or-later). Companion-apps: https://nextcloud.software-by-design.de/
+
+## Hvorfor teams installerer den
+
+- **Se det forsømte først** — due-board for forfaldent, i dag, næste 7 dage og ugerne fremover, plus åbne jobs
+- **Afslut opgaver med dokumentation** — betingede checklister, fotos, valgfri signatur; jobkits og færdigheds-gates når I har brug for det
+- **Planlæg dagen** — dispatch, dagsture, kapacitetstips, undtagelsesboard og et ops KPI-øjebliksbillede (CSV)
+- **Hold registret ryddeligt** — kunder, lokationer, udstyr, printbare QR-klistermærker
+- **Håndtér break/fix-arbejde** — korrigerende indtag, fejlkoder, job-minutter, kommentarer, dokumenter og garantiens udløb
+- **Understøt tilbagevendende inspektioner** — obligations-pakker (inkl. DE/EN-startere), godkend/ikke-godkend/ betinget lukning, Prüfnachweis-PDF
+- **Hold styr på det** — kontor- vs. teknikerroller, valgfri allow-list og forfaldne Nextcloud-notifikationer
+
+## Klare grænser
+
+- Prüfnachweis-PDF’er er operationelle dokumentationspakker — ikke juridiske certifikater. Forudfyldte checklister er skabeloner, ikke juridisk rådgivning.
+- Kunderne her er et feltregister. Samme navn i en anden forretningsapp er ikke det samme som en post; intet slås sammen automatisk.
+- Valgfri lagerfradrag efter lukning er slået fra som standard og blokerer aldrig for at afslutte et job.
+
+## Tidlig udgivelse — feedback velkommen
+
+Dette er den første App Store-udgivelse. Appen er fuldt funktionel og testet, men har endnu ikke set bred brug i den virkelige verden. Bugrapporter og funktionsønsker modtages meget gerne: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
+## Krav
+
+- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
+	]]></description>
+	<description lang="nl"><![CDATA[
+# Weet wat er op je lijst staat. Sluit het af in het veld.
+
+MaintenanceCheck verzorgt zowel terugkerend als correctief onderhoud op de Nextcloud die u al beheert. Zet klanten, locaties en apparatuur in één register. Plan op basis van kalender of meter. Zet geplande bezoeken om in werkorders met checklists, foto’s en optionele handtekeningen — en geef vervolgens het kantoor een Servicebericht-PDF.
+
+**Gratis webapp** (AGPL-3.0-or-later). Companion-apps: https://nextcloud.software-by-design.de/
+
+## Waarom teams het installeren
+
+- **Zie werk dat te laat is als eerste** — due-board voor te laat, vandaag, de komende 7 dagen en de weken daarna, plus openstaande jobs
+- **Rond taken af met bewijs** — voorwaardelijke checklists, foto’s, optionele handtekening; jobkits en vaardigheids-gates wanneer u die nodig hebt
+- **Plan de dag** — dispatch, dagrondjes, capaciteitsindicaties, exceptieboard en een snapshot van een ops-KPI (CSV)
+- **Houd het register netjes** — klanten, locaties, apparatuur, printbare QR-stickers
+- **Behandel break/fix-werk** — correctieve intake, foutcodes, jobminuten, opmerkingen, documenten en einde van de garantie
+- **Ondersteun terugkerende inspecties** — verplichtingenpakketten (incl. DE/EN-starter), afsluiten met beoordeling of voorwaardelijk, Prüfnachweis-PDF
+- **Blijf in control** — kantoor- vs. technicirollen, optionele allow-list en achterstallige Nextcloud-notificaties
+
+## Duidelijke grenzen
+
+- Prüfnachweis-PDF’s zijn operationele bewijsverzamelingen — geen juridische certificaten. Vooraf ingevulde checklists zijn sjablonen, geen juridisch advies.
+- Klanten vormen hier een veldregister. Zelfde naam in een andere bedrijfsapp is niet hetzelfde record; er wordt niets automatisch samengevoegd.
+- Optionele voorraad-deductie na sluiting blijft standaard uit en blokkeert nooit het afronden van een job.
+
+## Vroege release — feedback welkom
+
+Dit is de eerste App Store-release. De app is volledig functioneel en getest, maar is nog niet breed gebruikt in de praktijk. Meldingen van bugs en feature requests zijn zeer welkom: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
+## Vereisten
+
+- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB of PostgreSQL
+	]]></description>
+	<description lang="it"><![CDATA[
+# Sapere cosa è in scadenza. Chiudere sul campo.
+
+MaintenanceCheck gestisce manutenzioni ricorrenti e correttive nella Nextcloud che avete già. Inserite clienti, sedi e attrezzature in un unico registro. Pianificate in base al calendario o al contatore. Trasformate le visite in scadenza in ordini di lavoro con checklist, foto e firme opzionali — quindi consegnate all’ufficio un PDF di Servicebericht.
+
+**Web app gratuita** (AGPL-3.0-or-later). App associate: https://nextcloud.software-by-design.de/
+
+## Perché le squadre la installano
+
+- **Vedi prima i lavori in ritardo** — pannello scadenze per in ritardo, oggi, i prossimi 7 giorni e le settimane a seguire, più i lavori aperti
+- **Completa i job con evidenza** — checklist condizionali, foto, firma opzionale; kit dei job e controlli di competenze quando servono
+- **Pianifica la giornata** — dispatch, tour giornalieri, suggerimenti di capacità, pannello eccezioni e un snapshot KPI operativi (CSV)
+- **Mantieni il registro ordinato** — clienti, sedi, attrezzature, adesivi QR stampabili
+- **Gestisci gli interventi break/fix** — gestione correttiva, codici guasto, minuti di job, commenti, documenti e fine garanzia
+- **Supporta ispezioni ricorrenti** — pacchetti di obblighi (incl. starter DE/EN), chiusura con esito e/o condizionale, PDF Prüfnachweis
+- **Resta sotto controllo** — ruoli ufficio vs tecnico, allow-list opzionale e notifiche Nextcloud in scadenza
+
+## Limiti chiari
+
+- I PDF Prüfnachweis sono pacchetti di prove operative — non certificati legali. Le checklist precompilate sono modelli, non consulenza legale.
+- I clienti qui sono un registro di campo. Stesso nome in un’altra app aziendale ≠ stesso record; nulla viene unito automaticamente.
+- La deduzione opzionale della giacenza dopo la chiusura resta disattivata per impostazione predefinita e non blocca mai il completamento di un job.
+
+## Early release — graditi feedback
+
+Questa è la prima pubblicazione su App Store. L’app è completamente funzionante e testata, ma non ha ancora visto un utilizzo reale diffuso. I report di bug e le richieste di nuove funzioni sono più che benvenuti: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
+## Requisiti
+
+- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB o PostgreSQL
+	]]></description>
+	<description lang="pl"><![CDATA[
+# Wiedz, co jest w terminie. Zakończ to w terenie.
+
+MaintenanceCheck realizuje cykliczne i korygujące prace konserwacyjne na Nextcloud, którą już Państwo hostują. Wprowadźcie klientów, lokalizacje i wyposażenie do jednego rejestru. Planujcie według kalendarza albo licznika. Zamieniajcie wizyty, które są „due”, na zlecenia robocze z checklistami, zdjęciami i opcjonalnymi podpisami — a następnie przekażcie biuru PDF Servicebericht.
+
+**Darmowa aplikacja webowa** (AGPL-3.0-or-later). Aplikacje towarzyszące: https://nextcloud.software-by-design.de/
+
+## Dlaczego zespoły ją instalują
+
+- **Najpierw zobacz zaległe prace** — tablica „due” dla zaległych, dzisiaj, najbliższych 7 dni i kolejnych tygodni, plus otwarte zadania
+- **Kończ z dowodami** — warunkowe checklisty, zdjęcia, opcjonalny podpis; zestawy zadań i bramki kompetencji, gdy są potrzebne
+- **Planuj dzień** — dyspozycja, wyjazdy dzienne, wskazówki dot. dostępnej przepustowości, tablica wyjątków i migawka KPI operacyjnych (CSV)
+- **Utrzymuj rejestr w porządku** — klienci, lokalizacje, sprzęt, drukowalne naklejki QR
+- **Obsługuj prace typu break/fix** — przyjęcia korygujące, kody awarii, minuty zadania, komentarze, dokumenty i koniec gwarancji
+- **Wspieraj cykliczne inspekcje** — pakiety obowiązków (w tym startowe DE/EN), zamykanie z wynikiem i/lub warunkowe, PDF Prüfnachweis
+- **Miej kontrolę** — role biuro vs technik, opcjonalna allow-lista oraz powiadomienia Nextcloud dla przeterminowanych
+
+## Jasne ograniczenia
+
+- PDF-y Prüfnachweis to operacyjne pakiety dowodowe — nie certyfikaty prawne. Wstępnie zasiane checklisty są szablonami, nie poradą prawną.
+- Tutaj klienci to rejestr terenowy. Ten sam opis w innej aplikacji biznesowej ≠ ten sam rekord; nic nie scala się samo.
+- Opcjonalne potrącenie zapasu po zamknięciu pozostaje domyślnie wyłączone i nigdy nie blokuje zakończenia zadania.
+
+## Wczesne wydanie — zapraszamy do opinii
+
+To pierwsza publikacja w App Store. Aplikacja jest w pełni funkcjonalna i przetestowana, ale jeszcze nie doczekała się szerokiego zastosowania w realnym świecie. Zgłoszenia błędów i sugestie funkcji są bardzo mile widziane: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
+## Wymagania
+
+- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB lub PostgreSQL
+	]]></description>
+	<description lang="sv"><![CDATA[
+# Vet vad som ska göras. Avsluta det i fält.
+
+MaintenanceCheck kör återkommande och korrigerande underhåll i den Nextcloud ni redan hostar. Samla kunder, platser och utrustning i ett enda register. Schemalägg via kalender eller mätare. Gör de besök som är i tid (due) till arbetsordrar med checklistor, foton och valfria signaturer — och ge sedan kontoret en Servicebericht-PDF.
+
+**Gratis webbapp** (AGPL-3.0-or-later). Companion-appar: https://nextcloud.software-by-design.de/
+
+## Varför team installerar den
+
+- **Se det som är försenat först** — due-board för försenat, idag, kommande 7 dagar och veckorna framåt, plus öppna jobb
+- **Avsluta jobb med bevis** — villkorliga checklistor, foton, valfri signatur; jobbkits och kompetensgrindar när ni behöver dem
+- **Planera dagen** — dispatch, dagsturer, kapacitetstips, undantagsboard och en ops KPI-översikt (CSV)
+- **Håll registret snyggt** — kunder, platser, utrustning, utskrivbara QR-klistermärken
+- **Hanterar break/fix-arbete** — korrigerande inrapportering, felkoder, jobbtid i minuter, kommentarer, dokument och slutdatum för garanti
+- **Stöd återkommande inspektioner** — skyldighetspaket (inkl. DE/EN-starter), pass/fail/conditional close, Prüfnachweis-PDF
+- **Ha kontroll** — kontors- vs teknikerroller, valfri allow-lista och försenade Nextcloud-notiser
+
+## Tydliga gränser
+
+- Prüfnachweis-PDF:er är operativa bevispaket — inte juridiska certifikat. Förifyllda checklistor är mallar, inte juridisk rådgivning.
+- Kunderna här är ett fältregister. Samma namn i en annan affärsapp är inte samma post; inget slås ihop automatiskt.
+- Valfri lageravdrag efter stängning är avstängt som standard och blockerar aldrig att ett jobb blir klart.
+
+## Tidig release — feedback välkommen
+
+Detta är den första App Store-versionen. Appen är fullt fungerande och testad, men har ännu inte sett bred användning i verkliga miljöer. Felrapporter och önskemål om funktioner tas gärna emot: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
+## Krav
+
+- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
+	]]></description>
+	<description lang="nb"><![CDATA[
+# Vet hva som er forfalt. Lukk det ute i felten.
+
+MaintenanceCheck kjører både tilbakevendende og korrigerende vedlikehold i Nextclouden dere allerede hoster. Legg kunder, steder og utstyr i ett felles register. Planlegg etter kalender eller måler. Gjør de forfalte besøkene om til arbeidsordrer med sjekklister, bilder og valgfri signatur — og gi kontoret en Servicebericht-PDF.
+
+**Gratis nettapp** (AGPL-3.0-or-later). Følgeapper: https://nextcloud.software-by-design.de/
+
+## Hvorfor team installerer den
+
+- **Se forsinket arbeid først** — due-board for forsinket, i dag, de neste 7 dagene og ukene fremover, samt åpne oppgaver
+- **Fullfør jobber med dokumentasjon** — betingede sjekklister, bilder, valgfri signatur; jobbkits og kompetanseporter når dere trenger dem
+- **Planlegg dagen** — dispatch, dagsturer, kapasitetstips, unntaksboard og et ops KPI-øyeblikksbilde (CSV)
+- **Hold registeret ryddig** — kunder, steder, utstyr, utskrivbare QR-klistremerker
+- **Håndter break/fix-arbeid** — korrigerende innmelding, feil koder, jobbtid i minutter, kommentarer, dokumenter og slutten av garanti
+- **Støtt tilbakevendende inspeksjoner** — forpliktelsespakker (inkl. DE/EN-startpakker), pass/fail/conditional close, Prüfnachweis-PDF
+- **Hold kontroll** — roller kontor vs tekniker, valgfri allow-list og forfalte Nextcloud-varsler
+
+## Klare grenser
+
+- Prüfnachweis-PDF-er er operative bevispakker — ikke juridiske sertifikater. Forhåndsutfylte sjekklister er maler, ikke juridisk rådgivning.
+- Kunder her er et feltsregister. Samme navn i en annen forretningsapp er ikke samme post; ingenting slås automatisk sammen.
+- Valgfri lagerreduksjon etter lukking er slått av som standard og blokkerer aldri at en jobb kan fullføres.
+
+## Tidlig utgivelse — tilbakemelding er velkommen
+
+Dette er den første App Store-utgivelsen. Appen er fullt funksjonell og testet, men har ennå ikke fått utbredt bruk i praksis. Feilrapporter og forslag til nye funksjoner er veldig velkomne: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
+## Krav
+
+- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
+	]]></description>
 	<version>1.2.8</version>
 	<licence>AGPL-3.0-or-later</licence>
-	<author mail="info@software-by-design.de" homepage="https://nextcloud.software-by-design.de">Alexander Mäule</author>
+	<author mail="info@software-by-design.de" homepage="https://nextcloud.software-by-design.de">Software by Design GbR</author>
 	<namespace>MaintenanceCheck</namespace>
 	<category>organization</category>
 	<category>office</category>
