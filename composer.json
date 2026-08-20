@@ -41,6 +41,7 @@
 		"test:mutation:license": "php tests/Mutation/run-license-mutations.php",
 		"test:mutation:access": "php tests/Mutation/run-access-mutations.php",
 		"test:mutation:support-us": "php tests/Mutation/run-support-us-links-mutations.php",
+		"test:mutation:web-upgrade-bypass": "php tests/Mutation/run-core-web-upgrade-bypass-mutations.php",
 		"test:mutation:inspection-close": "php tests/Mutation/run-inspection-close-mutations.php",
 		"test:mutation:inspection-followup": "php tests/Mutation/run-inspection-followup-mutations.php",
 		"test:mutation:due-query-kind": "php tests/Mutation/run-due-query-kind-mutations.php",

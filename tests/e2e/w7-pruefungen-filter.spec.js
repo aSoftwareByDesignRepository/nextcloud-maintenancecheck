@@ -121,7 +121,11 @@ test('W7 visit gate: inspection due row hides Complete/Skip', async ({ page }) =
 
 	// Primary Complete must not appear on inspection rows.
 	await expect(row.getByRole('button', { name: /^Complete$/i })).toHaveCount(0)
-	await expect(row.getByRole('button', { name: /Create inspection work order|Open inspection work order/i })).toBeVisible()
+	await expect(
+		row.getByRole('button', {
+			name: /Create inspection work order|Open inspection work order|Prüfungs-Arbeitsauftrag anlegen|Prüfungs-Arbeitsauftrag öffnen/i,
+		}),
+	).toBeVisible()
 
 	const results = await new AxeBuilder({ page })
 		.withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -246,7 +250,9 @@ test('W7 inspection Done dialog: defect code picker + axe', async ({ page }) => 
 	await doneBtn.click()
 	const dialog = page.locator('[role="dialog"]').first()
 	await expect(dialog).toBeVisible({ timeout: 15_000 })
-	const resultSelect = dialog.locator('select[aria-label="Inspection result"], select[aria-label="Prüfergebnis"]').first()
+	const resultSelect = dialog.locator(
+		'select[aria-label="Inspection result"], select[aria-label="Inspektionsergebnis"], select[aria-label="Prüfergebnis"]',
+	).first()
 	await expect(resultSelect).toBeVisible()
 	await resultSelect.selectOption('fail')
 	// Defect picker is revealed only for fail/conditional (progressive disclosure).

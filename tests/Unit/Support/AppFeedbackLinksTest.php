@@ -54,6 +54,13 @@ final class AppFeedbackLinksTest extends TestCase
 		self::assertStringNotContainsString('token=', $keep);
 	}
 
+	public function testSanitizePageUrlStripsNextcloudUpgradeAckQueryKey(): void
+	{
+		$links = new AppFeedbackLinks('maintenancecheck', 'MaintenanceCheck');
+		$noisy = '/apps/maintenancecheck/?IKnowThatThisIsABigInstanceAndTheUpdateRequestCouldRunIntoATimeoutAndHowToRestoreABackup=IAmSuperSureToDoThis';
+		self::assertSame('/apps/maintenancecheck/', $links->sanitizePageUrl($noisy));
+	}
+
 	public function testMailtoBodyOmitsIdentityAndRejectsUnsafeErrorCodes(): void
 	{
 		$links = new AppFeedbackLinks('maintenancecheck', 'MaintenanceCheck', '9.9.9');

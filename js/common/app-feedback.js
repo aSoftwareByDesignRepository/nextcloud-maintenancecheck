@@ -39,6 +39,18 @@
 		}
 	}
 
+	function isBlockedQueryKey(key) {
+		return /^(token|password|code|secret|key|auth|session|requesttoken|guestname|guestpassword|iknowthatthisisabiginstanceandtheupdaterequestcouldrunintoatimeoutandhowtorestoreabackup)$/i.test(key);
+	}
+
+	function stripBlockedQueryParams(parsed) {
+		parsed.searchParams.forEach(function (_value, key) {
+			if (isBlockedQueryKey(key)) {
+				parsed.searchParams.delete(key);
+			}
+		});
+	}
+
 	function sanitizePageUrl(url) {
 		url = String(url || '').trim();
 		if (!url || url.length > 500) {
@@ -59,11 +71,7 @@
 			if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
 				return '';
 			}
-			parsed.searchParams.forEach(function (_value, key) {
-				if (/^(token|password|code|secret|key|auth|session)$/i.test(key)) {
-					parsed.searchParams.delete(key);
-				}
-			});
+			stripBlockedQueryParams(parsed);
 			var out = parsed.pathname + (parsed.search ? parsed.search : '');
 			if (url.indexOf('://') !== -1) {
 				out = parsed.origin + out;
@@ -71,6 +79,23 @@
 			return out.length > 500 ? out.slice(0, 500) : out;
 		} catch (e) {
 			return '';
+		}
+	}
+
+	function stripNoiseFromLocation() {
+		if (!global.location || !global.history || typeof global.history.replaceState !== 'function') {
+			return;
+		}
+		try {
+			var parsed = new URL(global.location.href);
+			var before = parsed.search;
+			stripBlockedQueryParams(parsed);
+			if (parsed.search !== before) {
+				var next = parsed.pathname + (parsed.search ? parsed.search : '') + parsed.hash;
+				global.history.replaceState(null, '', next);
+			}
+		} catch (e) {
+			/* never break navigation */
 		}
 	}
 
@@ -125,71 +150,6 @@
 		if (idea) {
 			idea.setAttribute('href', buildMailto('idea'));
 		}
-	}
-
-	function installPopover() {
-		var trigger = document.querySelector('.' + PREFIX + '-nav-footer__trigger');
-		if (!trigger) {
-			return;
-		}
-		var menuId = trigger.getAttribute('aria-controls');
-		if (!menuId) {
-			return;
-		}
-		var menu = document.getElementById(menuId);
-		if (!menu) {
-			return;
-		}
-
-		function isOpen() {
-			return trigger.getAttribute('aria-expanded') === 'true';
-		}
-
-		function openMenu() {
-			menu.hidden = false;
-			trigger.setAttribute('aria-expanded', 'true');
-			var first = menu.querySelector('a, button');
-			if (first) {
-				first.focus();
-			}
-		}
-
-		function closeMenu(restoreFocus) {
-			menu.hidden = true;
-			trigger.setAttribute('aria-expanded', 'false');
-			if (restoreFocus) {
-				trigger.focus();
-			}
-		}
-
-		trigger.addEventListener('click', function (e) {
-			e.preventDefault();
-			e.stopPropagation();
-			if (isOpen()) {
-				closeMenu(true);
-			} else {
-				openMenu();
-			}
-		});
-
-		menu.addEventListener('keydown', function (e) {
-			if (e.key === 'Escape') {
-				e.preventDefault();
-				closeMenu(true);
-			}
-		});
-
-		document.addEventListener('click', function (e) {
-			if (isOpen() && !trigger.contains(e.target) && !menu.contains(e.target)) {
-				closeMenu(false);
-			}
-		});
-
-		document.addEventListener('keydown', function (e) {
-			if (e.key === 'Escape' && isOpen()) {
-				closeMenu(true);
-			}
-		});
 	}
 
 	function attachReportLink(toast, errorCode) {
@@ -262,10 +222,64 @@
 		}
 	}
 
+	function installPopover() {
+		var trigger = document.querySelector('.' + PREFIX + '-nav-footer__trigger');
+		if (!trigger) {
+			return;
+		}
+		var menuId = trigger.getAttribute('aria-controls');
+		var menu = menuId ? document.getElementById(menuId) : null;
+		if (!menu) {
+			return;
+		}
+
+		function open() {
+			menu.hidden = false;
+			trigger.setAttribute('aria-expanded', 'true');
+			var first = menu.querySelector('a, button');
+			if (first) {
+				first.focus();
+			}
+		}
+
+		function close(returnFocus) {
+			menu.hidden = true;
+			trigger.setAttribute('aria-expanded', 'false');
+			if (returnFocus) {
+				trigger.focus();
+			}
+		}
+
+		trigger.addEventListener('click', function () {
+			var expanded = trigger.getAttribute('aria-expanded') === 'true';
+			if (expanded) {
+				close(true);
+			} else {
+				open();
+			}
+		});
+
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape' && !menu.hidden) {
+				close(true);
+			}
+		});
+
+		document.addEventListener('click', function (e) {
+			if (menu.hidden) {
+				return;
+			}
+			if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+				close(false);
+			}
+		});
+	}
+
 	var api = {
 		sanitizePageUrl: sanitizePageUrl,
 		buildMailto: buildMailto,
 		install: function () {
+			stripNoiseFromLocation();
 			refreshNavHrefs();
 			installPopover();
 			installToastHooks();

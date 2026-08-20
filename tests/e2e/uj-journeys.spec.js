@@ -624,7 +624,9 @@ test.describe('UJ journeys', () => {
 
 		await openApp(page, `/apps/maintenancecheck/equipment/${equipment.data.id}`)
 		await expect(page.locator('#mn-equipment-meters')).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByRole('heading', { name: /operating hours|betriebsstunden/i }).first()).toBeVisible()
+		// In the current UI the meter title is rendered inside the meters table row/cell
+		// (not as a dedicated heading).
+		await expect(page.locator('#mn-equipment-meters').getByText(/operating hours|betriebsstunden/i).first()).toBeVisible()
 		await expect(page.getByRole('button', { name: /add reading|zählerstand erfassen/i }).first()).toBeVisible()
 		await axeMain(page)
 
@@ -982,8 +984,8 @@ test.describe('UJ journeys', () => {
 		})
 
 		await openApp(page, `/apps/maintenancecheck/customers/${customer.data.id}`)
-		await expect(page.getByRole('button', { name: /delete customer|kunde löschen/i })).toBeVisible({ timeout: 15_000 })
-		await page.getByRole('button', { name: /delete customer|kunde löschen/i }).click()
+		await expect(page.getByRole('button', { name: /delete customer|kunde löschen|kunden löschen/i })).toBeVisible({ timeout: 15_000 })
+		await page.getByRole('button', { name: /delete customer|kunde löschen|kunden löschen/i }).click()
 
 		const dialog = page.locator('[role="dialog"]').first()
 		await expect(dialog).toBeVisible()
@@ -1098,16 +1100,23 @@ test.describe('UJ journeys', () => {
 			firstDueOn: serverToday,
 		})
 		await openApp(page, '/apps/maintenancecheck/')
-		const moreBtn = page.getByRole('button', { name: /^more$|^mehr$|more actions|weitere/i }).first()
-		await expect(moreBtn).toBeVisible({ timeout: 15_000 })
-		await moreBtn.click()
-		const editDetails = page.getByRole('menuitem', { name: /complete with details|mit details abschließen|edit details|details bearbeiten/i }).first()
+		const row = page.locator('#mn-due-board table.mn-table tbody tr', { hasText: /UJ2UI unit B/i }).first()
+		await row.scrollIntoViewIfNeeded()
+		await expect(row).toBeVisible({ timeout: 15_000 })
+
+		const moreToggle = row.locator('.mn-overflow__toggle').first()
+		await expect(moreToggle).toBeVisible({ timeout: 15_000 })
+		await moreToggle.click()
+
+		const menu = page.locator('.mn-overflow__menu:not([hidden])').first()
+		await expect(menu).toBeVisible({ timeout: 10_000 })
+		const editDetails = menu.getByRole('menuitem', { name: /complete with details|mit details abschließen|edit details|details bearbeiten/i }).first()
 		await expect(editDetails).toBeVisible()
 		await editDetails.click()
 
 		const dialog = page.locator('[role="dialog"]').first()
 		await expect(dialog).toBeVisible()
-		await expect(dialog.getByLabel(/completed on|erledigt am/i)).toBeVisible()
+		await expect(dialog.getByLabel(/completed on|abgeschlossen am|erledigt am/i)).toBeVisible()
 
 		const axeDialog = await new AxeBuilder({ page })
 			.include('[role="dialog"]')
