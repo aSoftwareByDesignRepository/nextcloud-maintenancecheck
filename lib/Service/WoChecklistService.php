@@ -133,6 +133,7 @@ class WoChecklistService
 	{
 		$result = $this->validatedResult($body);
 		$note = $this->validator->boundedOptionalString($body, 'note', 1024, 'note_too_long');
+		$clientRequestId = $this->validatedClientRequestId($body);
 		$now = $this->clock->now();
 		$cleared = [];
 
@@ -173,8 +174,42 @@ class WoChecklistService
 				throw new ConflictException('item_hidden', 'This item is currently hidden by a visibility rule.');
 			}
 
+			// SF-Z04: identical clientRequestId replay → same payload, no write.
+			if ($clientRequestId !== null && $target->getClientRequestId() === $clientRequestId) {
+				$sameResult = $target->getResult() === $result;
+				$sameNote = ($target->getNote() ?? null) === $note;
+				if (!$sameResult || !$sameNote) {
+					throw new ConflictException(
+						'idempotency_conflict',
+						'This clientRequestId was already used with a different checklist result.',
+					);
+				}
+				$this->db->commit();
+				$detail = $this->detail($workOrderId);
+				$detail['clearedItemCodes'] = [];
+				$detail['idempotentReplay'] = true;
+				return $detail;
+			}
+
+			// Same tick without a new client id (or first write of this value):
+			// skip the write if the row already matches — still safe under WO lock.
+			if (
+				$target->getResult() === $result
+				&& ($target->getNote() ?? null) === $note
+				&& ($clientRequestId === null || $target->getClientRequestId() === $clientRequestId)
+			) {
+				$this->db->commit();
+				$detail = $this->detail($workOrderId);
+				$detail['clearedItemCodes'] = [];
+				$detail['idempotentReplay'] = true;
+				return $detail;
+			}
+
 			$target->setResult($result);
 			$target->setNote($note);
+			if ($clientRequestId !== null) {
+				$target->setClientRequestId($clientRequestId);
+			}
 			$target->setUpdatedBy($uid);
 			$target->setUpdatedAt($now);
 			$this->checklist->update($target);
@@ -190,6 +225,7 @@ class WoChecklistService
 					if (($results[$code] ?? null) !== null && !($visibility[$code] ?? false)) {
 						$row->setResult(null);
 						$row->setNote(null);
+						$row->setClientRequestId(null);
 						$row->setUpdatedBy($uid);
 						$row->setUpdatedAt($now);
 						$this->checklist->update($row);
@@ -235,6 +271,25 @@ class WoChecklistService
 			]);
 		}
 		return $result;
+	}
+
+	/**
+	 * Optional SF-Z04 idempotency key from the companion (UUID / opaque string).
+	 *
+	 * @param array<string, mixed> $body
+	 */
+	private function validatedClientRequestId(array $body): ?string
+	{
+		$id = $this->validator->boundedOptionalString($body, 'clientRequestId', 128, 'client_request_id_too_long');
+		if ($id === null) {
+			return null;
+		}
+		if (!preg_match('/^[A-Za-z0-9._:-]{8,128}$/', $id)) {
+			throw new ValidationException('validation_failed', 'clientRequestId has an invalid format.', [
+				['field' => 'clientRequestId', 'code' => 'invalid_format'],
+			]);
+		}
+		return $id;
 	}
 
 	/**

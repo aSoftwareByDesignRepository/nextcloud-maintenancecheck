@@ -198,6 +198,10 @@ class VisitService
 	 */
 	public function complete(string $uid, int $visitId, array $body): array
 	{
+		// Mobile may send reason; server persists notes (parity with skip()).
+		if (!array_key_exists('notes', $body) && array_key_exists('reason', $body)) {
+			$body['notes'] = $body['reason'];
+		}
 		$today = $this->clock->today();
 		$doneOn = $this->validator->doneOn($this->validator->optionalString($body, 'doneOn'), $today);
 		return $this->close($uid, $visitId, Visit::STATUS_DONE, $doneOn, $body, static fn (string $done): string => $done);
@@ -212,6 +216,10 @@ class VisitService
 	 */
 	public function skip(string $uid, int $visitId, array $body): array
 	{
+		// Mobile companion historically sent reason; server persists notes.
+		if (!array_key_exists("notes", $body) && array_key_exists("reason", $body)) {
+			$body["notes"] = $body["reason"];
+		}
 		$today = $this->clock->today();
 		return $this->close($uid, $visitId, Visit::STATUS_SKIPPED, $today, $body, fn (): string => $this->clock->today());
 	}
@@ -343,6 +351,22 @@ class VisitService
 		// roll next due without evidence — fail closed here.
 		$openVisit = $this->visits->findById($visitId);
 		$this->assertCloseableWithoutInspectionWorkOrder($openVisit);
+
+		// Integrity: do not terminal-close a visit while a linked WO is still open.
+		// Technicians must Done/cancel the WO (or office force-close) first — otherwise
+		// skip/complete leaves an orphan in_progress WO against a closed visit.
+		$linkedWo = $this->workOrders->findNonCancelledByVisit($visitId);
+		if ($linkedWo !== null && !$linkedWo->isTerminal()) {
+			throw new ConflictException(
+				'visit_has_open_work_order',
+				'This visit has an open work order. Complete or cancel the work order first.',
+				[
+					'workOrderId' => (int)$linkedWo->getId(),
+					'workOrderNumber' => $linkedWo->getNumber(),
+					'workOrderStatus' => $linkedWo->getStatus(),
+				],
+			);
+		}
 
 		$notes = array_key_exists('notes', $body) ? $this->validator->visitNotes($body) : false;
 		$now = $this->clock->now();

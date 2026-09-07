@@ -183,6 +183,30 @@ class WorkOrderLifecycleIntegrationTest extends IntegrationTestCase
 		}
 	}
 
+	/** Create-from-visit must not leak full WO detail to a non-executor. */
+	public function testCreateFromVisitDeniedForUnrelatedTechAssignedVisit(): void
+	{
+		$seed = $this->seedVisit();
+		$assignee = $this->createTempUser();
+		$intruder = $this->createTempUser();
+		$visits = \OCP\Server::get(\OCA\MaintenanceCheck\Service\VisitService::class);
+		$visits->assign($seed['visitId'], ['userId' => $assignee]);
+
+		try {
+			$this->workOrders->createFromVisit($intruder, $seed['visitId'], [
+				'procedureSkipped' => true,
+				'procedureSkipReason' => 'BOLA create response fixture',
+			]);
+			$this->fail('Expected PermissionDeniedException');
+		} catch (\OCA\MaintenanceCheck\Exception\PermissionDeniedException $e) {
+			$this->assertNotEmpty($e->getMessage());
+		}
+
+		// No WO may have been inserted for the denied create.
+		$mapper = \OCP\Server::get(\OCA\MaintenanceCheck\Db\WorkOrderMapper::class);
+		$this->assertNull($mapper->findNonCancelledByVisit($seed['visitId']));
+	}
+
 	public function testOpenOrCreateFromVisitReturnsExistingWithoutConflict(): void
 	{
 		$seed = $this->seedVisit();

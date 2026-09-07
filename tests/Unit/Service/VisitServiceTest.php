@@ -13,6 +13,7 @@ use OCA\MaintenanceCheck\Db\Plan;
 use OCA\MaintenanceCheck\Db\PlanMapper;
 use OCA\MaintenanceCheck\Db\Visit;
 use OCA\MaintenanceCheck\Db\VisitMapper;
+use OCA\MaintenanceCheck\Db\WorkOrder;
 use OCA\MaintenanceCheck\Db\WorkOrderMapper;
 use OCA\MaintenanceCheck\Exception\ConflictException;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
@@ -42,6 +43,7 @@ final class VisitServiceTest extends TestCase
 	private Clock&MockObject $clock;
 	private IUserManager&MockObject $users;
 	private InspectionObligationMapper&MockObject $obligations;
+	private WorkOrderMapper&MockObject $workOrders;
 	private VisitService $service;
 
 	protected function setUp(): void
@@ -65,6 +67,8 @@ final class VisitServiceTest extends TestCase
 		$this->db->method('rollBack');
 
 		$this->obligations->method('findByPlanId')->willReturn(null);
+		$this->workOrders = $this->createMock(WorkOrderMapper::class);
+		$this->workOrders->method('findNonCancelledByVisit')->willReturn(null);
 
 		$this->service = new VisitService(
 			$this->db,
@@ -78,7 +82,7 @@ final class VisitServiceTest extends TestCase
 			$validator,
 			$this->clock,
 			$this->users,
-			$this->createMock(WorkOrderMapper::class),
+			$this->workOrders,
 			$this->createMock(ProjectCheckHoursDeepLinkService::class),
 			$this->createMock(ArbeitszeitCheckDeepLinkService::class),
 			$this->createMock(MeterService::class),
@@ -319,6 +323,97 @@ final class VisitServiceTest extends TestCase
 		$this->assertSame('2026-08-03', $result['nextVisit']['dueOn']);
 	}
 
+	public function testCompleteMapsReasonToNotes(): void
+	{
+		$closed = $this->visitEntity(21, 1, 'done');
+		$plan = $this->planEntity(1, false, 'month', 1);
+
+		$this->visits->expects($this->once())->method('closeScheduled')
+			->with(21, $this->callback(static function (array $set): bool {
+				return ($set['status'] ?? '') === Visit::STATUS_DONE
+					&& ($set['notes'] ?? null) === 'Finished on site';
+			}))
+			->willReturn(true);
+		$this->visits->method('findById')->willReturn($closed);
+		$this->plans->method('findById')->willReturn($plan);
+		$this->plans->method('lockRow')->willReturn(true);
+		$this->visits->method('findOpenByPlan')->willReturn(null);
+		$this->visits->method('insert')->willReturn($this->visitEntity(22, 1, 'scheduled'));
+
+		$result = $this->service->complete('tech', 21, ['reason' => 'Finished on site']);
+		$this->assertSame('done', $result['visit']['status']);
+	}
+
+	public function testSkipConflictsWhenOpenWorkOrderLinked(): void
+	{
+		$open = $this->visitEntity(90, 1, 'scheduled');
+		$wo = new WorkOrder();
+		$wo->setId(501);
+		$wo->setNumber('WO-501');
+		$wo->setStatus(WorkOrder::STATUS_IN_PROGRESS);
+		$this->assertFalse($wo->isTerminal());
+
+		$workOrders = $this->createMock(WorkOrderMapper::class);
+		$workOrders->expects($this->once())->method('findNonCancelledByVisit')->with(90)->willReturn($wo);
+		$service = $this->serviceWithWorkOrders($workOrders);
+
+		$this->visits->method('findById')->willReturn($open);
+		$this->visits->expects($this->never())->method('closeScheduled');
+
+		try {
+			$service->skip('tech', 90, ['reason' => 'later']);
+			$this->fail('expected ConflictException');
+		} catch (ConflictException $e) {
+			$this->assertSame('visit_has_open_work_order', $e->getErrorCode());
+			$this->assertSame(501, $e->getDetails()['workOrderId'] ?? null);
+		}
+	}
+
+	public function testCompleteConflictsWhenOpenWorkOrderLinked(): void
+	{
+		$open = $this->visitEntity(91, 1, 'scheduled');
+		$wo = new WorkOrder();
+		$wo->setId(502);
+		$wo->setNumber('WO-502');
+		$wo->setStatus(WorkOrder::STATUS_PLANNED);
+		$this->assertFalse($wo->isTerminal());
+
+		$workOrders = $this->createMock(WorkOrderMapper::class);
+		$workOrders->expects($this->once())->method('findNonCancelledByVisit')->with(91)->willReturn($wo);
+		$service = $this->serviceWithWorkOrders($workOrders);
+
+		$this->visits->method('findById')->willReturn($open);
+		$this->visits->expects($this->never())->method('closeScheduled');
+
+		try {
+			$service->complete('tech', 91, []);
+			$this->fail('expected ConflictException');
+		} catch (ConflictException $e) {
+			$this->assertSame('visit_has_open_work_order', $e->getErrorCode());
+		}
+	}
+
+	public function testSkipMapsReasonToNotes(): void
+	{
+		$closed = $this->visitEntity(21, 1, "skipped");
+		$plan = $this->planEntity(1, false, "month", 1);
+
+		$this->visits->expects($this->once())->method("closeScheduled")
+			->with(21, $this->callback(static function (array $set): bool {
+				return ($set["status"] ?? "") === \OCA\MaintenanceCheck\Db\Visit::STATUS_SKIPPED
+					&& ($set["notes"] ?? null) === "Customer closed";
+			}))
+			->willReturn(true);
+		$this->visits->method("findById")->willReturn($closed);
+		$this->plans->method("findById")->willReturn($plan);
+		$this->plans->method("lockRow")->willReturn(true);
+		$this->visits->method("findOpenByPlan")->willReturn(null);
+		$this->visits->method("insert")->willReturn($this->visitEntity(22, 1, "scheduled"));
+
+		$result = $this->service->skip("tech", 21, ["reason" => "Customer closed"]);
+		$this->assertSame("skipped", $result["visit"]["status"]);
+	}
+
 	public function testCancelConflictsWhenNotOpen(): void
 	{
 		$this->visits->method('closeScheduled')->willReturn(false);
@@ -421,6 +516,31 @@ final class VisitServiceTest extends TestCase
 		$result = $this->service->complete('tech', 71, []);
 		$this->assertNotNull($result['nextVisit']);
 		$this->assertSame('2026-08-24', $result['nextVisit']['dueOn']);
+	}
+
+
+	private function serviceWithWorkOrders(WorkOrderMapper&MockObject $workOrders): VisitService
+	{
+		$intervals = new IntervalCalculator();
+		$validator = new InputValidator($intervals);
+		return new VisitService(
+			$this->db,
+			$this->visits,
+			$this->plans,
+			$this->createMock(CustomerMapper::class),
+			$this->createMock(EquipmentMapper::class),
+			$this->createMock(MaintTypeMapper::class),
+			$intervals,
+			new DueBoard($intervals),
+			$validator,
+			$this->clock,
+			$this->users,
+			$workOrders,
+			$this->createMock(ProjectCheckHoursDeepLinkService::class),
+			$this->createMock(ArbeitszeitCheckDeepLinkService::class),
+			$this->createMock(MeterService::class),
+			$this->obligations,
+		);
 	}
 
 	private function visitEntity(int $id, int $planId, string $status): Visit

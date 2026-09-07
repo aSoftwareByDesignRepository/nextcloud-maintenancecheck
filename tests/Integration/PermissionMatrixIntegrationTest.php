@@ -312,6 +312,67 @@ final class PermissionMatrixIntegrationTest extends IntegrationTestCase
 		}
 	}
 
+	/**
+	 * SPEC §3 P3 is intentional: a seated technician may complete a visit
+	 * assigned to a different uid (not assignee-gated like work orders).
+	 */
+	public function testP3TechnicianCanCompleteVisitAssignedToSomeoneElse(): void
+	{
+		$customers = \OC::$server->get(\OCA\MaintenanceCheck\Service\CustomerService::class);
+		$equipment = \OC::$server->get(\OCA\MaintenanceCheck\Service\EquipmentService::class);
+		$catalogs = \OC::$server->get(\OCA\MaintenanceCheck\Service\CatalogService::class);
+		$plans = \OC::$server->get(\OCA\MaintenanceCheck\Service\PlanService::class);
+		$visitService = \OC::$server->get(\OCA\MaintenanceCheck\Service\VisitService::class);
+		$clock = \OC::$server->get(\OCA\MaintenanceCheck\Service\Clock::class);
+
+		$equipType = $catalogs->create('equip', [
+			'code' => 'mn_pm_p3x_et_' . bin2hex(random_bytes(2)),
+			'name' => 'P3x equip',
+		]);
+		$maintType = $catalogs->create('maint', [
+			'code' => 'mn_pm_p3x_mt_' . bin2hex(random_bytes(2)),
+			'name' => 'P3x maint',
+		]);
+		$customer = $customers->create(self::OFFICE, ['name' => 'P3x customer ' . bin2hex(random_bytes(2))]);
+		$unit = $equipment->create(self::OFFICE, [
+			'label' => 'P3x unit',
+			'customerId' => (int)$customer['id'],
+			'equipTypeId' => (int)$equipType['id'],
+		]);
+		$plan = $plans->create(self::OFFICE, (int)$unit['id'], [
+			'maintTypeId' => (int)$maintType['id'],
+			'intervalUnit' => 'month',
+			'intervalCount' => 1,
+			'firstDueOn' => $clock->today(),
+		]);
+		$visitId = (int)$plan['openVisit']['id'];
+
+		// Assign to SYS — TECH will still close it under P3.
+		$visitService->assign($visitId, ['userId' => self::SYS]);
+		$before = $visitService->get(self::OFFICE, $visitId);
+		$this->assertSame(self::SYS, $before['assignedUid']);
+
+		$this->loginAs(self::TECH);
+		$techCtrl = \OC::$server->get(VisitController::class);
+		$mw = $this->apiMiddleware();
+		$mw->beforeController($techCtrl, 'complete');
+		$done = $techCtrl->complete($visitId);
+		$this->assertSame(Http::STATUS_OK, $done->getStatus());
+		$this->assertSame('done', $done->getData()['visit']['status']);
+		$this->assertSame(self::TECH, $done->getData()['visit']['doneBy']);
+
+		$customers->delete((int)$customer['id'], true);
+		foreach (['mn_equip_types', 'mn_maint_types'] as $table) {
+			$db = \OC::$server->get(\OCP\IDBConnection::class);
+			$qb = $db->getQueryBuilder();
+			$qb->delete($table)->where($qb->expr()->eq('id', $qb->createNamedParameter(
+				$table === 'mn_equip_types' ? (int)$equipType['id'] : (int)$maintType['id'],
+				\PDO::PARAM_INT,
+			)));
+			$qb->executeStatement();
+		}
+	}
+
 	// ── P4 / P5 / P6 office writes vs technician 403 ────────────────────
 
 	public function testP4TechnicianDeniedCancelAssignReschedule(): void

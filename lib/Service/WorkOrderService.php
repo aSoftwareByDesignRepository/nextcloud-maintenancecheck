@@ -488,6 +488,12 @@ class WorkOrderService
 					$wo->setStatus(WorkOrder::STATUS_PLANNED);
 				}
 
+				// Fail closed before insert: creator must be able to execute the WO
+				// that would be created (assignee / helper / pool / office). Prevents
+				// a seated tech from minting a WO assigned to someone else and then
+				// seeing full detail on the 201 body (BOLA via create response).
+				$this->woAccess->assertCanExecute($uid, $wo);
+
 				$wo->setNumber($this->nextNumber());
 				$wo = $this->workOrders->insert($wo);
 				if ($procedureId !== null) {
@@ -495,7 +501,7 @@ class WorkOrderService
 				}
 				$this->attachInspectionSkillsIfNeeded($wo, $obligation?->getClassCode());
 				$this->db->commit();
-				return $this->get((int)$wo->getId());
+				return $this->get((int)$wo->getId(), $uid);
 			} catch (ConflictException | NotFoundException | ValidationException | PermissionDeniedException $e) {
 				if ($this->db->inTransaction()) {
 					$this->db->rollBack();

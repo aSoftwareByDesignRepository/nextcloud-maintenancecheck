@@ -13,6 +13,7 @@ use OCA\MaintenanceCheck\Db\WorkOrderMapper;
 use OCA\MaintenanceCheck\Exception\ConflictException;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
 use OCA\MaintenanceCheck\Exception\ValidationException;
+use OCP\IDBConnection;
 
 /**
  * W1 photos + W3 signature on a work order. Binaries live in
@@ -23,6 +24,7 @@ use OCA\MaintenanceCheck\Exception\ValidationException;
 class WoEvidenceService
 {
 	public function __construct(
+		private readonly IDBConnection $db,
 		private readonly WorkOrderMapper $workOrders,
 		private readonly WoPhotoMapper $photos,
 		private readonly WoSignatureMapper $signatures,
@@ -52,31 +54,44 @@ class WoEvidenceService
 	 */
 	public function addPhoto(string $uid, int $workOrderId, string $content, ?string $originalName): array
 	{
-		$wo = $this->workOrders->findById($workOrderId);
-		$this->woAccess->assertCanExecute($uid, $wo);
-		if ($wo->isTerminal()) {
-			throw new ConflictException('invalid_status', 'This work order is closed.');
-		}
-		if ($this->photos->countForWorkOrder($workOrderId) >= EvidenceStorage::MAX_PHOTOS_PER_WO) {
-			throw new ValidationException('photo_limit_reached', 'At most ' . EvidenceStorage::MAX_PHOTOS_PER_WO . ' photos per work order.');
-		}
-
-		$stored = $this->storage->storePhoto($workOrderId, $content);
-		$originalName = $originalName !== null ? mb_substr(trim($originalName), 0, 255) : null;
-
-		$photo = new WoPhoto();
-		$photo->setWorkOrderId($workOrderId);
-		$photo->setFileName($stored['fileName']);
-		$photo->setOriginalName($originalName !== '' ? $originalName : null);
-		$photo->setMime($stored['mime']);
-		$photo->setSizeBytes($stored['sizeBytes']);
-		$photo->setCreatedAt($this->clock->now());
-		$photo->setCreatedBy($uid);
+		// Serialize count→store→insert under the WO row lock so parallel
+		// uploads cannot soft-overshoot MAX_PHOTOS_PER_WO (Zeus SF-Z01).
+		$this->db->beginTransaction();
 		try {
-			return $this->photos->insert($photo)->toApi();
+			if (!$this->workOrders->lockRow($workOrderId)) {
+				throw new NotFoundException();
+			}
+			$wo = $this->workOrders->findById($workOrderId);
+			$this->woAccess->assertCanExecute($uid, $wo);
+			if ($wo->isTerminal()) {
+				throw new ConflictException('invalid_status', 'This work order is closed.');
+			}
+			if ($this->photos->countForWorkOrder($workOrderId) >= EvidenceStorage::MAX_PHOTOS_PER_WO) {
+				throw new ValidationException('photo_limit_reached', 'At most ' . EvidenceStorage::MAX_PHOTOS_PER_WO . ' photos per work order.');
+			}
+
+			$stored = $this->storage->storePhoto($workOrderId, $content);
+			$originalName = $originalName !== null ? mb_substr(trim($originalName), 0, 255) : null;
+
+			$photo = new WoPhoto();
+			$photo->setWorkOrderId($workOrderId);
+			$photo->setFileName($stored['fileName']);
+			$photo->setOriginalName($originalName !== '' ? $originalName : null);
+			$photo->setMime($stored['mime']);
+			$photo->setSizeBytes($stored['sizeBytes']);
+			$photo->setCreatedAt($this->clock->now());
+			$photo->setCreatedBy($uid);
+			try {
+				$api = $this->photos->insert($photo)->toApi();
+			} catch (\Throwable $e) {
+				// Never leave an orphaned binary behind a failed row insert.
+				$this->storage->deletePhoto($workOrderId, $stored['fileName']);
+				throw $e;
+			}
+			$this->db->commit();
+			return $api;
 		} catch (\Throwable $e) {
-			// Never leave an orphaned binary behind a failed row insert.
-			$this->storage->deletePhoto($workOrderId, $stored['fileName']);
+			$this->db->rollBack();
 			throw $e;
 		}
 	}

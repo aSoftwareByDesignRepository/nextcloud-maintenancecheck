@@ -37,7 +37,7 @@ This is the first App Store release. The app is fully functional and tested, but
 
 ## Requirements
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB or PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB or PostgreSQL
 	]]></description>
 	<description lang="de"><![CDATA[
 # Sehen, was fällig ist. Im Einsatz abschließen.
@@ -68,7 +68,7 @@ Dies ist die erste App-Store-Version. Die App ist voll funktionsfähig und getes
 
 ## Voraussetzungen
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB oder PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB oder PostgreSQL
 	]]></description>
 	<description lang="fr"><![CDATA[
 # Savoir ce qui est dû. Terminer sur le terrain.
@@ -99,7 +99,7 @@ Il s’agit de la première publication App Store. L’application est entièrem
 
 ## Exigences
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB ou PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB ou PostgreSQL
 	]]></description>
 	<description lang="es"><![CDATA[
 # Sepa qué está pendiente. Cierre el asunto en el lugar.
@@ -130,7 +130,7 @@ Esta es la primera publicación de App Store. La aplicación está completamente
 
 ## Requisitos
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB o PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB o PostgreSQL
 	]]></description>
 	<description lang="da"><![CDATA[
 # Vid, hvad der skal laves. Afslut det ude i felten.
@@ -161,7 +161,7 @@ Dette er den første App Store-udgivelse. Appen er fuldt funktionel og testet, m
 
 ## Krav
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
 	]]></description>
 	<description lang="nl"><![CDATA[
 # Weet wat er op je lijst staat. Sluit het af in het veld.
@@ -192,7 +192,7 @@ Dit is de eerste App Store-release. De app is volledig functioneel en getest, ma
 
 ## Vereisten
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB of PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB of PostgreSQL
 	]]></description>
 	<description lang="it"><![CDATA[
 # Sapere cosa è in scadenza. Chiudere sul campo.
@@ -223,7 +223,7 @@ Questa è la prima pubblicazione su App Store. L’app è completamente funziona
 
 ## Requisiti
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB o PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB o PostgreSQL
 	]]></description>
 	<description lang="pl"><![CDATA[
 # Wiedz, co jest w terminie. Zakończ to w terenie.
@@ -254,7 +254,7 @@ To pierwsza publikacja w App Store. Aplikacja jest w pełni funkcjonalna i przet
 
 ## Wymagania
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB lub PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB lub PostgreSQL
 	]]></description>
 	<description lang="sv"><![CDATA[
 # Vet vad som ska göras. Avsluta det i fält.
@@ -285,7 +285,7 @@ Detta är den första App Store-versionen. Appen är fullt fungerande och testad
 
 ## Krav
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
 	]]></description>
 	<description lang="nb"><![CDATA[
 # Vet hva som er forfalt. Lukk det ute i felten.
@@ -316,9 +316,9 @@ Dette er den første App Store-utgivelsen. Appen er fullt funksjonell og testet,
 
 ## Krav
 
-- Nextcloud 32–34 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
+- Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
 	]]></description>
-	<version>1.2.8</version>
+	<version>1.3.1</version>
 	<licence>AGPL-3.0-or-later</licence>
 	<author mail="info@software-by-design.de" homepage="https://nextcloud.software-by-design.de">Software by Design GbR</author>
 	<namespace>MaintenanceCheck</namespace>
@@ -353,7 +353,7 @@ Dette er den første App Store-utgivelsen. Appen er fullt funksjonell og testet,
 		https://raw.githubusercontent.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/refs/heads/main/screenshots/maintenancecheck-screenshot-08.png
 	</screenshot>
 	<dependencies>
-		<nextcloud min-version="32" max-version="34"/>
+		<nextcloud min-version="32" max-version="35"/>
 		<php min-version="8.2" max-version="8.5"/>
 		<database>mysql</database>
 		<database>pgsql</database>

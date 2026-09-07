@@ -29,6 +29,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setResult(?string $v)
  * @method string|null getNote()
  * @method void setNote(?string $v)
+ * @method string|null getClientRequestId()
+ * @method void setClientRequestId(?string $v)
  * @method string|null getUpdatedBy()
  * @method void setUpdatedBy(?string $v)
  * @method int getUpdatedAt()
@@ -51,6 +53,7 @@ class WoChecklistItem extends Entity
 	protected ?string $showIfResult = null;
 	protected ?string $result = null;
 	protected ?string $note = null;
+	protected ?string $clientRequestId = null;
 	protected ?string $updatedBy = null;
 	protected int $updatedAt = 0;
 
@@ -65,6 +68,7 @@ class WoChecklistItem extends Entity
 		$this->addType('showIfResult', 'string');
 		$this->addType('result', 'string');
 		$this->addType('note', 'string');
+		$this->addType('clientRequestId', 'string');
 		$this->addType('updatedBy', 'string');
 		$this->addType('updatedAt', 'integer');
 	}
@@ -86,6 +90,7 @@ class WoChecklistItem extends Entity
 			'showIfResult' => $this->showIfResult,
 			'result' => $this->result,
 			'note' => $this->note,
+			'clientRequestId' => $this->clientRequestId,
 			'updatedBy' => $this->updatedBy,
 			'updatedAt' => $this->updatedAt,
 		];
