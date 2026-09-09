@@ -253,7 +253,7 @@ class MobileController extends Controller
 	{
 		$uid = $this->access->currentUserId();
 		$this->gate->assertGatePassed($uid);
-		return new JSONResponse(['data' => $this->evidence->listPhotos($id, $uid)]);
+		return new JSONResponse(['ok' => true, 'data' => $this->evidence->listPhotos($id, $uid)]);
 	}
 
 	#[NoAdminRequired]
@@ -280,7 +280,7 @@ class MobileController extends Controller
 		$this->gate->assertGatePassed($uid);
 		$this->workOrders->get($id, $uid);
 		$kit = $this->kits->kitFor($id);
-		return new JSONResponse(['kit' => $kit, 'readiness' => $this->kits->readinessFor($id)]);
+		return new JSONResponse(['ok' => true, 'kit' => $kit, 'readiness' => $this->kits->readinessFor($id)]);
 	}
 
 	#[NoAdminRequired]
@@ -354,6 +354,7 @@ class MobileController extends Controller
 		$uid = $this->access->currentUserId();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse([
+			'ok' => true,
 			'data' => $this->obligations->listForEquipment($uid, $equipmentId),
 		]);
 	}

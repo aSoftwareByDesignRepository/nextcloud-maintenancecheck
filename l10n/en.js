@@ -640,6 +640,7 @@ OC.L10N.register(
 	"One tour per technician per day — open a stop to do the work." : "One tour per technician per day — open a stop to do the work.",
 	"Only allow readings that count up" : "Only allow readings that count up",
 	"Only jobs waiting for a technician show first." : "Only jobs waiting for a technician show first.",
+	"Only my jobs" : "Only my jobs",
 	"Only my visits" : "Only my visits",
 	"Only Nextcloud administrators manage this app." : "Only Nextcloud administrators manage this app.",
 	"Only used when the policy is “Always use the location ID below”. Leave empty to clear." : "Only used when the policy is “Always use the location ID below”. Leave empty to clear.",

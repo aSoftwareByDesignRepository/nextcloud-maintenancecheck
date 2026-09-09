@@ -42,6 +42,7 @@ class ConfigController extends Controller
 	{
 		$this->access->requireAppAdmin($this->access->currentUserId());
 		return new JSONResponse([
+			'ok' => true,
 			'accessRestrictionEnabled' => $this->access->isAccessRestrictionEnabled(),
 			'appAdminUserIds' => $this->access->getJsonIdList(AccessControlService::KEY_APP_ADMINS),
 			'accessAllowedUserIds' => $this->access->getJsonIdList(AccessControlService::KEY_ACCESS_ALLOWED_USER_IDS),
@@ -204,6 +205,7 @@ class ConfigController extends Controller
 		}
 		$exists = $this->userManager->userExists($userId);
 		return new JSONResponse([
+			'ok' => true,
 			'uid' => $userId,
 			'exists' => $exists,
 			'canUseApp' => $exists && $this->access->canUseApp($userId),
@@ -229,6 +231,7 @@ class ConfigController extends Controller
 			$limitInt = max(1, min(50, (int)$limit));
 		}
 		return new JSONResponse([
+			'ok' => true,
 			'data' => UserDirectorySearch::search($this->userManager, $q, $limitInt),
 		]);
 	}
@@ -245,7 +248,7 @@ class ConfigController extends Controller
 			throw new ValidationException('invalid_query', 'Search query is too long.');
 		}
 		if (mb_strlen($q) < 2) {
-			return new JSONResponse(['data' => []]);
+			return new JSONResponse(['ok' => true, 'data' => []]);
 		}
 		$limitInt = 25;
 		if ($limit !== null && $limit !== '') {
@@ -255,6 +258,7 @@ class ConfigController extends Controller
 			$limitInt = max(1, min(50, (int)$limit));
 		}
 		return new JSONResponse([
+			'ok' => true,
 			'data' => GroupDirectorySearch::search($this->groupManager, $q, $limitInt),
 		]);
 	}

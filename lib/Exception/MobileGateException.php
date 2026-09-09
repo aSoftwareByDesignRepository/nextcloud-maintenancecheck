@@ -20,4 +20,10 @@ class MobileGateException extends \Exception
 	{
 		return $this->errorCode;
 	}
+
+	/** Middleware maps this to HTTP 402 (payment/seat gate). */
+	public function getHttpStatus(): int
+	{
+		return 402;
+	}
 }

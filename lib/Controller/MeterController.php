@@ -53,7 +53,7 @@ class MeterController extends Controller
 	{
 		$this->access->requireOffice($this->access->currentUserId());
 		$this->meters->delete($id);
-		return new JSONResponse(['deleted' => true]);
+		return new JSONResponse(['ok' => true, 'deleted' => true]);
 	}
 
 	#[NoAdminRequired]

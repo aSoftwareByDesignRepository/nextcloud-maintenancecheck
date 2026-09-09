@@ -40,6 +40,7 @@ class InspectionObligationController extends Controller
 	{
 		$uid = $this->access->currentUserId();
 		return new JSONResponse([
+			'ok' => true,
 			'data' => $this->obligations->listForEquipment($uid, $equipmentId),
 		]);
 	}

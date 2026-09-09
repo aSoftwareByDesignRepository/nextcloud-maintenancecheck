@@ -78,6 +78,6 @@ class LicenseController extends Controller
 	{
 		$this->access->requireAppAdmin($this->access->currentUserId());
 		$this->license->removeSeat($uid);
-		return new JSONResponse(['deleted' => true]);
+		return new JSONResponse(['ok' => true, 'deleted' => true]);
 	}
 }

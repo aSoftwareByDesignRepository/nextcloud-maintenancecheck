@@ -62,7 +62,7 @@ class EquipmentController extends Controller
 	{
 		$this->access->requireOffice($this->access->currentUserId());
 		$this->equipment->delete($id);
-		return new JSONResponse(['deleted' => true]);
+		return new JSONResponse(['ok' => true, 'deleted' => true]);
 	}
 
 	/**

@@ -52,7 +52,7 @@ class SiteController extends Controller
 	{
 		$this->access->requireOffice($this->access->currentUserId());
 		$this->sites->delete($id);
-		return new JSONResponse(['deleted' => true]);
+		return new JSONResponse(['ok' => true, 'deleted' => true]);
 	}
 
 	/**

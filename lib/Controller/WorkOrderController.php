@@ -154,7 +154,7 @@ class WorkOrderController extends Controller
 	public function listPhotos(int $id): JSONResponse
 	{
 		$uid = $this->access->currentUserId();
-		return new JSONResponse(['data' => $this->evidence->listPhotos($id, $uid)]);
+		return new JSONResponse(['ok' => true, 'data' => $this->evidence->listPhotos($id, $uid)]);
 	}
 
 	#[NoAdminRequired]
@@ -190,7 +190,7 @@ class WorkOrderController extends Controller
 	{
 		$uid = $this->access->currentUserId();
 		$this->evidence->deletePhoto($id, $photoId, $uid);
-		return new JSONResponse(['deleted' => true]);
+		return new JSONResponse(['ok' => true, 'deleted' => true]);
 	}
 
 	// ── Signature (W3) ──────────────────────────────────────────────────

@@ -639,6 +639,7 @@
 		"One tour per technician per day — open a stop to do the work.": "Eine Tour pro Techniker und Tag — öffne einen Stopp, um zu arbeiten.",
 		"Only allow readings that count up": "Nur aufwärts zählende Stände zulassen",
 		"Only jobs waiting for a technician show first.": "Zuerst erscheinen nur Aufträge, die auf einen Techniker warten.",
+"Only my jobs": "Nur meine Jobs",
 		"Only my visits": "Nur meine Einsätze",
 		"Only Nextcloud administrators manage this app.": "Nur Nextcloud-Administratoren verwalten diese App.",
 		"Only used when the policy is “Always use the location ID below”. Leave empty to clear.": "Wird nur verwendet, wenn die Richtlinie „Immer die unten angegebene Lagerort-ID verwenden“ ist. Leer lassen zum Entfernen.",

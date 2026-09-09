@@ -574,6 +574,7 @@ class Application extends App implements IBootstrap
 		});
 		$context->registerService(WoEvidenceService::class, static function ($c): WoEvidenceService {
 			return new WoEvidenceService(
+				$c->get(IDBConnection::class),
 				$c->get(WorkOrderMapper::class),
 				$c->get(WoPhotoMapper::class),
 				$c->get(WoSignatureMapper::class),

@@ -14,4 +14,10 @@ class PermissionDeniedException extends \Exception
 	{
 		parent::__construct($message);
 	}
+
+	/** Middleware maps this to HTTP 403 (SPEC §7.2). */
+	public function getHttpStatus(): int
+	{
+		return 403;
+	}
 }

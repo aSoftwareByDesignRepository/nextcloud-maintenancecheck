@@ -77,7 +77,7 @@ class ProcedureController extends Controller
 		$uid = $this->access->currentUserId();
 		$this->access->requireOffice($uid);
 		$this->procedures->delete($id);
-		return new JSONResponse(['deleted' => true]);
+		return new JSONResponse(['ok' => true, 'deleted' => true]);
 	}
 
 	/**

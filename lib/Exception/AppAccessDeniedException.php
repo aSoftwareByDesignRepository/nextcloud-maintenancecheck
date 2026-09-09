@@ -19,4 +19,10 @@ class AppAccessDeniedException extends \Exception
 	{
 		return $this->denialReason;
 	}
+
+	/** Middleware maps this to HTTP 403. */
+	public function getHttpStatus(): int
+	{
+		return 403;
+	}
 }

@@ -36,6 +36,7 @@ class TourController extends Controller
 		if (!$this->access->isOffice($uid)) {
 			$mine = $this->tours->todayForTech($uid, $date);
 			return new JSONResponse([
+				'ok' => true,
 				'data' => $mine['tour'] !== null ? [$mine['tour']] : [],
 				'date' => $mine['date'],
 			]);
@@ -74,7 +75,7 @@ class TourController extends Controller
 	{
 		$this->access->requireOffice($this->access->currentUserId());
 		$this->tours->delete($id);
-		return new JSONResponse(['deleted' => true]);
+		return new JSONResponse(['ok' => true, 'deleted' => true]);
 	}
 
 	#[NoAdminRequired]
