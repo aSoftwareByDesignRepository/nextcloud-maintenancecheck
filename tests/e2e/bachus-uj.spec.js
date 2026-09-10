@@ -62,8 +62,14 @@ test.describe('Bachus UX journeys', () => {
 		const marker = `bachus-${Date.now()}`
 		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
 		expectOk(types, 'types')
-		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
+		// One-tap Complete is forbidden for inspection visits (must close via WO).
+		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=50&offset=0')
 		expectOk(maint, 'maint')
+		const preventive = (maint.data.data || []).find((t) => {
+			const name = String(t.name || t.label || '')
+			return !/inspection|prüfung/i.test(name) && t.isInspection !== true
+		})
+		expect(preventive, 'need a non-inspection maint type for one-tap Complete').toBeTruthy()
 		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
 			name: `Bachus ${marker}`,
 		})
@@ -75,8 +81,10 @@ test.describe('Bachus UX journeys', () => {
 		})
 		expectOk(equipment, 'equipment')
 		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}/plans`, {
-			maintTypeId: maint.data.data[0].id,
-			intervalUnit: 'month',
+			maintTypeId: preventive.id,
+			// Yearly so the follow-up due date is outside the due-board window
+			// (monthly follow-ups kept the same equipment marker visible).
+			intervalUnit: 'year',
 			intervalCount: 1,
 			firstDueOn: serverToday,
 		}).then((plan) => expectOk(plan, 'plan'))
@@ -105,7 +113,14 @@ test.describe('Bachus UX journeys', () => {
 		expect(box, 'Complete touch target').toBeTruthy()
 		expect(box.height).toBeGreaterThanOrEqual(40)
 
-		await completeBtn.click()
+		// Wait for complete API so board refresh is not raced (Atlas web_api flake).
+		await Promise.all([
+			page.waitForResponse(
+				(r) => /\/api\/visits\/\d+\/(complete|done)/.test(r.url()) && r.request().method() === 'POST',
+				{ timeout: 20_000 },
+			).catch(() => null),
+			completeBtn.click(),
+		])
 		await expect(page.locator('[role="dialog"]')).toHaveCount(0)
 		await expect(page.locator('#mn-due-board table.mn-table tbody tr', { hasText: marker })).toHaveCount(0, { timeout: 20_000 })
 

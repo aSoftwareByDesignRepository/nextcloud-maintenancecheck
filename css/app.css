@@ -718,8 +718,10 @@ textarea.mn-input {
 
 /* Table link + inactive row (design-system list tables) */
 .mn-table a.mn-table-link {
-	color: var(--color-primary-element);
-	font-weight: 600;
+	/* Darken NC primary so body-size links stay WCAG 2 AA on white
+	   (light brand hues like #c45c26 are ~4.28:1; mix pushes ≥4.5:1). */
+	color: color-mix(in srgb, var(--color-primary-element) 72%, #000 28%);
+	font-weight: 700;
 	text-decoration: none;
 }
 .mn-table a.mn-table-link:hover {
@@ -1373,9 +1375,9 @@ textarea.mn-input {
 	padding: 0.25rem 0;
 	border: 0;
 	background: transparent;
-	color: var(--color-primary-element);
+	color: color-mix(in srgb, var(--color-primary-element) 72%, #000 28%);
 	font: inherit;
-	font-weight: 600;
+	font-weight: 700;
 	text-align: start;
 	text-decoration: none;
 	cursor: pointer;

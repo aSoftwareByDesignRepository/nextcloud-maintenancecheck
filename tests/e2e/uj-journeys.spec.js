@@ -946,13 +946,22 @@ test.describe('UJ journeys', () => {
 		const newPlan = page.getByRole('button', { name: /new plan|neuer plan/i })
 		if (await newPlan.isVisible().catch(() => false)) {
 			await newPlan.click()
-			await expect(page.locator('[role="dialog"]').first()).toBeVisible({ timeout: 10_000 })
+			const planDialog = page.locator('[role="dialog"]').first()
+			await expect(planDialog).toBeVisible({ timeout: 10_000 })
 			const results = await new AxeBuilder({ page })
 				.include('[role="dialog"]')
 				.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
 				.analyze()
 			expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
+			// Esc cancel — no plan created (dlg-web-force-delete-plan-cancel-thin).
 			await page.keyboard.press('Escape')
+			await expect(planDialog).toBeHidden({ timeout: 10_000 })
+			const plansBefore = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/equipment/${equipment.data.id}`)
+			expectOk(plansBefore, 'equipment after Esc cancel plan dialog')
+			const planCountBefore = Array.isArray(plansBefore.data?.activePlans)
+				? plansBefore.data.activePlans.length
+				: (plansBefore.data?.plans?.length ?? 0)
+			expect(planCountBefore).toBe(0)
 		} else {
 			await axeMain(page)
 		}
@@ -1002,11 +1011,21 @@ test.describe('UJ journeys', () => {
 			.analyze()
 		expect(axeDialog.violations, JSON.stringify(axeDialog.violations, null, 2)).toEqual([])
 
-		await checkbox.uncheck()
-		await expect(deleteBtn).toBeDisabled()
-		await checkbox.check()
-		await deleteBtn.click()
-		await expect(dialog).toBeHidden({ timeout: 15_000 })
+		// Esc cancel — customer must still exist (dlg-web-force-delete-plan-cancel-thin).
+		await page.keyboard.press('Escape')
+		await expect(dialog).toBeHidden({ timeout: 10_000 })
+		const stillThere = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}`)
+		expectOk(stillThere, 'customer after Esc cancel force-delete')
+		expect(stillThere.data.id).toBe(customer.data.id)
+		await expect(page).toHaveURL(new RegExp(`/apps/maintenancecheck/customers/${customer.data.id}`))
+
+		// Re-open and confirm delete.
+		await page.getByRole('button', { name: /delete customer|kunde löschen|kunden löschen/i }).click()
+		const dialog2 = page.locator('[role="dialog"]').first()
+		await expect(dialog2).toBeVisible()
+		await dialog2.locator('input[type="checkbox"]').check()
+		await dialog2.locator('#mn-confirm-delete').click()
+		await expect(dialog2).toBeHidden({ timeout: 15_000 })
 		// Successful force-delete navigates back to the customers list — wait for
 		// that navigation to settle before evaluating in the page again, or the
 		// execution context is destroyed mid-fetch (flaky on slow viewports).

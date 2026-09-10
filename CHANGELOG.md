@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.1 - 2026-09-10
+
+### Fixed
+- Zeus SF-Z04 checklist idempotency; pending work-order evidence locks.
+- Help / Support / Get the App WCAG 2.1 AA hardening; English brand names only.
+
+### Changed
+- Expanded dashboard/navigation/ops l10n; native copy for da/nl/sv/nb (no German paste).
+- CoreWebUpgradeBypassPolicy; refreshed screenshots and release assets; feedback footer.
+
 ## 1.2.8 - 2026-08-13
 
 ### Changed
