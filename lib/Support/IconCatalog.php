@@ -17,6 +17,7 @@ final class IconCatalog
 	/** @var array<string, string> Inner SVG markup by icon name. */
 	private const ICONS = [
 		// Navigation
+		'menu' => '<path d="M4 6h16M4 12h16M4 18h16"/>',
 		'layout-grid' => '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
 		'users' => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
 		'wrench' => '<path d="M14.7 6.3a4 4 0 0 0-5.5 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-3 3-2.4-.6-.6-2.4Z"/>',

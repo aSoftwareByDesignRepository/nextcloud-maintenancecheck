@@ -94,6 +94,20 @@ require __DIR__ . '/navigation.php';
 	<div id="mn-toast-region" class="mn-toast-region" role="region" aria-label="<?php p($l->t('Notifications')); ?>"></div>
 	<div id="app-content-wrapper" class="mn-shell">
 		<header class="mn-page-header" aria-labelledby="mn-page-title">
+			<button type="button"
+				class="mn-nav-toggle"
+				id="mn-nav-toggle"
+				data-mn-nav-toggle
+				aria-controls="app-navigation"
+				aria-expanded="false"
+				aria-label="<?php p($l->t('Open navigation menu')); ?>"
+				data-aria-label-open="<?php p($l->t('Open navigation menu')); ?>"
+				data-aria-label-close="<?php p($l->t('Close navigation menu')); ?>">
+				<span class="mn-nav-toggle__icon" aria-hidden="true">
+					<?php print_unescaped(IconCatalog::render('menu', 'mn-nav-toggle__icon-svg')); ?>
+				</span>
+				<span class="mn-nav-toggle__label"><?php p($l->t('Menu')); ?></span>
+			</button>
 			<nav class="mn-breadcrumb" aria-label="<?php p($l->t('Breadcrumb')); ?>">
 				<ol class="mn-breadcrumb__list">
 					<li class="mn-breadcrumb__item">

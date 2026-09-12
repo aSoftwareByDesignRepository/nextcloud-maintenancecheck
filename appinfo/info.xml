@@ -31,9 +31,9 @@ MaintenanceCheck runs recurring and corrective maintenance on the Nextcloud you 
 - Customers here are a field register. Same name in another business app ≠ same record; nothing merges on its own.
 - Optional stock deduction after close stays off by default and never blocks finishing a job.
 
-## Early release — feedback welcome
+## Feedback welcome
 
-This is the first App Store release. The app is fully functional and tested, but has not yet seen wide real-world use. Bug reports and feature requests are very welcome: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+We improve this app with real-world use. Bug reports, rough edges, and ideas help — open a GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) or write to info@software-by-design.de. Your feedback directly shapes what we build next.
 
 ## Requirements
 
@@ -62,9 +62,9 @@ MaintenanceCheck steuert wiederkehrende und korrigierende Wartung in der Nextclo
 - Kunden hier sind ein Außenregister. Gleicher Name in einer anderen Fach-App ≠ derselbe Datensatz; nichts wird still zusammengeführt.
 - Optionale Bestandsabzüge nach Abschluss bleiben standardmäßig aus und blockieren den Abschluss nicht.
 
-## Erste Veröffentlichung — Feedback willkommen
+## Feedback willkommen
 
-Dies ist die erste App-Store-Version. Die App ist voll funktionsfähig und getestet, wurde aber noch nicht breit im Praxiseinsatz erprobt. Fehlerberichte und Funktionswünsche sind sehr willkommen: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+Wir verbessern diese App mit Rückmeldungen aus der Praxis. Fehlerberichte, Stolpersteine und Ideen helfen — öffnen Sie ein GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) oder schreiben Sie an info@software-by-design.de. Ihr Feedback prägt direkt, was wir als Nächstes bauen.
 
 ## Voraussetzungen
 
@@ -93,9 +93,9 @@ MaintenanceCheck exécute la maintenance récurrente et corrective sur la Nextcl
 - Les clients constituent ici un registre terrain. Le même nom dans une autre application métier ≠ le même enregistrement ; rien ne se fusionne automatiquement.
 - La déduction optionnelle de stock après clôture reste désactivée par défaut et n’empêche jamais de terminer une tâche.
 
-## Première version — retours bienvenus
+## Retours bienvenus
 
-Il s’agit de la première publication App Store. L’application est entièrement fonctionnelle et testée, mais n’a pas encore vu une utilisation réelle à grande échelle. Les rapports de bugs et demandes de fonctionnalités sont très bienvenus : https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+Nous améliorons cette app grâce à votre usage réel. Bugs, frottements et idées aident — ouvrez une GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) ou écrivez à info@software-by-design.de. Vos retours façonnent directement la suite.
 
 ## Exigences
 
@@ -124,9 +124,9 @@ MaintenanceCheck ejecuta el mantenimiento recurrente y correctivo en la Nextclou
 - Los clientes aquí son un registro de campo. El mismo nombre en otra aplicación de negocio ≠ el mismo registro; no se fusiona nada por sí solo.
 - La deducción opcional de stock tras el cierre se mantiene desactivada por defecto y nunca impide terminar una tarea.
 
-## Primera versión — ¡sus comentarios son bienvenidos!
+## Comentarios bienvenidos
 
-Esta es la primera publicación de App Store. La aplicación está completamente funcional y probada, pero aún no ha tenido mucho uso en entornos reales. Los informes de errores y las solicitudes de nuevas funciones son muy bienvenidos: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+Mejoramos esta app con el uso real. Informes de errores, fricciones e ideas ayudan — abra un GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) o escriba a info@software-by-design.de. Su feedback da forma directa a lo que construimos después.
 
 ## Requisitos
 
@@ -159,6 +159,10 @@ MaintenanceCheck kører tilbagevendende og korrigerende vedligeholdelse på den 
 
 Dette er den første App Store-udgivelse. Appen er fuldt funktionel og testet, men har endnu ikke set bred brug i den virkelige verden. Bugrapporter og funktionsønsker modtages meget gerne: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
 
+## Feedback er velkommen
+
+Vi forbedrer denne app med brug i praksis. Fejlrapporter, friktioner og idéer hjælper — åbn et GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) eller skriv til info@software-by-design.de. Jeres feedback former direkte det, vi bygger næste gang.
+
 ## Krav
 
 - Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB eller PostgreSQL
@@ -190,6 +194,10 @@ MaintenanceCheck verzorgt zowel terugkerend als correctief onderhoud op de Nextc
 
 Dit is de eerste App Store-release. De app is volledig functioneel en getest, maar is nog niet breed gebruikt in de praktijk. Meldingen van bugs en feature requests zijn zeer welkom: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
 
+## Feedback welkom
+
+We verbeteren deze app met gebruik in de praktijk. Bugmeldingen, struikelblokken en ideeën helpen — open een GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) of mail naar info@software-by-design.de. Uw feedback bepaalt mede wat we als volgende bouwen.
+
 ## Vereisten
 
 - Nextcloud 32–35 · PHP 8.2–8.5 · MySQL/MariaDB of PostgreSQL
@@ -217,9 +225,9 @@ MaintenanceCheck gestisce manutenzioni ricorrenti e correttive nella Nextcloud c
 - I clienti qui sono un registro di campo. Stesso nome in un’altra app aziendale ≠ stesso record; nulla viene unito automaticamente.
 - La deduzione opzionale della giacenza dopo la chiusura resta disattivata per impostazione predefinita e non blocca mai il completamento di un job.
 
-## Early release — graditi feedback
+## Feedback benvenuto
 
-Questa è la prima pubblicazione su App Store. L’app è completamente funzionante e testata, ma non ha ancora visto un utilizzo reale diffuso. I report di bug e le richieste di nuove funzioni sono più che benvenuti: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+Miglioriamo questa app con l’uso reale. Segnalazioni di bug, punti deboli e idee aiutano — aprite una GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) o scrivete a info@software-by-design.de. Il vostro feedback guida direttamente ciò che costruiamo dopo.
 
 ## Requisiti
 
@@ -248,9 +256,9 @@ MaintenanceCheck realizuje cykliczne i korygujące prace konserwacyjne na Nextcl
 - Tutaj klienci to rejestr terenowy. Ten sam opis w innej aplikacji biznesowej ≠ ten sam rekord; nic nie scala się samo.
 - Opcjonalne potrącenie zapasu po zamknięciu pozostaje domyślnie wyłączone i nigdy nie blokuje zakończenia zadania.
 
-## Wczesne wydanie — zapraszamy do opinii
+## Feedback mile widziany
 
-To pierwsza publikacja w App Store. Aplikacja jest w pełni funkcjonalna i przetestowana, ale jeszcze nie doczekała się szerokiego zastosowania w realnym świecie. Zgłoszenia błędów i sugestie funkcji są bardzo mile widziane: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+Ulepszamy tę aplikację dzięki realnemu użyciu. Zgłoszenia błędów, tarcia i pomysły pomagają — otwórz GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) lub napisz na info@software-by-design.de. Wasza opinia bezpośrednio kształtuje to, co budujemy dalej.
 
 ## Wymagania
 
@@ -279,9 +287,9 @@ MaintenanceCheck kör återkommande och korrigerande underhåll i den Nextcloud 
 - Kunderna här är ett fältregister. Samma namn i en annan affärsapp är inte samma post; inget slås ihop automatiskt.
 - Valfri lageravdrag efter stängning är avstängt som standard och blockerar aldrig att ett jobb blir klart.
 
-## Tidig release — feedback välkommen
+## Feedback välkomnas
 
-Detta är den första App Store-versionen. Appen är fullt fungerande och testad, men har ännu inte sett bred användning i verkliga miljöer. Felrapporter och önskemål om funktioner tas gärna emot: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+Vi förbättrar den här appen med verklig användning. Felrapporter, friktioner och idéer hjälper — öppna en GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) eller skriv till info@software-by-design.de. Er feedback formar direkt det vi bygger härnäst.
 
 ## Krav
 
@@ -313,6 +321,10 @@ MaintenanceCheck kjører både tilbakevendende og korrigerende vedlikehold i Nex
 ## Tidlig utgivelse — tilbakemelding er velkommen
 
 Dette er den første App Store-utgivelsen. Appen er fullt funksjonell og testet, men har ennå ikke fått utbredt bruk i praksis. Feilrapporter og forslag til nye funksjoner er veldig velkomne: https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues
+
+## Feedback er velkommen
+
+Vi forbedrer denne appen med bruk i praksis. Feilrapporter, friksjon og idéer hjelper — åpne en GitHub Issue (https://github.com/aSoftwareByDesignRepository/nextcloud-maintenancecheck/issues) eller skriv til info@software-by-design.de. Tilbakemeldingen deres former direkte det vi bygger videre.
 
 ## Krav
 

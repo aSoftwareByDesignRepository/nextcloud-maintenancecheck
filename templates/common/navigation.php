@@ -17,6 +17,7 @@ use OCP\Util;
  */
 
 Util::addScript('maintenancecheck', 'common/navigation');
+Util::addScript('maintenancecheck', 'common/mobile-nav');
 // Soft keyboard: keep focused notes/inputs above the IME on phones.
 Util::addScript('maintenancecheck', 'common/keep-focused-visible');
 
