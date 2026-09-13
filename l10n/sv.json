@@ -453,7 +453,7 @@
 		"Inspection result": "Inspektionsresultat",
 		"Inspection saved. Corrective follow-up could not be created automatically — open one manually.": "Inspektion sparad. Korrigerande uppföljning kunde inte skapas automatiskt — öppna en manuellt.",
 		"Inspection work order": "Inspektionsarbetsorder",
-		"Inspections": "Inspektioner",
+		"Inspections": "Besiktningar",
 		"Inspections must be closed on a work order with result and inspector — not by skipping the visit.": "Inspektioner måste stängas på en arbetsorder med resultat och inspektionär — inte genom att hoppa över besöket.",
 		"Inspections must be closed on a work order with result and inspector — not with Complete visit.": "Inspektioner måste stängas på en arbetsorder med resultat och inspektionär — inte med Slutför besök.",
 		"Inspector name": "Inspektörsnamn",
@@ -561,7 +561,7 @@
 		"Move up": "Flytta upp",
 		"MTTR (minutes)": "MTTR (minuter)",
 		"My tour": "Min rutt",
-		"N/A": "Saknas",
+		"N/A": "saknas",
 		"N/A note required": "N/A Note krävs",
 		"Name": "Namn",
 		"Named seat for the official mobile app.": "Namngiven plats för den officiella mobilappen.",
@@ -1228,7 +1228,10 @@
 		"{name} (deactivated)": "{name} (deaktiverad)",
 		"{n} minutes per day": "{n} minuter per dag",
 		"{n} results": "{n} resultat",
-		"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently.": "\"{name}\" har fortfarande {equipment} utrustning, {plans} planer och {visits} besök. Att ta bort kunden tar bort allt det permanent."
+		"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently.": "\"{name}\" har fortfarande {equipment} utrustning, {plans} planer och {visits} besök. Att ta bort kunden tar bort allt det permanent.",
+		"Menu": "Meny",
+		"Open navigation menu": "Öppna navigeringsmeny",
+		"Close navigation menu": "Stäng navigeringsmeny"
 	},
 	"pluralForm": "nplurals=2; plural=(n != 1);"
 }

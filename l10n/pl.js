@@ -510,7 +510,7 @@ OC.L10N.register(
 	"Move up" : "Przenieś wyżej",
 	"MTTR (minutes)" : "MTTR (minuty)",
 	"My tour" : "Moja trasa",
-	"N\/A" : "N\/D",
+	"N\/A" : "n\/d",
 	"N\/A note required" : "Nota wymagana",
 	"Name" : "Nazwa",
 	"Named seat for the official mobile app." : "Nazwa miejsca dla oficjalnej aplikacji mobilnej.",
@@ -1110,9 +1110,12 @@ OC.L10N.register(
 	"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently." : "\"{name}\" nadal posiada sprzęt {equipment}, plany {plans} i wizyty {visits}. Usuwanie klienta usuwa go na stałe.",
 	"Tap Complete on overdue and today cards. Use More for details or skip." : "Dotknij Zakończ na kartach zaległych i dzisiejszych. Użyj Więcej, aby zobaczyć szczegóły lub pominąć.",
 	"All" : "Wszystkie",
-	"Inspections" : "Kontrole",
+	"Inspections" : "Przeglądy",
 	"Role" : "Rola",
-	"Timezone" : "Strefa czasowa"
-	},
-	"nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
+	"Timezone" : "Strefa czasowa",
+	"Menu" : "Menu",
+	"Open navigation menu" : "Otwórz menu nawigacji",
+	"Close navigation menu" : "Zamknij menu nawigacji",
+	"Only my jobs" : "Tylko moje zlecenia"
+	}
 );

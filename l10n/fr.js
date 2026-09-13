@@ -510,7 +510,7 @@ OC.L10N.register(
 	"Move up" : "Monter",
 	"MTTR (minutes)" : "MTTR (min.)",
 	"My tour" : "Ma tournée",
-	"N\/A" : "N\/A",
+	"N\/A" : "n\/d",
 	"N\/A note required" : "S.O. Note requise",
 	"Name" : "Nom",
 	"Named seat for the official mobile app." : "Siège désigné pour l'application mobile officielle.",
@@ -1112,7 +1112,10 @@ OC.L10N.register(
 	"All" : "Tout",
 	"Inspections" : "Inspections",
 	"Role" : "Rôle",
-	"Timezone" : "Fuseau horaire"
-	},
-	"nplurals=2; plural=(n > 1);"
+	"Timezone" : "Fuseau horaire",
+	"Menu" : "Menu",
+	"Open navigation menu" : "Ouvrir le menu de navigation",
+	"Close navigation menu" : "Fermer le menu de navigation",
+	"Only my jobs" : "Uniquement mes interventions"
+	}
 );

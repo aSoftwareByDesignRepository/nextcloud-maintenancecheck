@@ -561,7 +561,7 @@
 		"Move up": "Flytt opp",
 		"MTTR (minutes)": "MTTR (minutter)",
 		"My tour": "Min tur",
-		"N/A": "I/T",
+		"N/A": "i/t",
 		"N/A note required": "N/A-notat kreves",
 		"Name": "Navn",
 		"Named seat for the official mobile app.": "Navngitt sete for den offisielle mobilappen.",
@@ -1228,7 +1228,10 @@
 		"{name} (deactivated)": "{name} (deaktivert)",
 		"{n} minutes per day": "{n} minutter per dag",
 		"{n} results": "{n} resultater",
-		"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently.": "\\\"{name}\\\" har fortsatt {equipment} utstyr, {plans} planer og {visits} besøk. Å slette kunden fjerner det hele permanent."
+		"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently.": "\\\"{name}\\\" har fortsatt {equipment} utstyr, {plans} planer og {visits} besøk. Å slette kunden fjerner det hele permanent.",
+		"Menu": "Meny",
+		"Open navigation menu": "Åpne navigasjonsmeny",
+		"Close navigation menu": "Lukk navigasjonsmeny"
 	},
 	"pluralForm": "nplurals=2; plural=(n != 1);"
 }

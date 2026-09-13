@@ -1228,7 +1228,10 @@
 		"{name} (deactivated)": "{name} (uitgeschakeld)",
 		"{n} minutes per day": "{n} minuten per dag",
 		"{n} results": "{n} resultaten",
-		"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently.": "{name} heeft nog steeds {equipment} apparatuur, {plans} plannen en {visits} bezoeken. Het verwijderen van de klant verwijdert alles permanent."
+		"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently.": "{name} heeft nog steeds {equipment} apparatuur, {plans} plannen en {visits} bezoeken. Het verwijderen van de klant verwijdert alles permanent.",
+		"Menu": "Menu",
+		"Open navigation menu": "Navigatiemenu openen",
+		"Close navigation menu": "Navigatiemenu sluiten"
 	},
 	"pluralForm": "nplurals=2; plural=(n != 1);"
 }
