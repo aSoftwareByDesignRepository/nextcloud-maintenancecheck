@@ -42,25 +42,51 @@ function mustReplace(string $path, string $from, string $to, string $label): voi
 }
 
 $base = '/var/www/html/lib/base.php';
+$ocGate = '/var/www/html/lib/OC.php';
 $controller = '/var/www/html/core/Controller/UpdateController.php';
 
-if (!alreadyPatched($base, $marker)) {
-	$fromDef = <<<'PHP'
+// NC ≤34 keeps the web-upgrade gate in lib/base.php; NC 35+ moved it into
+// OC::printUpgradePage (lib/OC.php). Locate whichever file actually carries
+// the stock gate, and skip cleanly when it is already patched.
+$gateFile = null;
+foreach ([$base, $ocGate] as $candidate) {
+	$src = is_file($candidate) ? (string)file_get_contents($candidate) : '';
+	if (str_contains($src, 'ignoreTooBigWarning') || str_contains($src, $marker)) {
+		$gateFile = $candidate;
+		break;
+	}
+}
+if ($gateFile === null) {
+	throw new RuntimeException('Could not locate the web-upgrade gate (base.php/OC.php changed?)');
+}
+
+if (!alreadyPatched($gateFile, $marker)) {
+	if (basename($gateFile) === 'OC.php') {
+		// NC 35 layout: $ignoreTooBigWarning already binds the ack token.
+		// Reuse it so the same ack also unlocks upgrade.disable-web.
+		$fromIf = "\t\tif (\$disableWebUpdater || (\$tooBig && !\$ignoreTooBigWarning)) {";
+		$toIf = "\t\t// {$marker}: same ack token unlocks web upgrade when upgrade.disable-web=true\n"
+			. "\t\t\$ignoreWarning = \$ignoreTooBigWarning;\n"
+			. "\t\tif ((\$disableWebUpdater && !\$ignoreWarning) || (\$tooBig && !\$ignoreTooBigWarning)) {";
+		mustReplace($gateFile, $fromIf, $toIf, 'OC.php condition');
+	} else {
+		$fromDef = <<<'PHP'
 		$ignoreTooBigWarning = isset($_GET['IKnowThatThisIsABigInstanceAndTheUpdateRequestCouldRunIntoATimeoutAndHowToRestoreABackup'])
 			&& $_GET['IKnowThatThisIsABigInstanceAndTheUpdateRequestCouldRunIntoATimeoutAndHowToRestoreABackup'] === 'IAmSuperSureToDoThis';
 PHP;
-	$toDef = <<<PHP
+		$toDef = <<<PHP
 		// {$marker}: same ack token unlocks web upgrade when upgrade.disable-web=true
 		\$ignoreWarning = isset(\$_GET['{$queryKey}'])
 			&& \$_GET['{$queryKey}'] === '{$token}';
 PHP;
-	mustReplace($base, $fromDef, $toDef, 'base.php ignoreWarning');
+		mustReplace($gateFile, $fromDef, $toDef, 'base.php ignoreWarning');
 
-	$fromIf = "\t\tif (\$disableWebUpdater || (\$tooBig && !\$ignoreTooBigWarning)) {";
-	$toIf = "\t\tif ((\$disableWebUpdater && !\$ignoreWarning) || (\$tooBig && !\$ignoreWarning)) {";
-	mustReplace($base, $fromIf, $toIf, 'base.php condition');
+		$fromIf = "\t\tif (\$disableWebUpdater || (\$tooBig && !\$ignoreTooBigWarning)) {";
+		$toIf = "\t\tif ((\$disableWebUpdater && !\$ignoreWarning) || (\$tooBig && !\$ignoreWarning)) {";
+		mustReplace($gateFile, $fromIf, $toIf, 'base.php condition');
+	}
 } else {
-	fwrite(STDOUT, "skip base.php (already patched)\n");
+	fwrite(STDOUT, 'skip ' . basename($gateFile) . " (already patched)\n");
 }
 
 if (!alreadyPatched($controller, $marker)) {

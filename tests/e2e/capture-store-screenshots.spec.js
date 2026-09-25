@@ -111,7 +111,14 @@ async function shot(page, name) {
 	})
 }
 
+// Junk rows named like other specs' fixtures may ONLY be deleted when they
+// are clearly stale leftovers from a previous run. Deleting a fresh row
+// force-cascades its equipment/plans/visits mid-test and flakes every
+// parallel spec that seeded it (UJ-*, Bachus, W6/W7, dlg-inv …).
+const JUNK_STALE_AFTER_S = 15 * 60
+
 async function purgeJunkAndOldDemo(page) {
+	const cutoff = Math.floor(Date.now() / 1000) - JUNK_STALE_AFTER_S
 	for (let offset = 0; offset < 500; offset += 100) {
 		const existing = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/customers?limit=100&offset=${offset}`)
 		if (existing.status !== 200 || !Array.isArray(existing.data?.data) || existing.data.data.length === 0) {
@@ -119,7 +126,8 @@ async function purgeJunkAndOldDemo(page) {
 		}
 		for (const row of existing.data.data) {
 			const name = String(row.name || '')
-			if (isJunkName(name) || name.includes(MARKER) || name.startsWith('Demo ')) {
+			const stale = typeof row.createdAt === 'number' && row.createdAt < cutoff
+			if ((isJunkName(name) && stale) || name.includes(MARKER) || name.startsWith('Demo ')) {
 				await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${row.id}?force=1`)
 			}
 		}

@@ -34,6 +34,7 @@ const NC_PROVIDED_PREFIXES = [
 	'--icon-',
 	'--default-',
 	'--body-container-',
+	'--body-height', // theming DefaultTheme.php (viewport minus header/safe-area)
 ]
 
 function cssFiles(dir) {

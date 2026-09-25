@@ -2,7 +2,26 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { login, primaryCreds } from './helpers/auth.js'
-import { setUserTheme, resetUserTheme, USER_THEMES } from './helpers/theming.js'
+import { setUserTheme, resetUserTheme, acquireThemeLock, releaseThemeLock, USER_THEMES } from './helpers/theming.js'
+
+// See theme-a11y-matrix.spec.js: NC themes are shared per-user server state;
+// hold the cross-worker mutex for the whole file run.
+// File-level timeout covers the lock wait in beforeAll (a peer spec may hold
+// the mutex for several minutes); describes keep their own test timeouts.
+test.setTimeout(30 * 60_000)
+test.beforeAll(async ({}, testInfo) => {
+	// Hooks run on the 60s config timeout, NOT test.setTimeout — extend the
+	// hook itself before blocking on the cross-worker mutex.
+	testInfo.setTimeout(30 * 60_000)
+	if (testInfo.project.name === 'chromium-1280') {
+		await acquireThemeLock()
+	}
+})
+test.afterAll(async ({}, testInfo) => {
+	if (testInfo.project.name === 'chromium-1280') {
+		releaseThemeLock()
+	}
+})
 
 /**
  * WCAG 1.4.3: Cancel-visit danger CTA must keep solid element-error fill +

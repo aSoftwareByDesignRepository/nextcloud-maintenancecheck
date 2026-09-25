@@ -158,6 +158,12 @@ async function clickMoreItem(page, row, nameRe) {
 	await expect(page.locator('.mn-overflow__menu:not([hidden])')).toHaveCount(0, { timeout: 5_000 }).catch(() => {})
 	const more = row.getByRole('button', { name: /more actions|more|mehr|weitere aktionen/i })
 	await expect(more).toBeVisible({ timeout: 10_000 })
+	// The menu opens below the toggle. Park the toggle mid-viewport so the
+	// items render in clear space — otherwise Playwright's scroll-into-view
+	// lands an item under the sticky Nextcloud header, whose .header-start
+	// intercepts the pointer at narrow viewports and the click retries
+	// forever.
+	await more.evaluate((el) => el.scrollIntoView({ block: 'center' })).catch(() => {})
 	await more.click()
 	const menu = page.locator('.mn-overflow__menu:not([hidden])').first()
 	await expect(menu).toBeVisible({ timeout: 10_000 })
@@ -167,12 +173,15 @@ async function clickMoreItem(page, row, nameRe) {
 		console.log('DEBUG overflow menuitems=' + JSON.stringify(labels))
 	}
 	await expect(item).toBeVisible({ timeout: 10_000 })
+	await item.evaluate((el) => el.scrollIntoView({ block: 'nearest' })).catch(() => {})
 	await item.click()
 }
 
 test.describe('MaintenanceCheck openDialog inventory', () => {
 	test('named *Dialog factories: open → Esc cancel + primary CONFIRM', async ({ page }) => {
-		test.setTimeout(600_000)
+		// Exhaustive open→Esc→reopen→CONFIRM sweep over every named *Dialog
+		// factory; under a fully parallel 3-project run this needs >10 min.
+		test.setTimeout(900_000)
 		const admin = primaryCreds()
 		test.skip(!admin, 'Requires NC_E2E_* or NC_ADMIN_*')
 		await login(page, admin)

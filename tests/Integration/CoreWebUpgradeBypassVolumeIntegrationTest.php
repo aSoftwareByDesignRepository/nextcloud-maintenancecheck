@@ -8,8 +8,12 @@ use OCA\MaintenanceCheck\Support\CoreWebUpgradeBypassPolicy;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Live volume check: NC 34 web-upgrade bypass markers must be present in this
- * docker image so “Upgrade via web on my own risk” is not a no-op.
+ * Live volume check: NC 34/35 web-upgrade bypass markers must be present in
+ * this docker image so “Upgrade via web on my own risk” is not a no-op.
+ *
+ * NC ≤34 keeps the gate in lib/base.php; NC 35+ moved it into
+ * OC::printUpgradePage (lib/OC.php). This test checks whichever file
+ * actually carries the gate.
  *
  * Re-apply with: bash docker/patches/apply-web-upgrade-bypass.sh
  */
@@ -18,11 +22,20 @@ final class CoreWebUpgradeBypassVolumeIntegrationTest extends TestCase
 	private const MARKER = 'SBD_WEB_UPGRADE_BYPASS';
 
 	public function testBasePhpHonoursDisableWebAck(): void {
-		$path = '/var/www/html/lib/base.php';
-		if (!is_file($path)) {
+		$src = null;
+		foreach (['/var/www/html/lib/base.php', '/var/www/html/lib/OC.php'] as $path) {
+			if (!is_file($path)) {
+				continue;
+			}
+			$candidate = (string)file_get_contents($path);
+			if (str_contains($candidate, 'ignoreTooBigWarning') || str_contains($candidate, self::MARKER)) {
+				$src = $candidate;
+				break;
+			}
+		}
+		if ($src === null) {
 			$this->markTestSkipped('Not running against a Nextcloud volume');
 		}
-		$src = (string)file_get_contents($path);
 		$this->assertStringContainsString(self::MARKER, $src);
 		$this->assertStringContainsString('($disableWebUpdater && !$ignoreWarning)', $src);
 		$this->assertStringContainsString(CoreWebUpgradeBypassPolicy::QUERY_KEY, $src);

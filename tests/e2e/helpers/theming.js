@@ -1,6 +1,8 @@
 // @ts-check
 import { execFileSync } from 'child_process'
-import { dirname, resolve } from 'path'
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'fs'
+import { tmpdir } from 'os'
+import { dirname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
 const nextcloudRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../..')
@@ -88,4 +90,100 @@ export function setAccentColor(hexColor) {
  * bump the theming cachebuster and browsers would keep the stale accent CSS. */
 export function resetAccentColor() {
 	occ(['theming:config', 'primary_color', '--reset'])
+}
+
+// ── Cross-worker shared-state mutex ──────────────────────────────────────
+// User themes are per-user server state, the accent colour and the app
+// policies/office lists are instance-wide. Every spec that flips them must
+// run exclusively: otherwise parallel workers race — e.g. one project's
+// resetUserTheme() wipes the theme another worker just enabled and waits on
+// body[data-theme-*] for, or one project's config/policies reset flips
+// skillsEnforcement back to 'warn' mid-assertion in a sibling worker.
+const STATE_LOCK_STALE_MS = 5 * 60_000
+const stateLockHeartbeats = new Map()
+
+/** @param {string} key */
+function lockDir(key) {
+	return join(tmpdir(), `maintenancecheck-e2e-state-${key}.lock`)
+}
+
+/** @param {number} pid */
+function pidAlive(pid) {
+	if (!Number.isInteger(pid) || pid <= 0) {
+		return false
+	}
+	try {
+		process.kill(pid, 0)
+		return true
+	} catch (err) {
+		return err.code === 'EPERM'
+	}
+}
+
+/**
+ * Acquire a named cross-worker mutex (blocking, tmpdir-based). Heartbeat
+ * keeps the lock fresh so a long critical section is never mistaken for a
+ * dead holder.
+ * @param {string} key e.g. 'theme' | 'instance-config'
+ * @param {{ timeoutMs?: number }} [opts]
+ */
+export async function acquireStateLock(key, { timeoutMs = 25 * 60_000 } = {}) {
+	const dir = lockDir(key)
+	const deadline = Date.now() + timeoutMs
+	for (;;) {
+		try {
+			mkdirSync(dir)
+			writeFileSync(join(dir, 'pid'), String(process.pid))
+			const hb = setInterval(() => {
+				try {
+					utimesSync(dir, new Date(), new Date())
+				} catch { /* released concurrently */ }
+			}, 15_000)
+			hb.unref()
+			stateLockHeartbeats.set(key, hb)
+			return
+		} catch (err) {
+			if (err.code !== 'EEXIST') {
+				throw err
+			}
+		}
+		// Lock exists: steal it when the holder is dead or the dir went stale.
+		try {
+			const pid = Number(readFileSync(join(dir, 'pid'), 'utf8'))
+			const stale = Date.now() - statSync(dir).mtimeMs > STATE_LOCK_STALE_MS
+			if (!pidAlive(pid) || stale) {
+				rmSync(dir, { recursive: true, force: true })
+				continue
+			}
+		} catch { /* lock vanished between checks — retry */ }
+		if (Date.now() > deadline) {
+			throw new Error(`Timed out waiting for the e2e shared-state lock "${key}"`)
+		}
+		await new Promise((r) => setTimeout(r, 500))
+	}
+}
+
+/** Release a named cross-worker mutex. Safe to call when not held. */
+export function releaseStateLock(key) {
+	const hb = stateLockHeartbeats.get(key)
+	if (hb) {
+		clearInterval(hb)
+		stateLockHeartbeats.delete(key)
+	}
+	const dir = lockDir(key)
+	try {
+		const pid = Number(readFileSync(join(dir, 'pid'), 'utf8'))
+		if (pid === process.pid && existsSync(dir)) {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	} catch { /* already gone */ }
+}
+
+/** @param {{ timeoutMs?: number }} [opts] */
+export async function acquireThemeLock(opts = {}) {
+	return acquireStateLock('theme', opts)
+}
+
+export function releaseThemeLock() {
+	releaseStateLock('theme')
 }

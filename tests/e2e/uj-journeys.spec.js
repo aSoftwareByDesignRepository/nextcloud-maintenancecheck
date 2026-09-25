@@ -2,6 +2,7 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { login, credsFromEnv, primaryCreds, adminCreds } from './helpers/auth.js'
+import { acquireStateLock, releaseStateLock } from './helpers/theming.js'
 
 /**
  * SPEC §14.3 UJ-1…UJ-6 — browser journeys with axe on each visited surface.
@@ -368,6 +369,12 @@ test.describe('UJ journeys', () => {
 		await login(page, admin)
 		await openApp(page)
 
+		// skillsEnforcement is instance-wide: this spec runs on 3 project
+		// workers at once, so hold the shared-state lock until the policy is
+		// restored to 'warn' — otherwise a sibling worker's own policy write
+		// flips the assert to skills_warning.
+		await acquireStateLock('instance-config')
+		try {
 		const stamp = Date.now()
 		const skill = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/skills', {
 			code: `uj_sk_${stamp}`,
@@ -425,6 +432,9 @@ test.describe('UJ journeys', () => {
 			skillsEnforcement: 'warn',
 		})
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+		} finally {
+			releaseStateLock('instance-config')
+		}
 	})
 
 	test('UJ-W3 tour suggest-order applies via reorder + Servicebericht on done', async ({ page }) => {
@@ -686,6 +696,9 @@ test.describe('UJ journeys', () => {
 		test.skip(!admin, 'Requires NC_ADMIN_* or NC_E2E_*')
 		await login(page, admin)
 
+		// Mutates instance-wide policies — serialize with sibling workers.
+		await acquireStateLock('instance-config')
+		try {
 		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
 			name: `UJW1site ${Date.now()}`,
 		})
@@ -715,6 +728,9 @@ test.describe('UJ journeys', () => {
 		await axeMain(page)
 
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
+		} finally {
+			releaseStateLock('instance-config')
+		}
 	})
 
 	test('UJ-5 force-delete customer with children', async ({ page }) => {
@@ -755,6 +771,10 @@ test.describe('UJ journeys', () => {
 	test('UJ-6 license paste invalid key leaves prior state', async ({ page }) => {
 		const admin = adminCreds()
 		test.skip(!admin, 'Requires NC_E2E_* or NC_ADMIN_* for settings / license')
+		// License state is instance-wide — UJ-6 Alt B seeds/clears it via CLI
+		// on sibling workers; serialize so before/after reads stay consistent.
+		await acquireStateLock('instance-config')
+		try {
 		await login(page, admin)
 		await openApp(page, '/apps/maintenancecheck/settings/license')
 		await expect(page.locator('#mn-settings-license, .mn-empty').first()).toBeVisible({ timeout: 30_000 })
@@ -772,6 +792,9 @@ test.describe('UJ journeys', () => {
 		const after = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/license')
 		expectOk(after, 'license after')
 		expect(after.data.mobileAppStatus).toBe(before.data.mobileAppStatus)
+		} finally {
+			releaseStateLock('instance-config')
+		}
 	})
 
 	test('UJ-2 Alt B future done_on → 422 invalid_done_on', async ({ page }) => {
@@ -1044,6 +1067,9 @@ test.describe('UJ journeys', () => {
 		test.skip(!techUser || !techPass, 'Requires NC_TECH_USER / NC_TECH_PASS in tests/e2e/.env')
 		const tech = { username: techUser, password: techPass }
 
+		// Office list is instance-wide — serialize with sibling workers.
+		await acquireStateLock('instance-config')
+		try {
 		await login(page, admin)
 		await openApp(page, '/apps/maintenancecheck/settings')
 
@@ -1065,6 +1091,9 @@ test.describe('UJ journeys', () => {
 		})
 		expect(denied.status).toBe(403)
 		expect(denied.data.error.code).toBe('permission_denied')
+		} finally {
+			releaseStateLock('instance-config')
+		}
 	})
 
 	test('UJ-2 Bachus: one-tap Complete; Complete with details opens dialog (axe + Esc)', async ({ page }) => {
@@ -1244,6 +1273,10 @@ test.describe('UJ journeys', () => {
 		const admin = adminCreds()
 		test.skip(!admin, 'Requires NC_E2E_* or NC_ADMIN_* for license')
 
+		// Instance-wide license state — serialize against sibling workers
+		// (including UJ-6, which compares before/after license reads).
+		await acquireStateLock('instance-config')
+		try {
 		const { seedLicenseViaCli } = await import('./helpers/seedLicense.js')
 		let seeded = ''
 		try {
@@ -1275,6 +1308,9 @@ test.describe('UJ journeys', () => {
 			} catch {
 				/* best-effort cleanup */
 			}
+		}
+		} finally {
+			releaseStateLock('instance-config')
 		}
 	})
 })

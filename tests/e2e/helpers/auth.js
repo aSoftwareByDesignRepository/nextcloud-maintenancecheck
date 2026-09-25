@@ -1,4 +1,93 @@
+import { readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+/**
+ * Cross-worker session cache.
+ *
+ * A full suite run performs hundreds of form logins; every POST /login counts
+ * against the instance's anon-IP rate limit (OC\Security\RateLimiting Limiter,
+ * DatabaseBackend on this dev stack), so the suite used to poison the bucket
+ * mid-run and every later spec timed out on a "Too many requests" page.
+ * globalSetup performs ONE real login per configured user and stores the
+ * session cookies here; login() then injects them instead of hammering the
+ * login form. The real form login remains as fallback (first worker, CI
+ * without globalSetup, expired session).
+ */
+const SESSION_CACHE = join(tmpdir(), 'maintenancecheck-e2e-sessions.json')
+
+export function sessionCachePath() {
+	return SESSION_CACHE
+}
+
+function readSessionCache() {
+	try {
+		const parsed = JSON.parse(readFileSync(SESSION_CACHE, 'utf8'))
+		return parsed && typeof parsed === 'object' ? parsed : {}
+	} catch {
+		return {}
+	}
+}
+
+function writeSessionCache(cache) {
+	// Write to a unique sibling then rename so concurrent workers never read
+	// a torn JSON document. Last writer wins — sessions are interchangeable.
+	const tmp = `${SESSION_CACHE}.${process.pid}.${Date.now()}.tmp`
+	writeFileSync(tmp, JSON.stringify(cache))
+	renameSync(tmp, SESSION_CACHE)
+}
+
+/** Persist session cookies for `username` (called by globalSetup + login()). */
+export function rememberSessionCookies(username, cookies) {
+	if (!username || !Array.isArray(cookies) || !cookies.length) {
+		return
+	}
+	const cache = readSessionCache()
+	cache[username] = { cookies, savedAt: Date.now() }
+	writeSessionCache(cache)
+}
+
+/** Drop a cached session that proved invalid. */
+export function forgetSessionCookies(username) {
+	const cache = readSessionCache()
+	if (cache[username]) {
+		delete cache[username]
+		writeSessionCache(cache)
+	}
+}
+
+/**
+ * Try to attach a cached session for `username` to `page`.
+ * Returns true when the server accepts the session (we do not land back on
+ * /login). An invalid/expired session is evicted and reported as false so the
+ * caller falls through to a real form login.
+ */
+async function tryReuseSession(page, username) {
+	const cached = readSessionCache()[username]
+	if (!cached || !Array.isArray(cached.cookies) || !cached.cookies.length) {
+		return false
+	}
+	try {
+		await page.context().addCookies(cached.cookies)
+	} catch {
+		return false
+	}
+	const response = await page.goto('/', { waitUntil: 'domcontentloaded' }).catch(() => null)
+	if (!response) {
+		return false
+	}
+	if (new URL(page.url()).pathname.startsWith('/login')) {
+		forgetSessionCookies(username)
+		return false
+	}
+	return true
+}
+
 export async function login(page, { username, password }) {
+	if (await tryReuseSession(page, username)) {
+		return
+	}
+
 	await page.goto('/login', { waitUntil: 'domcontentloaded' })
 
 	// Maintenance / upgrade interstitial has no login fields — fail fast with a clear signal.
@@ -34,6 +123,11 @@ export async function login(page, { username, password }) {
 	if (winner === 'wrong') {
 		throw new Error(`Login failed for user "${username}" — wrong login or password`)
 	}
+
+	// Share the fresh session so parallel workers skip the login form.
+	try {
+		rememberSessionCookies(username, await page.context().cookies())
+	} catch { /* best-effort cache */ }
 }
 
 export function credsFromEnv(prefix = 'E2E') {

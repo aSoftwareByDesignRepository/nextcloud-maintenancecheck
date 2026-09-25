@@ -2,7 +2,27 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { login, primaryCreds } from './helpers/auth.js'
-import { setUserTheme, resetUserTheme, setAccentColor, resetAccentColor, USER_THEMES } from './helpers/theming.js'
+import { setUserTheme, resetUserTheme, setAccentColor, resetAccentColor, acquireThemeLock, releaseThemeLock, USER_THEMES } from './helpers/theming.js'
+
+// NC themes/accent are shared per-user / per-instance server state: every
+// theme-mutating spec file holds this mutex for its whole run so parallel
+// workers cannot flip the theme out from under another spec mid-wait.
+// File-level timeout covers the lock wait in beforeAll (a peer spec may hold
+// the mutex for several minutes); describes keep their own test timeouts.
+test.setTimeout(30 * 60_000)
+test.beforeAll(async ({}, testInfo) => {
+	// Hooks run on the 60s config timeout, NOT test.setTimeout — extend the
+	// hook itself before blocking on the cross-worker mutex.
+	testInfo.setTimeout(30 * 60_000)
+	if (testInfo.project.name === 'chromium-1280') {
+		await acquireThemeLock()
+	}
+})
+test.afterAll(async ({}, testInfo) => {
+	if (testInfo.project.name === 'chromium-1280') {
+		releaseThemeLock()
+	}
+})
 
 /**
  * Theme × viewport gauntlet.

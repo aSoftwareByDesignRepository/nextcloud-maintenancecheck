@@ -719,9 +719,10 @@ textarea.mn-input {
 
 /* Table link + inactive row (design-system list tables) */
 .mn-table a.mn-table-link {
-	/* Darken NC primary so body-size links stay WCAG 2 AA on white
-	   (light brand hues like #c45c26 are ~4.28:1; mix pushes ≥4.5:1). */
-	color: color-mix(in srgb, var(--color-primary-element) 72%, #000 28%);
+	/* Mix NC primary toward main-text so body-size links keep WCAG 2 AA in
+	   both themes (light brand hues like #c45c26 are ~4.28:1 on white; the
+	   main-text mix pushes ≥4.5:1 and also stays readable on dark cards). */
+	color: color-mix(in srgb, var(--color-primary-element) 72%, var(--color-main-text) 28%);
 	font-weight: 700;
 	text-decoration: none;
 }
@@ -1376,7 +1377,7 @@ textarea.mn-input {
 	padding: 0.25rem 0;
 	border: 0;
 	background: transparent;
-	color: color-mix(in srgb, var(--color-primary-element) 72%, #000 28%);
+	color: color-mix(in srgb, var(--color-primary-element) 72%, var(--color-main-text) 28%);
 	font: inherit;
 	font-weight: 700;
 	text-align: start;
@@ -3140,3 +3141,45 @@ textarea {
 	}
 }
 /* === app-feedback:mn end === */
+
+/* NC core `button:not(.button-vue, [class^="vs__"])` (0-1-1) defeats single-class
+   .mn-* rules (0-1-0) — restores app intent: 44px floors, overflow item styles,
+   danger ink/fill. Same cascade class as logcheck (visual-critic precedent). */
+.mn-btn {
+	min-height: 44px !important;
+}
+.mn-btn--primary,
+.mn-btn--danger {
+	min-height: 48px !important;
+	min-width: 48px !important;
+}
+.mn-btn--danger {
+	background: var(--mn-danger-fill) !important;
+	border-color: var(--mn-danger-fill) !important;
+	color: var(--mn-danger-on-fill) !important;
+}
+.mn-btn--danger:hover:not(:disabled) {
+	background: var(--mn-danger-fill-hover) !important;
+	border-color: var(--mn-danger-fill-hover) !important;
+	color: var(--mn-danger-on-fill) !important;
+}
+.mn-overflow__item {
+	min-height: 44px !important;
+	background: transparent !important;
+	color: var(--color-main-text) !important;
+}
+.mn-overflow__item:hover,
+.mn-overflow__item:focus-visible {
+	background: var(--color-background-hover) !important;
+}
+.mn-overflow__item--danger {
+	color: var(--mn-danger-ink) !important;
+}
+.mn-overflow__item--danger:hover,
+.mn-overflow__item--danger:focus-visible {
+	color: var(--mn-danger-ink) !important;
+}
+.mn-nav-footer__trigger {
+	min-height: 44px !important;
+	min-width: 44px !important;
+}

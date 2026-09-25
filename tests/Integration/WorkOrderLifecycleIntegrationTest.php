@@ -343,6 +343,46 @@ class WorkOrderLifecycleIntegrationTest extends IntegrationTestCase
 	}
 
 	/**
+	 * Regression (found 2026-09-23 live probe): validatedHelperUids() used to
+	 * return the JSON *string* while assign() iterated it for the skills gate —
+	 * `foreach` over a string logged a PHP warning and silently skipped the R6
+	 * helper skills evaluation. With enforcement=block a helper missing the
+	 * required skill MUST be rejected.
+	 */
+	public function testHelperAssignRunsSkillsGate(): void
+	{
+		$config = Server::get(\OCP\IConfig::class);
+		$config->setAppValue('maintenancecheck', 'skills_enforcement', 'block');
+		try {
+			$seed = $this->seedVisit();
+			$primary = $this->createTempUser();
+			$helper = $this->createTempUser();
+			$skill = Server::get(\OCA\MaintenanceCheck\Service\SkillService::class)->create([
+				'code' => 'mn_helper_gate_' . substr(bin2hex(random_bytes(4)), 0, 8),
+				'name' => 'MN helper gate skill',
+			]);
+			$wo = $this->workOrders->createFromVisit(self::UID, $seed['visitId'], [
+				'procedureSkipped' => true,
+				'procedureSkipReason' => 'Helper skills-gate fixture reason',
+			]);
+			Server::get(\OCA\MaintenanceCheck\Service\SkillService::class)->setWoSkills(
+				(int)$wo['id'],
+				['skillIds' => [(int)$skill['id']]],
+			);
+
+			// Only helperUids — no primaryUserId — so the helper skills gate is
+			// the ONLY evaluation that can reject this assign (the primary gate
+			// would mask the bug).
+			$this->expectException(\OCA\MaintenanceCheck\Exception\ValidationException::class);
+			$this->workOrders->assign(self::UID, (int)$wo['id'], [
+				'helperUids' => [$helper],
+			]);
+		} finally {
+			$config->setAppValue('maintenancecheck', 'skills_enforcement', 'warn');
+		}
+	}
+
+	/**
 	 * Assigned/helper rows must sort ahead of the unassigned pool so a helper
 	 * job cannot vanish behind 50 older pool drafts on page 1.
 	 */

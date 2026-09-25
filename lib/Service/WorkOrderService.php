@@ -675,7 +675,7 @@ class WorkOrderService
 			if (array_key_exists('helperUids', $body)) {
 				$helpers = $this->validatedHelperUids($body);
 				// R6: helpers must satisfy skills; capacity is assessed for the primary only.
-				foreach ($helpers as $helperUid) {
+				foreach ($helpers ?? [] as $helperUid) {
 					foreach ($this->skillsAssign->evaluate(
 						$this->policies->skillsEnforcement(),
 						$this->skills->missingSkillsFor((int)$wo->getId(), $helperUid),
@@ -684,7 +684,7 @@ class WorkOrderService
 						$warnings[] = $warning;
 					}
 				}
-				$wo->setHelperUids($helpers);
+				$wo->setHelperUids($helpers === null ? null : json_encode($helpers, JSON_UNESCAPED_UNICODE));
 			}
 
 			$wo->setUpdatedAt($this->clock->now());
@@ -1600,7 +1600,10 @@ class WorkOrderService
 	/**
 	 * @param array<string, mixed> $body
 	 */
-	private function validatedHelperUids(array $body): ?string
+	/**
+	 * @return ?list<string> decoded, validated helper uids (null = clear list)
+	 */
+	private function validatedHelperUids(array $body): ?array
 	{
 		$raw = $body['helperUids'];
 		if ($raw === null) {
@@ -1624,7 +1627,7 @@ class WorkOrderService
 			$uids[] = trim($uid);
 		}
 		$uids = array_values(array_unique($uids));
-		return $uids === [] ? null : json_encode($uids, JSON_UNESCAPED_UNICODE);
+		return $uids === [] ? null : $uids;
 	}
 
 	private function defaultVisitTitle(Visit $visit): string

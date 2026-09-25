@@ -643,11 +643,18 @@ final class AtlasApiEndpointHappyAuthzTest extends TestCase
 		);
 		$req->method('getParams')->willReturn($params);
 		$req->method('getHeader')->willReturn('');
+		// tmp_name must be a REAL readable file: ProcedureController::importPack
+		// and WorkOrderController::addPhoto call file_get_contents() on it and
+		// treat an unreadable upload as empty input (ValidationException).
+		$upload = sys_get_temp_dir() . '/mn-atlas-upload.json';
+		if (!is_file($upload)) {
+			file_put_contents($upload, json_encode(['pack_code' => 'ATLAS', 'procedures' => []]));
+		}
 		$req->method('getUploadedFile')->willReturn([
-			'tmp_name' => '/tmp/x',
+			'tmp_name' => $upload,
 			'name' => 'x.png',
 			'type' => 'image/png',
-			'size' => 4,
+			'size' => filesize($upload) ?: 4,
 			'error' => 0,
 		]);
 		return $req;

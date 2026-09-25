@@ -33,6 +33,7 @@ const baseURL = process.env.NC_BASE_URL || 'http://localhost:8081'
 
 export default defineConfig({
 	testDir: 'tests/e2e',
+	globalSetup: './tests/e2e/global-setup.js',
 	timeout: 60_000,
 	expect: { timeout: 15_000 },
 	use: {

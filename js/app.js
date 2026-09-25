@@ -2037,14 +2037,27 @@
 			menu.style.top = '';
 			menu.style.bottom = '';
 			menu.hidden = false;
+			// Clear any previous cap so offsetHeight measures natural height
+			// (placeMenu re-runs on scroll/resize while the menu stays open).
+			menu.style.maxHeight = '';
+			menu.style.overflowY = '';
 			var menuHeight = menu.offsetHeight || 200;
+			// Sticky Nextcloud header: a flipped/tall menu must never render its
+			// first items underneath it (unreachable, WCAG 2.1 AA) — cap the
+			// height against the usable space and let the menu scroll.
+			var ncHeader = document.getElementById('header');
+			var safeTop = (ncHeader ? ncHeader.getBoundingClientRect().bottom : 50) + gap;
 			var spaceBelow = window.innerHeight - rect.bottom - gap;
 			if (spaceBelow < menuHeight && rect.top > spaceBelow) {
 				menu.style.top = 'auto';
 				menu.style.bottom = (window.innerHeight - rect.top + gap) + 'px';
+				menu.style.maxHeight = Math.max(120, rect.top - gap - safeTop) + 'px';
+				menu.style.overflowY = 'auto';
 			} else {
 				menu.style.top = (rect.bottom + gap) + 'px';
 				menu.style.bottom = 'auto';
+				menu.style.maxHeight = Math.max(120, spaceBelow) + 'px';
+				menu.style.overflowY = 'auto';
 			}
 		}
 
@@ -2057,6 +2070,8 @@
 			menu.style.right = '';
 			menu.style.top = '';
 			menu.style.bottom = '';
+			menu.style.maxHeight = '';
+			menu.style.overflowY = '';
 			if (menu.parentNode !== wrap) {
 				wrap.appendChild(menu);
 			}
