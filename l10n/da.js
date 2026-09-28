@@ -1264,6 +1264,25 @@ OC.L10N.register(
 	"Visit for “%1” was due on %2." : "Besøg for „%1“ forfaldt den %2.",
 	"Narrow the list" : "Indsnævr listen",
 	"3. Save the visit" : "3. Gem besøget",
-	"Open the job" : "Åbn opgaven"
+	"Open the job" : "Åbn opgaven",
+	"Add a plan so visits appear on the due board. Meters and inspections are optional." : "Tilføj en plan, så besøg vises på forfaldstavlen. Målere og inspektioner er valgfrie.",
+	"Add organisations you service — then open one to add equipment and plans." : "Tilføj de organisationer, du servicerer — åbn en for at tilføje udstyr og planer.",
+	"Assigned to" : "Tildelt",
+	"Compliance, overdue work and MTTR — pick 30 or 90 days." : "Overholdelse, forfaldent arbejde og MTTR — vælg 30 eller 90 dage.",
+	"Defect photos" : "Mangelfotos",
+	"Description" : "Beskrivelse",
+	"Duration (minutes)" : "Varighed (minutter)",
+	"Filter history by status or date. Open a row for details." : "Filtrér historik efter status eller dato. Åbn en række for detaljer.",
+	"Inspection evidence report" : "Inspektionsrapport med dokumentation",
+	"Inspector" : "Inspektør",
+	"Job pack" : "Arbejdspakke",
+	"Kit — parts and tools to pack" : "Kit — dele og værktøj til pakning",
+	"Master data, sites and equipment for this organisation." : "Stamdata, lokationer og udstyr for denne organisation.",
+	"No defects recorded." : "Ingen mangler registreret.",
+	"Open a job to run the checklist and add photos. Office can create new jobs here." : "Åbn en arbejdsordre for at køre tjeklisten og tilføje fotos. Kontoret kan oprette nye ordrer her.",
+	"Search every unit. Create new equipment on a customer page." : "Søg i alle enheder. Opret nyt udstyr på en kundeside.",
+	"Service report" : "Servicerapport",
+	"Signature: not captured" : "Underskrift: ikke registreret",
+	"This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement." : "Dette dokument er en arbejdsseddel (Arbeitsnachweis). Det er ikke et certifikat, en overensstemmelseserklæring eller en juridisk compliance-erklæring."
 	}
 );

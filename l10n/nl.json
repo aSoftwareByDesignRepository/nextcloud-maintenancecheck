@@ -1263,7 +1263,26 @@
 		"Visit for “%1” was due on %2.": "Bezoek voor „%1” stond gepland op %2.",
 		"Narrow the list": "Lijst verfijnen",
 		"3. Save the visit": "3. Bezoek opslaan",
-		"Open the job": "Opdracht openen"
+		"Open the job": "Opdracht openen",
+		"Add a plan so visits appear on the due board. Meters and inspections are optional.": "Voeg een plan toe zodat bezoeken op het vervalbord verschijnen. Meters en inspecties zijn optioneel.",
+		"Add organisations you service — then open one to add equipment and plans.": "Voeg organisaties toe die u onderhoudt — open er een om uitrusting en plannen toe te voegen.",
+		"Assigned to": "Toegewezen aan",
+		"Compliance, overdue work and MTTR — pick 30 or 90 days.": "Compliance, achterstallig werk en MTTR — kies 30 of 90 dagen.",
+		"Defect photos": "Foto's van gebreken",
+		"Description": "Beschrijving",
+		"Duration (minutes)": "Duur (minuten)",
+		"Filter history by status or date. Open a row for details.": "Filter de geschiedenis op status of datum. Open een rij voor details.",
+		"Inspection evidence report": "Inspectierapport met bewijsstukken",
+		"Inspector": "Inspecteur",
+		"Job pack": "Werkpakket",
+		"Kit — parts and tools to pack": "Kit — onderdelen en gereedschap om mee te nemen",
+		"Master data, sites and equipment for this organisation.": "Stamgegevens, locaties en uitrusting voor deze organisatie.",
+		"No defects recorded.": "Geen gebreken geregistreerd.",
+		"Open a job to run the checklist and add photos. Office can create new jobs here.": "Open een werkorder om de checklist te doorlopen en foto's toe te voegen. Het kantoor kan hier nieuwe orders aanmaken.",
+		"Search every unit. Create new equipment on a customer page.": "Zoek in alle units. Maak nieuwe uitrusting aan op een klantpagina.",
+		"Service report": "Servicerapport",
+		"Signature: not captured": "Handtekening: niet vastgelegd",
+		"This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement.": "Dit document is een werkbon (Arbeitsnachweis). Het is geen certificaat, conformiteitsverklaring of juridische compliance-verklaring."
 	},
 	"pluralForm": "nplurals=2; plural=(n != 1);"
 }

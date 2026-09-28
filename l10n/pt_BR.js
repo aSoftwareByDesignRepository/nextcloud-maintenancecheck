@@ -1264,6 +1264,25 @@ OC.L10N.register(
 	"Visit for “%1” was due on %2." : "A visita de “%1” venceu em %2.",
 	"Narrow the list" : "Refinar a lista",
 	"3. Save the visit" : "3. Salve a visita",
-	"Open the job" : "Abrir o trabalho"
+	"Open the job" : "Abrir o trabalho",
+	"Add a plan so visits appear on the due board. Meters and inspections are optional." : "Adicione um plano para que as visitas apareçam no quadro de vencimentos. Medidores e inspeções são opcionais.",
+	"Add organisations you service — then open one to add equipment and plans." : "Adicione as organizações que você atende — abra uma para adicionar equipamentos e planos.",
+	"Assigned to" : "Atribuído a",
+	"Compliance, overdue work and MTTR — pick 30 or 90 days." : "Conformidade, trabalhos vencidos e MTTR — escolha 30 ou 90 dias.",
+	"Defect photos" : "Fotos de defeitos",
+	"Description" : "Descrição",
+	"Duration (minutes)" : "Duração (minutos)",
+	"Filter history by status or date. Open a row for details." : "Filtre o histórico por status ou data. Abra uma linha para ver os detalhes.",
+	"Inspection evidence report" : "Relatório de evidências de inspeção",
+	"Inspector" : "Inspetor",
+	"Job pack" : "Pacote de trabalho",
+	"Kit — parts and tools to pack" : "Kit — peças e ferramentas para levar",
+	"Master data, sites and equipment for this organisation." : "Dados mestres, locais e equipamentos desta organização.",
+	"No defects recorded." : "Nenhum defeito registrado.",
+	"Open a job to run the checklist and add photos. Office can create new jobs here." : "Abra uma ordem de serviço para executar a checklist e adicionar fotos. O escritório pode criar novos trabalhos aqui.",
+	"Search every unit. Create new equipment on a customer page." : "Pesquise em todas as unidades. Crie novos equipamentos na página de um cliente.",
+	"Service report" : "Relatório de serviço",
+	"Signature: not captured" : "Assinatura: não capturada",
+	"This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement." : "Este documento é um relatório de trabalho (Arbeitsnachweis). Não é um certificado, uma declaração de conformidade ou uma declaração legal de conformidade."
 	}
 );

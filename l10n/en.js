@@ -1264,6 +1264,25 @@ OC.L10N.register(
 	"Visit for “%1” was due on %2." : "Visit for “%1” was due on %2.",
 	"Narrow the list" : "Narrow the list",
 	"3. Save the visit" : "3. Save the visit",
-	"Open the job" : "Open the job"
+	"Open the job" : "Open the job",
+	"Add a plan so visits appear on the due board. Meters and inspections are optional." : "Add a plan so visits appear on the due board. Meters and inspections are optional.",
+	"Add organisations you service — then open one to add equipment and plans." : "Add organisations you service — then open one to add equipment and plans.",
+	"Assigned to" : "Assigned to",
+	"Compliance, overdue work and MTTR — pick 30 or 90 days." : "Compliance, overdue work and MTTR — pick 30 or 90 days.",
+	"Defect photos" : "Defect photos",
+	"Description" : "Description",
+	"Duration (minutes)" : "Duration (minutes)",
+	"Filter history by status or date. Open a row for details." : "Filter history by status or date. Open a row for details.",
+	"Inspection evidence report" : "Inspection evidence report",
+	"Inspector" : "Inspector",
+	"Job pack" : "Job pack",
+	"Kit — parts and tools to pack" : "Kit — parts and tools to pack",
+	"Master data, sites and equipment for this organisation." : "Master data, sites and equipment for this organisation.",
+	"No defects recorded." : "No defects recorded.",
+	"Open a job to run the checklist and add photos. Office can create new jobs here." : "Open a job to run the checklist and add photos. Office can create new jobs here.",
+	"Search every unit. Create new equipment on a customer page." : "Search every unit. Create new equipment on a customer page.",
+	"Service report" : "Service report",
+	"Signature: not captured" : "Signature: not captured",
+	"This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement." : "This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement."
 	}
 );

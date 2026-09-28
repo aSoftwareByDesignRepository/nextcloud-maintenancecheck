@@ -1264,6 +1264,25 @@ OC.L10N.register(
 	"Visit for “%1” was due on %2." : "Besuch für „%1“ war am %2 fällig.",
 	"Narrow the list" : "Liste eingrenzen",
 	"3. Save the visit" : "3. Besuch speichern",
-	"Open the job" : "Auftrag öffnen"
+	"Open the job" : "Auftrag öffnen",
+	"Add a plan so visits appear on the due board. Meters and inspections are optional." : "Fügen Sie einen Plan hinzu, damit Einsätze auf dem Fälligkeitsboard erscheinen. Zähler und Prüfungen sind optional.",
+	"Add organisations you service — then open one to add equipment and plans." : "Fügen Sie Organisationen hinzu, die Sie betreuen — öffnen Sie dann eine, um Anlagen und Pläne hinzuzufügen.",
+	"Assigned to" : "Zugewiesen an",
+	"Compliance, overdue work and MTTR — pick 30 or 90 days." : "Compliance, überfällige Arbeiten und MTTR — wählen Sie 30 oder 90 Tage.",
+	"Defect photos" : "Mängelfotos",
+	"Description" : "Beschreibung",
+	"Duration (minutes)" : "Dauer (Minuten)",
+	"Filter history by status or date. Open a row for details." : "Verlauf nach Status oder Datum filtern. Zeile für Details öffnen.",
+	"Inspection evidence report" : "Prüfbericht mit Nachweisen",
+	"Inspector" : "Prüfer",
+	"Job pack" : "Einsatzpaket",
+	"Kit — parts and tools to pack" : "Kit — zu packende Teile und Werkzeuge",
+	"Master data, sites and equipment for this organisation." : "Stammdaten, Standorte und Anlagen für diese Organisation.",
+	"No defects recorded." : "Keine Mängel erfasst.",
+	"Open a job to run the checklist and add photos. Office can create new jobs here." : "Öffnen Sie einen Arbeitsauftrag, um die Checkliste abzuarbeiten und Fotos hinzuzufügen. Das Büro kann hier neue Aufträge anlegen.",
+	"Search every unit. Create new equipment on a customer page." : "Durchsuchen Sie alle Einheiten. Legen Sie neue Anlagen auf einer Kundenseite an.",
+	"Service report" : "Servicebericht",
+	"Signature: not captured" : "Unterschrift: nicht erfasst",
+	"This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement." : "Dieses Dokument ist ein Arbeitsnachweis. Es ist kein Zertifikat, keine Konformitätserklärung und keine rechtliche Compliance-Erklärung."
 	}
 );

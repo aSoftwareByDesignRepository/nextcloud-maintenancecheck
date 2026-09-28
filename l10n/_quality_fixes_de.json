@@ -1,4 +1,4 @@
 {
-    "Optional": "Freiwillig",
-    "Status: {status}": "Zustand: {status}"
+	"Optional": "Freiwillig",
+	"Status: {status}": "Zustand: {status}"
 }

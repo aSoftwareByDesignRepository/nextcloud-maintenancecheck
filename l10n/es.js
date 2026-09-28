@@ -1264,6 +1264,25 @@ OC.L10N.register(
 	"Visit for “%1” was due on %2." : "La visita para “%1” venció el %2.",
 	"Narrow the list" : "Filtrar la lista",
 	"3. Save the visit" : "3. Guardar la visita",
-	"Open the job" : "Abrir el trabajo"
+	"Open the job" : "Abrir el trabajo",
+	"Add a plan so visits appear on the due board. Meters and inspections are optional." : "Añada un plan para que las visitas aparezcan en el tablero de vencimientos. Los contadores y las inspecciones son opcionales.",
+	"Add organisations you service — then open one to add equipment and plans." : "Añada las organizaciones a las que da servicio — abra una para añadir equipos y planes.",
+	"Assigned to" : "Asignado a",
+	"Compliance, overdue work and MTTR — pick 30 or 90 days." : "Cumplimiento, trabajos vencidos y MTTR — elija 30 o 90 días.",
+	"Defect photos" : "Fotos de defectos",
+	"Description" : "Descripción",
+	"Duration (minutes)" : "Duración (minutos)",
+	"Filter history by status or date. Open a row for details." : "Filtre el historial por estado o fecha. Abra una fila para ver los detalles.",
+	"Inspection evidence report" : "Informe de evidencias de inspección",
+	"Inspector" : "Inspector",
+	"Job pack" : "Paquete de trabajo",
+	"Kit — parts and tools to pack" : "Kit — piezas y herramientas que llevar",
+	"Master data, sites and equipment for this organisation." : "Datos maestros, sedes y equipos de esta organización.",
+	"No defects recorded." : "No se registraron defectos.",
+	"Open a job to run the checklist and add photos. Office can create new jobs here." : "Abra una orden de trabajo para ejecutar la lista de verificación y añadir fotos. La oficina puede crear nuevos trabajos aquí.",
+	"Search every unit. Create new equipment on a customer page." : "Busque en todas las unidades. Cree equipos nuevos en la página de un cliente.",
+	"Service report" : "Informe de servicio",
+	"Signature: not captured" : "Firma: no capturada",
+	"This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement." : "Este documento es un parte de trabajo (Arbeitsnachweis). No es un certificado, una declaración de conformidad ni una declaración legal de cumplimiento."
 	}
 );
