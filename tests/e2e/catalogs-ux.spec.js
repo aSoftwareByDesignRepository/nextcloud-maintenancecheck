@@ -65,7 +65,8 @@ test.describe('catalogs Bachus UX', () => {
 				await nameBtn.click()
 				const dialog = page.locator('[role="dialog"], .mn-dialog, .oc-dialog').first()
 				await expect(dialog).toBeVisible({ timeout: 10_000 })
-				await page.getByRole('button', { name: /cancel|abbrechen/i }).first().click()
+				// Dismiss via Escape (locale-safe cancel path — mn-dialog closes on Esc).
+				await page.keyboard.press('Escape')
 				await expect(dialog).toBeHidden({ timeout: 10_000 })
 			}
 		}
@@ -82,7 +83,7 @@ test.describe('catalogs Bachus UX', () => {
 				await moreToggle.click()
 				const menu = page.locator('.mn-overflow__menu:not([hidden])').first()
 				await expect(menu).toBeVisible()
-				await expect(menu.getByRole('menuitem', { name: /fork|abzweigen/i })).toBeVisible()
+				await expect(menu.locator('[data-mn-action="fork"]')).toBeVisible()
 				await page.keyboard.press('Escape')
 				await expect(menu).toBeHidden()
 			}
@@ -90,8 +91,7 @@ test.describe('catalogs Bachus UX', () => {
 
 		// Header: New procedure + pack More — not three primary header buttons.
 		const procActions = page.locator('#mn-procedures-actions')
-		// l10n: "New procedure" => "Neue Prozedur" (de), so accept both.
-		await expect(procActions.getByRole('button', { name: /new procedure|neue prozedur|neues verfahren/i })).toBeVisible()
+		await expect(procActions.locator('[data-mn-action="new-procedure"]')).toBeVisible()
 		await expect(procActions.locator('> .mn-btn', { hasText: /^Export pack$/i })).toHaveCount(0)
 		await expect(procActions.locator('> .mn-btn', { hasText: /^Import pack$/i })).toHaveCount(0)
 

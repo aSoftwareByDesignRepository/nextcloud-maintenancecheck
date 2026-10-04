@@ -152,11 +152,11 @@ async function openEscThenConfirm(page, id, openFn, opts) {
 	await openConfirm(page, id, openFn, opts)
 }
 
-async function clickMoreItem(page, row, nameRe) {
+async function clickMoreItem(page, row, action) {
 	// Ensure any prior overlay/menu is closed.
 	await page.keyboard.press('Escape').catch(() => {})
 	await expect(page.locator('.mn-overflow__menu:not([hidden])')).toHaveCount(0, { timeout: 5_000 }).catch(() => {})
-	const more = row.getByRole('button', { name: /more actions|more|mehr|weitere aktionen/i })
+	const more = row.locator('[data-mn-action="more"]').first()
 	await expect(more).toBeVisible({ timeout: 10_000 })
 	// The menu opens below the toggle. Park the toggle mid-viewport so the
 	// items render in clear space — otherwise Playwright's scroll-into-view
@@ -167,9 +167,9 @@ async function clickMoreItem(page, row, nameRe) {
 	await more.click()
 	const menu = page.locator('.mn-overflow__menu:not([hidden])').first()
 	await expect(menu).toBeVisible({ timeout: 10_000 })
-	const item = menu.getByRole('menuitem', { name: nameRe }).first()
+	const item = menu.locator(`[data-mn-action="${action}"]`).first()
 	if (!(await item.isVisible().catch(() => false))) {
-		const labels = await menu.getByRole('menuitem').allTextContents()
+		const labels = await menu.locator('[role="menuitem"]').allTextContents()
 		console.log('DEBUG overflow menuitems=' + JSON.stringify(labels))
 	}
 	await expect(item).toBeVisible({ timeout: 10_000 })
@@ -228,29 +228,29 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			await expect(row).toBeVisible({ timeout: 25_000 })
 
 			await openEscThenConfirm(page, 'dlg-reschedule', async () => {
-				await clickMoreItem(page, row, /^reschedule$|^verschieben$|^umplanen$/i)
+				await clickMoreItem(page, row, 'reschedule')
 			})
 			await openEscThenConfirm(page, 'dlg-assign', async () => {
-				await clickMoreItem(page, row, /^assign$|^zuweisen$/i)
+				await clickMoreItem(page, row, 'assign')
 			})
 			await openEscThenConfirm(page, 'dlg-cancel-visit', async () => {
-				await clickMoreItem(page, row, /cancel visit|einsatz stornieren|besuch stornieren|termin stornieren|stornieren/i)
+				await clickMoreItem(page, row, 'cancel-visit')
 			})
 			await openEscThenConfirm(page, 'dlg-create-wo', async () => {
-				await clickMoreItem(page, row, /create work order|arbeitsauftrag anlegen/i)
+				await clickMoreItem(page, row, 'create-wo')
 			})
 			await openEscThenConfirm(page, 'dlg-complete-details', async () => {
-				await clickMoreItem(page, row, /complete with details|mit details abschließen/i)
+				await clickMoreItem(page, row, 'complete-details')
 			})
 			await openEscThenConfirm(page, 'dlg-skip-visit', async () => {
-				await clickMoreItem(page, row, /skip with reason|mit begründung|mit grund/i)
+				await clickMoreItem(page, row, 'skip-reason')
 			})
 
 			// ── Customers ────────────────────────────────────────────────
 			await page.goto('/apps/maintenancecheck/customers')
 			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
 			await openEscThenConfirm(page, 'dlg-customer-form-new', async () => {
-				await page.getByRole('button', { name: /new customer|neuer kunde/i }).first().click()
+				await page.locator('[data-mn-action="new-customer"]').first().click()
 			}, {
 				fill: async (dlg) => {
 					const name = dlg.locator('input[type="text"], input:not([type])').first()
@@ -262,10 +262,10 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			await page.goto(`/apps/maintenancecheck/customers/${customerId}`)
 			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
 			await openEscThenConfirm(page, 'dlg-customer-form-edit', async () => {
-				await page.getByRole('button', { name: /edit customer|kunde bearbeiten|bearbeiten/i }).first().click()
+				await page.locator('[data-mn-action="edit-customer"]').first().click()
 			})
 			await openEscThenConfirm(page, 'dlg-force-delete', async () => {
-				await page.getByRole('button', { name: /delete customer|kunde löschen|kunden löschen/i }).first().click()
+				await page.locator('[data-mn-action="delete-customer"]').first().click()
 			}, {
 				fill: async (dlg) => {
 					const gate = dlg.locator('input[type="checkbox"]').first()
@@ -274,7 +274,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 					}
 				},
 			})
-			const newSite = page.getByRole('button', { name: /new site|neuer standort|neue stätte/i }).first()
+			const newSite = page.locator('[data-mn-action="new-site"]').first()
 			if (await newSite.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-site-form', async () => {
 					await newSite.click()
@@ -294,17 +294,12 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			await page.goto(`/apps/maintenancecheck/equipment/${equipmentId}`)
 			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
 			await openEscThenConfirm(page, 'dlg-equipment-form-edit', async () => {
-				const edit = page.getByRole('button', { name: /edit equipment|gerät bearbeiten|bearbeiten/i }).first()
-				if (await edit.isVisible().catch(() => false)) {
-					await edit.click()
-				} else {
-					await page.getByRole('button', { name: /edit|bearbeiten/i }).first().click()
-				}
+				await page.locator('[data-mn-action="edit-equipment"]').first().click()
 			})
 			await openEscThenConfirm(page, 'dlg-plan', async () => {
-				await page.getByRole('button', { name: /new plan|neuer plan/i }).first().click()
+				await page.locator('[data-mn-action="new-plan"]').first().click()
 			})
-			const scheduleBtn = page.getByRole('button', { name: /schedule visit|einsatz planen|besuch planen|termin planen/i }).first()
+			const scheduleBtn = page.locator('[data-mn-action="schedule-visit"]').first()
 			if (await scheduleBtn.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-schedule-visit', async () => {
 					await scheduleBtn.click()
@@ -312,7 +307,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			} else {
 				console.log('EVIDENCE dlg-schedule-visit SKIP soft — scheduleVisitDialog in js/app.js (no button on open visit plan)')
 			}
-			const qrBtn = page.getByRole('button', { name: /qr sticker|qr-aufkleber|create qr|renew qr/i }).first()
+			const qrBtn = page.locator('[data-mn-action="qr-sticker"]').first()
 			if (await qrBtn.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-qr-sticker', async () => {
 					await qrBtn.click()
@@ -320,7 +315,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			} else {
 				console.log('EVIDENCE dlg-qr-sticker SKIP')
 			}
-			const newMeter = page.getByRole('button', { name: /new meter|neuer zähler/i }).first()
+			const newMeter = page.locator('[data-mn-action="new-meter"]').first()
 			if (await newMeter.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-meter-form', async () => {
 					await newMeter.click()
@@ -347,7 +342,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			if ([200, 201].includes(meter.status)) {
 				await page.goto(`/apps/maintenancecheck/equipment/${equipmentId}`)
 				await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
-				const addReading = page.getByRole('button', { name: /add reading|zählerstand erfassen|ablesung|wert erfassen/i }).first()
+				const addReading = page.locator('[data-mn-action="add-reading"]').first()
 				if (await addReading.isVisible().catch(() => false)) {
 					await openEscThenConfirm(page, 'dlg-reading', async () => {
 						await addReading.click()
@@ -362,7 +357,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 				} else {
 					console.log('EVIDENCE dlg-reading SKIP')
 				}
-				const importCsv = page.getByRole('button', { name: /import.*reading|csv|importieren/i }).first()
+				const importCsv = page.locator('[data-mn-action="import-meter-csv"]').first()
 				if (await importCsv.isVisible().catch(() => false)) {
 					await openEscThenConfirm(page, 'dlg-meter-csv', async () => {
 						await importCsv.click()
@@ -377,7 +372,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 
 			await page.goto('/apps/maintenancecheck/equipment')
 			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
-			const newEquip = page.getByRole('button', { name: /new equipment|neues gerät|neue anlage/i }).first()
+			const newEquip = page.locator('[data-mn-action="new-equipment"]').first()
 			if (await newEquip.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-equipment-form-new', async () => {
 					await newEquip.click()
@@ -395,7 +390,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			await page.goto('/apps/maintenancecheck/catalogs')
 			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
 			await page.locator('[data-mn-catalog="equip"]').click().catch(() => {})
-			const newEquipType = page.getByRole('button', { name: /new equipment type|neuer anlagentyp|neuer gerätetyp/i }).first()
+			const newEquipType = page.locator('[data-mn-action="new-equip-type"]').first()
 			if (await newEquipType.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-catalog-type-equip', async () => {
 					await newEquipType.click()
@@ -411,7 +406,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 				console.log('EVIDENCE dlg-catalog-type-equip SKIP')
 			}
 			await page.locator('[data-mn-catalog="maint"]').click().catch(() => {})
-			const newMaintType = page.getByRole('button', { name: /new maintenance type|neuer wartungstyp/i }).first()
+			const newMaintType = page.locator('[data-mn-action="new-maint-type"]').first()
 			if (await newMaintType.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-catalog-type-maint', async () => {
 					await newMaintType.click()
@@ -428,7 +423,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			}
 			await page.locator('[data-mn-catalog="procedures"]').click().catch(() => {})
 			await expect(page.locator('#mn-catalog-panel-procedures, #mn-procedures').first()).toBeVisible({ timeout: 15_000 }).catch(() => {})
-			const newProc = page.getByRole('button', { name: /new procedure|neue prozedur|neues verfahren/i }).first()
+			const newProc = page.locator('[data-mn-action="new-procedure"]').first()
 			if (await newProc.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-procedure', async () => {
 					await newProc.click()
@@ -441,29 +436,17 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 					},
 				})
 			}
-			const importPack = page.getByRole('button', { name: /import pack|paket importieren/i }).first()
-			if (await importPack.isVisible().catch(() => false)) {
+			const procMore = page.locator('#mn-procedures-actions [data-mn-action="more"], #mn-procedures [data-mn-action="more"]').first()
+			if (await procMore.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-import-pack', async () => {
-					await importPack.click()
+					await clickMoreItem(page, page.locator('#mn-procedures-actions, #mn-procedures').first(), 'import-pack')
 				})
 			} else {
-				const procMore = page.locator('#mn-procedures-actions .mn-overflow__toggle, #mn-procedures .mn-overflow__toggle').first()
-				if (await procMore.isVisible().catch(() => false)) {
-					await openEscThenConfirm(page, 'dlg-import-pack', async () => {
-						await page.keyboard.press('Escape').catch(() => {})
-						await expect(page.locator('.mn-overflow__menu:not([hidden])')).toHaveCount(0, { timeout: 3_000 }).catch(() => {})
-						await procMore.click()
-						const menu = page.locator('.mn-overflow__menu:not([hidden])').first()
-						await expect(menu).toBeVisible({ timeout: 10_000 })
-						await menu.getByRole('menuitem', { name: /import pack|paket importieren/i }).first().click()
-					})
-				} else {
-					console.log('EVIDENCE dlg-import-pack SKIP soft — import pack openDialog in js/app.js')
-				}
+				console.log('EVIDENCE dlg-import-pack SKIP soft — import pack openDialog in js/app.js')
 			}
 			await page.locator('[data-mn-catalog="kits"]').click().catch(() => {})
 			await expect(page.locator('#mn-catalog-panel-kits, #mn-kit-templates').first()).toBeVisible({ timeout: 15_000 }).catch(() => {})
-			const newKit = page.getByRole('button', { name: /new kit|neue kit-vorlage|neues kit|kit template/i }).first()
+			const newKit = page.locator('[data-mn-action="new-kit"]').first()
 			if (await newKit.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-kit', async () => {
 					await newKit.click()
@@ -478,7 +461,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			} else {
 				console.log('EVIDENCE dlg-kit SKIP')
 			}
-			const grantSkills = page.getByRole('button', { name: /grant skills|qualifikationen zuweisen|fähigkeiten vergeben/i }).first()
+			const grantSkills = page.locator('[data-mn-action="grant-skills"]').first()
 			if (await grantSkills.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-grant-skills', async () => {
 					await grantSkills.click()
@@ -490,7 +473,7 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			// ── License remove (optional) ─────────────────────────────────
 			await page.goto('/apps/maintenancecheck/settings/license')
 			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
-			const removeKey = page.getByRole('button', { name: /remove license|lizenz.*entfernen|schlüssel entfernen/i }).first()
+			const removeKey = page.locator('[data-mn-action="remove-license"]').first()
 			if (await removeKey.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-remove-license', async () => {
 					await removeKey.click()

@@ -685,6 +685,29 @@
 		}
 		var kind = type || 'info';
 		var azcKind = kind === 'error' ? 'error' : (kind === 'success' || kind === 'ok' ? 'success' : (kind === 'warning' ? 'warning' : 'info'));
+		var lifetime = action ? 8000 : (kind === 'error' ? 5000 : 3000);
+		/*
+		 * Dedup on kind+text (+action label): an identical toast already showing
+		 * just gets its dismiss timer reset instead of stacking duplicates
+		 * (rapid retries, repeated API failures). Canonical pattern:
+		 * customercheck/js/common/components.js showToast.
+		 */
+		var dedupKey = azcKind + '|' + String(message) + '|' + (action && action.label ? String(action.label) : '');
+		var existing = region.querySelectorAll('.mn-toast[data-mn-toast-key]');
+		for (var i = 0; i < existing.length; i++) {
+			if (existing[i].getAttribute('data-mn-toast-key') === dedupKey) {
+				var dupe = existing[i];
+				if (dupe._mnDismissTimer) {
+					window.clearTimeout(dupe._mnDismissTimer);
+				}
+				dupe._mnDismissTimer = window.setTimeout(function () {
+					if (dupe.parentNode) {
+						dupe.parentNode.removeChild(dupe);
+					}
+				}, lifetime);
+				return;
+			}
+		}
 		var contentKids = [el('p', { class: 'mn-toast__message', text: message })];
 		if (action && action.label && typeof action.onClick === 'function') {
 			contentKids.push(el('button', {
@@ -700,6 +723,7 @@
 		var node = el('div', {
 			class: 'toast mn-toast toast--' + azcKind + (type ? ' mn-toast--' + type : ''),
 			role: kind === 'error' ? 'alert' : 'status',
+			'data-mn-toast-key': dedupKey,
 		}, [
 			el('div', { class: 'toast-content' }, contentKids),
 			el('button', {
@@ -710,9 +734,13 @@
 				onClick: function () { remove(); },
 			}),
 		]);
-		var timer = window.setTimeout(remove, action ? 8000 : (kind === 'error' ? 5000 : 3000));
+		var timer = window.setTimeout(remove, lifetime);
+		node._mnDismissTimer = timer;
 		function remove() {
 			window.clearTimeout(timer);
+			if (node._mnDismissTimer && node._mnDismissTimer !== timer) {
+				window.clearTimeout(node._mnDismissTimer);
+			}
 			if (node.parentNode) {
 				node.parentNode.removeChild(node);
 			}
@@ -723,14 +751,67 @@
 
 	// ── Dialogs (A6: focus trap, Esc, focus return) ────────────────────
 
+	/*
+	 * Modal restore contract (COMPANION-DESIGN-SYSTEM §8 /
+	 * modal_restore_contract_violation):
+	 *  - the restore target is resolved lazily at close time — a trigger that
+	 *    was rebuilt while the dialog was open (list re-render) still counts,
+	 *    otherwise fall back to #mn-page-actions → view heading → main content,
+	 *    never drop focus on <body>;
+	 *  - the page lock (body overflow + inert regions) is paired per dialog via
+	 *    a stack — an outer dialog keeps the lock while an inner one is open,
+	 *    and only the last close releases it.
+	 */
+	var openDialogStack = [];
+
+	function lockPage() {
+		if (openDialogStack.length === 0) {
+			document.body.style.overflow = 'hidden';
+			['header', 'app-navigation', 'mn-main-content'].forEach(function (id) {
+				var node = document.getElementById(id);
+				if (node) node.setAttribute('inert', '');
+			});
+		}
+	}
+
+	function unlockPage() {
+		if (openDialogStack.length !== 0) {
+			return;
+		}
+		document.body.style.overflow = '';
+		['header', 'app-navigation', 'mn-main-content'].forEach(function (id) {
+			var node = document.getElementById(id);
+			if (node) {
+				node.removeAttribute('inert');
+			}
+		});
+	}
+
+	function resolveDialogRestoreTarget(previousFocus) {
+		if (previousFocus && typeof previousFocus.focus === 'function' && previousFocus.isConnected) {
+			return previousFocus;
+		}
+		var actions = document.getElementById('mn-page-actions');
+		if (actions) {
+			var actionable = actions.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+			if (actionable) {
+				return actionable;
+			}
+		}
+		var title = document.getElementById('mn-page-title');
+		if (title) {
+			if (!title.hasAttribute('tabindex')) {
+				title.setAttribute('tabindex', '-1');
+			}
+			return title;
+		}
+		var main = document.getElementById('mn-main-content');
+		return main || null;
+	}
+
 	function openDialog(options) {
 		var previousFocus = document.activeElement;
 		var overlay = el('div', { class: 'modal-backdrop mn-dialog-overlay' });
-		document.body.style.overflow = 'hidden';
-		['header', 'app-navigation', 'mn-main-content'].forEach(function (id) {
-			var node = document.getElementById(id);
-			if (node) node.setAttribute('inert', '');
-		});
 		var titleId = 'mn-dialog-title-' + Date.now();
 		var dialog = el('div', {
 			class: 'modal mn-dialog',
@@ -761,15 +842,14 @@
 			if (overlay.parentNode) {
 				overlay.parentNode.removeChild(overlay);
 			}
-			document.body.style.overflow = '';
-			['header', 'app-navigation', 'mn-main-content'].forEach(function (id) {
-				var node = document.getElementById(id);
-				if (node) {
-					node.removeAttribute('inert');
-				}
-			});
-			if (previousFocus && typeof previousFocus.focus === 'function') {
-				previousFocus.focus();
+			var stackIdx = openDialogStack.indexOf(ctx);
+			if (stackIdx !== -1) {
+				openDialogStack.splice(stackIdx, 1);
+			}
+			unlockPage();
+			var target = resolveDialogRestoreTarget(previousFocus);
+			if (target) {
+				target.focus();
 			}
 		}
 
@@ -865,6 +945,9 @@
 			actionsRow.appendChild(button);
 		});
 
+		// Lock first (applies only when no dialog is open), then register this ctx.
+		lockPage();
+		openDialogStack.push(ctx);
 		document.body.appendChild(overlay);
 		var initial = options.initialFocus ? dialog.querySelector(options.initialFocus) : null;
 		(initial || focusables()[0] || dialog).focus();
@@ -1850,6 +1933,7 @@
 				class: 'mn-btn mn-btn--primary mn-btn--compact',
 				href: pageUrl('workOrders') + '/' + visit.openWorkOrder.id,
 				text: isInspection ? tr('Open inspection work order') : tr('Open work order'),
+				'data-mn-action': 'open-wo',
 			}));
 		} else if (isInspection) {
 			// UC-PRUEF: techs may start an inspection WO in the field (same as companion).
@@ -1857,6 +1941,7 @@
 				type: 'button',
 				class: 'mn-btn mn-btn--primary mn-btn--compact',
 				text: tr('Create inspection work order'),
+				'data-mn-action': 'create-wo',
 				onClick: function (ev) {
 					beginCreateWorkOrderFromVisit(visit, true, onDone, ev.currentTarget);
 				},
@@ -1866,6 +1951,7 @@
 				type: 'button',
 				class: 'mn-btn mn-btn--primary mn-btn--compact',
 				text: tr('Complete'),
+				'data-mn-action': 'complete',
 				onClick: function (ev) {
 					quickCompleteVisit(visit, onDone, ev.currentTarget);
 				},
@@ -1876,6 +1962,7 @@
 		if (!isInspection && !hasOpenWo && ctx.isOffice) {
 			overflowItems.push({
 				label: tr('Create work order'),
+				action: 'create-wo',
 				onClick: function () { beginCreateWorkOrderFromVisit(visit, false, onDone, null); },
 			});
 		}
@@ -1883,45 +1970,54 @@
 			if (hasOpenWo) {
 				overflowItems.push({
 					label: tr('Complete'),
+					action: 'complete',
 					onClick: function () { quickCompleteVisit(visit, onDone, null); },
 				});
 			}
 			overflowItems.push({
 				label: tr('Complete with details'),
+				action: 'complete-details',
 				onClick: function () { completeDialog(visit, onDone); },
 			});
 			overflowItems.push({
 				label: tr('Skip'),
+				action: 'skip',
 				onClick: function () { quickSkipVisit(visit, onDone); },
 			});
 			overflowItems.push({
 				label: tr('Skip with reason'),
+				action: 'skip-reason',
 				onClick: function () { skipDialog(visit, onDone); },
 			});
 		}
 		if (visit.openWorkOrder && visit.openWorkOrder.logHoursUrl) {
 			overflowItems.push({
 				label: tr('Log hours'),
+				action: 'log-hours',
 				href: visit.openWorkOrder.logHoursUrl,
 			});
 		}
 		if (visit.openWorkOrder && visit.openWorkOrder.recordTimeUrl) {
 			overflowItems.push({
 				label: tr('Record time'),
+				action: 'record-time',
 				href: visit.openWorkOrder.recordTimeUrl,
 			});
 		}
 		if (ctx.isOffice) {
 			overflowItems.push({
 				label: tr('Reschedule'),
+				action: 'reschedule',
 				onClick: function () { rescheduleDialog(visit, onDone); },
 			});
 			overflowItems.push({
 				label: tr('Assign'),
+				action: 'assign',
 				onClick: function () { assignDialog(visit, onDone); },
 			});
 			overflowItems.push({
 				label: tr('Cancel visit'),
+				action: 'cancel-visit',
 				onClick: function () { cancelVisitDialog(visit, onDone); },
 				danger: true,
 			});
@@ -1979,6 +2075,7 @@
 					target: '_blank',
 					rel: 'noopener noreferrer',
 					text: item.label,
+					'data-mn-action': item.action || null,
 					onClick: function () { setOpen(false); },
 				}));
 				return;
@@ -1988,6 +2085,7 @@
 				class: 'mn-overflow__item' + (item.danger ? ' mn-overflow__item--danger' : ''),
 				role: 'menuitem',
 				text: item.label,
+				'data-mn-action': item.action || null,
 				onClick: function () {
 					setOpen(false);
 					item.onClick();
@@ -2001,6 +2099,7 @@
 			'aria-expanded': 'false',
 			'aria-controls': menuId,
 			'aria-label': tr('More actions'),
+			'data-mn-action': 'more',
 			text: tr('More'),
 			onClick: function (ev) {
 				ev.stopPropagation();
@@ -2459,6 +2558,7 @@
 			document.getElementById('mn-page-actions').appendChild(el('button', {
 				type: 'button',
 				class: 'mn-btn mn-btn--primary',
+				'data-mn-action': 'new-customer',
 				onClick: function () { customerFormDialog(null, load); },
 			}, [el('span', { html: ICONS.plus, 'aria-hidden': 'true' }), tr('New customer')]));
 		}
@@ -2706,10 +2806,12 @@
 				var actions = el('div', { class: 'mn-detail__actions' }, [
 					el('button', {
 						type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit customer'),
+						'data-mn-action': 'edit-customer',
 						onClick: function () { customerFormDialog(current, function () { load(); }); },
 					}),
 					el('button', {
 						type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact', text: tr('Delete customer'),
+						'data-mn-action': 'delete-customer',
 						onClick: function () {
 							customerDeleteDialog(current, current.counts, function () {
 								window.location.href = pageUrl('customers');
@@ -2733,6 +2835,7 @@
 			if (ctx.isOffice) {
 				sitesActions.appendChild(el('button', {
 					type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact',
+					'data-mn-action': 'new-site',
 					onClick: function () { siteFormDialog(null, customerId, loadSites); },
 				}, [el('span', { html: ICONS.plus, 'aria-hidden': 'true' }), tr('New site')]));
 			}
@@ -2847,6 +2950,7 @@
 			if (ctx.isOffice) {
 				sectionActions.appendChild(el('button', {
 					type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact',
+					'data-mn-action': 'new-equipment',
 					onClick: function () { equipmentFormDialog(null, customerId, loadEquipment); },
 				}, [el('span', { html: ICONS.plus, 'aria-hidden': 'true' }), tr('New equipment')]));
 			}
@@ -3122,6 +3226,7 @@
 			document.getElementById('mn-page-actions').appendChild(el('button', {
 				type: 'button',
 				class: 'mn-btn mn-btn--primary',
+				'data-mn-action': 'new-equipment',
 				onClick: function () { equipmentFormDialog(null, null, load); },
 			}, [el('span', { html: ICONS.plus, 'aria-hidden': 'true' }), tr('New equipment')]));
 		}
@@ -3546,11 +3651,13 @@
 				card.appendChild(el('div', { class: 'mn-detail__actions' }, [
 					el('button', {
 						type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact', text: tr('Edit equipment'),
+						'data-mn-action': 'edit-equipment',
 						onClick: function () { equipmentFormDialog(current, null, load); },
 					}),
 					el('button', {
 						type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact',
 						text: item.hasQrToken ? tr('Renew QR sticker') : tr('Create QR sticker'),
+						'data-mn-action': 'qr-sticker',
 						title: item.hasQrToken
 							? tr('Creates a new sticker. The previous sticker stops working.')
 							: tr('Print a sticker technicians can scan to open this unit.'),
@@ -3818,11 +3925,13 @@
 			if (ctx.isOffice) {
 				meterActions.appendChild(el('button', {
 					type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact',
+					'data-mn-action': 'new-meter',
 					onClick: function () { meterFormDialog(null, equipmentId, reload); },
 				}, [el('span', { html: ICONS.plus, 'aria-hidden': 'true' }), tr('New meter')]));
 				meterActions.appendChild(el('button', {
 					type: 'button', class: 'mn-btn mn-btn--secondary mn-btn--compact',
 					text: tr('Import CSV'),
+					'data-mn-action': 'import-meter-csv',
 					onClick: function () { meterCsvImportDialog(equipmentId, reload); },
 				}));
 			}
@@ -3883,6 +3992,7 @@
 								var actions = [
 									el('button', {
 										type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact', text: tr('Add reading'),
+										'data-mn-action': 'add-reading',
 										onClick: function () { readingDialog(meter, reload); },
 									}),
 								];
@@ -3911,6 +4021,7 @@
 			if (ctx.isOffice) {
 				planActions.appendChild(el('button', {
 					type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact',
+					'data-mn-action': 'new-plan',
 					onClick: function () { planFormDialog(null, equipmentId, false, reload); },
 				}, [el('span', { html: ICONS.plus, 'aria-hidden': 'true' }), tr('New plan')]));
 			}
@@ -3986,6 +4097,7 @@
 								if (plan.active && !plan.openVisit && plan.triggerKind !== 'meter') {
 									actions.push(el('button', {
 										type: 'button', class: 'mn-btn mn-btn--primary mn-btn--compact', text: tr('Schedule visit'),
+										'data-mn-action': 'schedule-visit',
 										onClick: function () { scheduleVisitDialog(plan, reload); },
 									}));
 								}
@@ -4898,6 +5010,7 @@
 					type: 'button',
 					class: 'mn-btn mn-btn--primary button',
 					text: tr('New procedure'),
+					'data-mn-action': 'new-procedure',
 					onClick: function () { procedureDialog(null, load); },
 				}));
 				var exportBtn = el('button', {
@@ -5056,8 +5169,8 @@
 					});
 				});
 				var packOverflow = visitOverflowMenu([
-					{ label: tr('Export pack'), onClick: function () { exportBtn.click(); } },
-					{ label: tr('Import pack'), onClick: function () { importBtn.click(); } },
+					{ label: tr('Export pack'), action: 'export-pack', onClick: function () { exportBtn.click(); } },
+					{ label: tr('Import pack'), action: 'import-pack', onClick: function () { importBtn.click(); } },
 				]);
 				if (packOverflow) {
 					actions.appendChild(packOverflow);
@@ -5083,6 +5196,7 @@
 									type: 'button',
 									class: 'mn-btn mn-btn--primary button',
 									text: tr('New procedure'),
+									'data-mn-action': 'new-procedure',
 									onClick: function () { procedureDialog(null, load); },
 								});
 							}
@@ -5109,6 +5223,7 @@
 								var more = visitOverflowMenu([
 									{
 										label: tr('Fork'),
+										action: 'fork',
 										onClick: function () {
 											api('POST', apiUrl('procedures') + '/' + proc.id + '/fork', {})
 												.then(function () {
@@ -5120,6 +5235,7 @@
 									},
 									{
 										label: proc.active === false ? tr('Activate') : tr('Deactivate'),
+										action: 'toggle-procedure',
 										onClick: function () {
 											api('PUT', apiUrl('procedures') + '/' + proc.id, { active: proc.active === false })
 												.then(function () {
@@ -5395,6 +5511,7 @@
 						type: 'button',
 						class: 'mn-btn mn-btn--secondary button',
 						text: tr('Grant skills'),
+						'data-mn-action': 'grant-skills',
 						onClick: openGrantSkillsDialog,
 					}));
 				} else {
@@ -5402,6 +5519,7 @@
 						type: 'button',
 						class: 'mn-btn mn-btn--primary button',
 						text: tr('New kit template'),
+						'data-mn-action': 'new-kit',
 						onClick: function () { openKitDialog(null, load); },
 					}));
 				}
@@ -5477,6 +5595,7 @@
 										type: 'button',
 										class: 'mn-btn mn-btn--primary button',
 										text: tr('New kit template'),
+										'data-mn-action': 'new-kit',
 										onClick: function () { openKitDialog(null, load); },
 									});
 								}
@@ -5554,6 +5673,7 @@
 			if (ctx.isOffice) {
 				actions.appendChild(el('button', {
 					type: 'button', class: 'mn-btn mn-btn--primary button',
+					'data-mn-action': kind === 'equip' ? 'new-equip-type' : 'new-maint-type',
 					onClick: function () { catalogTypeDialog(kind, null, load); },
 				}, [el('span', { html: ICONS.plus, 'aria-hidden': 'true' }), kind === 'equip' ? tr('New equipment type') : tr('New maintenance type')]));
 			}
@@ -5576,6 +5696,7 @@
 									type: 'button',
 									class: 'mn-btn mn-btn--primary button',
 									text: kind === 'equip' ? tr('New equipment type') : tr('New maintenance type'),
+									'data-mn-action': kind === 'equip' ? 'new-equip-type' : 'new-maint-type',
 									onClick: function () { catalogTypeDialog(kind, null, load); },
 								});
 							}
@@ -6378,6 +6499,7 @@
 			if (state) {
 				licenseBox.appendChild(el('button', {
 					type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact mn-btn--spaced-top', text: tr('Remove key'),
+					'data-mn-action': 'remove-license',
 					onClick: function () {
 						openDialog({
 							title: tr('Remove license key'),

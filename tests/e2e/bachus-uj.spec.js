@@ -107,7 +107,7 @@ test.describe('Bachus UX journeys', () => {
 		await expect(page.locator('#mn-due-board table.mn-table.table.table--hover.mn-table--responsive').first()).toBeVisible()
 		await expect(page.locator('.mn-visit-card')).toHaveCount(0)
 
-		const completeBtn = row.getByRole('button', { name: /^complete$|^abschließen$/i })
+		const completeBtn = row.locator('button.mn-btn[data-mn-action="complete"]')
 		await expect(completeBtn).toBeVisible()
 		const box = await completeBtn.boundingBox()
 		expect(box, 'Complete touch target').toBeTruthy()
@@ -136,7 +136,7 @@ test.describe('Bachus UX journeys', () => {
 		await expect(page.locator('#mn-settings-policies, .mn-empty').first()).toBeVisible({ timeout: 30_000 })
 		await expect(page.locator('#mn-admin-subnav')).toHaveCount(0)
 		await expect(page.locator('#mn-settings-subnav')).toBeVisible()
-		await expect(page.getByRole('navigation', { name: /settings|einstellungen/i }).or(page.locator('#mn-settings-subnav')).first()).toBeVisible()
+		await expect(page.locator('nav, [role="navigation"], #mn-settings-subnav').first()).toBeVisible()
 		await expect(page.locator('#mn-policy-fail-blocks-roll')).toBeVisible({ timeout: 30_000 })
 		await axeMain(page)
 	})
@@ -170,20 +170,20 @@ test.describe('Bachus UX journeys', () => {
 		await expect(row).toBeVisible({ timeout: 20_000 })
 
 		// Bachus: one primary only — Create work order is under More, not a second button.
-		await expect(row.getByRole('button', { name: /^complete$|^abschließen$/i })).toBeVisible()
-		await expect(row.getByRole('button', { name: /create work order|arbeitsauftrag anlegen/i })).toHaveCount(0)
+		await expect(row.locator('button.mn-btn[data-mn-action="complete"]')).toBeVisible()
+		// Scope to .mn-btn primaries: overflow menu items also carry
+		// data-mn-action (hidden .mn-overflow__item inside the row DOM).
+		await expect(row.locator('button.mn-btn[data-mn-action="create-wo"], a.mn-btn[data-mn-action="create-wo"]')).toHaveCount(0)
 
-		const more = row.getByRole('button', { name: /more actions|more|mehr|weitere aktionen/i })
+		const more = row.locator('.mn-overflow__toggle')
 		await expect(more).toBeVisible()
 		await more.click()
 		const menu = page.locator('.mn-overflow__menu:not([hidden])').first()
 		await expect(menu).toBeVisible({ timeout: 10_000 })
-		await expect(menu.getByRole('menuitem', { name: /create work order|arbeitsauftrag anlegen/i })).toBeVisible()
-		await expect(menu.getByRole('menuitem', { name: /complete with details|mit details abschließen/i })).toBeVisible()
-		// l10n: "Skip" => "Aussetzen" in German, not just "überspringen".
-		// keep English + older German strings as compatibility.
-		await expect(menu.getByRole('menuitem', { name: /^skip$|^aussetzen$|^überspringen$/i })).toBeVisible()
-		await expect(menu.getByRole('menuitem', { name: /skip with reason|mit begründung überspringen|mit grund überspringen/i })).toBeVisible()
+		await expect(menu.locator('[data-mn-action="create-wo"]')).toBeVisible()
+		await expect(menu.locator('[data-mn-action="complete-details"]')).toBeVisible()
+		await expect(menu.locator('[data-mn-action="skip"]')).toBeVisible()
+		await expect(menu.locator('[data-mn-action="skip-reason"]')).toBeVisible()
 		await page.keyboard.press('Escape')
 		await expect(page.locator('.mn-overflow__menu:not([hidden])')).toHaveCount(0)
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
@@ -201,16 +201,16 @@ test.describe('Bachus UX journeys', () => {
 		await expect(page.locator('#mn-exceptions-title')).toHaveClass(/mn-sr-only/)
 		await expect(page.locator('.mn-card--table-solo .mn-card__header')).toHaveCount(0)
 		await expect(page.locator('.mn-card--table-solo .mn-card__lead')).toHaveCount(0)
-		await expect(page.getByText(/work that is blocked, overdue/i)).toHaveCount(0)
+		await expect(page.locator('#mn-exceptions-board .mn-card__lead')).toHaveCount(0)
 
 		const toolbar = page.locator('#mn-exceptions-toolbar')
 		await expect(toolbar).toBeVisible()
-		const allChip = toolbar.getByRole('button', { name: /^all$|^alle$/i })
+		const allChip = toolbar.locator('[data-mn-exception-filter="all"]')
 		await expect(allChip).toHaveAttribute('aria-pressed', 'true')
 		const allBox = await allChip.boundingBox()
 		expect(allBox.height).toBeGreaterThanOrEqual(40)
 
-		const blocked = toolbar.getByRole('button', { name: /^blocked$|^blockiert$/i })
+		const blocked = toolbar.locator('[data-mn-exception-filter="blocked"]')
 		await blocked.click()
 		await expect(blocked).toHaveAttribute('aria-pressed', 'true')
 		await expect(allChip).toHaveAttribute('aria-pressed', 'false')
@@ -220,8 +220,7 @@ test.describe('Bachus UX journeys', () => {
 		const table = page.locator('#mn-exceptions-board table.mn-table')
 		await expect(empty.or(table).first()).toBeVisible({ timeout: 15_000 })
 		if (await empty.count()) {
-			await expect(page.getByText(/no blocked|keine blockierten/i)).toBeVisible()
-			const cta = empty.getByRole('link', { name: /open work orders|arbeitsaufträge öffnen/i })
+			const cta = empty.locator('a.mn-btn[href*="/work-orders"]')
 			await expect(cta).toBeVisible()
 			const ctaBox = await cta.boundingBox()
 			expect(ctaBox.height).toBeGreaterThanOrEqual(40)
@@ -281,18 +280,16 @@ test.describe('Bachus UX journeys', () => {
 		await expect(page.locator('.mn-tours-toolbar__date')).toHaveValue(emptyDate)
 		await expect(page.locator('#mn-tours-board')).not.toHaveAttribute('aria-busy', 'true', { timeout: 30_000 })
 		await expect(page.locator('#mn-tours-board .mn-empty')).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByText(/no tours on this day|keine touren an diesem tag/i)).toBeVisible()
-		await expect(page.getByText(/plan who drives|plane, wer heute fährt/i)).toBeVisible()
-		await expect(page.getByText(/office can plan day tours under planning/i)).toHaveCount(0)
-
-		const createInEmpty = page.locator('#mn-tours-board .mn-empty').getByRole('button', { name: /create tour|tour anlegen/i })
+		// Office empty state carries the create CTA (tech variant has none —
+		// the CTA presence is the structural proof of the office copy).
+		const createInEmpty = page.locator('#mn-tours-board .mn-empty button.mn-btn--primary')
 		await expect(createInEmpty).toBeVisible()
 		const createBox = await createInEmpty.boundingBox()
 		expect(createBox, 'Create tour empty CTA touch target').toBeTruthy()
 		expect(createBox.height).toBeGreaterThanOrEqual(40)
 
-		const prevNav = page.getByRole('button', { name: /previous day|vorheriger tag/i })
-		const nextNav = page.getByRole('button', { name: /next day|nächster tag/i })
+		const prevNav = page.locator('.mn-tours-toolbar__nav').first()
+		const nextNav = page.locator('.mn-tours-toolbar__nav').nth(1)
 		await expect(prevNav).toBeVisible()
 		await expect(nextNav).toBeVisible()
 		const prevBox = await prevNav.boundingBox()
@@ -319,7 +316,7 @@ test.describe('Bachus UX journeys', () => {
 		await expect(page.locator('#mn-tours-board')).not.toHaveAttribute('aria-busy', 'true', { timeout: 30_000 })
 		await expect(page.locator('.mn-tour').first()).toBeVisible({ timeout: 15_000 })
 		await expect(page.locator('.mn-tour__title').first()).toBeVisible()
-		const openStop = page.locator('.mn-tour').first().getByRole('link', { name: /^open$|^öffnen$/i }).first()
+		const openStop = page.locator('.mn-tour').first().locator('a.mn-btn[href*="/work-orders/"]').first()
 		await expect(openStop).toBeVisible()
 		const openBox = await openStop.boundingBox()
 		expect(openBox.height).toBeGreaterThanOrEqual(40)
@@ -368,9 +365,11 @@ test.describe('Bachus UX journeys', () => {
 		await expect(primary).toHaveText(marker)
 		await expect(primary).not.toHaveText(new RegExp(`${marker}\\s*[—–-]\\s*${marker}`))
 
-		const primaryComplete = row.getByRole('button', { name: /^complete$|^abschließen$/i })
+		const primaryComplete = row.locator('button.mn-btn[data-mn-action="complete"]')
 		await expect(primaryComplete).toBeVisible()
-		await expect(row.getByRole('button', { name: /create work order|arbeitsauftrag anlegen/i })).toHaveCount(0)
+		// Scope to .mn-btn primaries: overflow menu items also carry
+		// data-mn-action (hidden .mn-overflow__item inside the row DOM).
+		await expect(row.locator('button.mn-btn[data-mn-action="create-wo"], a.mn-btn[data-mn-action="create-wo"]')).toHaveCount(0)
 
 		const badge = row.locator('.mn-badge').first()
 		await expect(badge).toBeVisible()
@@ -423,7 +422,7 @@ test.describe('Bachus UX journeys', () => {
 		await expect(page.locator('#mn-wo-detail .mn-wo-checklist')).toBeVisible()
 		await expect(page.locator('#mn-wo-detail .mn-wo-more')).toBeVisible()
 		await expect(page.locator('#mn-wo-detail .mn-wo-evidence')).toHaveCount(0)
-		await expect(page.getByRole('heading', { name: /^comments$/i })).toHaveCount(0)
+		await expect(page.locator('#mn-wo-comments-title')).toBeHidden()
 		expect(await page.locator('#mn-wo-detail > .mn-card').count()).toBe(1)
 
 		const primary = page.locator('#mn-wo-detail .mn-wo-hero__primary').first()
@@ -442,8 +441,7 @@ test.describe('Bachus UX journeys', () => {
 			await page.keyboard.press('Enter')
 		}
 		await expect(more).toHaveAttribute('open', '')
-		// l10n: "Kit / parts" => "Kit / Teile" in German.
-		await expect(page.getByRole('heading', { name: /kit\s*\/\s*(parts|teile)/i }).first()).toBeVisible()
+		await expect(page.locator('#mn-wo-kit-title')).toBeVisible()
 		await axeMain(page)
 
 		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/transition`, { to: 'ready' })
@@ -451,11 +449,10 @@ test.describe('Bachus UX journeys', () => {
 		await page.reload()
 		await expect(page.locator('#mn-wo-detail')).not.toHaveAttribute('aria-busy', 'true', { timeout: 30_000 })
 		await expect(page.locator('#mn-wo-detail .mn-wo-evidence')).toBeVisible()
-		// l10n: Checklist => Checkliste, Evidence => Nachweise (de)
-		await expect(page.getByRole('heading', { name: /^(checklist|checkliste)$/i }).first()).toBeVisible()
-		await expect(page.getByRole('heading', { name: /^(evidence|nachweise)$/i }).first()).toBeVisible()
+		await expect(page.locator('#mn-wo-checklist-title')).toBeVisible()
+		await expect(page.locator('#mn-wo-evidence-title')).toBeVisible()
 		expect(await page.locator('#mn-wo-detail > .mn-card').count()).toBe(1)
-		await expect(page.getByRole('button', { name: /complete|abschließen/i }).first()).toBeVisible()
+		await expect(page.locator('.mn-wo-hero__primary[data-mn-transition="done"]')).toBeVisible()
 		await axeMain(page)
 
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)

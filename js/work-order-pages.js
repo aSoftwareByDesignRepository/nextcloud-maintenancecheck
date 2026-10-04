@@ -1351,6 +1351,7 @@
 							type: 'button',
 							class: 'mn-btn mn-btn--primary button mn-wo-hero__primary',
 							text: transitionLabel(primaryTo),
+							'data-mn-transition': primaryTo,
 						});
 						primaryBtn.addEventListener('click', function () { runTransition(primaryTo); });
 						actions.appendChild(primaryBtn);
@@ -1362,30 +1363,34 @@
 						}
 						overflowItems.push({
 							label: transitionLabel(to),
+							action: 'transition-' + to,
 							onClick: function () { runTransition(to); },
 							danger: to === 'cancelled',
 						});
 					});
 					if (wo.logHoursUrl) {
-						overflowItems.push({ label: tr('Log hours'), href: wo.logHoursUrl });
+						overflowItems.push({ label: tr('Log hours'), action: 'log-hours', href: wo.logHoursUrl });
 					}
 					if (wo.recordTimeUrl) {
-						overflowItems.push({ label: tr('Record time'), href: wo.recordTimeUrl });
+						overflowItems.push({ label: tr('Record time'), action: 'record-time', href: wo.recordTimeUrl });
 					}
 					if (wo.status !== 'done' && wo.status !== 'cancelled') {
 						overflowItems.push({
 							label: tr('Download job pack'),
+							action: 'download-job-pack',
 							href: apiUrl('workOrders') + '/' + wo.id + '/pdf/job-pack',
 						});
 					}
 					if (wo.status === 'done') {
 						overflowItems.push({
 							label: tr('Download service report'),
+							action: 'download-servicebericht',
 							href: apiUrl('workOrders') + '/' + wo.id + '/pdf/servicebericht',
 						});
 						if (wo.kind === 'inspection') {
 							overflowItems.push({
 								label: tr('Download inspection evidence'),
+								action: 'download-inspection-evidence',
 								href: apiUrl('workOrders') + '/' + wo.id + '/pdf/inspection-evidence',
 							});
 						}
@@ -1393,6 +1398,7 @@
 					if (ctx.isOffice && wo.status !== 'done' && wo.status !== 'cancelled') {
 						overflowItems.push({
 							label: tr('Assign technician'),
+							action: 'assign-technician',
 							onClick: openAssignDialog,
 						});
 					}
@@ -2274,6 +2280,7 @@
 									type: 'button',
 									class: 'mn-btn mn-btn--primary button',
 									text: wo.primaryUserId ? tr('Reassign') : tr('Assign'),
+									'data-mn-action': 'dispatch-assign',
 								});
 								assignBtn.addEventListener('click', function () {
 									openDispatchAssign(wo, load);
@@ -2600,6 +2607,7 @@
 							type: 'button',
 							class: 'mn-btn mn-btn--primary button',
 							text: tr('Create tour'),
+							'data-mn-action': 'create-tour',
 						});
 						createBtn.addEventListener('click', openCreateTourDialog);
 						toolbarHost.appendChild(createBtn);
@@ -2654,6 +2662,7 @@
 									if (stopIdx > 0) {
 										overflowItems.push({
 											label: tr('Move up'),
+											action: 'move-up',
 											onClick: function () {
 												var ids = stops.map(function (s) {
 													return Number(s.workOrderId || (s.workOrder && s.workOrder.id));
@@ -2668,6 +2677,7 @@
 									if (stopIdx < stops.length - 1) {
 										overflowItems.push({
 											label: tr('Move down'),
+											action: 'move-down',
 											onClick: function () {
 												var ids = stops.map(function (s) {
 													return Number(s.workOrderId || (s.workOrder && s.workOrder.id));
@@ -2682,6 +2692,7 @@
 								}
 								overflowItems.push({
 									label: tr('Remove stop'),
+									action: 'remove-stop',
 									danger: true,
 									onClick: function () {
 										api('DELETE', apiUrl('tours') + '/' + tour.id + '/stops/' + entry.stop.id)
@@ -2734,6 +2745,7 @@
 							type: 'button',
 							class: 'mn-btn mn-btn--primary button',
 							text: tr('Add stop'),
+							'data-mn-action': 'add-stop',
 						});
 						addStopBtn.addEventListener('click', function () { openAddStopDialog(tour); });
 						actions.appendChild(addStopBtn);
@@ -2742,11 +2754,13 @@
 						if (!tour.orderLocked && stops.length > 1) {
 							moreItems.push({
 								label: tr('Suggest order'),
+								action: 'suggest-order',
 								onClick: function () { suggestOrderFlow(tour, stops); },
 							});
 						}
 						moreItems.push({
 							label: tour.orderLocked ? tr('Unlock order') : tr('Lock order'),
+							action: 'toggle-order-lock',
 							onClick: function () {
 								api('PUT', apiUrl('tours') + '/' + tour.id, { orderLocked: !tour.orderLocked })
 									.then(function () {
@@ -2796,6 +2810,7 @@
 									type: 'button',
 									class: 'mn-btn mn-btn--primary button',
 									text: tr('Create tour'),
+									'data-mn-action': 'create-tour',
 									onClick: openCreateTourDialog,
 								})
 							));

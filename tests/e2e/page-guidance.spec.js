@@ -64,10 +64,10 @@ test.describe('Page guidance UX', () => {
 			await expect(qs).toBeVisible({ timeout: 15_000 })
 			await expect(qs).toHaveClass(/mn-quickstart-card/)
 			await expect(qs.locator('.mn-section__header')).toBeVisible()
-			await expect(qs.getByRole('heading', { name: /quick start|schnellstart/i })).toBeVisible()
+			await expect(qs.locator('.mn-section__header h2')).toBeVisible()
 			await expect(qs.locator('.mn-section__sub')).toBeVisible()
 			await expect(qs.locator('.mn-quickstart__item')).toHaveCount(3)
-			await expect(qs.getByRole('button', { name: /hide tips|tipps ausblenden/i })).toBeVisible()
+			await expect(qs.locator('[data-mn-dismiss-hint]')).toBeVisible()
 
 			const ctas = qs.locator('.mn-quickstart__item .mn-btn, .mn-quickstart__item .mn-quickstart__cta, .mn-quickstart__item a.button')
 			const ctaCount = await ctas.count()
@@ -85,7 +85,7 @@ test.describe('Page guidance UX', () => {
 		await page.goto('/apps/maintenancecheck/')
 		const dueQs = page.locator('#mn-due-quickstart')
 		await expect(dueQs).toBeVisible({ timeout: 15_000 })
-		await dueQs.getByRole('button', { name: /hide tips|tipps ausblenden/i }).click()
+		await dueQs.locator('[data-mn-dismiss-hint]').click()
 		await expect(dueQs).toBeHidden()
 		const stored = await page.evaluate(() =>
 			Object.keys(localStorage).filter((k) => k.includes('due_quickstart_v1') && localStorage.getItem(k) === '1'),

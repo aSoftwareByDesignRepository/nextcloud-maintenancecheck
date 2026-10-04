@@ -319,7 +319,7 @@ test.describe('App Store screenshots', () => {
 
 		// 01 — Due board
 		await openApp(page, '/apps/maintenancecheck/')
-		await expect(page.getByText(/RheinMain|Klima|Aufzug|Campus|Nordpark/i).first()).toBeVisible({ timeout: 25_000 })
+		await expect(page.getByText(/RheinMain|Klima|Aufzug|Campus|Nordpark/i).first()).toBeVisible({ timeout: 25_000 }) // i18n: seeded demo-data labels are literal strings, not localized chrome
 		await shot(page, 'maintenancecheck-screenshot-01.png')
 
 		// 02 — Customers
@@ -331,13 +331,13 @@ test.describe('App Store screenshots', () => {
 		// 03 — Equipment
 		await openApp(page, '/apps/maintenancecheck/equipment')
 		await typeSearch(page, 'Klima')
-		await expect(page.getByText(/Klima Zentralgerät/i).first()).toBeVisible({ timeout: 20_000 })
+		await expect(page.getByText(/Klima Zentralgerät/i).first()).toBeVisible({ timeout: 20_000 }) // i18n: seeded demo-data label (literal string), not localized chrome
 		await shot(page, 'maintenancecheck-screenshot-03.png')
 
 		// 04 — Equipment detail
 		const eqId = seeded.assets[0].equipmentId
 		await openApp(page, `/apps/maintenancecheck/equipment/${eqId}`)
-		await expect(page.getByText(/Klima Zentralgerät/i).first()).toBeVisible({ timeout: 20_000 })
+		await expect(page.getByText(/Klima Zentralgerät/i).first()).toBeVisible({ timeout: 20_000 }) // i18n: seeded demo-data label (literal string), not localized chrome
 		await shot(page, 'maintenancecheck-screenshot-04.png')
 
 		// 05 — Work orders

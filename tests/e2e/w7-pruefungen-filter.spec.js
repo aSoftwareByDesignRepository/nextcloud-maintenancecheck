@@ -120,11 +120,9 @@ test('W7 visit gate: inspection due row hides Complete/Skip', async ({ page }) =
 	await expect(row).toBeVisible({ timeout: 20_000 })
 
 	// Primary Complete must not appear on inspection rows.
-	await expect(row.getByRole('button', { name: /^Complete$/i })).toHaveCount(0)
+	await expect(row.locator('[data-mn-action="complete"]')).toHaveCount(0)
 	await expect(
-		row.getByRole('button', {
-			name: /Create inspection work order|Open inspection work order|Prüfungs-Arbeitsauftrag anlegen|Prüfungs-Arbeitsauftrag öffnen/i,
-		}),
+		row.locator('[data-mn-action="create-wo"], [data-mn-action="open-wo"]'),
 	).toBeVisible()
 
 	const results = await new AxeBuilder({ page })
@@ -245,7 +243,7 @@ test('W7 inspection Done dialog: defect code picker + axe', async ({ page }) => 
 
 	await page.goto(`/apps/maintenancecheck/work-orders/${woId}`)
 	await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 30_000 })
-	const doneBtn = page.getByRole('button', { name: /^Complete$|^Abschließen$/i }).first()
+	const doneBtn = page.locator('[data-mn-transition="done"]').first()
 	await expect(doneBtn).toBeVisible({ timeout: 20_000 })
 	await doneBtn.click()
 	const dialog = page.locator('[role="dialog"]').first()

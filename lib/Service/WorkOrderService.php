@@ -1219,6 +1219,7 @@ class WorkOrderService
 						'force' => true,
 					]);
 				} catch (\Throwable $e) {
+					// best-effort: the follow-up WO itself was created; assignee copy is secondary
 					$this->logger->warning('Inspection follow-up assignee copy failed for WO ' . $correctiveId, [
 						'exception' => $e,
 					]);
@@ -1351,6 +1352,7 @@ class WorkOrderService
 				$skuLines,
 			));
 		} catch (\Throwable $e) {
+			// best-effort: listener failure is compensated — WO row records inventory_sync=failed below
 			$this->logger->warning('WorkOrderClosedEvent listener failed for WO ' . $id, ['exception' => $e]);
 			if ($sync === 'ok') {
 				$sync = 'failed';

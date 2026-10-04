@@ -28,10 +28,10 @@ test.describe('Settings underpages', () => {
 			test.skip(true, 'Signed-in user is not an app admin')
 		}
 		await expect(page.locator('#mn-settings-subnav')).toBeVisible()
-		await expect(page.getByRole('link', { name: /^overview$/i })).toHaveCount(0)
+		await expect(page.locator('.mn-settings-subnav__link[href$="/settings"], .mn-settings-subnav__link[href$="/settings/"]')).toHaveCount(0)
 		await expect(page.locator('#mn-admin-subnav')).toHaveCount(0)
 
-		await page.getByRole('link', { name: /work policies|arbeitsrichtlinien/i }).first().click()
+		await page.locator('.mn-settings-subnav__link[href*="settings/policies"]').first().click()
 		await expect(page).toHaveURL(/\/settings\/policies/)
 		await expect(page.locator('#mn-settings-policies')).toBeVisible({ timeout: 30_000 })
 		await expect(page.locator('#mn-settings-access')).toHaveCount(0)

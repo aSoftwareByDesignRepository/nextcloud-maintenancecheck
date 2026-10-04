@@ -284,7 +284,7 @@ test.describe('UJ journeys', () => {
 
 		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
 		await expect(page.locator('#mn-wo-detail')).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByRole('heading', { name: /checklist/i }).first()).toBeVisible()
+		await expect(page.locator('#mn-wo-checklist-title')).toBeVisible()
 		await axeMain(page)
 
 		const shk = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/procedures/pack?pack=builtin-shk-v1')
@@ -348,8 +348,8 @@ test.describe('UJ journeys', () => {
 		await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}/transition`, { to: 'in_progress' })
 
 		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
-		await expect(page.getByText(/Leak found/i).first()).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByText(/Describe the leak/i)).toHaveCount(0)
+		await expect(page.locator('.mn-checklist__item[data-item-code="leak"]')).toBeVisible({ timeout: 15_000 })
+		await expect(page.locator('.mn-checklist__item[data-item-code="leak_note"]')).toHaveCount(0)
 
 		const checklist = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/work-orders/${wo.data.id}`)
 		expectOk(checklist, 'wo detail')
@@ -357,7 +357,7 @@ test.describe('UJ journeys', () => {
 			result: 'fail',
 		})
 		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
-		await expect(page.getByText(/Describe the leak/i).first()).toBeVisible({ timeout: 15_000 })
+		await expect(page.locator('.mn-checklist__item[data-item-code="leak_note"]')).toBeVisible({ timeout: 15_000 })
 		await axeMain(page)
 
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
@@ -381,9 +381,13 @@ test.describe('UJ journeys', () => {
 			name: `UJ Skill ${stamp}`,
 		})
 		expectOk(skill, 'skill')
-		await api(page, 'POST', '/index.php/apps/maintenancecheck/api/config/policies', {
+		const policiesBlock = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/config/policies', {
 			skillsEnforcement: 'block',
 		})
+		// Fail loudly at the write: a silently-failed POST would leave 'warn'
+		// in place and surface as a confusing skills_warning downstream.
+		expectOk(policiesBlock, 'policies block')
+		expect(policiesBlock.data?.policies?.skillsEnforcement).toBe('block')
 
 		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
 		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
@@ -424,13 +428,17 @@ test.describe('UJ journeys', () => {
 
 		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
 		await expect(
-			page.getByRole('heading', { name: /required skills|erforderliche qualifikationen/i }).first(),
+			page.locator('#mn-wo-skills-title'),
 		).toBeVisible({ timeout: 15_000 })
 		await axeMain(page)
 
-		await api(page, 'POST', '/index.php/apps/maintenancecheck/api/config/policies', {
+		// Restore must be asserted too: a silently-failed write leaks 'block'
+		// to sibling workers' assign assertions.
+		const policiesWarn = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/config/policies', {
 			skillsEnforcement: 'warn',
 		})
+		expectOk(policiesWarn, 'policies warn restore')
+		expect(policiesWarn.data?.policies?.skillsEnforcement).toBe('warn')
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
 		} finally {
 			releaseStateLock('instance-config')
@@ -508,11 +516,16 @@ test.describe('UJ journeys', () => {
 		await expect(page.locator('#mn-tours-board')).not.toHaveAttribute('aria-busy', 'true', { timeout: 30_000 })
 		await expect(page.locator('#mn-tours-toolbar')).toBeVisible()
 		await expect(page.locator('#mn-tours-board .mn-tour-card')).toHaveCount(0)
-		await expect(page.locator('.mn-tour').first()).toBeVisible({ timeout: 15_000 })
-		const more = page.locator('.mn-tour').first().locator('.mn-tour__actions .mn-overflow__toggle')
+		// Scope to OUR tour: sibling project workers seed their own admin tours
+		// for the same day — a fresh 0/1-stop sibling tour's menu has no
+		// suggest-order item, so .mn-tour.first() + a document-wide item lookup
+		// races. data-tour-id + the visible menu pin both ends.
+		const tourCard = page.locator(`.mn-tour[data-tour-id="${tour.data.id}"]`)
+		await expect(tourCard).toBeVisible({ timeout: 15_000 })
+		const more = tourCard.locator('.mn-tour__actions .mn-overflow__toggle')
 		await expect(more).toBeVisible()
 		await more.click()
-		await expect(page.getByRole('menuitem', { name: /suggest order|reihenfolge vorschlagen/i }).first()).toBeVisible()
+		await expect(page.locator('.mn-overflow__menu:not([hidden]) [data-mn-action="suggest-order"]')).toBeVisible()
 		await page.keyboard.press('Escape')
 		await axeMain(page)
 
@@ -528,8 +541,9 @@ test.describe('UJ journeys', () => {
 		const woMore = page.locator('#mn-wo-detail .mn-overflow__toggle, .mn-wo-actions .mn-overflow__toggle').first()
 		await expect(woMore).toBeVisible({ timeout: 15_000 })
 		await woMore.click()
-		await expect(page.getByRole('menuitem', { name: /service report|servicebericht/i }).first()).toBeVisible()
-		await expect(page.getByRole('menuitem', { name: /job pack|einsatzmappe/i })).toHaveCount(0)
+		const woMenu = page.locator('.mn-overflow__menu:not([hidden])').first()
+		await expect(woMenu.locator('[data-mn-action="download-servicebericht"]')).toBeVisible()
+		await expect(woMenu.locator('[data-mn-action="download-job-pack"]')).toHaveCount(0)
 		await page.keyboard.press('Escape')
 		await axeMain(page)
 
@@ -573,7 +587,7 @@ test.describe('UJ journeys', () => {
 
 		await openApp(page, `/apps/maintenancecheck/work-orders/${wo.data.id}`)
 		await expect(page.locator('#mn-wo-detail')).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByRole('heading', { name: /checklist/i }).first()).toBeVisible()
+		await expect(page.locator('#mn-wo-checklist-title')).toBeVisible()
 		// Narrow shells often leave NC/app nav overlapping the content column.
 		await page.locator('#mn-main-content').evaluate((el) => {
 			el.scrollIntoView({ block: 'start' })
@@ -636,13 +650,13 @@ test.describe('UJ journeys', () => {
 		await expect(page.locator('#mn-equipment-meters')).toBeVisible({ timeout: 15_000 })
 		// In the current UI the meter title is rendered inside the meters table row/cell
 		// (not as a dedicated heading).
-		await expect(page.locator('#mn-equipment-meters').getByText(/operating hours|betriebsstunden/i).first()).toBeVisible()
-		await expect(page.getByRole('button', { name: /add reading|zählerstand erfassen/i }).first()).toBeVisible()
+		await expect(page.locator('#mn-equipment-meters').getByText('Operating hours').first()).toBeVisible()
+		await expect(page.locator('[data-mn-action="add-reading"]').first()).toBeVisible()
 		await axeMain(page)
 
 		await openApp(page, '/apps/maintenancecheck/')
 		await expect(page.locator('#mn-main-content')).toBeVisible()
-		await expect(page.getByText(/ujw5 meter unit/i).first()).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByText('UJW5 meter unit').first()).toBeVisible({ timeout: 15_000 })
 		await axeMain(page)
 
 		await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customer.data.id}?force=1`)
@@ -676,8 +690,8 @@ test.describe('UJ journeys', () => {
 
 		await openApp(page, `/apps/maintenancecheck/equipment/by-qr/${rotated.data.qrToken}`)
 		await expect(page.locator('#mn-equipment-detail')).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByText(/ujqr unit/i).first()).toBeVisible()
-		await expect(page.getByRole('button', { name: /renew qr sticker|qr-aufkleber erneuern/i }).first()).toBeVisible()
+		await expect(page.getByText('UJQR unit').first()).toBeVisible()
+		await expect(page.locator('[data-mn-action="qr-sticker"]').first()).toBeVisible()
 		await axeMain(page)
 
 		const bootstrap = await api(page, 'GET', '/index.php/apps/maintenancecheck/mobile/v1/bootstrap')
@@ -712,7 +726,7 @@ test.describe('UJ journeys', () => {
 
 		await openApp(page, `/apps/maintenancecheck/customers/${customer.data.id}`)
 		await expect(page.locator('#mn-customer-sites')).toBeVisible({ timeout: 15_000 })
-		await expect(page.getByText(/plant north/i).first()).toBeVisible()
+		await expect(page.getByText('Plant North').first()).toBeVisible()
 		await axeMain(page)
 
 		await openApp(page, '/apps/maintenancecheck/settings/policies')
@@ -966,7 +980,7 @@ test.describe('UJ journeys', () => {
 		await openApp(page, `/apps/maintenancecheck/equipment/${equipment.data.id}`)
 		await expect(page.locator('#mn-main-content')).toBeVisible()
 		// Open plan dialog if the New plan control is present (office/admin).
-		const newPlan = page.getByRole('button', { name: /new plan|neuer plan/i })
+		const newPlan = page.locator('[data-mn-action="new-plan"]')
 		if (await newPlan.isVisible().catch(() => false)) {
 			await newPlan.click()
 			const planDialog = page.locator('[role="dialog"]').first()
@@ -1016,8 +1030,8 @@ test.describe('UJ journeys', () => {
 		})
 
 		await openApp(page, `/apps/maintenancecheck/customers/${customer.data.id}`)
-		await expect(page.getByRole('button', { name: /delete customer|kunde löschen|kunden löschen/i })).toBeVisible({ timeout: 15_000 })
-		await page.getByRole('button', { name: /delete customer|kunde löschen|kunden löschen/i }).click()
+		await expect(page.locator('[data-mn-action="delete-customer"]')).toBeVisible({ timeout: 15_000 })
+		await page.locator('[data-mn-action="delete-customer"]').click()
 
 		const dialog = page.locator('[role="dialog"]').first()
 		await expect(dialog).toBeVisible()
@@ -1043,7 +1057,7 @@ test.describe('UJ journeys', () => {
 		await expect(page).toHaveURL(new RegExp(`/apps/maintenancecheck/customers/${customer.data.id}`))
 
 		// Re-open and confirm delete.
-		await page.getByRole('button', { name: /delete customer|kunde löschen|kunden löschen/i }).click()
+		await page.locator('[data-mn-action="delete-customer"]').click()
 		const dialog2 = page.locator('[role="dialog"]').first()
 		await expect(dialog2).toBeVisible()
 		await dialog2.locator('input[type="checkbox"]').check()
@@ -1084,7 +1098,7 @@ test.describe('UJ journeys', () => {
 		await page.context().clearCookies()
 		await login(page, tech)
 		await openApp(page, '/apps/maintenancecheck/customers')
-		await expect(page.getByRole('button', { name: /new customer|neuer kunde/i })).toHaveCount(0)
+		await expect(page.locator('[data-mn-action="new-customer"]')).toHaveCount(0)
 
 		const denied = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
 			name: `TechShouldFail ${Date.now()}`,
@@ -1105,8 +1119,9 @@ test.describe('UJ journeys', () => {
 
 		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
 		const maint = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/maint-types?limit=1&offset=0')
+		const uj2Marker = `UJ2UI ${Date.now()}`
 		const customer = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/customers', {
-			name: `UJ2UI ${Date.now()}`,
+			name: uj2Marker,
 		})
 		expectOk(customer, 'customer')
 		const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
@@ -1124,13 +1139,18 @@ test.describe('UJ journeys', () => {
 
 		await openApp(page, '/apps/maintenancecheck/')
 		await expect(page.locator('#mn-due-toolbar, #mn-due-board').first()).toBeVisible({ timeout: 15_000 })
-		const completeBtn = page.getByRole('button', { name: /^complete$|^abschließen$/i }).first()
+		// Scope to our seeded row AND .mn-btn primaries: rows with an open WO
+		// hide a `complete` item inside their (closed) overflow menu, so a bare
+		// [data-mn-action="complete"] .first() can resolve to a hidden item.
+		const dueRow = page.locator('#mn-due-board table.mn-table tbody tr', { hasText: uj2Marker }).first()
+		await expect(dueRow).toBeVisible({ timeout: 15_000 })
+		const completeBtn = dueRow.locator('button.mn-btn[data-mn-action="complete"]')
 		await expect(completeBtn).toBeVisible({ timeout: 15_000 })
 
 		// Happy path: Complete must NOT open a dialog (one-tap).
 		await completeBtn.click()
 		await expect(page.locator('[role="dialog"]')).toHaveCount(0, { timeout: 5_000 })
-		await expect(page.getByText(/UJ2UI|Visit completed|Besuch/i).first()).toBeVisible({ timeout: 15_000 }).catch(() => {})
+		await expect(page.getByText('UJ2UI').first()).toBeVisible({ timeout: 15_000 }).catch(() => {})
 		// Board should refresh without the completed visit requiring a modal confirm.
 		await axeMain(page)
 
@@ -1158,7 +1178,7 @@ test.describe('UJ journeys', () => {
 
 		const menu = page.locator('.mn-overflow__menu:not([hidden])').first()
 		await expect(menu).toBeVisible({ timeout: 10_000 })
-		const editDetails = menu.getByRole('menuitem', { name: /complete with details|mit details abschließen|edit details|details bearbeiten/i }).first()
+		const editDetails = menu.locator('[data-mn-action="complete-details"]').first()
 		await expect(editDetails).toBeVisible()
 		await editDetails.click()
 
@@ -1233,7 +1253,7 @@ test.describe('UJ journeys', () => {
 		const jobs = page.locator('a.mn-dispatch-job')
 		await expect(jobs.first()).toBeVisible({ timeout: 15_000 })
 		await expect(page.locator('.mn-dispatch-hint')).toBeAttached()
-		await expect(page.getByRole('button', { name: /^(Assign|Zuweisen)$/i }).first()).toBeVisible()
+		await expect(page.locator('[data-mn-action="dispatch-assign"]').first()).toBeVisible()
 		await jobs.first().focus()
 		if ((await jobs.count()) >= 2) {
 			await page.keyboard.press('ArrowDown')
@@ -1243,7 +1263,7 @@ test.describe('UJ journeys', () => {
 		}
 		await axeMain(page)
 
-		await page.getByRole('button', { name: /^(Assign|Zuweisen)$/i }).first().click()
+		await page.locator('[data-mn-action="dispatch-assign"]').first().click()
 		const dialog = page.locator('[role="dialog"]').first()
 		await expect(dialog).toBeVisible()
 		await expect(dialog.getByRole('searchbox').or(dialog.locator('input[type="search"]')).first()).toBeVisible()
@@ -1299,8 +1319,8 @@ test.describe('UJ journeys', () => {
 
 			await openApp(page, '/apps/maintenancecheck/settings/license')
 			await expect(page.locator('#mn-settings-license')).toBeVisible({ timeout: 30_000 })
-			await expect(page.getByText(/^Expired$|^Abgelaufen$/i).first()).toBeVisible({ timeout: 20_000 })
-			await expect(page.getByText(/e2e-expired/i).first()).toBeVisible()
+			await expect(page.locator('#mn-settings-license .mn-badge.mn-badge--overdue').first()).toBeVisible({ timeout: 20_000 })
+			await expect(page.getByText('e2e-expired').first()).toBeVisible()
 			await axeMain(page)
 		} finally {
 			try {

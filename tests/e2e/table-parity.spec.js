@@ -59,7 +59,7 @@ for (const route of tableRoutes) {
 				? '#mn-due-board table.mn-table.table.table--hover.mn-table--responsive'
 				: `${route.list} table.mn-table.table.table--hover.mn-table--responsive`,
 		)
-		const mutedEmpty = list.getByText(/nothing to dispatch|no tours|no exceptions|nothing due/i)
+		const mutedEmpty = list.locator('.mn-muted')
 		const hasEmpty = await empty.count()
 		const hasTable = await table.count()
 		const hasMuted = await mutedEmpty.count()

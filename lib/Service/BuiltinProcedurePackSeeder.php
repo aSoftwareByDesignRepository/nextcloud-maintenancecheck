@@ -69,6 +69,7 @@ final class BuiltinProcedurePackSeeder
 			try {
 				$parsed = $this->packSchema->parse($raw);
 			} catch (\Throwable $e) {
+				// best-effort: per-pack failure is reported in the returned $failed list
 				$failed[] = $file . ':invalid';
 				$this->logger->error('MaintenanceCheck builtin pack invalid: ' . $file, ['exception' => $e]);
 				continue;
@@ -84,6 +85,7 @@ final class BuiltinProcedurePackSeeder
 			} catch (ConflictException) {
 				$skipped[] = $code;
 			} catch (\Throwable $e) {
+				// best-effort: per-pack failure is reported in the returned $failed list
 				$failed[] = $code . ':import';
 				$this->logger->error('MaintenanceCheck builtin pack import failed: ' . $code, ['exception' => $e]);
 			}

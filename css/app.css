@@ -2949,7 +2949,10 @@ textarea {
 	gap: var(--mn-space-2, 0.5rem);
 }
 
-.mn-nav-footer__trigger {
+/* Scoped under #content: bare .{p}-nav-footer__trigger loses to NC core
+ * `#app-content button` / `#app-navigation button` min-height rules
+ * (var(--default-clickable-area) → 34px) — Atlas touch-target defect. */
+#content .mn-nav-footer__trigger {
 	display: inline-flex;
 	gap: var(--mn-space-3, 0.75rem);
 	min-height: 44px;
@@ -3011,7 +3014,7 @@ textarea {
 	display: none;
 }
 
-.mn-nav-footer__menu-item {
+#content .mn-nav-footer__menu-item {
 	display: flex;
 	align-items: center;
 	gap: var(--mn-space-3, 0.75rem);
@@ -3076,7 +3079,7 @@ textarea {
 	border: 0;
 }
 
-.mn-nav-footer__toast-link {
+#content .mn-nav-footer__toast-link {
 	display: inline-flex;
 	align-items: center;
 	min-height: 44px;
@@ -3148,12 +3151,14 @@ textarea {
 .mn-btn {
 	min-height: 44px !important;
 }
-.mn-btn--primary,
-.mn-btn--danger {
+.mn-btn--primary {
 	min-height: 48px !important;
 	min-width: 48px !important;
 }
 .mn-btn--danger {
+	/* keep fill+on-fill in every .mn-btn--danger block (danger-button-contrast contract) */
+	min-height: 48px !important;
+	min-width: 48px !important;
 	background: var(--mn-danger-fill) !important;
 	border-color: var(--mn-danger-fill) !important;
 	color: var(--mn-danger-on-fill) !important;
