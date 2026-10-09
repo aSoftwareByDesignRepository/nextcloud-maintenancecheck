@@ -59,6 +59,9 @@ body {
 	--mn-muted: var(--color-text-maxcontrast);
 	--mn-border: color-mix(in srgb, var(--color-main-text) 12%, transparent);
 	--mn-border-strong: color-mix(in srgb, var(--color-main-text) 24%, transparent);
+	/* Interactive controls need >=3:1 (WCAG 1.4.11): maxcontrast is NC's own
+	   input border; --color-border / --mn-border stay surface-only. */
+	--mn-form-border: var(--color-border-maxcontrast, var(--mn-border-strong));
 
 	/*
 	 * NC 30+ semantic colour split (CRITICAL for WCAG):

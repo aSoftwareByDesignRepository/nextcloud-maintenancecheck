@@ -98,7 +98,7 @@
 #content.app-maintenancecheck #app-content .mn-section,
 #content.app-maintenancecheck #app-content .mn-filter-panel {
 	background: var(--mn-bg-card, var(--color-main-background));
-	border: 1px solid var(--mn-border, var(--color-border));
+	border: 1px solid var(--mn-border, var(--mn-form-border));
 	border-radius: var(--mn-radius-md, 12px);
 	box-shadow: var(--mn-shadow-sm, 0 1px 2px color-mix(in srgb, var(--color-main-text) 8%, transparent));
 	box-sizing: border-box;
@@ -584,7 +584,7 @@
 .mn-app .btn--secondary {
 	background: var(--color-background-dark, #f5f5f5);
 	color: var(--mn-text);
-	border-color: var(--mn-border);
+	border-color: var(--mn-form-border);
 }
 .mn-btn--danger,
 .mn-app .btn--danger {
@@ -618,7 +618,7 @@
 .mn-dialog-overlay a.mn-btn--secondary {
 	background: var(--color-background-dark, var(--color-background-hover));
 	color: var(--mn-text, var(--color-main-text));
-	border-color: var(--mn-border, var(--color-border));
+	border-color: var(--mn-border, var(--mn-form-border));
 }
 #content.app-maintenancecheck button.mn-btn--danger,
 #content.app-maintenancecheck a.mn-btn--danger,

@@ -87,7 +87,7 @@ body {
 
 	/* Forms */
 	--maintenancecheck-color-form-background: var(--color-main-background);
-	--maintenancecheck-color-form-border: var(--color-border);
+	--maintenancecheck-color-form-border: var(--mn-form-border);
 	--maintenancecheck-color-form-border-focus: var(--color-primary-element);
 	--maintenancecheck-color-form-border-error: var(--mn-danger-border, var(--color-element-error, #c90000));
 	--maintenancecheck-color-form-border-success: var(--mn-success-border, var(--color-element-success, #099f05));

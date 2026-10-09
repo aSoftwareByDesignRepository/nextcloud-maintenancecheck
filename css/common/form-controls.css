@@ -7,7 +7,10 @@
 #content.app-maintenancecheck {
 	--mn-form-bg: var(--color-main-background);
 	--mn-form-fg: var(--color-main-text);
-	--mn-form-border: var(--color-border, var(--mn-border, color-mix(in srgb, var(--color-main-text) 18%, transparent)));
+	/* Interactive controls need >=3:1 (WCAG 1.4.11): maxcontrast is NC's own
+	   input border. --color-border / --mn-border stay surface-only — this
+	   scope must NOT re-pin the faint token (shadows the tokens.css fix). */
+	--mn-form-border: var(--color-border-maxcontrast, var(--mn-border-strong, color-mix(in srgb, var(--color-main-text) 24%, transparent)));
 	--mn-form-border-focus: var(--color-primary-element, #0082c9);
 	--mn-form-ring: color-mix(in srgb, var(--color-primary-element, #0082c9) 28%, transparent);
 	--mn-form-disabled-bg: var(--color-background-dark, var(--color-background-hover));

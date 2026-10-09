@@ -297,7 +297,7 @@ OC.L10N.register(
 	"Edit site" : "Rediger nettsted",
 	"Edit skill" : "Rediger ferdigheter",
 	"Email" : "E-post",
-	"Email is best-effort — no reply SLA. Need booked help? Use Support & us." : "E-post uten svar-SLA. Booket hjelp: Support & vi.",
+	"Email is best-effort — no reply SLA. Need booked help? Use Support & us." : "E-post uten svar-SLA. Booket hjelp: Support og vi.",
 	"Emergency" : "Nødhjelp",
 	"Enter a threshold for this meter plan." : "Skriv inn en terskel for denne måleplanen.",
 	"Enter a valid date to see the next due date." : "Skriv inn en gyldig dato for å se neste forfallsdato.",
@@ -356,7 +356,7 @@ OC.L10N.register(
 	"First line label" : "Første linje etikett",
 	"First visit due on" : "Første besøk på grunn av",
 	"Fix the blocker on the work order." : "Løs blokkeren på arbeidsordenen.",
-	"Focus the board on visits assigned to you." : "Fokuser tavlen på besøk tildelt den aktuelle brukeren.",
+	"Focus the board on visits assigned to you." : "Fokuser tavlen på besøk tildelt deg.",
 	"Force close" : "Tving til å lukke",
 	"Force-close reason" : "Forsvarlig grunn",
 	"Force-close work order" : "Tving-lukk arbeidsorden",
@@ -972,8 +972,8 @@ OC.L10N.register(
 	"The skip reason must be at least 10 characters." : "Det må være minst 10 tegn.",
 	"The web app is free forever. A license key adds named seats for the official mobile app." : "Nettappen er gratis for alltid. En lisensnøkkel legger til navngitt seter for den offisielle mobilappen.",
 	"Then tap Add stop." : "Trykk deretter på Legg til stopp.",
-	"There is a maintenance contract" : "Det er en vedlikeholdskontrakt",
-	"There is nothing to configure for your account here." : "Det er ingenting å konfigurere for denne kontoen her.",
+	"There is a maintenance contract" : "det er en vedlikeholdskontrakt",
+	"There is nothing to configure for your account here." : "det er ingenting å konfigurere for denne kontoen her.",
 	"These users manage settings, catalogs and the license in addition to Nextcloud admins." : "Disse brukerne administrerer innstillinger, kataloger og lisens i tillegg til Nextcloud admins.",
 	"This code is already in use." : "Denne koden er allerede i bruk.",
 	"This creates an operational evidence pack — not a certificate." : "Dette oppretter en driftsmessig dokumentasjonspakke — ikke et sertifikat.",
@@ -1283,6 +1283,6 @@ OC.L10N.register(
 	"Search every unit. Create new equipment on a customer page." : "Søk i alle enheter. Opprett nytt utstyr på en kundeside.",
 	"Service report" : "Servicerapport",
 	"Signature: not captured" : "Signatur: ikke registrert",
-	"This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement." : "Dette dokumentet er en arbeidsbekreftelse (Arbeitsnachweis). Det er ikke et sertifikat, en samsvarserklæring eller en juridisk compliance-erklæring."
+	"This document is a work record (Arbeitsnachweis). It is not a certificate, conformity declaration, or legal compliance statement." : "Dette dokumentet er en arbeidsbekreftelse (Arbeitsnachweis). det er ikke et sertifikat, en samsvarserklæring eller en juridisk compliance-erklæring."
 	}
 );
