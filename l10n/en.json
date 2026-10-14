@@ -1130,6 +1130,7 @@
 		"This equipment has plans or visits and cannot be deleted. Deactivate it instead.": "This equipment has plans or visits and cannot be deleted. Deactivate it instead.",
 		"This equipment has plans or visits. Deactivate it instead of deleting.": "This equipment has plans or visits. Deactivate it instead of deleting.",
 		"This equipment type is deactivated.": "This equipment type is deactivated.",
+		"This equipment’s warranty ended on {date}.": "This equipment’s warranty ended on {date}.",
 		"This field is required.": "This field is required.",
 		"This file is not a supported image (JPEG, PNG or WebP).": "This file is not a supported image (JPEG, PNG or WebP).",
 		"This license key is not valid: %s": "This license key is not valid: %s",

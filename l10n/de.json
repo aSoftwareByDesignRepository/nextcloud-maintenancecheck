@@ -1130,6 +1130,7 @@
 		"This equipment has plans or visits and cannot be deleted. Deactivate it instead.": "Diese Anlage hat Pläne oder Einsätze und kann nicht gelöscht werden. Deaktivieren Sie sie stattdessen.",
 		"This equipment has plans or visits. Deactivate it instead of deleting.": "Diese Anlage hat Pläne oder Einsätze. Deaktivieren Sie sie, statt sie zu löschen.",
 		"This equipment type is deactivated.": "Dieser Anlagentyp ist deaktiviert.",
+		"This equipment’s warranty ended on {date}.": "Die Garantie dieses Geräts endete am {date}.",
 		"This field is required.": "Dieses Feld ist erforderlich.",
 		"This file is not a supported image (JPEG, PNG or WebP).": "Diese Datei ist kein unterstütztes Bild (JPEG, PNG oder WebP).",
 		"This license key is not valid: %s": "Dieser Lizenzschlüssel ist ungültig: %s",
