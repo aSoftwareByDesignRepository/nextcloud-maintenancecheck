@@ -57,6 +57,34 @@
 		"4. Track the work": "4. Arbeit verfolgen",
 		"5. Hand over the site": "5. Standort übergeben",
 		"90 days": "90 Tage",
+		"_%n equipment item_::_%n equipment items_": [
+			"%n Anlage",
+			"%n Anlagen"
+		],
+		"_%n exception_::_%n exceptions_": [
+			"%n Ausnahme",
+			"%n Ausnahmen"
+		],
+		"_%n minute per day_::_%n minutes per day_": [
+			"%n Minute pro Tag",
+			"%n Minuten pro Tag"
+		],
+		"_%n plan_::_%n plans_": [
+			"%n Plan",
+			"%n Pläne"
+		],
+		"_%n result_::_%n results_": [
+			"%n Ergebnis",
+			"%n Ergebnisse"
+		],
+		"_%n stop_::_%n stops_": [
+			"%n Stopp",
+			"%n Stopps"
+		],
+		"_%n visit_::_%n visits_": [
+			"%n Einsatz",
+			"%n Einsätze"
+		],
 		"A line label is required.": "Eine Positionsbezeichnung ist erforderlich.",
 		"A maintenance visit was due on %s.": "Ein Wartungstermin war am %s fällig.",
 		"A meter-triggered plan needs a threshold.": "Ein zählerbasierter Plan benötigt einen Schwellenwert.",
@@ -190,6 +218,7 @@
 		"Check Partner": "Check Partner",
 		"Checklist": "Checkliste",
 		"Checklist and capacity rules": "Checklisten- und Kapazitätsregeln",
+		"Checklist blocks completion: {items}": "Checkliste verhindert den Abschluss: {items}",
 		"Checklist is advisory only": "Checkliste nur beratend",
 		"Checklist is locked for this status.": "Checkliste ist für diesen Status gesperrt.",
 		"Checklist items": "Checklistenpunkte",
@@ -368,6 +397,7 @@
 		"Emergency": "Notfall",
 		"Enter a threshold for this meter plan.": "Geben Sie eine Schwelle für diesen Zählerplan ein.",
 		"Enter a valid date to see the next due date.": "Geben Sie ein gültiges Datum ein, um den nächsten Fälligkeitstermin zu sehen.",
+		"Enter a valid numeric ID.": "Geben Sie eine gültige numerische ID ein.",
 		"Enter a valid work order ID.": "Geben Sie eine gültige Arbeitsauftrags-ID ein.",
 		"Equipment": "Anlagen",
 		"Equipment at this customer": "Anlagen bei diesem Kunden",
@@ -540,9 +570,11 @@
 		"Lines": "Zeilen",
 		"Link CRM company id": "CRM-Unternehmens-ID verknüpfen",
 		"Link ProjectCheck id": "ProjectCheck-ID verknüpfen",
+		"Link saved.": "Verknüpfung gespeichert.",
 		"Link to a manual or contract (https://…)": "Link zu Handbuch oder Vertrag (https://…)",
 		"Linked to CRM hub": "Mit CRM-Hub verknüpft",
 		"Linked to ProjectCheck": "Mit ProjectCheck verknüpft",
+		"Links cleared.": "Verknüpfungen gelöst.",
 		"List prices on our site apply to published Check apps. For this app, ask for an individual partner offer — we invoice only after you accept a quote.": "Listenpreise auf unserer Website gelten für veröffentlichte Check-Apps. Für diese App fragen Sie ein individuelles Partner-Angebot an — Rechnung erst nach Annahme des Angebots.",
 		"Load skills": "Qualifikationen laden",
 		"Loading…": "Wird geladen…",
@@ -1265,7 +1297,7 @@
 		"Work policies saved.": "Arbeitsrichtlinien gespeichert.",
 		"Work type": "Arbeitsart",
 		"Years": "Jahre",
-		"Yes, permanently delete this customer including {equipment} equipment, {plans} plans and {visits} visits.": "Ja, diesen Kunden einschließlich {equipment} Anlagen, {plans} Plänen und {visits} Einsätzen endgültig löschen.",
+		"Yes, permanently delete this customer including {children}.": "Ja, diesen Kunden einschließlich {children} endgültig löschen.",
 		"You are not allowed to use MaintenanceCheck right now.": "Sie dürfen MaintenanceCheck derzeit nicht verwenden.",
 		"You are not allowed to use MaintenanceCheck.": "Sie dürfen MaintenanceCheck nicht verwenden.",
 		"You do not have a mobile seat assigned.": "Ihnen ist kein Mobile-Sitz zugewiesen.",
@@ -1273,14 +1305,11 @@
 		"Your mobile seat is above the licensed limit.": "Ihr Mobile-Sitz liegt über dem lizenzierten Limit.",
 		"Your organisation restricts MaintenanceCheck access. You are not on the allow-list.": "Ihre Organisation beschränkt den Zugriff auf MaintenanceCheck. Sie stehen nicht auf der Erlaubnisliste.",
 		"Your stops today": "Ihre Stopps heute",
-		"{count} exceptions": "{count} Ausnahmen",
-		"{count} stops": "{count} Stopps",
+		"{a}, {b} and {c}": "{a}, {b} und {c}",
 		"{customer} — {equipment}, {type}": "{customer} — {equipment}, {type}",
 		"{from}–{to} of {total}": "{from}–{to} von {total}",
 		"{label} (required)": "{label} (erforderlich)",
 		"{name} (deactivated)": "{name} (deaktiviert)",
-		"{n} minutes per day": "{n} Minuten pro Tag",
-		"{n} results": "{n} Ergebnisse",
-		"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently.": "„{name}“ hat noch {equipment} Anlagen, {plans} Pläne und {visits} Einsätze. Das Löschen des Kunden entfernt alles endgültig."
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "„{name}“ hat noch {children}. Das Löschen des Kunden entfernt alles endgültig."
 	}
 }

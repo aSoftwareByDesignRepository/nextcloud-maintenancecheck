@@ -21,6 +21,7 @@ use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
 use OCP\L10N\IFactory;
+use Psr\Log\LoggerInterface;
 
 /**
  * L2 entry gate (SPEC §3 P1) + the single place that turns domain exceptions
@@ -41,6 +42,7 @@ class AppAccessMiddleware extends Middleware
 		private readonly IRequest $request,
 		private readonly IURLGenerator $urlGenerator,
 		private readonly IFactory $l10nFactory,
+		private readonly LoggerInterface $logger,
 	) {
 	}
 
@@ -110,6 +112,22 @@ class AppAccessMiddleware extends Middleware
 				$exception->getErrorCode(),
 				$this->gateMessage($exception->getErrorCode(), $l),
 				self::HTTP_PAYMENT_REQUIRED,
+			);
+		}
+
+		// Unexpected throwables on JSON routes collapse into the §7.1
+		// envelope — a core HTML 500 page would break every API and mobile
+		// client. Page routes keep core handling so the operator still gets
+		// the full error page.
+		if ($this->isJsonRoute()) {
+			$this->logger->error('Unhandled exception on JSON route', [
+				'app' => Application::APP_ID,
+				'exception' => $exception,
+			]);
+			return $this->envelope(
+				'internal_error',
+				$l->t('Something went wrong. Please try again.'),
+				Http::STATUS_INTERNAL_SERVER_ERROR,
 			);
 		}
 

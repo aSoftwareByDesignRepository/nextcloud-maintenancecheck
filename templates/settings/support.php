@@ -11,8 +11,10 @@ declare(strict_types=1);
  */
 
 $licenseUrl = (string)(($_['settingsSectionUrls']['license'] ?? null)
-	?: (($navUrls['settingsSections']['license'] ?? null)
-	?: ((string)($navUrls['settings'] ?? '/apps/maintenancecheck/settings') . '/license')));
+	?: ($navUrls['settingsSections']['license'] ?? null)
+	?: (((string)($navUrls['settings'] ?? '')) !== ''
+		? $navUrls['settings'] . '/license'
+		: \OCP\Server::get(\OCP\IURLGenerator::class)->linkToRoute('maintenancecheck.page.settingsSection', ['section' => 'license'])));
 
 $supportUsLinks = new \OCA\MaintenanceCheck\Support\SupportUsLinks(
 	'MaintenanceCheck',

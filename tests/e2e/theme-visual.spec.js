@@ -1,13 +1,18 @@
 // @ts-check
 import { test, expect } from '@playwright/test'
 import { login, primaryCreds } from './helpers/auth.js'
-import { setUserTheme, resetUserTheme, acquireThemeLock, releaseThemeLock } from './helpers/theming.js'
+import { setUserTheme, resetUserTheme, acquireThemeLock, releaseThemeLock, getUserLang, setUserLang, deleteUserLang } from './helpers/theming.js'
 
 // See theme-a11y-matrix.spec.js: NC themes are shared per-user server state;
 // hold the cross-worker mutex so no parallel spec can flip the theme between
 // setUserTheme() and the pixel assertions.
 // File-level timeout covers the lock wait in beforeAll (a peer spec may hold
 // the mutex for several minutes); describes keep their own test timeouts.
+// Baselines were captured with the fixture user's UI in German — fixture
+// normalization re-pins core/lang to the farm default, so pin 'de' here and
+// restore the previous value afterwards.
+let prevUserLang = null
+const SNAP_LANG = 'de'
 test.setTimeout(30 * 60_000)
 test.beforeAll(async ({}, testInfo) => {
 	// Hooks run on the 60s config timeout, NOT test.setTimeout — extend the
@@ -15,11 +20,29 @@ test.beforeAll(async ({}, testInfo) => {
 	testInfo.setTimeout(30 * 60_000)
 	if (testInfo.project.name === 'chromium-1280') {
 		await acquireThemeLock()
+		const creds = primaryCreds()
+		if (creds) {
+			prevUserLang = getUserLang(creds.username)
+			if (prevUserLang !== SNAP_LANG) {
+				setUserLang(creds.username, SNAP_LANG)
+			}
+		}
 	}
 })
 test.afterAll(async ({}, testInfo) => {
 	if (testInfo.project.name === 'chromium-1280') {
-		releaseThemeLock()
+		try {
+			const creds = primaryCreds()
+			if (creds && prevUserLang !== null && prevUserLang !== SNAP_LANG) {
+				if (prevUserLang === '') {
+					deleteUserLang(creds.username)
+				} else {
+					setUserLang(creds.username, prevUserLang)
+				}
+			}
+		} finally {
+			releaseThemeLock()
+		}
 	}
 })
 

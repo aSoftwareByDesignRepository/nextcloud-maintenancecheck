@@ -726,6 +726,17 @@ textarea.mn-input {
 	font-weight: 700;
 	text-decoration: none;
 }
+
+/* WCAG 2.5.8 (24px AA target): bare text links in dense table cells, row
+   titles and the breadcrumb rendered ~20px tall. inline-flex + min-height
+   grows the hit box without changing row height (customercheck parity). */
+.mn-table a.mn-table-link,
+.mn-row__title a,
+.mn-breadcrumb__link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 24px;
+}
 .mn-table a.mn-table-link:hover {
 	text-decoration: underline;
 }
@@ -2582,6 +2593,11 @@ body > .mn-dialog-overlay > .mn-dialog {
 	outline-offset: 4px;
 	border-radius: var(--mn-radius-sm, 6px);
 	background: var(--mn-tint-warning);
+}
+.mn-checklist-blockers {
+	margin: 0;
+	padding-left: var(--mn-space-5, 20px);
+	list-style: disc;
 }
 .mn-toast__action {
 	margin-top: var(--mn-space-2, 8px);

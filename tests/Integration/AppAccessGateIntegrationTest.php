@@ -222,6 +222,7 @@ final class AppAccessGateIntegrationTest extends IntegrationTestCase
 			$request,
 			\OC::$server->get(\OCP\IURLGenerator::class),
 			\OC::$server->get(\OCP\L10N\IFactory::class),
+			\OC::$server->get(\Psr\Log\LoggerInterface::class),
 		);
 	}
 }

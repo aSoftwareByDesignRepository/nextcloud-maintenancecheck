@@ -5,6 +5,7 @@
  */
 import { test, expect } from '@playwright/test'
 import { login, primaryCreds } from './helpers/auth.js'
+import { acquireStateLock, releaseStateLock } from './helpers/theming.js'
 
 async function api(page, method, path, body) {
 	return page.evaluate(
@@ -220,6 +221,70 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 		})
 		expectOk(plan, 'plan')
 
+		// dlg-schedule-visit needs a plan WITHOUT an open visit. PlanService
+		// always creates one scheduled visit with the plan, so cancel it —
+		// only then does the row's "Schedule visit" button render.
+		const sparePlan = await api(page, 'POST', `/index.php/apps/maintenancecheck/api/equipment/${equipmentId}/plans`, {
+			maintTypeId: preventive.id,
+			intervalUnit: 'month',
+			intervalCount: 1,
+			firstDueOn: serverToday,
+		})
+		expectOk(sparePlan, 'spare plan')
+		const spareOpenVisit = sparePlan.data.openVisit && sparePlan.data.openVisit.id
+		expectOk(await api(page, 'POST', `/index.php/apps/maintenancecheck/api/visits/${spareOpenVisit}/cancel`), 'spare visit cancel')
+
+		// dlg-procedure-choice + dlg-force-close need a procedure with a
+		// required item (items default required:true on the server).
+		const proc = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/procedures', {
+			code: `dlg_${Date.now().toString(36)}`,
+			title: `DlgInv proc ${marker}`,
+			items: [{ code: 's1', label: 'Check torque' }],
+		})
+		expectOk(proc, 'procedure')
+		const procedureId = proc.data.id
+		const kitTpl = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/kit-templates', {
+			code: `kt_${Date.now().toString(36)}`,
+			name: `DlgInv kit ${marker}`,
+			lines: [{ lineType: 'part', label: 'Seal kit', qtyRequired: 2 }],
+		})
+		expectOk(kitTpl, 'kit template')
+		const kitTemplateId = kitTpl.data.id
+		const mkWo = async (title) => {
+			const res = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/work-orders', {
+				kind: 'corrective', customerId, title, equipmentId,
+			})
+			expectOk(res, 'work-order ' + title)
+			return res.data.id || (res.data.workOrder || {}).id
+		}
+		// dlg-kit-override: kit attached but unpacked, in planned status.
+		const woKit = await mkWo(`DlgInv kit WO ${marker}`)
+		expectOk(await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${woKit}/kit`, { templateId: kitTemplateId }), 'kit attach')
+		expectOk(await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${woKit}/transition`, {
+			to: 'planned', procedureSkipped: true, procedureSkipReason: 'dlg inventory fixture',
+		}), 'wo kit → planned')
+		// dlg-force-close: required checklist item open, in_progress.
+		const woFc = await mkWo(`DlgInv fc WO ${marker}`)
+		expectOk(await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${woFc}/transition`, {
+			to: 'planned', procedureId,
+		}), 'wo fc → planned')
+		expectOk(await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${woFc}/transition`, {
+			to: 'in_progress',
+		}), 'wo fc → in_progress')
+		// dlg-procedure-choice opens on the draft → "Mark planned" action.
+		const woProc = await mkWo(`DlgInv proc WO ${marker}`)
+		// dlg-add-stop needs a tour on today's board.
+		const uid = await page.evaluate(() => (window.OC && window.OC.getCurrentUser) ? window.OC.getCurrentUser().uid : '')
+		let tourId = null
+		const tourRes = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/tours', { tourDate: serverToday, techUid: uid })
+		tourId = tourRes.data && tourRes.data.id
+		if (!tourId) {
+			const list = await api(page, 'GET', `/index.php/apps/maintenancecheck/api/tours?date=${serverToday}`)
+			const rows = (list.data && list.data.data) || []
+			const mine = rows.find((t) => t.techUid === uid) || rows[0]
+			tourId = mine && mine.id
+		}
+
 		try {
 			// ── Due board visit overflow dialogs ──────────────────────────
 			await page.goto('/apps/maintenancecheck/')
@@ -264,16 +329,8 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			await openEscThenConfirm(page, 'dlg-customer-form-edit', async () => {
 				await page.locator('[data-mn-action="edit-customer"]').first().click()
 			})
-			await openEscThenConfirm(page, 'dlg-force-delete', async () => {
-				await page.locator('[data-mn-action="delete-customer"]').first().click()
-			}, {
-				fill: async (dlg) => {
-					const gate = dlg.locator('input[type="checkbox"]').first()
-					if (await gate.isVisible().catch(() => false)) {
-						await gate.check({ force: true })
-					}
-				},
-			})
+			// dlg-site-form MUST run before dlg-force-delete: the stubbed
+			// delete success navigates away from the customer detail page.
 			const newSite = page.locator('[data-mn-action="new-site"]').first()
 			if (await newSite.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-site-form', async () => {
@@ -289,6 +346,16 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			} else {
 				console.log('EVIDENCE dlg-site-form SKIP no New site button (office/layout)')
 			}
+			await openEscThenConfirm(page, 'dlg-force-delete', async () => {
+				await page.locator('[data-mn-action="delete-customer"]').first().click()
+			}, {
+				fill: async (dlg) => {
+					const gate = dlg.locator('input[type="checkbox"]').first()
+					if (await gate.isVisible().catch(() => false)) {
+						await gate.check({ force: true })
+					}
+				},
+			})
 
 			// ── Equipment detail ─────────────────────────────────────────
 			await page.goto(`/apps/maintenancecheck/equipment/${equipmentId}`)
@@ -461,6 +528,8 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			} else {
 				console.log('EVIDENCE dlg-kit SKIP')
 			}
+			// grant-skills lives on the skills tab (app.js:5555), not kits.
+			await page.locator('[data-mn-catalog="skills"]').click().catch(() => {})
 			const grantSkills = page.locator('[data-mn-action="grant-skills"]').first()
 			if (await grantSkills.isVisible().catch(() => false)) {
 				await openEscThenConfirm(page, 'dlg-grant-skills', async () => {
@@ -470,20 +539,123 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 				console.log('EVIDENCE dlg-grant-skills SKIP soft — openGrantSkillsDialog in js/app.js')
 			}
 
-			// ── License remove (optional) ─────────────────────────────────
-			await page.goto('/apps/maintenancecheck/settings/license')
+			// ── Tours board ──────────────────────────────────────────────
+			await page.goto('/apps/maintenancecheck/tours')
 			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
-			const removeKey = page.locator('[data-mn-action="remove-license"]').first()
-			if (await removeKey.isVisible().catch(() => false)) {
-				await openEscThenConfirm(page, 'dlg-remove-license', async () => {
-					await removeKey.click()
-				})
+			await openEscThenConfirm(page, 'dlg-create-tour', async () => {
+				await page.locator('[data-mn-action="create-tour"]').first().click()
+			}, {
+				fill: async (dlg) => {
+					const search = dlg.locator('.mn-user-picker__input, input[type="search"]').first()
+					if (await search.isVisible().catch(() => false)) {
+						await search.fill(uid)
+						await page.waitForTimeout(800)
+						const opt = dlg.locator('.mn-user-picker__option').first()
+						if (await opt.isVisible().catch(() => false)) {
+							await opt.click()
+						}
+					}
+				},
+			})
+			if (tourId) {
+				const addStop = page.locator('[data-mn-action="add-stop"]').first()
+				if (await addStop.isVisible().catch(() => false)) {
+					await openEscThenConfirm(page, 'dlg-add-stop', async () => {
+						await addStop.click()
+					}, {
+						fill: async (dlg) => {
+							const sel = dlg.locator('select').first()
+							if (await sel.isVisible().catch(() => false) && (await sel.locator('option').count()) > 1) {
+								await sel.selectOption({ index: 1 })
+							}
+						},
+					})
+				} else {
+					console.log('EVIDENCE dlg-add-stop SKIP no tour row on today board')
+				}
 			} else {
-				console.log('EVIDENCE dlg-remove-license SKIP soft — remove license openDialog in js/app.js')
+				console.log('EVIDENCE dlg-add-stop SKIP no tour for admin today')
+			}
+
+			// ── WO detail dialogs ────────────────────────────────────────
+			// Kit override: "Mark ready" fails server-side kit_incomplete → dialog.
+			await page.goto(`/apps/maintenancecheck/work-orders/${woKit}`)
+			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
+			await openEscThenConfirm(page, 'dlg-kit-override', async () => {
+				await clickMoreItem(page, page.locator('.mn-wo-actions'), 'transition-ready')
+			}, {
+				fill: async (dlg) => {
+					const reason = dlg.locator('textarea').first()
+					if (await reason.isVisible().catch(() => false)) {
+						await reason.fill('kit override probe reason — dlg inventory')
+					}
+				},
+			})
+			// Force-close: "Complete" on a WO with open required checklist → dialog.
+			await page.goto(`/apps/maintenancecheck/work-orders/${woFc}`)
+			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
+			await openEscThenConfirm(page, 'dlg-force-close', async () => {
+				await page.locator('[data-mn-transition="done"]').first().click()
+			}, {
+				fill: async (dlg) => {
+					const reason = dlg.locator('textarea').first()
+					if (await reason.isVisible().catch(() => false)) {
+						await reason.fill('force-close probe reason — dlg inventory 20+')
+					}
+				},
+			})
+			// Procedure choice: draft WO "Mark planned" opens the picker.
+			await page.goto(`/apps/maintenancecheck/work-orders/${woProc}`)
+			await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
+			await openEscThenConfirm(page, 'dlg-procedure-choice', async () => {
+				await page.locator('[data-mn-transition="planned"]').first().click()
+			}, {
+				fill: async (dlg) => {
+					const sel = dlg.locator('select').first()
+					if (await sel.isVisible().catch(() => false) && (await sel.locator('option').count()) > 1) {
+						await sel.selectOption({ index: 1 })
+					}
+				},
+			})
+
+			// ── License remove ──────────────────────────────────────────
+			// remove-license renders only when a license is stored — seed the
+			// expired CLI fixture (same helper UJ-6 uses), clear right after.
+			// Instance-wide license state — same lock UJ-6 holds while seeding.
+			await acquireStateLock('instance-config')
+			let licenseSeeded = false
+			try {
+				const { seedLicenseViaCli } = await import('./helpers/seedLicense.js')
+				licenseSeeded = /^SEEDED:/.test(seedLicenseViaCli('expired'))
+			} catch (e) {
+				console.log('EVIDENCE dlg-remove-license SKIP seed-license failed: ' + String(e && e.message || e).slice(0, 120))
+			}
+			try {
+				await page.goto('/apps/maintenancecheck/settings/license')
+				await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
+				const removeKey = page.locator('[data-mn-action="remove-license"]').first()
+				if (await removeKey.isVisible().catch(() => false)) {
+					await openEscThenConfirm(page, 'dlg-remove-license', async () => {
+						await removeKey.click()
+					})
+				} else {
+					console.log('EVIDENCE dlg-remove-license SKIP soft — remove license openDialog in js/app.js')
+				}
+			} finally {
+				if (licenseSeeded) {
+					try {
+						const { seedLicenseViaCli } = await import('./helpers/seedLicense.js')
+						seedLicenseViaCli('clear')
+					} catch { /* best-effort restore */ }
+				}
+				releaseStateLock('instance-config')
 			}
 
 			console.log('EVIDENCE openDialog-inventory COMPLETE marker=' + marker)
 		} finally {
+			await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/tours/${tourId}`).catch(() => {})
+			await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/kit-templates/${kitTemplateId}`).catch(() => {})
+			await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/procedures/${procedureId}`).catch(() => {})
 			await api(page, 'DELETE', `/index.php/apps/maintenancecheck/api/customers/${customerId}?force=1`).catch(() => {})
 		}
 	})

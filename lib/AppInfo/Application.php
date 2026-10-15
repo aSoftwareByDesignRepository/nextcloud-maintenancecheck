@@ -113,6 +113,7 @@ use OCA\MaintenanceCheck\Service\EquipDocService;
 use OCA\MaintenanceCheck\Service\EquipDocStorage;
 use OCA\MaintenanceCheck\Command\SeedReferenceDatasetCommand;
 use OCA\MaintenanceCheck\Command\UpgradeBackupCommand;
+use OCA\MaintenanceCheck\Support\NavGate;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -774,6 +775,7 @@ class Application extends App implements IBootstrap
 				$c->get(IRequest::class),
 				$c->get(IURLGenerator::class),
 				$c->get(IFactory::class),
+				$c->get(LoggerInterface::class),
 			);
 		});
 		$context->registerMiddleware(AppAccessMiddleware::class);
@@ -781,5 +783,16 @@ class Application extends App implements IBootstrap
 
 	public function boot(IBootContext $context): void
 	{
+		$app = $context->getAppContainer();
+		// Menu entry only for users with app access — a static <navigation>
+		// entry would advertise the app to users the door denies.
+		NavGate::register(
+			$app,
+			'maintenancecheck.page.due',
+			'app.svg',
+			'MaintenanceCheck',
+			19,
+			static fn(string $uid): bool => $app->get(AccessControlService::class)->canUseApp($uid),
+		);
 	}
 }

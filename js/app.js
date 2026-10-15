@@ -29,6 +29,15 @@
 		return out;
 	}
 
+	function tn(singular, plural, count) {
+		var n = typeof count === 'number' ? count : parseInt(String(count), 10) || 0;
+		if (typeof window !== 'undefined' && typeof window.n === 'function') {
+			return window.n(APP, singular, plural, n);
+		}
+		// Node test environment: English-style two-form fallback.
+		return String(n === 1 ? singular : plural).replace(/%n/g, String(n));
+	}
+
 	// ── Pure date/interval helpers (mirror of IntervalCalculator, S2) ──
 
 	function isValidYmd(value) {
@@ -675,7 +684,7 @@
 			announce(emptyMessage || tr('No results.'));
 			return;
 		}
-		announce(tr('{n} results', { n: n }));
+		announce(tn('%n result', '%n results', n));
 	}
 
 	function toast(message, type, action) {
@@ -2474,10 +2483,15 @@
 
 	function customerDeleteDialog(customer, counts, onDone) {
 		var hasChildren = counts.equipment > 0;
+		var childrenSummary = tr('{a}, {b} and {c}', {
+			a: tn('%n equipment item', '%n equipment items', counts.equipment),
+			b: tn('%n plan', '%n plans', counts.plans),
+			c: tn('%n visit', '%n visits', counts.visits),
+		});
 		var confirmBox = el('input', { type: 'checkbox' });
 		var confirmLabel = el('label', { class: 'mn-checkbox' }, [
 			confirmBox,
-			el('span', { text: tr('Yes, permanently delete this customer including {equipment} equipment, {plans} plans and {visits} visits.', counts) }),
+			el('span', { text: tr('Yes, permanently delete this customer including {children}.', { children: childrenSummary }) }),
 		]);
 		var content = hasChildren ? el('div', {}, [confirmLabel]) : null;
 
@@ -2496,8 +2510,8 @@
 		var dialogCtx = openDialog({
 			title: tr('Delete customer'),
 			text: hasChildren
-				? tr('“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently.', {
-					name: customer.name, equipment: counts.equipment, plans: counts.plans, visits: counts.visits,
+				? tr('“{name}” still has {children}. Deleting the customer removes all of it permanently.', {
+					name: customer.name, children: childrenSummary,
 				})
 				: tr('Delete “{name}” permanently? This cannot be undone.', { name: customer.name }),
 			content: content,
@@ -2748,21 +2762,51 @@
 				]);
 				if (ctx.isOffice) {
 					var linkActions = el('div', { class: 'mn-detail__actions', style: 'margin-top:0.75rem;gap:0.5rem;flex-wrap:wrap;display:flex;' });
+					function linkIdentityDialog(fieldKey, titleText) {
+						var idInput = el('input', { type: 'number', min: '1', step: '1', inputmode: 'numeric', value: '' });
+						var idField = field(titleText, idInput, { required: true });
+						openDialog({
+							title: titleText,
+							content: el('div', { class: 'mn-form-grid' }, [idField]),
+							initialFocus: 'input',
+							actions: [
+								{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+								{
+									label: tr('Save'),
+									variant: 'mn-btn--primary',
+									onClick: function (d) {
+										var id = parseInt(idInput.value, 10);
+										if (!id || id < 1) {
+											idField.mnSetError(tr('Enter a valid numeric ID.'));
+											idInput.focus();
+											return;
+										}
+										var body = { updatedAt: current.updatedAt };
+										body[fieldKey] = id;
+										d.setBusy(true);
+										d.setError(null);
+										api('POST', '/api/customers/' + current.id + '/ensure-link', body)
+											.then(function () {
+												d.close();
+												toast(tr('Link saved.'), 'success');
+												load();
+											})
+											.catch(function (err) {
+												d.setBusy(false);
+												d.setError((err && err.message) || tr('Could not save link'));
+											});
+									},
+								},
+							],
+						});
+					}
 					linkActions.appendChild(el('button', {
 						type: 'button',
 						class: 'mn-btn mn-btn--secondary',
 						style: 'min-height:44px;min-width:44px;',
 						text: tr('Link ProjectCheck id'),
 						onClick: function () {
-							var raw = window.prompt(tr('ProjectCheck customer id'));
-							var id = parseInt(raw || '', 10);
-							if (!id) return;
-							api('POST', '/api/customers/' + current.id + '/ensure-link', {
-								pcCustomerId: id,
-								updatedAt: current.updatedAt,
-							}).then(function () { load(); }).catch(function (err) {
-								window.alert((err && err.message) || tr('Could not save link'));
-							});
+							linkIdentityDialog('pcCustomerId', tr('ProjectCheck customer id'));
 						},
 					}));
 					linkActions.appendChild(el('button', {
@@ -2771,15 +2815,7 @@
 						style: 'min-height:44px;min-width:44px;',
 						text: tr('Link CRM company id'),
 						onClick: function () {
-							var raw = window.prompt(tr('CRM company id'));
-							var id = parseInt(raw || '', 10);
-							if (!id) return;
-							api('POST', '/api/customers/' + current.id + '/ensure-link', {
-								crmCompanyId: id,
-								updatedAt: current.updatedAt,
-							}).then(function () { load(); }).catch(function (err) {
-								window.alert((err && err.message) || tr('Could not save link'));
-							});
+							linkIdentityDialog('crmCompanyId', tr('CRM company id'));
 						},
 					}));
 					if (pcLinked || crmLinked) {
@@ -2789,11 +2825,30 @@
 							style: 'min-height:44px;min-width:44px;',
 							text: tr('Unlink identity'),
 							onClick: function () {
-								if (!window.confirm(tr('Clear soft links? Field work stays on this customer.'))) return;
-								api('POST', '/api/customers/' + current.id + '/unlink-identity', {
-									updatedAt: current.updatedAt,
-								}).then(function () { load(); }).catch(function (err) {
-									window.alert((err && err.message) || tr('Could not unlink'));
+								openDialog({
+									title: tr('Unlink identity'),
+									text: tr('Clear soft links? Field work stays on this customer.'),
+									actions: [
+										{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+										{
+											label: tr('Unlink identity'),
+											variant: 'mn-btn--danger',
+											onClick: function (d) {
+												d.setBusy(true);
+												d.setError(null);
+												api('POST', '/api/customers/' + current.id + '/unlink-identity', {
+													updatedAt: current.updatedAt,
+												}).then(function () {
+													d.close();
+													toast(tr('Links cleared.'), 'success');
+													load();
+												}).catch(function (err) {
+													d.setBusy(false);
+													d.setError((err && err.message) || tr('Could not unlink'));
+												});
+											},
+										},
+									],
 								});
 							},
 						}));
@@ -6205,7 +6260,7 @@
 						id: 'uid',
 						label: tr('User'),
 						render: function (row) {
-							return tableStack(row.uid, tr('{n} minutes per day', { n: row.dailyMinutes }));
+							return tableStack(row.uid, tn('%n minute per day', '%n minutes per day', row.dailyMinutes));
 						},
 					},
 				], rows, { caption: tr('Daily capacity') }));

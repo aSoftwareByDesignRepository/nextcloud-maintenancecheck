@@ -92,6 +92,32 @@ export function resetAccentColor() {
 	occ(['theming:config', 'primary_color', '--reset'])
 }
 
+/**
+ * Read a fixture user's UI language (core/lang; '' = instance default).
+ * @param {string} username
+ */
+export function getUserLang(username) {
+	return occ(['user:setting', username, 'core', 'lang']).trim()
+}
+
+/** @param {string} username */
+export function deleteUserLang(username) {
+	try {
+		occ(['user:setting', username, 'core', 'lang', '--delete'])
+	} catch { /* key already absent */ }
+}
+
+/**
+ * Set a fixture user's UI language. Visual baselines are captured in one
+ * canonical locale — fixture normalization can silently re-pin core/lang to
+ * the farm default, so snapshot specs must pin + restore, not assume.
+ * @param {string} username
+ * @param {string} lang e.g. 'de'
+ */
+export function setUserLang(username, lang) {
+	occ(['user:setting', username, 'core', 'lang', lang])
+}
+
 // ── Cross-worker shared-state mutex ──────────────────────────────────────
 // User themes are per-user server state, the accent colour and the app
 // policies/office lists are instance-wide. Every spec that flips them must

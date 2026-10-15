@@ -41,7 +41,7 @@ class ProjectCheckHoursDeepLinkServiceTest extends TestCase
 		$this->apps->method('isEnabledForUser')->willReturn(true);
 		$this->urls->expects($this->once())
 			->method('linkToRouteAbsolute')
-			->with('projectcheck.timeentry.create')
+			->with('projectcheck.time_entry.create')
 			->willReturn('https://nc.example/apps/projectcheck/time-entries/create');
 
 		$svc = new ProjectCheckHoursDeepLinkService($this->apps, $this->urls);

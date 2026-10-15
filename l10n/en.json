@@ -57,6 +57,34 @@
 		"4. Track the work": "4. Track the work",
 		"5. Hand over the site": "5. Hand over the site",
 		"90 days": "90 days",
+		"_%n equipment item_::_%n equipment items_": [
+			"%n equipment item",
+			"%n equipment items"
+		],
+		"_%n exception_::_%n exceptions_": [
+			"%n exception",
+			"%n exceptions"
+		],
+		"_%n minute per day_::_%n minutes per day_": [
+			"%n minute per day",
+			"%n minutes per day"
+		],
+		"_%n plan_::_%n plans_": [
+			"%n plan",
+			"%n plans"
+		],
+		"_%n result_::_%n results_": [
+			"%n result",
+			"%n results"
+		],
+		"_%n stop_::_%n stops_": [
+			"%n stop",
+			"%n stops"
+		],
+		"_%n visit_::_%n visits_": [
+			"%n visit",
+			"%n visits"
+		],
 		"A line label is required.": "A line label is required.",
 		"A maintenance visit was due on %s.": "A maintenance visit was due on %s.",
 		"A meter-triggered plan needs a threshold.": "A meter-triggered plan needs a threshold.",
@@ -190,6 +218,7 @@
 		"Check Partner": "Check Partner",
 		"Checklist": "Checklist",
 		"Checklist and capacity rules": "Checklist and capacity rules",
+		"Checklist blocks completion: {items}": "Checklist blocks completion: {items}",
 		"Checklist is advisory only": "Checklist is advisory only",
 		"Checklist is locked for this status.": "Checklist is locked for this status.",
 		"Checklist items": "Checklist items",
@@ -368,6 +397,7 @@
 		"Emergency": "Emergency",
 		"Enter a threshold for this meter plan.": "Enter a threshold for this meter plan.",
 		"Enter a valid date to see the next due date.": "Enter a valid date to see the next due date.",
+		"Enter a valid numeric ID.": "Enter a valid numeric ID.",
 		"Enter a valid work order ID.": "Enter a valid work order ID.",
 		"Equipment": "Equipment",
 		"Equipment at this customer": "Equipment at this customer",
@@ -540,9 +570,11 @@
 		"Lines": "Lines",
 		"Link CRM company id": "Link CRM company id",
 		"Link ProjectCheck id": "Link ProjectCheck id",
+		"Link saved.": "Link saved.",
 		"Link to a manual or contract (https://…)": "Link to a manual or contract (https://…)",
 		"Linked to CRM hub": "Linked to CRM hub",
 		"Linked to ProjectCheck": "Linked to ProjectCheck",
+		"Links cleared.": "Links cleared.",
 		"List prices on our site apply to published Check apps. For this app, ask for an individual partner offer — we invoice only after you accept a quote.": "List prices on our site apply to published Check apps. For this app, ask for an individual partner offer — we invoice only after you accept a quote.",
 		"Load skills": "Load skills",
 		"Loading…": "Loading…",
@@ -1265,7 +1297,7 @@
 		"Work policies saved.": "Work policies saved.",
 		"Work type": "Work type",
 		"Years": "Years",
-		"Yes, permanently delete this customer including {equipment} equipment, {plans} plans and {visits} visits.": "Yes, permanently delete this customer including {equipment} equipment, {plans} plans and {visits} visits.",
+		"Yes, permanently delete this customer including {children}.": "Yes, permanently delete this customer including {children}.",
 		"You are not allowed to use MaintenanceCheck right now.": "You are not allowed to use MaintenanceCheck right now.",
 		"You are not allowed to use MaintenanceCheck.": "You are not allowed to use MaintenanceCheck.",
 		"You do not have a mobile seat assigned.": "You do not have a mobile seat assigned.",
@@ -1273,14 +1305,11 @@
 		"Your mobile seat is above the licensed limit.": "Your mobile seat is above the licensed limit.",
 		"Your organisation restricts MaintenanceCheck access. You are not on the allow-list.": "Your organisation restricts MaintenanceCheck access. You are not on the allow-list.",
 		"Your stops today": "Your stops today",
-		"{count} exceptions": "{count} exceptions",
-		"{count} stops": "{count} stops",
+		"{a}, {b} and {c}": "{a}, {b} and {c}",
 		"{customer} — {equipment}, {type}": "{customer} — {equipment}, {type}",
 		"{from}–{to} of {total}": "{from}–{to} of {total}",
 		"{label} (required)": "{label} (required)",
 		"{name} (deactivated)": "{name} (deactivated)",
-		"{n} minutes per day": "{n} minutes per day",
-		"{n} results": "{n} results",
-		"“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently.": "“{name}” still has {equipment} equipment, {plans} plans and {visits} visits. Deleting the customer removes all of it permanently."
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}” still has {children}. Deleting the customer removes all of it permanently."
 	}
 }

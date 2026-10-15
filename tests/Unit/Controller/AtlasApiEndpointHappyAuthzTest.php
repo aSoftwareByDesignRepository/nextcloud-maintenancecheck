@@ -47,6 +47,7 @@ use OCP\IGroupManager;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
@@ -341,7 +342,7 @@ final class AtlasApiEndpointHappyAuthzTest extends TestCase
 		$factory = $this->createMock(IFactory::class);
 		$factory->method('get')->willReturn($l10n);
 
-		$mw = new AppAccessMiddleware($session, $access, $request, $url, $factory);
+		$mw = new AppAccessMiddleware($session, $access, $request, $url, $factory, $this->createMock(LoggerInterface::class));
 		$ctrl = $this->buildController($class, allow: true, mode: 'happy');
 		$mw->beforeController($ctrl, $action);
 	}

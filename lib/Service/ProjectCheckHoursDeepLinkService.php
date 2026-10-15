@@ -37,7 +37,7 @@ class ProjectCheckHoursDeepLinkService
 			return null;
 		}
 
-		$base = $this->urlGenerator->linkToRouteAbsolute('projectcheck.timeentry.create');
+		$base = $this->urlGenerator->linkToRouteAbsolute('projectcheck.time_entry.create');
 		$note = 'MaintenanceCheck WO ' . $number;
 		$sep = str_contains($base, '?') ? '&' : '?';
 

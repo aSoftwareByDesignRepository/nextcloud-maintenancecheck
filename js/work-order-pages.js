@@ -19,6 +19,14 @@
 		return out;
 	}
 
+	function tn(singular, plural, count) {
+		var n = typeof count === 'number' ? count : parseInt(String(count), 10) || 0;
+		if (typeof window !== 'undefined' && typeof window.n === 'function') {
+			return window.n(APP, singular, plural, n);
+		}
+		return String(n === 1 ? singular : plural).replace(/%n/g, String(n));
+	}
+
 	var WO_ALLOWED = {
 		draft: ['planned', 'cancelled'],
 		planned: ['ready', 'in_progress', 'blocked', 'cancelled'],
@@ -145,9 +153,30 @@
 				return String(value || '').trim().length >= min;
 			}
 
+			/** Items blocking `done` — failed results first (they always block), then open required. */
+			function blockingChecklistItems(error) {
+				var d = (error && error.details) || {};
+				return (d.failedItems || []).concat(d.incompleteItems || []);
+			}
+
+			/** Human-readable blocking summary for toast/dialog — names the items, not just a count. */
+			function checklistBlockingMessage(error) {
+				var items = blockingChecklistItems(error);
+				if (!items.length) {
+					return '';
+				}
+				var labels = items.slice(0, 5).map(function (it) {
+					return String(it.label || it.code || '');
+				}).filter(Boolean);
+				var more = items.length - labels.length;
+				return tr('Checklist blocks completion: {items}', {
+					items: labels.join(', ') + (more > 0 ? ' (+' + more + ')' : ''),
+				});
+			}
+
 			/** Bachus: scroll/focus the first open required checklist item so techs are not stuck. */
 			function focusFirstIncompleteChecklist(error) {
-				var items = (error && error.details && error.details.incompleteItems) || [];
+				var items = blockingChecklistItems(error);
 				var code = items[0] && items[0].code ? String(items[0].code) : '';
 				var li = null;
 				if (code) {
@@ -172,6 +201,23 @@
 				}
 				document.querySelectorAll('.mn-checklist__item--attention').forEach(function (node) {
 					node.classList.remove('mn-checklist__item--attention');
+				});
+				// Highlight every blocking item — failed and open required —
+				// so the list shows the full blocker set, not just the first.
+				items.forEach(function (it) {
+					var c = it && it.code ? String(it.code) : '';
+					if (!c) {
+						return;
+					}
+					var node;
+					try {
+						node = document.querySelector('.mn-checklist__item[data-item-code="' + CSS.escape(c) + '"]');
+					} catch (e) {
+						node = document.querySelector('.mn-checklist__item[data-item-code="' + c.replace(/"/g, '') + '"]');
+					}
+					if (node) {
+						node.classList.add('mn-checklist__item--attention');
+					}
 				});
 				li.classList.add('mn-checklist__item--attention');
 				if (!li.hasAttribute('tabindex')) {
@@ -464,7 +510,7 @@
 						},
 					], envelope.data, { caption: tr('Work orders') }));
 					renderPagination(pagination, envelope, onPage);
-					announce(tr('{n} results', { n: envelope.total }));
+					announce(tn('%n result', '%n results', envelope.total));
 				}
 
 				function onPage(offset) {
@@ -729,16 +775,23 @@
 						});
 					}
 
-					function openForceCloseDialog() {
+					function openForceCloseDialog(error) {
 						var reasonInput = el('textarea', {
 							class: 'mn-input form-textarea',
 							rows: '3',
 							'aria-required': 'true',
 						});
+						var blocking = blockingChecklistItems(error);
+						var blockingList = blocking.length
+							? el('ul', { class: 'mn-checklist-blockers' }, blocking.map(function (it) {
+								return el('li', { text: String(it.label || it.code || '') });
+							}))
+							: null;
 						openDialog({
 							title: tr('Force-close work order'),
 							content: el('div', { class: 'mn-form-grid' }, [
 								el('p', { text: tr('Required checklist items are still open. Finish them or confirm the exception.') }),
+								blockingList,
 								field(tr('Force-close reason'), reasonInput, {
 									required: true,
 									hint: tr('At least 20 characters.'),
@@ -832,9 +885,9 @@
 								if (error.code === 'checklist_incomplete') {
 									focusFirstIncompleteChecklist(error);
 									if (ctx.isOffice) {
-										openForceCloseDialog();
+										openForceCloseDialog(error);
 									} else {
-										toast(error.message || tr('Required checklist items are still open. Finish them or ask the office.'), 'error');
+										toast(checklistBlockingMessage(error) || error.message || tr('Required checklist items are still open. Finish them or ask the office.'), 'error');
 									}
 									return;
 								}
@@ -1129,9 +1182,9 @@
 												d.close();
 												focusFirstIncompleteChecklist(error);
 												if (ctx.isOffice) {
-													openForceCloseDialog();
+													openForceCloseDialog(error);
 												} else {
-													toast(error.message || tr('Required checklist items are still open. Finish them or ask the office.'), 'error');
+													toast(checklistBlockingMessage(error) || error.message || tr('Required checklist items are still open. Finish them or ask the office.'), 'error');
 												}
 												return;
 											}
@@ -1448,6 +1501,15 @@
 						}, [
 							el('strong', { text: tr('Warranty ended') + ': ' }),
 							el('span', { text: tr('This equipment’s warranty ended on {date}.', { date: fmt(wo.warrantyEnd) }) }),
+						]));
+					}
+					if (wo.forceCloseReason) {
+						heroKids.push(el('div', {
+							class: 'mn-callout mn-callout--info',
+							role: 'status',
+						}, [
+							el('strong', { text: tr('Force-close reason') + ': ' }),
+							el('span', { text: wo.forceCloseReason }),
 						]));
 					}
 					if (wo.requesterName || wo.symptom || wo.accessNotes || wo.preferredWindow) {
@@ -2732,7 +2794,7 @@
 						el('span', { class: 'mn-tour__name', text: techLabel }),
 						el('span', {
 							class: 'mn-tour__count',
-							text: tr('{count} stops', { count: String(stops.length) }),
+							text: tn('%n stop', '%n stops', stops.length),
 						}),
 					];
 					if (tour.orderLocked) {
@@ -3079,7 +3141,7 @@
 						},
 					},
 				], rows, { caption: tr('Exceptions') }));
-				announce(tr('{count} exceptions', { count: String(rows.length) }));
+				announce(tn('%n exception', '%n exceptions', rows.length));
 			}).catch(function (error) {
 				root.removeAttribute('aria-busy');
 				clear(root);
