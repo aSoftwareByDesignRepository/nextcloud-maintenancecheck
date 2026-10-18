@@ -90,6 +90,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setSourceWoId(?int $v)
  * @method int|null getObligationId()
  * @method void setObligationId(?int $v)
+ * @method string|null getRefType()
+ * @method void setRefType(?string $v)
+ * @method string|null getRefId()
+ * @method void setRefId(?string $v)
  */
 class WorkOrder extends Entity
 {
@@ -178,6 +182,8 @@ class WorkOrder extends Entity
 	protected ?string $inspectorNote = null;
 	protected ?int $sourceWoId = null;
 	protected ?int $obligationId = null;
+	protected ?string $refType = null;
+	protected ?string $refId = null;
 
 	public const RESULT_PASS = 'pass';
 	public const RESULT_FAIL = 'fail';
@@ -230,6 +236,8 @@ class WorkOrder extends Entity
 		$this->addType('inspectorNote', 'string');
 		$this->addType('sourceWoId', 'integer');
 		$this->addType('obligationId', 'integer');
+		$this->addType('refType', 'string');
+		$this->addType('refId', 'string');
 	}
 
 	public function isTerminal(): bool
@@ -322,6 +330,8 @@ class WorkOrder extends Entity
 			'inspectorNote' => $this->inspectorNote,
 			'sourceWoId' => $this->sourceWoId,
 			'obligationId' => $this->obligationId,
+			'refType' => $this->refType,
+			'refId' => $this->refId,
 		];
 	}
 }

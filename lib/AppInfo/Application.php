@@ -63,6 +63,7 @@ use OCA\MaintenanceCheck\Service\ChecklistPolicy;
 use OCA\MaintenanceCheck\Service\Clock;
 use OCA\MaintenanceCheck\Service\CustomerService;
 use OCA\MaintenanceCheck\Public\CrmFieldCustomerFacade;
+use OCA\MaintenanceCheck\Public\FieldIssueDraftFacade;
 use OCA\MaintenanceCheck\Service\DispatchService;
 use OCA\MaintenanceCheck\Service\DueBoard;
 use OCA\MaintenanceCheck\Service\EquipmentService;
@@ -322,6 +323,16 @@ class Application extends App implements IBootstrap
 				$c->get(InputValidator::class),
 				$c->get(Clock::class),
 				$c->get(IConfig::class),
+			);
+		});
+		// F18: sibling defect-intake facade — draft WOs into triage.
+		$context->registerService(FieldIssueDraftFacade::class, static function ($c): FieldIssueDraftFacade {
+			return new FieldIssueDraftFacade(
+				$c->get(IDBConnection::class),
+				$c->get(WorkOrderMapper::class),
+				$c->get(SiteMapper::class),
+				$c->get(Clock::class),
+				$c->get(LoggerInterface::class),
 			);
 		});
 		$context->registerService(CustomerService::class, static function ($c): CustomerService {

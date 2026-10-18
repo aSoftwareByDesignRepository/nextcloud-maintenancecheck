@@ -45,6 +45,19 @@ class SiteMapper extends QBMapper
 		return $this->findEntities($qb);
 	}
 
+	/**
+	 * F18: exact-name site lookup for cross-app site_ref resolution.
+	 * @return list<Site>
+	 */
+	public function findByName(string $name): array
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())
+			->where($qb->expr()->eq('name', $qb->createNamedParameter(trim($name))))
+			->andWhere($qb->expr()->eq('active', $qb->createNamedParameter(true, \PDO::PARAM_BOOL)));
+		return $this->findEntities($qb);
+	}
+
 	public function deleteForCustomer(int $customerId): void
 	{
 		$qb = $this->db->getQueryBuilder();

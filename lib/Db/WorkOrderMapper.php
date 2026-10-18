@@ -47,6 +47,23 @@ class WorkOrderMapper extends QBMapper
 		}
 	}
 
+	/**
+	 * F18 dedupe lookup — one draft per (ref_type, ref_id).
+	 */
+	public function findByRef(string $refType, string $refId): ?WorkOrder
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())
+			->where($qb->expr()->eq('ref_type', $qb->createNamedParameter($refType)))
+			->andWhere($qb->expr()->eq('ref_id', $qb->createNamedParameter($refId)))
+			->setMaxResults(1);
+		try {
+			return $this->findEntity($qb);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+	}
+
 	public function exists(int $id): bool
 	{
 		$qb = $this->db->getQueryBuilder();
