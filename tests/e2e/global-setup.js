@@ -1,3 +1,4 @@
+import { acquireSharedInstanceLock } from './shared-instance-lock.mjs'
 // @ts-check
 import { execFileSync } from 'child_process'
 import { dirname, resolve } from 'path'
@@ -73,6 +74,7 @@ async function primeSession(baseURL, username, password) {
 }
 
 export default async function globalSetup(config) {
+	await acquireSharedInstanceLock('maintenancecheck')
 	clearLoginThrottling()
 
 	const baseURL = (config.projects[0] && config.projects[0].use && config.projects[0].use.baseURL)
