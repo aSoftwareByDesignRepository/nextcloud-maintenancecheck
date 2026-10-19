@@ -858,7 +858,7 @@
 	flex-shrink: 0;
 	width: 1.1rem;
 	height: 1.1rem;
-	color: var(--color-primary-element, #0082c9);
+	color: var(--mn-accent-ink, var(--color-primary-element, #0082c9));
 }
 
 #app-content.mn-app .mn-settings-subnav__icon .mn-nav__icon-svg {

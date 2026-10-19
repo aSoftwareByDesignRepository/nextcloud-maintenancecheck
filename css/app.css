@@ -99,7 +99,7 @@
 	height: 2.75rem;
 	border-radius: var(--mn-radius-md);
 	background: var(--color-primary-element-light);
-	color: var(--color-primary-element);
+	color: var(--mn-accent-ink, var(--color-primary-element));
 	flex-shrink: 0;
 }
 
@@ -164,7 +164,7 @@
 }
 
 .mn-nav__item.is-active .mn-nav__icon {
-	color: var(--color-primary-element);
+	color: var(--mn-accent-ink, var(--color-primary-element));
 }
 
 .mn-nav__label {
@@ -1002,7 +1002,7 @@ textarea.mn-input {
 
 .mn-row__title a:hover,
 .mn-row__title a:focus-visible {
-	color: var(--color-primary-element);
+	color: var(--mn-accent-ink, var(--color-primary-element));
 }
 
 /* Bachus live toolbars — flat, giant chips, no Filter card chrome (Due + Visits + Tours) */
@@ -1411,7 +1411,7 @@ textarea.mn-input {
 }
 
 .mn-breadcrumb__link {
-	color: var(--color-primary-element);
+	color: var(--mn-accent-ink, var(--color-primary-element));
 	text-decoration: underline;
 	text-underline-offset: 0.12em;
 }
@@ -1570,7 +1570,7 @@ textarea.mn-input {
 }
 .mn-quickstart-card .mn-section__header h2::before {
 	content: "★";
-	color: var(--color-primary-element, #00679e);
+	color: var(--mn-accent-ink, var(--color-primary-element, #00679e));
 	font-size: 0.85em;
 	line-height: 1;
 }
