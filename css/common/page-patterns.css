@@ -44,7 +44,7 @@
 	min-width: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768.98px) {
 	#app-content.mn-app .mn-page-grid {
 		grid-template-columns: 1fr;
 	}
@@ -307,7 +307,7 @@
 	}
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768.98px) {
 	#app-content.mn-app .mn-filter-grid,
 	#app-content.mn-app .mn-filter-grid--extended,
 	#app-content.mn-app .mn-filter-grid--visits,
@@ -610,7 +610,7 @@
 	box-shadow: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768.98px) {
 	/* Dense list tables without card reflow: horizontal scroll */
 	#app-content.mn-app .table-container .table:not(.mn-table--matrix):not(.mn-table--responsive),
 	#app-content.mn-app .table-container .grid-table:not(.mn-table--matrix):not(.mn-table--responsive) {
@@ -866,7 +866,7 @@
 	height: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768.98px) {
 	#app-content.mn-app .mn-settings-subnav {
 		flex-wrap: nowrap;
 		overflow-x: auto;

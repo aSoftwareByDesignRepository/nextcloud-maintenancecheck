@@ -376,6 +376,18 @@ textarea.mn-input {
 	margin: 0;
 }
 
+/* Inline load-failure callout inside list/detail boxes — tint surface + dark
+   ink (AA), same recipe as .mn-dialog__error. Never bare text. */
+.mn-error {
+	margin: var(--mn-space-2) 0;
+	padding: var(--mn-space-3);
+	font-size: var(--mn-fs-sm);
+	font-weight: 600;
+	border-radius: var(--mn-radius-md);
+	background: var(--mn-tint-danger, var(--color-background-dark));
+	color: var(--mn-danger-ink);
+}
+
 .mn-form-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
@@ -387,7 +399,8 @@ textarea.mn-input {
 }
 
 .mn-form-grid .mn-field--wide,
-.mn-form-grid > .mn-checkbox {
+.mn-form-grid > .mn-checkbox,
+.mn-form-grid .mn-form-wide {
 	grid-column: 1 / -1;
 }
 
@@ -1187,7 +1200,7 @@ textarea.mn-input {
 	cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768.98px) {
 	.mn-visits-toolbar #mn-filter-reset {
 		margin-inline-start: 0;
 		width: 100%;
@@ -1769,7 +1782,7 @@ textarea.mn-input {
 }
 
 .mn-dialog__hint--warning {
-	background: var(--mn-tint-warning, var(--color-warning));
+	background: var(--mn-tint-warning, var(--color-background-dark));
 	color: var(--mn-warning-ink);
 }
 
@@ -1780,7 +1793,7 @@ textarea.mn-input {
 	font-weight: 600;
 	border-radius: var(--mn-radius-md);
 	/* Tint surface + dark ink (AA). Never white on --color-error tint. */
-	background: var(--mn-tint-danger, var(--color-error));
+	background: var(--mn-tint-danger, var(--color-background-dark));
 	color: var(--mn-danger-ink);
 }
 
@@ -1809,6 +1822,7 @@ textarea.mn-input {
 
 .mn-toast {
 	display: flex;
+	flex-wrap: wrap;
 	gap: var(--mn-space-3);
 	align-items: flex-start;
 	padding: var(--mn-space-3) var(--mn-space-4);
@@ -1830,7 +1844,10 @@ textarea.mn-input {
 }
 
 .mn-toast__message {
-	flex: 1;
+	/* basis:auto so an over-wide message wraps onto its own line at narrow
+	   viewports instead of crushing beside the 44px close button. */
+	flex: 1 1 auto;
+	min-width: 0;
 	margin: 0;
 	overflow-wrap: anywhere;
 }
@@ -2382,7 +2399,7 @@ textarea.mn-input {
 	border: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768.98px) {
 	.mn-support-us__options {
 		grid-template-columns: 1fr;
 	}
@@ -2902,7 +2919,7 @@ body > .mn-dialog-overlay > .mn-dialog {
 }
 
 
-@media (max-width: 768px) {
+@media (max-width: 768.98px) {
 	.mn-page-header {
 		flex-direction: column;
 	}

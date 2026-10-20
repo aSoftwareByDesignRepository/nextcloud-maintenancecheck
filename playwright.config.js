@@ -32,7 +32,8 @@ if (existsSync(envFile)) {
 const baseURL = process.env.NC_BASE_URL || 'http://localhost:8081'
 
 export default defineConfig({
-	testDir: 'tests/e2e',
+	testDir: '.',
+	testMatch: ['e2e/**/*.spec.js', 'tests/e2e/**/*.spec.js'],
 	globalTeardown: './tests/e2e/global-teardown.mjs',
 
 	globalSetup: './tests/e2e/global-setup.js',

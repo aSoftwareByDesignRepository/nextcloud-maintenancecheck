@@ -433,6 +433,13 @@
 		});
 	}
 
+	// Render-side scheme gate for stored/external URLs — the API validates on
+	// write, but render must not trust stored rows (imports, legacy data).
+	// Anything but http(s) renders as text, never an anchor.
+	function safeHttpUrl(url) {
+		return (typeof url === 'string' && /^https?:\/\//i.test(url)) ? url : null;
+	}
+
 	/**
 	 * Design-system data table (§3.7) — Check-family / AZC parity.
 	 * Markup: .mn-table-wrap.table-container > table.mn-table.table.table--hover.mn-table--responsive
@@ -3583,7 +3590,7 @@
 				})
 				.catch(function (error) {
 					clear(obligationsBox);
-					obligationsBox.appendChild(el('p', { class: 'mn-error', text: error.message || tr('Could not load obligations.') }));
+					obligationsBox.appendChild(el('p', { class: 'mn-error', role: 'alert', text: error.message || tr('Could not load obligations.') }));
 				})
 				.finally(function () { obligationsBox.removeAttribute('aria-busy'); });
 		}
@@ -3903,7 +3910,7 @@
 								var label = doc.title || tr('Document');
 								var href = null;
 								if (doc.externalUrl) {
-									href = doc.externalUrl;
+									href = safeHttpUrl(doc.externalUrl);
 								} else if (doc.id && apiUrl('equipDocs')) {
 									href = apiUrl('equipDocs') + '/' + doc.id + '/download';
 								}
@@ -3926,7 +3933,7 @@
 							render: function (doc) {
 								var href = null;
 								if (doc.externalUrl) {
-									href = doc.externalUrl;
+									href = safeHttpUrl(doc.externalUrl);
 								} else if (doc.id && apiUrl('equipDocs')) {
 									href = apiUrl('equipDocs') + '/' + doc.id + '/download';
 								}

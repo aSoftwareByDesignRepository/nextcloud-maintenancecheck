@@ -130,3 +130,14 @@ body[data-theme-dark-highcontrast] {
 	/* Borders/icons on dark surfaces can keep the bright accent */
 	--mn-danger-border: var(--color-element-error, #ff5050);
 }
+
+/* Accent ink for text-on-surface: --color-primary-element as text drops below
+   WCAG AA (~4.3:1) on dark themes — blend toward main-text there. */
+body {
+	--mn-accent-ink: var(--color-primary-element);
+}
+
+body[data-theme-dark],
+body[data-theme-dark-highcontrast] {
+	--mn-accent-ink: color-mix(in srgb, var(--color-primary-element) 70%, var(--color-main-text));
+}

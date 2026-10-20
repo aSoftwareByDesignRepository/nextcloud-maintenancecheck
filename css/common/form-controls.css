@@ -269,7 +269,7 @@ body[data-theme-dark-highcontrast] #content.app-maintenancecheck #app-content .m
 }
 
 /* Narrow viewports — never overflow the pane */
-@media (max-width: 768px) {
+@media (max-width: 768.98px) {
 	#content.app-maintenancecheck #app-content input[type="text"]:not(.input-field__input),
 	#content.app-maintenancecheck #app-content input[type="search"]:not(.input-field__input),
 	#content.app-maintenancecheck #app-content input[type="email"],

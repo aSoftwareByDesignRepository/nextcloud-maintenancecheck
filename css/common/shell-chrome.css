@@ -494,7 +494,7 @@
 
 /* Header stacks on narrow viewports (design system §2.2): icon + text share the
    first row, actions drop to a full-width stack — no horizontal overflow at 320px. */
-@media (max-width: 768px) {
+@media (max-width: 768.98px) {
 	.mn-page-header__main {
 		grid-template-columns: 48px minmax(0, 1fr);
 	}
