@@ -3039,6 +3039,7 @@
 		var tableCellText = dom.tableCellText;
 		var statusMeta = dom.statusMeta;
 		var statusBadge = dom.statusBadge;
+		var exceptionReasonMeta = dom.exceptionReasonMeta;
 		var handleGlobalError = dom.handleGlobalError;
 		var announce = dom.announce || function () {};
 		var filter = 'all';
@@ -3124,8 +3125,14 @@
 						id: 'reasons',
 						label: tr('Why'),
 						render: function (row) {
-							var reasons = (row.exceptionReasons || []).join(', ');
-							return tableCellText(reasons || null);
+							var reasons = row.exceptionReasons || [];
+							if (!reasons.length) {
+								return tableCellText(null);
+							}
+							return el('span', { class: 'mn-badge-row' }, reasons.map(function (code) {
+								var meta = exceptionReasonMeta(code);
+								return statusBadge(meta.label, meta.badge, meta.icon);
+							}));
 						},
 					},
 					{

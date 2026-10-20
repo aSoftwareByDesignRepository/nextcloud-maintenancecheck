@@ -682,6 +682,13 @@ textarea.mn-input {
 	height: 0.9rem;
 }
 
+.mn-badge-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mn-space-1);
+	align-items: center;
+}
+
 .mn-badge--role,
 .mn-badge--primary,
 .mn-badge--info {
@@ -2465,7 +2472,7 @@ textarea.mn-input {
 	min-height: 44px;
 	border-radius: var(--mn-radius-sm, 6px);
 	border: 1px solid var(--mn-form-border, var(--mn-border));
-	background: var(--color-main-background);
+	background-color: var(--color-main-background);
 	color: var(--color-main-text);
 	box-sizing: border-box;
 }

@@ -459,26 +459,19 @@
 #app-content.mn-app .table-container .report-table,
 #app-content.mn-app .table-responsive .table,
 #app-content.mn-app .table-responsive .grid-table,
+#app-content.mn-app .table-responsive .maintenancecheck-table,
+#app-content.mn-app .table-responsive .report-table,
 #app-content.mn-app .mn-table-wrap .table,
 #app-content.mn-app .mn-table-wrap .grid-table,
-#app-content.mn-app .mn-table-wrap .mn-table {
+#app-content.mn-app .mn-table-wrap .mn-table,
+#app-content.mn-app .mn-table-wrap .maintenancecheck-table,
+#app-content.mn-app .mn-table-wrap .report-table {
 	margin-bottom: 0;
 	width: 100%;
 	table-layout: auto;
-}
-
-/* Desktop: fill available width; scroll horizontally only when columns need more space */
-@media (min-width: 769px) {
-	#app-content.mn-app .table-container .table:not(.mn-table--matrix),
-	#app-content.mn-app .table-container .grid-table:not(.mn-table--matrix),
-	#app-content.mn-app .table-container .maintenancecheck-table:not(.mn-table--matrix),
-	#app-content.mn-app .table-responsive .table:not(.mn-table--matrix),
-	#app-content.mn-app .table-responsive .grid-table:not(.mn-table--matrix),
-	#app-content.mn-app .mn-table-wrap .table:not(.mn-table--matrix),
-	#app-content.mn-app .mn-table-wrap .grid-table:not(.mn-table--matrix) {
-		width: 100%;
-		min-width: max-content;
-	}
+	/* Cells may wrap — inherited core nowrap otherwise keeps every column
+	 * unbreakable and pushes the actions column behind the wrap. */
+	white-space: normal;
 }
 
 #app-content.mn-app .table thead th,

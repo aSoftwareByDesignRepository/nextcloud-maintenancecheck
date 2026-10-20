@@ -169,6 +169,22 @@
 	}
 
 	/**
+	 * Exception-board reason codes (ExceptionBoardService) → translated badge
+	 * meta. Raw snake_case codes must never reach the table cell.
+	 * Unknown codes degrade to a neutral humanized badge — the contract test
+	 * pins the map against the PHP enum so new codes cannot ship unmapped.
+	 */
+	function exceptionReasonMeta(code) {
+		switch (code) {
+			case 'blocked': return { label: tr('Blocked'), badge: 'mn-badge--overdue', icon: 'alert-triangle' };
+			case 'overdue': return { label: tr('Overdue'), badge: 'mn-badge--overdue', icon: 'clock' };
+			case 'kit_incomplete': return { label: tr('Kit incomplete'), badge: 'mn-badge--warning', icon: 'alert-triangle' };
+			case 'skills_missing': return { label: tr('Skills missing'), badge: 'mn-badge--warning', icon: 'alert-triangle' };
+			default: return { label: String(code).replace(/_/g, ' '), badge: 'mn-badge--neutral', icon: null };
+		}
+	}
+
+	/**
 	 * A4 status / bucket badge: text label + one non-colour cue (icon OR dot).
 	 * Bachus: never stack dot + icon — that is visual noise for toddlers and auditors.
 	 */
@@ -317,6 +333,7 @@
 		formatDate: formatDate,
 		statusMeta: statusMeta,
 		bucketMeta: bucketMeta,
+		exceptionReasonMeta: exceptionReasonMeta,
 		intervalLabel: intervalLabel,
 		statusBadge: statusBadge,
 		displayMaintTypeName: displayMaintTypeName,
@@ -6775,6 +6792,7 @@
 			renderPagination: renderPagination,
 			statusMeta: statusMeta,
 			statusBadge: statusBadge,
+			exceptionReasonMeta: exceptionReasonMeta,
 			tableOrCards: tableOrCards,
 			tableStack: tableStack,
 			catalogNameCell: catalogNameCell,
