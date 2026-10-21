@@ -327,7 +327,7 @@
 }
 
 .form-required {
-  color: var(--maintenancecheck-color-error);
+  color: var(--color-error-text);
   margin-left: var(--space-1);
   font-weight: var(--maintenancecheck-font-weight-semibold);
 }
