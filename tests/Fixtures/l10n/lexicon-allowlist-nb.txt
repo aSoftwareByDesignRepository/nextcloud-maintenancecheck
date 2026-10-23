@@ -1,0 +1,9 @@
+# Reviewed Norwegian Bokmål forms OOV in the flat nb_NO wordlist (real-lexicon gate).
+# Entries with a review marker may coexist with a donor-dictionary spelling;
+# unmarked entries stay fail-closed against donor contamination.
+fre # abbrev — reviewed: standard Norwegian Friday abbreviation (man–søn), shared with da/sv
+deaktiver # shared — reviewed: correct Bokmål imperative of deaktivere; standard button/instruction form (identical to the Danish infinitive)
+omplanlegg # reviewed — Bokmål imperative of omplanlegge (reschedule); standard calendar/scheduler term
+deaktivert # reviewed — correct Bokmål past participle of deaktivere
+forfallne # reviewed — correct Bokmål plural participle (overdue)
+utilordnet # reviewed — correct Bokmål compound (u- + tilordnet, unassigned)

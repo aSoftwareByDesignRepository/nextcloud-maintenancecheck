@@ -1,0 +1,7 @@
+# Reviewed Swedish forms OOV in the flat sv_SE wordlist (real-lexicon gate).
+# Entries with a review marker may coexist with a donor-dictionary spelling;
+# unmarked entries stay fail-closed against donor contamination.
+fre # abbrev — reviewed: standard Swedish Friday abbreviation (mån–sön), shared with da/nb
+kitet # shared — reviewed: correct Swedish definite of borrowed 'kit' (ett-ord); same surface form in nb
+inspektionär # reviewed — legitimate Swedish word for an inspector (person); flat wordlist gap
+otilldelad # reviewed — legitimate Swedish compound (o- + tilldelad, unassigned)
