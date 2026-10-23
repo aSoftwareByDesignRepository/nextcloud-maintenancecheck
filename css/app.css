@@ -329,7 +329,7 @@
 	padding: var(--mn-space-2, 8px) var(--mn-space-3, 12px);
 	border: 1px solid var(--color-border, var(--mn-border));
 	border-radius: var(--mn-radius-sm, 6px);
-	background: var(--color-main-background);
+	background-color: var(--color-main-background);
 	color: var(--color-main-text);
 	font-size: var(--mn-fs-md, 1rem);
 	box-sizing: border-box;
@@ -1759,7 +1759,7 @@ textarea.mn-input {
 	padding: var(--mn-space-2, 8px) var(--mn-space-3, 12px);
 	border: 1px solid var(--color-border, var(--mn-border));
 	border-radius: var(--mn-radius-sm, 6px);
-	background: var(--color-main-background);
+	background-color: var(--color-main-background);
 	color: var(--color-main-text);
 	font-size: var(--mn-fs-md, 1rem);
 	box-sizing: border-box;

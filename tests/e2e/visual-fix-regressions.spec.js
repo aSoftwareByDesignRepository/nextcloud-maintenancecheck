@@ -17,9 +17,44 @@ import { acquireThemeLock, releaseThemeLock, resetUserTheme, setUserTheme } from
  * 3. mn-vis-exceptions-reasons-raw-enum — the Why column joined raw
  *    snake_case codes. Proof: cells render .mn-badge nodes and contain no
  *    snake_case tokens.
+ * 4. mn-input-residual-background-shorthand — .mn-dialog .mn-input and the
+ *    bare .mn-input rule painted `background:`; body-mounted dialogs sit
+ *    outside #app-content so no restoring rule re-adds the NC core chevron.
+ *    Proof: a real dialog select keeps background-image url() + no-repeat
+ *    in light AND dark.
  */
 
 const APP = '/apps/maintenancecheck'
+
+async function api(page, method, path, body) {
+	return page.evaluate(
+		async ({ method, path, body }) => {
+			const token =
+				(typeof window.OC !== 'undefined' && window.OC.requestToken)
+				|| document.querySelector('head[data-requesttoken]')?.getAttribute('data-requesttoken')
+				|| ''
+			const res = await fetch(path, {
+				method,
+				credentials: 'same-origin',
+				headers: {
+					'Content-Type': 'application/json',
+					requesttoken: token,
+					'OCS-APIRequest': 'true',
+				},
+				body: body === undefined ? undefined : JSON.stringify(body),
+			})
+			const text = await res.text()
+			let data = null
+			try {
+				data = text ? JSON.parse(text) : null
+			} catch {
+				data = { raw: text }
+			}
+			return { status: res.status, data }
+		},
+		{ method, path, body },
+	)
+}
 
 test.describe('visual fix regressions (r3)', () => {
 	test.describe.configure({ mode: 'serial' })
@@ -97,6 +132,68 @@ test.describe('visual fix regressions (r3)', () => {
 		const wrapBox = await wrap.boundingBox()
 		expect(thBox && wrapBox).toBeTruthy()
 		expect(thBox.x + thBox.width <= wrapBox.x + wrapBox.width + 1).toBeTruthy()
+	})
+
+	test('dialog select keeps the picker chevron outside #app-content (light+dark)', async ({ page }) => {
+		const creds = primaryCreds()
+		test.skip(!creds, 'Requires NC_E2E_* creds')
+		await login(page, creds)
+		await page.setViewportSize({ width: 1440, height: 900 })
+		await page.goto(APP, { waitUntil: 'domcontentloaded' })
+
+		// Draft work order → "Mark planned" opens openProcedureChoiceDialog,
+		// which mounts select.mn-input inside a body-level .mn-dialog —
+		// outside #app-content, where form-controls.css cannot restore the
+		// chevron; only the NC core select rule can survive the class rule.
+		const marker = `dlgchev-${Date.now().toString(36)}`
+		const customer = await api(page, 'POST', `${APP.replace('/apps', '/index.php/apps')}/api/customers`, {
+			name: `DlgChev ${marker}`,
+		})
+		expect([200, 201].includes(customer.status), `customer seed: ${JSON.stringify(customer.data)}`).toBeTruthy()
+		const customerId = customer.data.id
+		const types = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/equip-types?limit=1&offset=0')
+		expect(types.status === 200 && types.data.data.length > 0, 'need equip type').toBeTruthy()
+		const equipment = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/equipment', {
+			label: `Unit ${marker}`,
+			customerId,
+			equipTypeId: types.data.data[0].id,
+		})
+		expect([200, 201].includes(equipment.status), `equipment seed: ${JSON.stringify(equipment.data)}`).toBeTruthy()
+		const wo = await api(page, 'POST', '/index.php/apps/maintenancecheck/api/work-orders', {
+			kind: 'corrective', customerId, title: `DlgChev WO ${marker}`, equipmentId: equipment.data.id,
+		})
+		expect([200, 201].includes(wo.status), `WO seed: ${JSON.stringify(wo.data)}`).toBeTruthy()
+		const woId = wo.data.id || (wo.data.workOrder || {}).id
+
+		try {
+			for (const theme of ['light', 'dark']) {
+				await page.goto(`${APP}/work-orders/${woId}`, { waitUntil: 'domcontentloaded' })
+				await setUserTheme(page, theme)
+				await page.goto(`${APP}/work-orders/${woId}`, { waitUntil: 'domcontentloaded' })
+				await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 30_000 })
+				await page.locator('[data-mn-transition="planned"]').first().click()
+				const select = page.locator('.mn-dialog select.mn-input').first()
+				await expect(select).toBeVisible({ timeout: 15_000 })
+				const probe = await select.evaluate((node) => {
+					const cs = getComputedStyle(node)
+					return {
+						image: cs.backgroundImage,
+						repeat: cs.backgroundRepeat,
+						appearance: cs.appearance,
+					}
+				})
+				expect(probe.appearance, `${theme}: dialog select lost appearance:none`).toBe('none')
+				expect(probe.image, `${theme}: dialog select chevron stripped (bare background: regression)`).toContain('url(')
+				expect(probe.repeat, `${theme}: dialog select chevron tiles`).toBe('no-repeat')
+				await page.keyboard.press('Escape')
+				await expect(page.locator('.mn-dialog').first()).toBeHidden({ timeout: 10_000 })
+			}
+		} finally {
+			await api(page, 'POST', `/index.php/apps/maintenancecheck/api/work-orders/${woId}/transition`, {
+				to: 'cancelled',
+			}).catch(() => {})
+		}
+		await resetUserTheme(page)
 	})
 
 	test('exceptions Why column renders translated badges, never raw codes', async ({ page }) => {
