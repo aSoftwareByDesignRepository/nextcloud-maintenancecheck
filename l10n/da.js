@@ -728,7 +728,7 @@ OC.L10N.register(
 	"Office" : "Kontor",
 	"Office can create corrective jobs here, or turn a due visit into a work order from the due board." : "Kontoret kan oprette korrigerende opgaver her eller gøre et forfaldent besøg til en arbejdsordre fra forfaldstavlen.",
 	"Office can download a CSV for reporting." : "Kontoret kan downloade en CSV til rapportering.",
-	"Office can plan day tours under Planning." : "Office kan planlægge dag ture under planlægning.",
+	"Office can plan day tours under Planning." : "Kontoret kan planlægge dagsture under planlægning.",
 	"Office creates jobs here. Technicians open a job to run the checklist and add photos." : "Kontor skaber arbejdspladser her. Teknikere åbner et job for at køre checklisten og tilføje fotos.",
 	"Office groups" : "Kontorgrupper",
 	"Office members manage customers, equipment and plans." : "Kontormedlemmer administrerer kunder, udstyr og planer.",
