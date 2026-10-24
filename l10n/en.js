@@ -591,7 +591,7 @@ OC.L10N.register(
 	"Meter saved." : "Meter saved.",
 	"Meter {code} ≥ {threshold}" : "Meter {code} ≥ {threshold}",
 	"Meters" : "Meters",
-	"Meters open visits when a reading hits the threshold. Inspection obligations schedule Prüfungen." : "Meters open visits when a reading hits the threshold. Inspection obligations schedule Prüfungen.",
+	"Meters open visits when a reading hits the threshold. Inspection obligations schedule inspections." : "Meters open visits when a reading hits the threshold. Inspection obligations schedule inspections.",
 	"Minimum checklist percent" : "Minimum checklist percent",
 	"Minutes each technician can take in a day for dispatch." : "Minutes each technician can take in a day for dispatch.",
 	"Minutes each technician can take in a day. Dispatch warns or blocks when the day is full." : "Minutes each technician can take in a day. Dispatch warns or blocks when the day is full.",

@@ -23,7 +23,7 @@ $qsSteps = [
 	],
 	[
 		'title' => $l->t('2. Optional: meters and inspections'),
-		'body' => $l->t('Meters open visits when a reading hits the threshold. Inspection obligations schedule Prüfungen.'),
+		'body' => $l->t('Meters open visits when a reading hits the threshold. Inspection obligations schedule inspections.'),
 	],
 	[
 		'title' => $l->t('3. Work the due board'),
