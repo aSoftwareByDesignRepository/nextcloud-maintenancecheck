@@ -948,7 +948,7 @@ OC.L10N.register(
 	"Restrict access to the lists below" : "Begræns adgangen til nedenstående lister",
 	"Result" : "Resultat",
 	"Results update as soon as you change a filter above." : "Resultater opdateres, så snart et filter ovenfor ændres.",
-	"Reusable parts lists for packing vans before a job." : "Genanvendelige dele lister til pakning varevogne før et job.",
+	"Reusable parts lists for packing vans before a job." : "Genanvendelige delelister til at læsse varevogne før et job.",
 	"Review the suggested stop order, then apply it." : "Gennemgå den foreslåede stop orden, derefter anvende det.",
 	"Role" : "Rolle",
 	"Role settings saved." : "Rolleindstillinger gemt.",
