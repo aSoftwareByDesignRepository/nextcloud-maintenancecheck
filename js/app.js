@@ -3210,7 +3210,7 @@
 				locationText: field(tr('Location'), el('input', { type: 'text', value: existing ? (existing.locationText || '') : '' }), { hint: tr('Where on site, e.g. “2nd floor, server room”.') }),
 				notes: field(tr('Notes'), el('textarea', { rows: '3' }), { wide: true }),
 				warrantyEnd: field(tr('Warranty end'), el('input', { type: 'date', value: existing && existing.warrantyEnd ? existing.warrantyEnd : '' }), { hint: tr('Optional — warn techs when creating corrective work after this date.') }),
-			equipmentClass: field(tr('Equipment class'), el('input', { type: 'text', value: existing && existing.equipmentClass ? existing.equipmentClass : '', placeholder: 'portable_electrical' }), { hint: tr('Optional class code for Prüfpflichten (e.g. ladder, fire_extinguisher).') }),
+			equipmentClass: field(tr('Equipment class'), el('input', { type: 'text', value: existing && existing.equipmentClass ? existing.equipmentClass : '', placeholder: 'portable_electrical' }), { hint: tr('Optional class code for inspection obligations (e.g. ladder, fire_extinguisher).') }),
 			};
 			if (existing && existing.notes) {
 				f.notes.mnInput.value = existing.notes;
@@ -3593,7 +3593,7 @@
 					if (rows.length === 0) {
 						obligationsBox.appendChild(emptyState(
 							tr('No inspection obligations yet'),
-							ctx.isOffice ? tr('Add an obligation from an equipment class to schedule the next Prüfung.') : tr('No recurring inspections are set for this unit.')
+							ctx.isOffice ? tr('Add an obligation from an equipment class to schedule the next inspection.') : tr('No recurring inspections are set for this unit.')
 						));
 					} else {
 						obligationsBox.appendChild(tableOrCards([
