@@ -84,7 +84,7 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 		$this->renameBilingualInspectionMaintType($output);
 		$output->info(sprintf(
 			'MaintenanceCheck: all %d tables are present; seeded %d catalog row(s).',
-			count(UninstallDropTables::TABLES),
+			count(SchemaTableCatalog::EXPECTED_TABLES),
 			$seeded,
 		));
 	}
@@ -202,7 +202,7 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 	private function missingTables(): array
 	{
 		$missing = [];
-		foreach (UninstallDropTables::TABLES as $table) {
+		foreach (SchemaTableCatalog::EXPECTED_TABLES as $table) {
 			if (!$this->connection->tableExists($table)) {
 				$missing[] = $table;
 			}
