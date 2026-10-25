@@ -738,6 +738,8 @@ class Application extends App implements IBootstrap
 			return new OverdueReminderJob(
 				$c->get(ITimeFactory::class),
 				$c->get(OverdueReminderService::class),
+				$c->get(ILockingProvider::class),
+				$c->get(LoggerInterface::class),
 			);
 		});
 
