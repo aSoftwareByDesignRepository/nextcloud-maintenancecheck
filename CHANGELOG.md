@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.4 - 2026-10-25
+
+### Fixed
+
+- purge German vocabulary from en msgids on equipment surfaces
+- self-heal shared-instance config leftovers in globalSetup
+- sweep landing + register/label consistency completion
+- doubled-token + ZWSP defects in sv/pt_BR, same-sentence MT calques in da/nb/nl
+- purge Danish bleed + English leftovers in sv/nb catalogs
+- residual bare background: on .mn-input rules strips dialog select chevron
+- canonical 767.98px media boundary (family sync)
+- r3 must_fix closeout — select chevron, due-actions clip, exception badges
+- ds_chrome batch — media boundary, error-state, toast wrap, safeHttpUrl
+- dark-theme accent-ink token + e2e user-state reset
+- wrong-sense/dup-token MT corrections + e2e instance-lock harness
+- r1 must_fix closeout — JSON 500 envelope, dialog matrix proofs, plural grammar
+
+### Added
+
+- F18 FieldIssueDraftFacade for tourcheck WO handoff
+
+### Changed
+
+- l10n: canonicalize tour/job/lane/visit domain vocabulary + label-in-name dependents
+- assert intro substitutes %s, never literal (shared pack re-sync)
+- fix dangling identity-soft-link script + wire F18 draft gauntlet
+- app-feedback parity + contract test sync
+- add UpgradeBackupStateGuard test support; sync contract tests + l10n catalogs
+- fleet sync — drop deprecated clip: rect(), eslint-clean app-feedback regex
+- l10n: fix MT corruption, false friends, sprintf hazards
+
 ## 1.3.3 - 2026-10-10
 
 ### Changed
