@@ -2891,7 +2891,7 @@ body > .mn-dialog-overlay > .mn-dialog {
 }
 #mn-wo-detail-quickstart .mn-section__header {
 	align-items: center;
-	grid-template-columns: 1fr auto;
+	grid-template-columns: minmax(0, 1fr) auto;
 }
 #mn-wo-detail-quickstart .mn-section__header h2 {
 	font-size: 1rem;
