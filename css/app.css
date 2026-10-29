@@ -3067,7 +3067,8 @@ textarea {
 	font-size: var(--mn-fs-sm, 0.875rem);
 	line-height: var(--mn-line-base, 1.45);
 	white-space: normal;
-	overflow-wrap: anywhere;
+	/* Menu labels keep normal word breaks — anywhere tears mid-word. */
+	overflow-wrap: break-word;
 }
 
 .mn-nav-footer__menu-item:hover {
