@@ -944,7 +944,7 @@ OC.L10N.register(
 	"Reschedule" : "Przełożyć",
 	"Reschedule visit" : "Przełóż wizytę",
 	"Reset" : "Resetuj",
-	"Reset clears every filter and shows the full history again." : "Reset oczyszcza każdy filtr i ponownie pokazuje pełną historię.",
+	"Reset clears every filter and shows the full history again." : "Resetuj wymazuje każdy filtr i pokazuje ponownie pełną historię.",
 	"Restrict access to the lists below" : "Zakaz dostępu do poniższych list",
 	"Result" : "Wynik",
 	"Results update as soon as you change a filter above." : "Aktualizacja wyników zaraz po zmianie filtra powyżej.",
