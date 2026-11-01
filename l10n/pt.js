@@ -817,7 +817,7 @@ OC.L10N.register(
 	"Overwrite pack?" : "Substituir o pacote?",
 	"Owner" : "Responsável",
 	"Ownership" : "Responsabilidade",
-	"Pack" : "Pacote",
+	"Pack" : "Embalar",
 	"Pack code" : "Código do pacote",
 	"Pack code is required." : "O código do pacote é obrigatório.",
 	"Pack imported." : "Pacote importado.",
