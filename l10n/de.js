@@ -984,7 +984,7 @@ OC.L10N.register(
 	"Search by name, number or city …" : "Nach Name, Nummer oder Stadt suchen …",
 	"Search customers" : "Kunden suchen",
 	"Search equipment" : "Anlagen suchen",
-	"Search every unit. Create new equipment on a customer page." : "Durchsuchen Sie alle Einheiten. Legen Sie neue Anlagen auf einer Kundenseite an.",
+	"Search every unit. Create new equipment on a customer page." : "Durchsuchen Sie alle Anlagen. Legen Sie neue Anlagen auf einer Kundenseite an.",
 	"Seat assigned." : "Sitz zugewiesen.",
 	"Seat removed." : "Sitz entfernt.",
 	"Seats stay assigned; the mobile gate will report a missing license until a new key is applied." : "Sitze bleiben zugewiesen; die Mobile-App meldet eine fehlende Lizenz, bis ein neuer Schlüssel angewendet wird.",
