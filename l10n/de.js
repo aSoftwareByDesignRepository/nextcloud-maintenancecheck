@@ -826,7 +826,7 @@ OC.L10N.register(
 	"Packages and terms:" : "Pakete und Konditionen:",
 	"Packed" : "Gepackt",
 	"Packed {packed} of {required}" : "{packed} von {required} eingepackt",
-	"Packing has already started for this kit." : "Die Verpackung für dieses Set wurde bereits gestartet.",
+	"Packing has already started for this kit." : "Das Verpacken dieses Sets wurde bereits gestartet.",
 	"Parent item code" : "Code des Bezugs-Punkts",
 	"Part" : "Teil",
 	"Parts planned for this job." : "Für diesen Auftrag geplante Teile.",
