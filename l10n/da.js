@@ -533,7 +533,7 @@ OC.L10N.register(
 	"Kit template created." : "Kit-skabelon oprettet.",
 	"Kit template saved." : "Kit skabelon gemt.",
 	"Kit templates" : "Kit skabeloner",
-	"Kit — parts and tools to pack" : "Kit — dele og værktøj til pakning",
+	"Kit — parts and tools to pack" : "Kit — dele og værktøj at pakke",
 	"KPI window" : "KPI-vindue",
 	"Label" : "Etiket",
 	"Later" : "Senere",
