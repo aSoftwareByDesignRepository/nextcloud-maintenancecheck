@@ -10,6 +10,7 @@ use OCA\MaintenanceCheck\Db\InspectionObligationMapper;
 use OCA\MaintenanceCheck\Db\PlanMapper;
 use OCA\MaintenanceCheck\Db\VisitMapper;
 use OCA\MaintenanceCheck\Exception\ValidationException;
+use Psr\Log\LoggerInterface;
 
 /**
  * W7 inspection obligations (CORE §21 W7-R1/R3) — schedules via Plan + Visit SoT.
@@ -32,6 +33,7 @@ class InspectionObligationService
 		private readonly Clock $clock,
 		private readonly InputValidator $validator,
 		private readonly AccessControlService $access,
+		private readonly LoggerInterface $logger,
 	) {
 	}
 
@@ -189,8 +191,13 @@ class InspectionObligationService
 		}
 		try {
 			$this->catalogs->update('maint', (int)$row['id'], ['name' => 'Inspection']);
-		} catch (\Throwable) {
+		} catch (\Throwable $e) {
 			// Best-effort rename — obligation flow must not fail on catalog write.
+			$this->logger->info('MaintenanceCheck: maint-type name normalization skipped', [
+				'app' => 'maintenancecheck',
+				'catalogRow' => (int)$row['id'],
+				'exception' => $e,
+			]);
 		}
 	}
 }

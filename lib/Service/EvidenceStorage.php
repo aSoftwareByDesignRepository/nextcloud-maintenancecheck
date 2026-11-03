@@ -135,15 +135,17 @@ class EvidenceStorage
 	public function deleteAllForWorkOrder(int $workOrderId): void
 	{
 		try {
-			$this->appData->getFolder(self::PHOTOS_ROOT . '/' . $workOrderId)->delete();
+			$photos = $this->appData->getFolder(self::PHOTOS_ROOT . '/' . $workOrderId);
 		} catch (FilesNotFoundException) {
-			// nothing stored
+			$photos = null; // nothing stored — cleanup is idempotent
 		}
+		$photos?->delete();
 		try {
-			$this->appData->getFolder(self::SIGNATURES_ROOT)->getFile($workOrderId . '.png')->delete();
+			$signature = $this->appData->getFolder(self::SIGNATURES_ROOT)->getFile($workOrderId . '.png');
 		} catch (FilesNotFoundException) {
-			// nothing stored
+			$signature = null; // nothing stored — cleanup is idempotent
 		}
+		$signature?->delete();
 	}
 
 	// ── Internals ───────────────────────────────────────────────────────
@@ -171,10 +173,11 @@ class EvidenceStorage
 	{
 		$this->assertSafeName($fileName);
 		try {
-			$this->appData->getFolder($path)->getFile($fileName)->delete();
+			$node = $this->appData->getFolder($path)->getFile($fileName);
 		} catch (FilesNotFoundException) {
-			// already gone — deletion is idempotent
+			return; // already gone — deletion is idempotent
 		}
+		$node->delete();
 	}
 
 	/**

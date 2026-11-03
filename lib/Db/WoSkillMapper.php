@@ -31,6 +31,18 @@ class WoSkillMapper extends QBMapper
 		return $this->findEntities($qb);
 	}
 
+	public function has(int $workOrderId, int $skillId): bool
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id')->from($this->getTableName())
+			->where($qb->expr()->eq('work_order_id', $qb->createNamedParameter($workOrderId, \PDO::PARAM_INT)))
+			->andWhere($qb->expr()->eq('skill_id', $qb->createNamedParameter($skillId, \PDO::PARAM_INT)));
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return $row !== false;
+	}
+
 	public function deleteForWorkOrder(int $workOrderId): void
 	{
 		$qb = $this->db->getQueryBuilder();

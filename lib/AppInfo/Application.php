@@ -579,6 +579,7 @@ class Application extends App implements IBootstrap
 				$c->get(Clock::class),
 				$c->get(InputValidator::class),
 				$c->get(AccessControlService::class),
+				$c->get(LoggerInterface::class),
 			);
 		});
 		$context->registerService(SkillsAssignPolicy::class, static function (): SkillsAssignPolicy {

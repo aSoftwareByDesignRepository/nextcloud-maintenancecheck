@@ -152,8 +152,12 @@ class SkillService
 			$grant->setGrantedBy($grantedBy);
 			try {
 				$this->userSkills->insert($grant);
-			} catch (\OCP\DB\Exception) {
-				// Concurrent duplicate grant — unique index already holds it.
+			} catch (\OCP\DB\Exception $e) {
+				// Tolerate only the concurrent-duplicate case — every other DB
+				// failure (FK, deadlock, connection loss) must surface.
+				if (!$this->userSkills->has($uid, $addId)) {
+					throw $e;
+				}
 			}
 		}
 		return $this->userSkills($uid);
@@ -182,8 +186,12 @@ class SkillService
 			$link->setSkillId($skillId);
 			try {
 				$this->woSkills->insert($link);
-			} catch (\OCP\DB\Exception) {
-				// Concurrent duplicate — unique index already holds it.
+			} catch (\OCP\DB\Exception $e) {
+				// Tolerate only the concurrent-duplicate case — every other DB
+				// failure (FK, deadlock, connection loss) must surface.
+				if (!$this->woSkills->has($workOrderId, $skillId)) {
+					throw $e;
+				}
 			}
 		}
 		return ['workOrderId' => $workOrderId, 'skillIds' => $this->woSkillIds($workOrderId)];

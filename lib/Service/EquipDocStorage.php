@@ -114,10 +114,11 @@ class EquipDocStorage
 			return;
 		}
 		try {
-			$this->appData->getFolder(self::ROOT . '/' . $docId)->delete();
+			$node = $this->appData->getFolder(self::ROOT . '/' . $docId);
 		} catch (FilesNotFoundException) {
-			// already gone
+			return; // already gone — deletion is idempotent
 		}
+		$node->delete();
 	}
 
 	private function folder(string $path): ISimpleFolder
