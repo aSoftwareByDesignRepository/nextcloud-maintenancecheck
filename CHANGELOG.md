@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.5 - 2026-11-05
+
+### Fixed
+
+- l10n: wrong-sense corrections across 11 catalogs — nav 'Register' group label, pack/mark cells, label-in-name dependents, sv agreement cells, da/nl 'to pack' bound infinitives, mn_procedure_pack_v1 literal restore
+- sync: app-feedback footer re-render + swallowed-write discrimination in service writes
+- upgrade-backup: wire OverdueReminderJob into shared LOCK_KEY contract
+- design-system: nav menu labels keep word breaks; quickstart section header shrinks past content min-width
+- a11y: required marks use error-text ink
+
+### Added
+
+- upgrade-backup: family schema-catalog + hardened test-state guard
+- e2e: localized nav 'Register' group-label proof + craft (nl/fr)
+
+### Changed
+
+- Refresh App Store screenshots from clean marketing captures
+
 ## 1.3.4 - 2026-10-25
 
 ### Fixed
@@ -155,29 +174,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Licensing, companion APIs, and expanded test coverage (initial 1.0.3 ship).
-
-## [1.3.5] — 2026-11-05
-
-### Added
-
-- + hardened test-state guard
-
-### Fixed
-
-- + swallowed-write discrimination
-- 'to pack' infinitive cells — da/nl bound pack-stem glosses
-- + mn_procedure_pack_v1 literal restore
-- pack/mark wrong-sense cells across 11 catalogs
-- labels
-- + agreement cells
-- 'Register' + sibling wrong-sense cells across 11 catalogs
-- break-word)
-- contract
-- min-width
-- marks
-
-### Changed
-
-- Refresh App Store screenshots from clean marketing captures
-- 'Register' group-label proof + craft (nl/fr)
 
