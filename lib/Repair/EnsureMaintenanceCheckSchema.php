@@ -151,17 +151,25 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 			if ($exists) {
 				continue;
 			}
-			$qb = $this->connection->getQueryBuilder();
-			$qb->insert('mn_equipment_classes')->values([
-				'code' => $qb->createNamedParameter($row['code']),
-				'name_de' => $qb->createNamedParameter($row['nameDe']),
-				'name_en' => $qb->createNamedParameter($row['nameEn']),
-				'default_interval_unit' => $qb->createNamedParameter($row['unit']),
-				'default_interval_count' => $qb->createNamedParameter($row['count'], \PDO::PARAM_INT),
-				'sort_order' => $qb->createNamedParameter($row['sort'], \PDO::PARAM_INT),
-				'active' => $qb->createNamedParameter(true, \PDO::PARAM_BOOL),
-			]);
-			$qb->executeStatement();
+			try {
+				$qb = $this->connection->getQueryBuilder();
+				$qb->insert('mn_equipment_classes')->values([
+					'code' => $qb->createNamedParameter($row['code']),
+					'name_de' => $qb->createNamedParameter($row['nameDe']),
+					'name_en' => $qb->createNamedParameter($row['nameEn']),
+					'default_interval_unit' => $qb->createNamedParameter($row['unit']),
+					'default_interval_count' => $qb->createNamedParameter($row['count'], \PDO::PARAM_INT),
+					'sort_order' => $qb->createNamedParameter($row['sort'], \PDO::PARAM_INT),
+					'active' => $qb->createNamedParameter(true, \PDO::PARAM_BOOL),
+				]);
+				$qb->executeStatement();
+			} catch (\OCP\DB\Exception $e) {
+				if (!$this->isUniqueConstraintViolation($e)) {
+					throw $e;
+				}
+				// Concurrent repair pass seeded the row first — idempotent skip.
+				continue;
+			}
 			$inserted++;
 		}
 		return $inserted;
@@ -183,17 +191,33 @@ final class EnsureMaintenanceCheckSchema implements IRepairStep
 			if ($exists) {
 				continue;
 			}
-			$qb = $this->connection->getQueryBuilder();
-			$qb->insert($table)->values([
-				'code' => $qb->createNamedParameter($row['code']),
-				'name' => $qb->createNamedParameter($row['name']),
-				'sort_order' => $qb->createNamedParameter($row['sort'], \PDO::PARAM_INT),
-				'active' => $qb->createNamedParameter(true, \PDO::PARAM_BOOL),
-			]);
-			$qb->executeStatement();
+			try {
+				$qb = $this->connection->getQueryBuilder();
+				$qb->insert($table)->values([
+					'code' => $qb->createNamedParameter($row['code']),
+					'name' => $qb->createNamedParameter($row['name']),
+					'sort_order' => $qb->createNamedParameter($row['sort'], \PDO::PARAM_INT),
+					'active' => $qb->createNamedParameter(true, \PDO::PARAM_BOOL),
+				]);
+				$qb->executeStatement();
+			} catch (\OCP\DB\Exception $e) {
+				if (!$this->isUniqueConstraintViolation($e)) {
+					throw $e;
+				}
+				// Concurrent repair pass seeded the row first — idempotent skip.
+				continue;
+			}
 			$inserted++;
 		}
 		return $inserted;
+	}
+
+	private function isUniqueConstraintViolation(\OCP\DB\Exception $e): bool
+	{
+		return in_array($e->getReason(), [
+			\OCP\DB\Exception::REASON_UNIQUE_CONSTRAINT_VIOLATION,
+			\OCP\DB\Exception::REASON_CONSTRAINT_VIOLATION,
+		], true);
 	}
 
 	/**
