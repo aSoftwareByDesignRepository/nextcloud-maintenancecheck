@@ -8376,6 +8376,90 @@
                 }
             }
         },
+        "/api/widget-snapshot": {
+            "get": {
+                "operationId": "mobile#widgetSnapshot",
+                "summary": "mobile#widgetSnapshot",
+                "x-mn-gate": "mobile_read",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON success (object; list endpoints include data[])",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListEnvelope"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/JsonObject"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/work-orders": {
             "get": {
                 "operationId": "work_order#index",

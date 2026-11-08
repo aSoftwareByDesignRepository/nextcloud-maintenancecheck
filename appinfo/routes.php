@@ -215,6 +215,7 @@ return [
 		['name' => 'equip_doc#download', 'url' => '/api/equip-docs/{id}/download', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'work_order#comments', 'url' => '/api/work-orders/{id}/comments', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'work_order#addComment', 'url' => '/api/work-orders/{id}/comments', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
+
+		['name' => 'mobile#widgetSnapshot', 'url' => '/api/widget-snapshot', 'verb' => 'GET'],
 	],
-		['name' => 'mobileController#widgetSnapshot', 'url' => '/api/widget-snapshot', 'verb' => 'GET'],
 ];

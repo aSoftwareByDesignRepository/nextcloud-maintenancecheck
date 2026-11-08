@@ -207,6 +207,7 @@ final class RouteAuthInventory
 			'mobile#downloadEquipDoc' => 'mobile_read',
 			'mobile#failureCodes' => 'mobile_read',
 			'mobile#exceptions' => 'mobile_read_self',
+			'mobile#widgetSnapshot' => 'mobile_read',
 			'ops#kpi' => 'office',
 			'ops#kpiCsv' => 'office',
 			'ops#exceptions' => 'office',

@@ -546,19 +546,21 @@ class MobileController extends Controller
 	 * (NFR: widget endpoint must be a single query-family, cached >=60 s).
 	 */
 	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function widgetSnapshot(): JSONResponse
 	{
-		$uid = \OCP\Server::get(\OCP\IUserSession::class)->getUser()?->getUID();
-		if ($uid === null) {
-			return new JSONResponse(['error' => 'unauthenticated'], 401);
-		}
+		$uid = $this->access->currentUserId();
 		$cache = \OCP\Server::get(\OCP\ICacheFactory::class)->createDistributed('maintenancecheck_wsnap');
-		$key = $uid . '';
+		$key = 'snap:' . $uid;
 		if (($hit = $cache->get($key)) !== null) {
 			return new JSONResponse($hit);
 		}
+		// due() asserts the mobile gate itself — license/seat denials throw
+		// MobileGateException and reach the §7.1 error envelope via
+		// middleware, so only a fully-authorized payload is ever cached.
 		$status = $this->due()->getData();
 		$payload = [
+			'ok' => true,
 			'status' => $status,
 			'serverNow' => (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format(\DateTimeInterface::ATOM),
 		];
