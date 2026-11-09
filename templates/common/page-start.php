@@ -36,6 +36,7 @@ $pageIcons = [
 	'settings' => 'settings',
 	'access-denied' => 'shield',
 	'work-orders' => 'clipboard-list',
+	'calendar' => 'calendar-days',
 	'work-order-detail' => 'clipboard-list',
 	'dispatch' => 'kanban',
 	'tours' => 'route',

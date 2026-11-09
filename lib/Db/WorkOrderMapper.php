@@ -218,13 +218,16 @@ class WorkOrderMapper extends QBMapper
 				$qb->andWhere($qb->expr()->eq('primary_user_id', $qb->createNamedParameter($filters['primaryUid'])));
 			}
 			if (isset($filters['from'])) {
-				$qb->andWhere($qb->expr()->gte('due_on', $qb->createNamedParameter($filters['from'])));
+				// FA-1 overlap semantics: a span touches [from,to] when it starts
+				// on/before `to` and ends on/after `from` (plain comparisons stay
+				// index-usable — never COALESCE here, see spec F-1).
+				$qb->andWhere($qb->expr()->gte('due_until', $qb->createNamedParameter($filters['from'])));
 			}
 			if (isset($filters['to'])) {
 				$qb->andWhere($qb->expr()->lte('due_on', $qb->createNamedParameter($filters['to'])));
 			}
 			if (isset($filters['dueOn'])) {
-				$qb->andWhere($qb->expr()->eq('due_on', $qb->createNamedParameter($filters['dueOn'])));
+				$this->constrainToDay($qb, $filters['dueOn']);
 			}
 			if (isset($filters['q']) && $filters['q'] !== '') {
 				$needle = '%' . $this->db->escapeLikeParameter(mb_strtolower($filters['q'])) . '%';
@@ -252,7 +255,8 @@ class WorkOrderMapper extends QBMapper
 	}
 
 	/**
-	 * Dispatch board window: non-terminal WOs with due_on inside [from, to].
+	 * Dispatch board window: non-terminal WOs whose span overlaps [from, to]
+	 * (FA-1 overlap semantics — a multi-day WO appears on every covered day).
 	 *
 	 * @return list<WorkOrder>
 	 */
@@ -261,11 +265,31 @@ class WorkOrderMapper extends QBMapper
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')->from($this->getTableName())
 			->where($qb->expr()->notIn('status', $qb->createNamedParameter(WorkOrder::TERMINAL_STATUSES, IQueryBuilder::PARAM_STR_ARRAY)))
-			->andWhere($qb->expr()->gte('due_on', $qb->createNamedParameter($from)))
 			->andWhere($qb->expr()->lte('due_on', $qb->createNamedParameter($to)))
+			->andWhere($qb->expr()->gte('due_until', $qb->createNamedParameter($from)))
 			->orderBy('due_on', 'ASC')->addOrderBy('id', 'ASC')
 			->setMaxResults(1000);
 		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Shared span overlap predicate: `due_on <= :to AND due_until >= :from`.
+	 * Undated rows (due_on IS NULL → due_until IS NULL) never match — the
+	 * dispatch "no date" tray lists them separately.
+	 */
+	private function constrainToWindow(IQueryBuilder $qb, string $from, string $to): void
+	{
+		$qb->andWhere($qb->expr()->lte('due_on', $qb->createNamedParameter($to)))
+			->andWhere($qb->expr()->gte('due_until', $qb->createNamedParameter($from)));
+	}
+
+	/**
+	 * Shared single-day membership predicate: `due_on <= :day AND due_until >= :day`.
+	 */
+	private function constrainToDay(IQueryBuilder $qb, string $day): void
+	{
+		$qb->andWhere($qb->expr()->lte('due_on', $qb->createNamedParameter($day)))
+			->andWhere($qb->expr()->gte('due_until', $qb->createNamedParameter($day)));
 	}
 
 	/**
@@ -286,23 +310,37 @@ class WorkOrderMapper extends QBMapper
 	}
 
 	/**
-	 * W4 capacity load: sum of estimated_minutes of non-terminal WOs with
-	 * this primary tech on this day.
+	 * W4 capacity load: non-terminal WOs with this primary tech whose span
+	 * covers the day. FA-1: each WO charges CEIL(estimated_minutes/spanDays)
+	 * per covered day (even distribution heuristic, spec §9) — computed in
+	 * PHP because portable SQL cannot express the day-diff division.
 	 */
 	public function loadMinutesFor(string $uid, string $dueOn, ?int $excludeWoId = null): int
 	{
 		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->sum('estimated_minutes'))->from($this->getTableName())
+		$qb->select('id', 'estimated_minutes', 'due_on', 'due_until')->from($this->getTableName())
 			->where($qb->expr()->eq('primary_user_id', $qb->createNamedParameter($uid)))
-			->andWhere($qb->expr()->eq('due_on', $qb->createNamedParameter($dueOn)))
+			->andWhere($qb->expr()->lte('due_on', $qb->createNamedParameter($dueOn)))
+			->andWhere($qb->expr()->gte('due_until', $qb->createNamedParameter($dueOn)))
 			->andWhere($qb->expr()->notIn('status', $qb->createNamedParameter(WorkOrder::TERMINAL_STATUSES, IQueryBuilder::PARAM_STR_ARRAY)));
 		if ($excludeWoId !== null) {
 			$qb->andWhere($qb->expr()->neq('id', $qb->createNamedParameter($excludeWoId, \PDO::PARAM_INT)));
 		}
 		$result = $qb->executeQuery();
-		$sum = $result->fetchOne();
+		$sum = 0;
+		while ($row = $result->fetch()) {
+			$estimated = (int)($row['estimated_minutes'] ?? 0);
+			if ($estimated <= 0) {
+				continue;
+			}
+			$span = \OCA\MaintenanceCheck\Service\WorkOrderSpan::spanDays(
+				$row['due_on'] !== null ? (string)$row['due_on'] : null,
+				$row['due_until'] !== null ? (string)$row['due_until'] : null,
+			);
+			$sum += \OCA\MaintenanceCheck\Service\WorkOrderSpan::chargePerDay($estimated, $span);
+		}
 		$result->closeCursor();
-		return (int)($sum ?: 0);
+		return $sum;
 	}
 
 	/**
@@ -321,7 +359,7 @@ class WorkOrderMapper extends QBMapper
 			)))
 			->andWhere($qb->expr()->notIn('status', $qb->createNamedParameter(WorkOrder::TERMINAL_STATUSES, IQueryBuilder::PARAM_STR_ARRAY)))
 			->andWhere($qb->expr()->isNotNull('due_on'))
-			->andWhere($qb->expr()->lte('due_on', $qb->createNamedParameter($maxDueOn)));
+			->andWhere($qb->expr()->lte('due_until', $qb->createNamedParameter($maxDueOn)));
 		if ($mineUid !== null) {
 			$this->constrainToMine($qb, $mineUid);
 		}
@@ -363,6 +401,47 @@ class WorkOrderMapper extends QBMapper
 			$qb->orderBy($qb->createFunction($rank), 'ASC');
 		}
 		$qb->addOrderBy('due_on', 'ASC')->addOrderBy('id', 'ASC');
+	}
+
+	/**
+	 * FA-2 calendar read model: non-terminal WOs whose span overlaps
+	 * [from,to]. Scope mirrors the work-order list exactly:
+	 *  - $mineUid set → primary/helper/pool (constrainToMine, CORE §7)
+	 *  - $techUids non-empty → office narrowing to those primary assignees
+	 *
+	 * @param list<string>|null $techUids
+	 * @param list<string>|null $kinds
+	 * @param list<string>|null $statuses
+	 * @return list<WorkOrder>
+	 */
+	public function findForCalendar(
+		string $from,
+		string $to,
+		?string $mineUid = null,
+		?array $techUids = null,
+		?array $kinds = null,
+		?array $statuses = null,
+		int $limit = 1001,
+	): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())
+			->where($qb->expr()->notIn('status', $qb->createNamedParameter(WorkOrder::TERMINAL_STATUSES, IQueryBuilder::PARAM_STR_ARRAY)));
+		$this->constrainToWindow($qb, $from, $to);
+		if ($mineUid !== null) {
+			$this->constrainToMine($qb, $mineUid);
+		}
+		if (is_array($techUids) && $techUids !== []) {
+			$qb->andWhere($qb->expr()->in('primary_user_id', $qb->createNamedParameter($techUids, IQueryBuilder::PARAM_STR_ARRAY)));
+		}
+		if (is_array($kinds) && $kinds !== []) {
+			$qb->andWhere($qb->expr()->in('kind', $qb->createNamedParameter($kinds, IQueryBuilder::PARAM_STR_ARRAY)));
+		}
+		if (is_array($statuses) && $statuses !== []) {
+			$qb->andWhere($qb->expr()->in('status', $qb->createNamedParameter($statuses, IQueryBuilder::PARAM_STR_ARRAY)));
+		}
+		$qb->orderBy('due_on', 'ASC')->addOrderBy('id', 'ASC')
+			->setMaxResults(max(1, $limit));
+		return $this->findEntities($qb);
 	}
 
 	public function countForProcedure(int $procedureId): int

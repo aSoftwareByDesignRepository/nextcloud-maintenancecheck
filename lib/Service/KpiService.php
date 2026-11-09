@@ -241,7 +241,7 @@ class KpiService
 		$toTs = (new \DateTimeImmutable($today . ' 23:59:59', new \DateTimeZone('UTC')))->getTimestamp();
 
 		$qb = $this->db->getQueryBuilder();
-		$qb->select('due_on', 'completed_at')
+		$qb->select('due_on', 'due_until', 'completed_at')
 			->from('mn_work_orders')
 			->where($qb->expr()->eq('kind', $qb->createNamedParameter(WorkOrder::KIND_INSPECTION)))
 			->andWhere($qb->expr()->eq('status', $qb->createNamedParameter(WorkOrder::STATUS_DONE)))
@@ -250,7 +250,8 @@ class KpiService
 			->andWhere($qb->expr()->lte('completed_at', $qb->createNamedParameter($toTs, IQueryBuilder::PARAM_INT)));
 		$result = $qb->executeQuery();
 		while ($row = $result->fetch()) {
-			$due = (string)($row['due_on'] ?? '');
+			// FA-1: the deadline is the span end (due_until), not the start.
+			$due = (string)($row['due_until'] ?? $row['due_on'] ?? '');
 			$completedAt = (int)($row['completed_at'] ?? 0);
 			if ($due === '' || $completedAt <= 0) {
 				continue;
@@ -270,7 +271,7 @@ class KpiService
 			->where($qb2->expr()->eq('kind', $qb2->createNamedParameter(WorkOrder::KIND_INSPECTION)))
 			->andWhere($qb2->expr()->notIn('status', $qb2->createNamedParameter(WorkOrder::TERMINAL_STATUSES, IQueryBuilder::PARAM_STR_ARRAY)))
 			->andWhere($qb2->expr()->isNotNull('due_on'))
-			->andWhere($qb2->expr()->lt('due_on', $qb2->createNamedParameter($today)));
+			->andWhere($qb2->expr()->lt('due_until', $qb2->createNamedParameter($today)));
 		$result2 = $qb2->executeQuery();
 		$still = (int)($result2->fetchOne() ?: 0);
 		$result2->closeCursor();

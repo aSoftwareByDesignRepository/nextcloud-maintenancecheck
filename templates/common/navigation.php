@@ -37,6 +37,7 @@ $activeNavId = match ($pageId) {
 $isDue = $activeNavId === 'due';
 $isVisits = $activeNavId === 'visits';
 $isWorkOrders = $activeNavId === 'work-orders';
+$isCalendar = $activeNavId === 'calendar';
 $isDispatch = $activeNavId === 'dispatch';
 $isTours = $activeNavId === 'tours';
 $isKpi = $activeNavId === 'kpi';
@@ -101,6 +102,14 @@ $mnNavLabel = static function (string $name, string $hint) use ($l): void {
 					aria-label="<?php p($l->t('Go to work orders')); ?>">
 					<span class="mn-nav__icon" aria-hidden="true"><?php print_unescaped($mnNavIcon('clipboard-list')); ?></span>
 					<?php $mnNavLabel($l->t('Work orders'), $l->t('Planned and corrective work')); ?>
+				</a>
+			</li>
+			<li class="<?php p($isCalendar ? 'active' : ''); ?>" <?php if ($isCalendar): ?>aria-current="page"<?php endif; ?>>
+				<a href="<?php p((string)($navUrls['calendar'] ?? '#')); ?>"
+					title="<?php p($l->t('Calendar: Jobs laid out on the month')); ?>"
+					aria-label="<?php p($l->t('Go to calendar')); ?>">
+					<span class="mn-nav__icon" aria-hidden="true"><?php print_unescaped($mnNavIcon('calendar-days')); ?></span>
+					<?php $mnNavLabel($l->t('Calendar'), $l->t('Jobs by day — month or week')); ?>
 				</a>
 			</li>
 			<?php if ($isOffice || $isAppAdmin): ?>

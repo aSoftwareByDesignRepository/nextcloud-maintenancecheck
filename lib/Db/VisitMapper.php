@@ -7,6 +7,7 @@ namespace OCA\MaintenanceCheck\Db;
 use OCA\MaintenanceCheck\Exception\NotFoundException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -186,6 +187,35 @@ class VisitMapper extends QBMapper
 			->setMaxResults($limit)->setFirstResult($offset);
 
 		return ['data' => $this->findEntities($qb), 'total' => $total];
+	}
+
+	/**
+	 * FA-2 calendar read model: scheduled visits inside [from,to]. Scope
+	 * mirrors findDue(): mine = assigned to uid OR unassigned pool; office
+	 * narrows to the given assignees only.
+	 *
+	 * @param list<string>|null $techUids
+	 * @return list<Visit>
+	 */
+	public function findForCalendar(string $from, string $to, ?string $mineUid = null, ?array $techUids = null, int $limit = 1001): array
+	{
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())
+			->where($qb->expr()->eq('status', $qb->createNamedParameter(Visit::STATUS_SCHEDULED)))
+			->andWhere($qb->expr()->gte('due_on', $qb->createNamedParameter($from)))
+			->andWhere($qb->expr()->lte('due_on', $qb->createNamedParameter($to)));
+		if ($mineUid !== null) {
+			$qb->andWhere($qb->expr()->orX(
+				$qb->expr()->eq('assigned_uid', $qb->createNamedParameter($mineUid)),
+				$qb->expr()->isNull('assigned_uid'),
+			));
+		}
+		if (is_array($techUids) && $techUids !== []) {
+			$qb->andWhere($qb->expr()->in('assigned_uid', $qb->createNamedParameter($techUids, IQueryBuilder::PARAM_STR_ARRAY)));
+		}
+		$qb->orderBy('due_on', 'ASC')->addOrderBy('id', 'ASC')
+			->setMaxResults(max(1, $limit));
+		return $this->findEntities($qb);
 	}
 
 	public function countForEquipment(int $equipmentId): int

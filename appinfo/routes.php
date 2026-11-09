@@ -16,6 +16,7 @@ return [
 		['name' => 'page#catalogs', 'url' => '/catalogs', 'verb' => 'GET'],
 		['name' => 'page#settings', 'url' => '/settings', 'verb' => 'GET'],
 		['name' => 'page#settingsSection', 'url' => '/settings/{section}', 'verb' => 'GET', 'requirements' => ['section' => '[a-z0-9-]+']],
+		['name' => 'page#calendar', 'url' => '/calendar', 'verb' => 'GET'],
 		['name' => 'page#workOrders', 'url' => '/work-orders', 'verb' => 'GET'],
 		['name' => 'page#workOrderShow', 'url' => '/work-orders/{id}', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'page#dispatch', 'url' => '/dispatch', 'verb' => 'GET'],
@@ -82,6 +83,9 @@ return [
 		['name' => 'license#seats', 'url' => '/api/license/seats', 'verb' => 'GET'],
 		['name' => 'license#assignSeat', 'url' => '/api/license/seats', 'verb' => 'POST'],
 		['name' => 'license#removeSeat', 'url' => '/api/license/seats/{uid}', 'verb' => 'DELETE'],
+
+		// ── Calendar (FA-2 read model) ────────────────────────────────────
+		['name' => 'calendar#index', 'url' => '/api/calendar', 'verb' => 'GET'],
 
 		// ── Work orders (W1–W3 HTTP) ────────────────────────────────────
 		['name' => 'work_order#index', 'url' => '/api/work-orders', 'verb' => 'GET'],
@@ -164,6 +168,7 @@ return [
 		// ── Mobile v1 (SPEC §9 + COMPANION §9.2 capabilities) ───────────
 		['name' => 'mobile#bootstrap', 'url' => '/mobile/v1/bootstrap', 'verb' => 'GET'],
 		['name' => 'mobile#due', 'url' => '/mobile/v1/due', 'verb' => 'GET'],
+		['name' => 'mobile#calendar', 'url' => '/mobile/v1/calendar', 'verb' => 'GET'],
 		['name' => 'mobile#equipmentByQr', 'url' => '/mobile/v1/equipment/by-qr/{token}', 'verb' => 'GET', 'requirements' => ['token' => '[A-Za-z0-9.:_\\-]{8,200}']],
 		['name' => 'mobile#equipment', 'url' => '/mobile/v1/equipment/{id}', 'verb' => 'GET', 'requirements' => ['id' => '\\d+']],
 		['name' => 'mobile#visits', 'url' => '/mobile/v1/visits', 'verb' => 'GET'],

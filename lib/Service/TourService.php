@@ -465,6 +465,15 @@ class TourService
 		foreach ($stops as $stop) {
 			$stopRow = $stop->toApi();
 			$wo = $woById[$stop->getWorkOrderId()] ?? null;
+			// FA-1 §9 edge case: a dueUntil shortened after tour pinning leaves
+			// the stop outside the span — flag it for the warning badge
+			// (never auto-deleted, UNIQUE(work_order_id) stands).
+			$stopRow['outsideSpan'] = $wo !== null && $wo->getDueOn() !== null
+				&& !\OCA\MaintenanceCheck\Service\WorkOrderSpan::covers(
+					$wo->getDueOn(),
+					$wo->effectiveDueUntil(),
+					$tour->getTourDate(),
+				);
 			$stopRow['workOrder'] = $wo !== null ? [
 				'id' => (int)$wo->getId(),
 				'number' => $wo->getNumber(),
@@ -472,6 +481,7 @@ class TourService
 				'status' => $wo->getStatus(),
 				'priority' => $wo->getPriority(),
 				'dueOn' => $wo->getDueOn(),
+				'dueUntil' => $wo->effectiveDueUntil(),
 				'estimatedMinutes' => $wo->getEstimatedMinutes(),
 				'customerName' => $customerNames[$wo->getCustomerId()] ?? '',
 				'equipmentLabel' => $wo->getEquipmentId() !== null

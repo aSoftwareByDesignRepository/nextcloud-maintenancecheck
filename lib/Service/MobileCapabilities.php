@@ -43,6 +43,9 @@ final class MobileCapabilities
 			'inspectionResults' => true,
 			'defectFollowUp' => true,
 			'inspectionEvidencePdf' => true,
+			// FA-3: month-agenda surface + multi-day work orders (spec §9).
+			'calendar' => true,
+			'multiDayWorkOrders' => true,
 			'minAppVersion' => self::MIN_APP_VERSION,
 			// Clients that omit this key fail closed (resolveMobileAccess → app_outdated).
 			'maintenancecheck.companion.min' => self::COMPANION_MIN,

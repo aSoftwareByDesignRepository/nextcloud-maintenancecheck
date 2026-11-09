@@ -55,12 +55,20 @@ class DispatchService
 		$tourWoIds = $this->tourStops->tourIdsByWorkOrder(array_map(static fn (WorkOrder $wo) => (int)$wo->getId(), $orders));
 
 		// day → lane → rows; remember per-lane minutes for capacity cells.
+		// FA-1: a multi-day WO appears in every day lane its span covers.
 		$byDay = [];
 		foreach ($rows as $row) {
 			$row['inTourId'] = $tourWoIds[$row['id']] ?? null;
-			$day = (string)$row['dueOn'];
 			$lane = $row['primaryUserId'] !== null && $row['primaryUserId'] !== '' ? (string)$row['primaryUserId'] : self::LANE_UNASSIGNED;
-			$byDay[$day][$lane][] = $row;
+			$spanStart = (string)$row['dueOn'];
+			$spanEnd = (string)($row['dueUntil'] ?? $row['dueOn']);
+			for (
+				$day = max($spanStart, $from);
+				$day <= min($spanEnd, $to);
+				$day = $this->intervals->addInterval($day, IntervalCalculator::UNIT_DAY, 1)
+			) {
+				$byDay[$day][$lane][] = $row;
+			}
 		}
 
 		$days = [];

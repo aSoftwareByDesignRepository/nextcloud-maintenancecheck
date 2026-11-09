@@ -37,7 +37,7 @@ require __DIR__ . '/parts/page-quickstart.php';
 		<p class="mn-filter-panel__intro"><?php p($l->t('Find customers by name, number, or city.')); ?></p>
 	</header>
 	<div class="mn-filter-panel__body">
-		<form id="mn-customer-filters" class="mn-filter-panel__form" role="search" aria-label="<?php p($l->t('Search customers')); ?>" onsubmit="return false;">
+		<form id="mn-customer-filters" class="mn-filter-panel__form" role="search" aria-label="<?php p($l->t('Search customers')); ?>">
 			<div class="mn-filter-grid mn-filter-grid--search">
 				<div class="mn-filter-field">
 					<label class="mn-filter-field__label" for="mn-customer-search"><?php p($l->t('Search')); ?></label>

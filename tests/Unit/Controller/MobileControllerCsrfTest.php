@@ -7,6 +7,7 @@ namespace OCA\MaintenanceCheck\Tests\Unit\Controller;
 use OCA\MaintenanceCheck\Controller\MobileController;
 use OCA\MaintenanceCheck\Exception\PermissionDeniedException;
 use OCA\MaintenanceCheck\Service\AccessControlService;
+use OCA\MaintenanceCheck\Service\CalendarService;
 use OCA\MaintenanceCheck\Service\CustomerService;
 use OCA\MaintenanceCheck\Service\EquipDocService;
 use OCA\MaintenanceCheck\Service\EquipmentService;
@@ -58,6 +59,7 @@ final class MobileControllerCsrfTest extends TestCase
 			$this->createMock(FailureCodeService::class),
 			$this->createMock(ExceptionBoardService::class),
 			$this->createMock(InspectionObligationService::class),
+			$this->createMock(CalendarService::class),
 			$users,
 		);
 		$method = new ReflectionMethod(MobileController::class, 'assertSafeMutationChannel');

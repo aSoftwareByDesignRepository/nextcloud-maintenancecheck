@@ -39,7 +39,7 @@ require __DIR__ . '/parts/page-quickstart.php';
 		<p class="mn-filter-panel__intro"><?php p($l->t('Find equipment by label, manufacturer, model, or serial.')); ?></p>
 	</header>
 	<div class="mn-filter-panel__body">
-		<form id="mn-equipment-filters" class="mn-filter-panel__form" role="search" aria-label="<?php p($l->t('Search equipment')); ?>" onsubmit="return false;">
+		<form id="mn-equipment-filters" class="mn-filter-panel__form" role="search" aria-label="<?php p($l->t('Search equipment')); ?>">
 			<div class="mn-filter-grid mn-filter-grid--search">
 				<div class="mn-filter-field">
 					<label class="mn-filter-field__label" for="mn-equipment-search"><?php p($l->t('Search')); ?></label>

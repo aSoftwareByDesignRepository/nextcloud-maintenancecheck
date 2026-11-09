@@ -582,6 +582,31 @@
 								el('option', { value: 'emergency', text: tr('Emergency') }),
 							]);
 							var procSelect = procedureSelect(procedures, null);
+							var dueOnInput = el('input', { type: 'date', class: 'mn-input form-input' });
+							var dueUntilInput = el('input', { type: 'date', class: 'mn-input form-input' });
+							var dueUntilField = field(tr('End date (optional)'), dueUntilInput, {
+								hint: tr('Leave empty for a single-day job — at most 31 days.'),
+							});
+							function validateDueUntil() {
+								var start = dueOnInput.value;
+								var end = dueUntilInput.value;
+								if (end && !start) {
+									dueUntilField.mnSetError(tr('Set a due date first.'));
+									return false;
+								}
+								if (end && start && end < start) {
+									dueUntilField.mnSetError(tr('End date must not be before the start date.'));
+									return false;
+								}
+								if (end && start && window.MnCalendar && window.MnCalendar.spanDays(start, end) > 31) {
+									dueUntilField.mnSetError(tr('Jobs may span at most 31 days.'));
+									return false;
+								}
+								dueUntilField.mnSetError(null);
+								return true;
+							}
+							dueOnInput.addEventListener('change', validateDueUntil);
+							dueUntilInput.addEventListener('change', validateDueUntil);
 							var requesterInput = el('input', { type: 'text', class: 'mn-input form-input', autocomplete: 'name' });
 							var phoneInput = el('input', { type: 'tel', class: 'mn-input form-input', autocomplete: 'tel' });
 							var symptomInput = el('textarea', { class: 'mn-input form-textarea', rows: '2' });
@@ -602,6 +627,10 @@
 								field(tr('Procedure'), procSelect, {
 									hint: tr('Optional — attach a checklist template now.'),
 								}),
+								field(tr('Due date'), dueOnInput, {
+									hint: tr('First day the job is planned for.'),
+								}),
+								dueUntilField,
 								field(tr('Requester name'), requesterInput, {
 									hint: tr('Who called — for break/fix intake.'),
 								}),
@@ -630,6 +659,9 @@
 												d.setError(tr('Title is required.'));
 												return;
 											}
+											if (!validateDueUntil()) {
+												return;
+											}
 											d.setBusy(true);
 											d.setError(null);
 											var body = {
@@ -643,6 +675,12 @@
 											}
 											if (procSelect.value) {
 												body.procedureId = Number(procSelect.value);
+											}
+											if (dueOnInput.value) {
+												body.dueOn = dueOnInput.value;
+											}
+											if (dueUntilInput.value) {
+												body.dueUntil = dueUntilInput.value;
 											}
 											if (requesterInput.value.trim()) {
 												body.requesterName = requesterInput.value.trim();
@@ -1454,6 +1492,67 @@
 							action: 'assign-technician',
 							onClick: openAssignDialog,
 						});
+						overflowItems.push({
+							label: tr('Edit dates'),
+							action: 'edit-dates',
+							onClick: function () {
+								var dueInput = el('input', { type: 'date', class: 'mn-input form-input', value: wo.dueOn || '' });
+								var untilInput = el('input', { type: 'date', class: 'mn-input form-input', value: wo.dueUntil || wo.dueOn || '' });
+								var untilField = field(tr('End date (optional)'), untilInput, {
+									hint: tr('Leave empty for a single-day job — at most 31 days.'),
+								});
+								function validateSpan() {
+									var start = dueInput.value;
+									var end = untilInput.value;
+									if (end && !start) {
+										untilField.mnSetError(tr('Set a due date first.'));
+										return false;
+									}
+									if (end && start && end < start) {
+										untilField.mnSetError(tr('End date must not be before the start date.'));
+										return false;
+									}
+									if (end && start && window.MnCalendar && window.MnCalendar.spanDays(start, end) > 31) {
+										untilField.mnSetError(tr('Jobs may span at most 31 days.'));
+										return false;
+									}
+									untilField.mnSetError(null);
+									return true;
+								}
+								dueInput.addEventListener('change', validateSpan);
+								untilInput.addEventListener('change', validateSpan);
+								var dlg = openDialog({
+									title: tr('Edit dates'),
+									content: el('div', { class: 'mn-form-grid' }, [
+										field(tr('Due date'), dueInput, { hint: tr('First day the job is planned for.') }),
+										untilField,
+									]),
+									actions: [
+										{ label: tr('Cancel'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
+										{
+											label: tr('Save'),
+											variant: 'mn-btn--primary',
+											onClick: function (d) {
+												if (!validateSpan()) {
+													return;
+												}
+												d.setBusy(true);
+												var body = { dueOn: dueInput.value || null, dueUntil: untilInput.value || null };
+												api('PUT', apiUrl('workOrders') + '/' + wo.id, body).then(function () {
+													d.close();
+													toast(tr('Dates saved.'), 'success');
+													load();
+												}).catch(function (error) {
+													d.setBusy(false);
+													d.setError(error.message);
+												});
+											},
+										},
+									],
+								});
+								return dlg;
+							},
+						});
 					}
 					var overflowMenu = dom.visitOverflowMenu ? dom.visitOverflowMenu(overflowItems) : null;
 					if (overflowMenu) {
@@ -1479,7 +1578,12 @@
 						}),
 						whereLine ? el('p', { class: 'mn-wo-hero__where', text: whereLine }) : null,
 						el('div', { class: 'mn-wo-detail__meta' }, [
-							wo.dueOn ? el('span', { class: 'mn-wo-hero__chip', text: tr('Due {date}', { date: fmt(wo.dueOn) }) }) : null,
+							wo.dueOn ? el('span', {
+								class: 'mn-wo-hero__chip',
+								text: (wo.dueUntil && wo.dueUntil !== wo.dueOn)
+									? tr('Due {start} – {end}', { start: fmt(wo.dueOn), end: fmt(wo.dueUntil) })
+									: tr('Due {date}', { date: fmt(wo.dueOn) }),
+							}) : null,
 							wo.primaryUserId ? el('span', { class: 'mn-wo-hero__chip', text: tr('Tech') + ': ' + wo.primaryUserId }) : null,
 						]),
 					]);
@@ -2691,12 +2795,18 @@
 							render: function (entry) {
 								var wo = entry.stop.workOrder || {};
 								var woId = entry.stop.workOrderId || wo.id || '';
-								return tableStack(
+								var titleKids = [
 									tableLink(
 										pageUrl('workOrders') + '/' + woId,
 										(wo.number || ('#' + woId)) + ' — ' + (wo.title || tr('Work order')),
 										'mn-tour-stop-link'
 									),
+								];
+								if (entry.stop.outsideSpan) {
+									titleKids.push(statusBadge(tr('Outside job dates'), 'mn-badge--warning'));
+								}
+								return tableStack(
+									el('div', { class: 'mn-table-primary-row' }, titleKids),
 									[wo.customerName, wo.equipmentLabel].filter(Boolean).join(' · ') || null
 								);
 							},

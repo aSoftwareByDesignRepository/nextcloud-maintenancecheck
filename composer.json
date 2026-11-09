@@ -45,6 +45,7 @@
 		"test:mutation:inspection-close": "php tests/Mutation/run-inspection-close-mutations.php",
 		"test:mutation:inspection-followup": "php tests/Mutation/run-inspection-followup-mutations.php",
 		"test:mutation:due-query-kind": "php tests/Mutation/run-due-query-kind-mutations.php",
+		"test:mutation:span": "php tests/Mutation/run-span-mutations.php",
 		"test:mutation:equip-doc": "php tests/Mutation/run-equip-doc-mutations.php",
 		"test:mutation:download-csrf": "php tests/Mutation/run-download-csrf-mutations.php",
 		"test:mutation:danger-contrast": "php tests/Mutation/run-danger-contrast-mutations.php",

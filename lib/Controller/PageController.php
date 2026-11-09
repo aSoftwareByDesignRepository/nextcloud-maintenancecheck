@@ -168,6 +168,17 @@ class PageController extends Controller
 		);
 	}
 
+	/**
+	 * FA-2: every role gets the calendar — it is the technician's headline
+	 * surface, not a planning page (spec §7 nav rule).
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function calendar(): TemplateResponse
+	{
+		return $this->page('calendar', $this->l->t('Calendar'), $this->l->t('Your jobs on the days they are planned — month or week.'));
+	}
+
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function workOrders(): TemplateResponse
@@ -236,6 +247,9 @@ class PageController extends Controller
 		Util::addScript(Application::APP_ID, 'common/app-feedback');
 		if (in_array($pageId, ['work-orders', 'work-order-detail', 'dispatch', 'tours', 'kpi', 'exceptions'], true)) {
 			Util::addScript(Application::APP_ID, 'work-order-pages');
+		}
+		if ($pageId === 'calendar') {
+			Util::addScript(Application::APP_ID, 'calendar-page');
 		}
 
 		$uid = $this->access->currentUserId();
@@ -311,6 +325,7 @@ class PageController extends Controller
 				'settings' => $route('page.settingsSection', ['section' => SettingsSections::DEFAULT]),
 				'settingsSections' => $this->settingsSectionUrls(),
 				'workOrders' => $route('page.workOrders'),
+				'calendar' => $route('page.calendar'),
 				'dispatch' => $route('page.dispatch'),
 				'tours' => $route('page.tours'),
 				'kpi' => $route('page.kpi'),
@@ -337,6 +352,7 @@ class PageController extends Controller
 				'license' => $route('license.show'),
 				'licenseSeats' => $route('license.seats'),
 				'workOrders' => $route('work_order.index'),
+				'calendar' => $route('calendar.index'),
 				'procedures' => $route('procedure.index'),
 				'proceduresPack' => $route('procedure.exportPack'),
 				'skills' => $route('skill.index'),

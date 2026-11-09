@@ -318,6 +318,7 @@ class WorkOrderService
 		}
 		$wo->setDescription($fields['description']);
 		$wo->setDueOn($fields['dueOn']);
+		$wo->setDueUntil($fields['dueUntil']);
 		$wo->setEstimatedMinutes($fields['estimatedMinutes']);
 		$wo->setProcedureSkipped($skip['skipped']);
 		$wo->setProcedureSkipReason($skip['reason']);
@@ -467,6 +468,7 @@ class WorkOrderService
 				$wo->setProcedureId($procedureId);
 				$wo->setTitle($title ?? $this->defaultVisitTitle($visit));
 				$wo->setDueOn($visit->getDueOn());
+				$wo->setDueUntil($visit->getDueOn());
 				$wo->setEstimatedMinutes($estimatedMinutes);
 				$wo->setPrimaryUserId($visit->getAssignedUid());
 				$wo->setProcedureSkipped($skip['skipped']);
@@ -557,6 +559,16 @@ class WorkOrderService
 			if (array_key_exists('dueOn', $body)) {
 				$dueOn = $this->validator->optionalString($body, 'dueOn');
 				$wo->setDueOn(($dueOn === null || $dueOn === '') ? null : $this->validator->dueOn($dueOn, $this->clock->today()));
+			}
+			if (array_key_exists('dueUntil', $body)) {
+				$dueUntil = $this->validator->optionalString($body, 'dueUntil');
+				$wo->setDueUntil(($dueUntil === null || $dueUntil === '') ? null : $this->validator->dueOn($dueUntil, $this->clock->today()));
+			}
+			// FA-1: the span invariant is validated on the *resulting* pair —
+			// moving dueOn past an existing dueUntil is a 422, never an auto-shift.
+			if (array_key_exists('dueOn', $body) || array_key_exists('dueUntil', $body)) {
+				[, $normalizedUntil] = WorkOrderSpan::assertValid($wo->getDueOn(), $wo->getDueUntil());
+				$wo->setDueUntil($normalizedUntil);
 			}
 			if (array_key_exists('estimatedMinutes', $body)) {
 				$wo->setEstimatedMinutes($this->validatedEstimatedMinutes($body));
@@ -1498,12 +1510,18 @@ class WorkOrderService
 	private function validatedEditableFields(array $body, int $customerId, bool $required): array
 	{
 		$dueOn = $this->validator->optionalString($body, 'dueOn');
+		$dueUntil = $this->validator->optionalString($body, 'dueUntil');
+		[, $normalizedUntil] = WorkOrderSpan::assertValid(
+			($dueOn === null || $dueOn === '') ? null : $this->validator->dueOn($dueOn, $this->clock->today()),
+			($dueUntil === null || $dueUntil === '') ? null : $this->validator->dueOn($dueUntil, $this->clock->today()),
+		);
 		return [
 			'title' => $required
 				? $this->validator->requiredString($body, 'title', 'title_required', 255, 'title_too_long')
 				: $this->validator->boundedOptionalString($body, 'title', 255, 'title_too_long'),
 			'description' => $this->validator->boundedOptionalString($body, 'description', self::MAX_DESCRIPTION, 'description_too_long'),
 			'dueOn' => ($dueOn === null || $dueOn === '') ? null : $this->validator->dueOn($dueOn, $this->clock->today()),
+			'dueUntil' => $normalizedUntil,
 			'estimatedMinutes' => $this->validatedEstimatedMinutes($body),
 			'priority' => $this->validatedPriority($body),
 			'equipmentId' => $this->validatedEquipmentId($body, $customerId),

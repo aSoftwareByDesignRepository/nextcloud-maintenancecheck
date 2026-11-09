@@ -34,6 +34,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setDescription(?string $v)
  * @method string|null getDueOn()
  * @method void setDueOn(?string $v)
+ * @method string|null getDueUntil()
+ * @method void setDueUntil(?string $v)
  * @method int|null getEstimatedMinutes()
  * @method void setEstimatedMinutes(?int $v)
  * @method string|null getPrimaryUserId()
@@ -153,6 +155,7 @@ class WorkOrder extends Entity
 	protected string $title = '';
 	protected ?string $description = null;
 	protected ?string $dueOn = null;
+	protected ?string $dueUntil = null;
 	protected ?int $estimatedMinutes = null;
 	protected ?string $primaryUserId = null;
 	protected ?string $helperUids = null;
@@ -207,6 +210,7 @@ class WorkOrder extends Entity
 		$this->addType('title', 'string');
 		$this->addType('description', 'string');
 		$this->addType('dueOn', 'string');
+		$this->addType('dueUntil', 'string');
 		$this->addType('estimatedMinutes', 'integer');
 		$this->addType('primaryUserId', 'string');
 		$this->addType('helperUids', 'string');
@@ -243,6 +247,34 @@ class WorkOrder extends Entity
 	public function isTerminal(): bool
 	{
 		return in_array($this->status, self::TERMINAL_STATUSES, true);
+	}
+
+	/**
+	 * FA-1: effective span end (due_until backfilled = due_on; NULL-safe for
+	 * rows hydrated before the column existed).
+	 */
+	public function effectiveDueUntil(): ?string
+	{
+		if ($this->dueOn === null || $this->dueOn === '') {
+			return null;
+		}
+		return ($this->dueUntil === null || $this->dueUntil === '') ? $this->dueOn : $this->dueUntil;
+	}
+
+	/**
+	 * FA-1: inclusive span length in days; null for undated work orders.
+	 */
+	public function spanDays(): ?int
+	{
+		return \OCA\MaintenanceCheck\Service\WorkOrderSpan::spanDays($this->dueOn, $this->effectiveDueUntil());
+	}
+
+	/**
+	 * FA-1: true when the span covers the given calendar day.
+	 */
+	public function coversDay(string $day): bool
+	{
+		return \OCA\MaintenanceCheck\Service\WorkOrderSpan::covers($this->dueOn, $this->effectiveDueUntil(), $day);
 	}
 
 	/**
@@ -301,6 +333,7 @@ class WorkOrder extends Entity
 			'title' => $this->title,
 			'description' => $this->description,
 			'dueOn' => $this->dueOn,
+			'dueUntil' => $this->dueUntil,
 			'estimatedMinutes' => $this->estimatedMinutes,
 			'primaryUserId' => $this->primaryUserId,
 			'helperUids' => $this->helperUidList(),

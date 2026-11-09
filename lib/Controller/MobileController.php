@@ -65,6 +65,7 @@ class MobileController extends Controller
 		private readonly FailureCodeService $failureCodes,
 		private readonly ExceptionBoardService $exceptions,
 		private readonly \OCA\MaintenanceCheck\Service\InspectionObligationService $obligations,
+		private readonly \OCA\MaintenanceCheck\Service\CalendarService $calendarService,
 		private readonly IUserManager $userManager,
 	) {
 		parent::__construct(Application::APP_ID, $request);
@@ -90,6 +91,22 @@ class MobileController extends Controller
 			$mine === '1',
 			DueQueryKind::resolve($kind, $filter),
 		));
+	}
+
+	/**
+	 * FA-3 month agenda feed — same mine-scope as the work-order list;
+	 * seat gate identical to every other /mobile/v1 route (spec MH-09).
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function calendar(?string $from = null, ?string $to = null): JSONResponse
+	{
+		$uid = $this->access->currentUserId();
+		$this->gate->assertGatePassed($uid);
+		return new JSONResponse($this->calendarService->events($uid, [
+			'from' => $from,
+			'to' => $to,
+		]));
 	}
 
 	#[NoAdminRequired]

@@ -44,6 +44,90 @@
                 }
             }
         },
+        "/api/calendar": {
+            "get": {
+                "operationId": "calendar#index",
+                "summary": "calendar#index",
+                "x-mn-gate": "l2_read",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON success (object; list endpoints include data[])",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListEnvelope"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/JsonObject"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/capacity": {
             "get": {
                 "operationId": "capacity#index",
@@ -10160,6 +10244,39 @@
                 }
             }
         },
+        "/calendar": {
+            "get": {
+                "operationId": "page#calendar",
+                "summary": "page#calendar",
+                "x-mn-gate": "page_l2",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML page",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No Nextcloud session (login redirect or 401)"
+                    },
+                    "403": {
+                        "description": "Authenticated but not allowed for this gate"
+                    }
+                }
+            }
+        },
         "/catalogs": {
             "get": {
                 "operationId": "page#catalogs",
@@ -10495,6 +10612,90 @@
                 "operationId": "mobile#bootstrap",
                 "summary": "mobile#bootstrap",
                 "x-mn-gate": "mobile_bootstrap",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON success (object; list endpoints include data[])",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListEnvelope"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/JsonObject"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mobile/v1/calendar": {
+            "get": {
+                "operationId": "mobile#calendar",
+                "summary": "mobile#calendar",
+                "x-mn-gate": "mobile_read",
                 "security": [
                     {
                         "nextcloud_session": []

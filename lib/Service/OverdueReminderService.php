@@ -181,11 +181,11 @@ class OverdueReminderService
 			WorkOrder::STATUS_BLOCKED,
 		];
 		$qb = $this->db->getQueryBuilder();
-		$qb->select('id', 'number', 'title', 'due_on', 'primary_user_id')
+		$qb->select('id', 'number', 'title', 'due_on', 'due_until', 'primary_user_id')
 			->from('mn_work_orders')
 			->where($qb->expr()->in('status', $qb->createNamedParameter($open, IQueryBuilder::PARAM_STR_ARRAY)))
 			->andWhere($qb->expr()->isNotNull('due_on'))
-			->andWhere($qb->expr()->lt('due_on', $qb->createNamedParameter($today)))
+			->andWhere($qb->expr()->lt('due_until', $qb->createNamedParameter($today)))
 			->andWhere($qb->expr()->isNotNull('primary_user_id'))
 			->andWhere($qb->expr()->neq('primary_user_id', $qb->createNamedParameter('')))
 			->setMaxResults(500);

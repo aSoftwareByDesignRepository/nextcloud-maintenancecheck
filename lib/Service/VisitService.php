@@ -106,7 +106,9 @@ class VisitService
 			if ($inspectionOnly && !$woRow['isInspection']) {
 				continue;
 			}
-			$bucket = $this->dueBoard->bucketFor($woRow['dueOn'], $today);
+			// FA-1: bucket on the span end — a multi-day WO is overdue only
+			// once due_until has passed (due_until = today is NOT overdue).
+			$bucket = $this->dueBoard->bucketFor((string)($woRow['dueUntil'] ?? $woRow['dueOn']), $today);
 			if ($bucket !== null) {
 				$buckets[$bucket][] = $woRow;
 			}
@@ -591,6 +593,7 @@ class VisitService
 				'kind' => $wo->getKind(),
 				'priority' => $wo->getPriority(),
 				'dueOn' => $dueOn,
+				'dueUntil' => $wo->effectiveDueUntil(),
 				'customerId' => $wo->getCustomerId(),
 				'customerName' => $customerNames[$wo->getCustomerId()] ?? '',
 				'equipmentId' => $wo->getEquipmentId(),

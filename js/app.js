@@ -374,16 +374,9 @@
 				} else if (key === 'html') {
 					// Only used with trusted, static icon markup.
 					node.innerHTML = value;
-				} else if (key === 'onClick') {
-					node.addEventListener('click', value);
-				} else if (key === 'onKeyDown') {
-					node.addEventListener('keydown', value);
-				} else if (key === 'onSubmit') {
-					node.addEventListener('submit', value);
-				} else if (key === 'onInput') {
-					node.addEventListener('input', value);
-				} else if (key === 'onChange') {
-					node.addEventListener('change', value);
+				} else if (key.slice(0, 2) === 'on' && typeof value === 'function') {
+					// onX → addEventListener; never an inline handler attribute (CSP).
+					node.addEventListener(key.slice(2).toLowerCase(), value);
 				} else if (value === true) {
 					node.setAttribute(key, '');
 				} else {
@@ -2689,6 +2682,11 @@
 			load();
 		}
 
+		if (search.form) {
+			search.form.addEventListener('submit', function (event) {
+				event.preventDefault();
+			});
+		}
 		search.addEventListener('input', debounce(function () {
 			state.q = search.value.trim();
 			state.offset = 0;
@@ -3357,6 +3355,11 @@
 			load();
 		}
 
+		if (search.form) {
+			search.form.addEventListener('submit', function (event) {
+				event.preventDefault();
+			});
+		}
 		search.addEventListener('input', debounce(function () {
 			state.q = search.value.trim();
 			state.offset = 0;
