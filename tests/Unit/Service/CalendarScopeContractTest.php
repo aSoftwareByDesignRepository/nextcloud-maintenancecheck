@@ -91,4 +91,17 @@ final class CalendarScopeContractTest extends TestCase
 		$this->assertStringContainsString('$mineUid = $isOffice ? null : $uid;', $src);
 		$this->assertStringContainsString('$techUids = $isOffice', $src);
 	}
+
+	public function testOfficeTechFilterIncludesHelpers(): void
+	{
+		$src = (string)file_get_contents(self::SRC . '/Db/WorkOrderMapper.php');
+		// The office tech filter must match the mine scope minus pool —
+		// primary assignee OR JSON helper membership — or filtering to a
+		// tech would silently drop the jobs they are booked on as helper.
+		preg_match('/function findForCalendar.*?\n\t}/s', $src, $m);
+		$this->assertNotEmpty($m, 'findForCalendar source not found');
+		$body = $m[0];
+		$this->assertStringContainsString('helper_uids', $body, 'office tech filter must include helper assignments');
+		$this->assertStringContainsString("in('primary_user_id'", $body);
+	}
 }

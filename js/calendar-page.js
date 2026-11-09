@@ -407,7 +407,9 @@
 					(function (dayRef) {
 						cell.addEventListener('click', function () {
 							selectedDay = dayRef;
-							renderAgenda();
+							// Full render so the --selected class follows the
+							// mouse too — the keyboard path already re-renders.
+							render();
 						});
 						cell.addEventListener('keydown', function (e) {
 							var delta = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];

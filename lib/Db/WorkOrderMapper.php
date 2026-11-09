@@ -431,7 +431,17 @@ class WorkOrderMapper extends QBMapper
 			$this->constrainToMine($qb, $mineUid);
 		}
 		if (is_array($techUids) && $techUids !== []) {
-			$qb->andWhere($qb->expr()->in('primary_user_id', $qb->createNamedParameter($techUids, IQueryBuilder::PARAM_STR_ARRAY)));
+			// Office narrowing mirrors the mine scope minus pool: a tech "owns"
+			// a job as primary OR helper — otherwise filtering to a tech would
+			// hide the jobs they are booked on as helper.
+			$techOr = $qb->expr()->orX(
+				$qb->expr()->in('primary_user_id', $qb->createNamedParameter($techUids, IQueryBuilder::PARAM_STR_ARRAY)),
+			);
+			foreach ($techUids as $techUid) {
+				$helperNeedle = '%' . $this->db->escapeLikeParameter('"' . $techUid . '"') . '%';
+				$techOr->add($qb->expr()->like('helper_uids', $qb->createNamedParameter($helperNeedle)));
+			}
+			$qb->andWhere($techOr);
 		}
 		if (is_array($kinds) && $kinds !== []) {
 			$qb->andWhere($qb->expr()->in('kind', $qb->createNamedParameter($kinds, IQueryBuilder::PARAM_STR_ARRAY)));
