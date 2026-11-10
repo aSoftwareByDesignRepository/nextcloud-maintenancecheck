@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.4.0 - 2026-11-10
+
+### Added
+
+- calendar: month/week work-order calendar for technicians and office — day agenda, keyboard navigation, office technician/kind/status filters, per-day overflow dialog
+- work orders: multi-day jobs via `due_until` (Version1080 migration, `due_on` backfill), span-aware clipping on calendar, dispatch, KPI and overdue surfaces
+- day tours: stops flag `outsideSpan` when a work order's visit lands outside its planned dates
+- api: `GET /api/calendar` + `GET /mobile/v1/calendar` read endpoints with `truncated` cap flag
+- companion: CalendarScreen month grid + day agenda behind the `calendar` capability
+- l10n: tr catalog (12th locale)
+
+### Fixed
+
+- calendar: helper-inclusive technician filter, mouse-select re-render, honest load-failure state
+- calendar: selection/focus can no longer desync from the fetched window — boundary arrows shift the period, stale selections reset, unfetched days render a loading affordance instead of "No jobs on this day."
+- companion: `truncated` flag renders a partial-window warning instead of silently dropping jobs
+- l10n: calendar wave — 33 uncatalogued msgids + 10 English-only cells across 11 catalogs, tn() plurals
+
 ## 1.3.5 - 2026-11-05
 
 ### Fixed

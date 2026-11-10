@@ -149,6 +149,11 @@
 		};
 	}
 
+	/** True when `day` is inside the inclusive [from, to] window. */
+	function dayInWindow(day, from, to) {
+		return isValidYmd(day) && day >= from && day <= to;
+	}
+
 	var MnCalendar = {
 		isValidYmd: isValidYmd,
 		addDays: addDays,
@@ -161,6 +166,7 @@
 		spanDays: spanDays,
 		groupByDay: groupByDay,
 		cellSplit: cellSplit,
+		dayInWindow: dayInWindow,
 	};
 	if (typeof window !== 'undefined') {
 		window.MnCalendar = MnCalendar;
@@ -240,6 +246,11 @@
 		var focusDay = null;
 		var filters = { tech: [], kind: '', status: '' };
 		var loadGeneration = 0;
+		// Window of the last successful fetch — the only range dayMap covers.
+		var loadedWindow = null;
+		// Boundary-arrow target parks focus here (not on <body>) while the
+		// new window is being fetched.
+		board.setAttribute('tabindex', '-1');
 
 		function windowFor() {
 			if (view === 'week') {
@@ -250,8 +261,21 @@
 			return { from: days[0], to: days[41] };
 		}
 
-		function queryParams() {
+		/**
+		 * Invariant: selectedDay/focusDay ⊆ windowFor(). Out-of-window
+		 * values reset to the anchor, which is always rendered.
+		 */
+		function clampSelection() {
 			var w = windowFor();
+			if (!dayInWindow(selectedDay, w.from, w.to)) {
+				selectedDay = anchor;
+			}
+			if (focusDay && !dayInWindow(focusDay, w.from, w.to)) {
+				focusDay = null;
+			}
+		}
+
+		function queryParams(w) {
 			var params = { from: w.from, to: w.to };
 			if (isOffice) {
 				if (filters.tech.length) {
@@ -269,13 +293,18 @@
 
 		function load() {
 			var generation = ++loadGeneration;
+			var w = windowFor();
 			board.setAttribute('aria-busy', 'true');
 			clear(board);
 			board.appendChild(skeleton(4));
-			api('GET', withQuery(apiUrl('calendar'), queryParams())).then(function (data) {
+			// The stale dayMap does not cover the requested window — the
+			// agenda renders its loading affordance until this fetch lands.
+			renderAgenda();
+			api('GET', withQuery(apiUrl('calendar'), queryParams(w))).then(function (data) {
 				if (generation !== loadGeneration) {
 					return;
 				}
+				loadedWindow = w;
 				events = (data && data.events) || [];
 				dayMap = groupByDay(events);
 				render();
@@ -291,6 +320,10 @@
 				console.error('mn-cal load failed', error);
 				clear(board);
 				board.appendChild(emptyState(tr('Calendar could not load'), error.message || tr('Please try again.')));
+				// Do not leave the agenda on the loading affordance — the
+				// selected day stays unfetched, so name the failure instead.
+				clear(agenda);
+				agenda.appendChild(el('p', { class: 'mn-cal-agenda__empty', text: tr('Calendar could not load') }));
 			}).finally(function () {
 				if (generation === loadGeneration) {
 					board.removeAttribute('aria-busy');
@@ -310,6 +343,7 @@
 
 		function shift(dir) {
 			anchor = view === 'week' ? addDays(anchor, dir * 7) : addMonths(anchor, dir);
+			clampSelection();
 			load();
 		}
 
@@ -384,7 +418,8 @@
 						role: 'gridcell',
 						'aria-label': dom.fmt(day) + (list.length ? ', ' + tn('%n job', '%n jobs', list.length) : ''),
 						'data-mn-cal-day': day,
-						tabindex: '0',
+						// Roving tabindex — exactly one tabbable cell.
+						tabindex: day === selectedDay ? '0' : '-1',
 					});
 					if (day === todayYmd()) {
 						cell.setAttribute('aria-current', 'date');
@@ -434,7 +469,17 @@
 								var target = addDays(dayRef, delta);
 								selectedDay = target;
 								focusDay = target;
-								render();
+								var w = windowFor();
+								if (dayInWindow(target, w.from, w.to)) {
+									render();
+								} else {
+									// Arrow past the edge — the anchor follows the
+									// target so the focused cell is always a rendered,
+									// fetched one; focus parks on the board mid-load.
+									anchor = target;
+									board.focus();
+									load();
+								}
 							} else if (e.key === 'Enter') {
 								e.preventDefault();
 								openDay(dayRef);
@@ -485,12 +530,21 @@
 			if (view !== 'month') {
 				return;
 			}
-			var list = dayMap[selectedDay] || [];
+			var known = !!(loadedWindow && dayInWindow(selectedDay, loadedWindow.from, loadedWindow.to));
 			var head = el('h3', {
 				class: 'mn-cal-agenda__title',
-				text: tr('Jobs on {date}', { date: dom.fmt(selectedDay) }),
+				text: known
+					? tr('Jobs on {date}', { date: dom.fmt(selectedDay) })
+					: tr('Loading…'),
 			});
 			agenda.appendChild(head);
+			if (!known) {
+				// The selected day was never fetched — a loading affordance,
+				// never "No jobs on this day." for data we do not have.
+				agenda.appendChild(skeleton(2));
+				return;
+			}
+			var list = dayMap[selectedDay] || [];
 			if (!list.length) {
 				agenda.appendChild(el('p', { class: 'mn-cal-agenda__empty', text: tr('No jobs on this day.') }));
 				return;
@@ -607,6 +661,7 @@
 			btn.addEventListener('click', function () {
 				view = btn.getAttribute('data-mn-cal-view') === 'week' ? 'week' : 'month';
 				saveViewPref(view);
+				clampSelection();
 				syncViewButtons();
 				load();
 			});

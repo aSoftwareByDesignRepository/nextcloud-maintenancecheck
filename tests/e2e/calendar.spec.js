@@ -175,6 +175,116 @@ test.describe('calendar: responsive + a11y (F-2 / MH-11)', () => {
 		await expect(dialog.first()).toBeVisible()
 	})
 
+	test('keyboard: arrow past the grid edge shifts the window — focus lands on a rendered cell, never body', async ({ page }) => {
+		test.skip(!techCreds, 'Requires NC_TECH_USER / NC_TECH_PASS')
+		await login(page, techCreds)
+		await page.goto('/apps/maintenancecheck/calendar')
+		const grid = page.locator('.mn-cal-grid')
+		if (!(await grid.isVisible({ timeout: 30_000 }).catch(() => false))) {
+			test.skip(true, 'Empty fixture — no cells to navigate')
+			return
+		}
+		const periodBefore = await page.locator('#mn-cal-period').textContent()
+		// Focus the last rendered cell and arrow past the matrix edge — the
+		// window must follow the target instead of stranding focus on <body>.
+		const last = page.locator('.mn-cal-cell').nth(41)
+		const lastDay = await last.getAttribute('data-mn-cal-day')
+		await last.focus()
+		const refetch = page.waitForResponse(
+			(r) => r.url().includes('/api/calendar') && r.request().method() === 'GET',
+			{ timeout: 30_000 },
+		)
+		await page.keyboard.press('ArrowRight')
+		await refetch
+		// Focus lands on a rendered day cell — or on the board when the
+		// adjacent period renders the honest empty state; never <body>.
+		await expect(page.locator('.mn-cal-cell:focus, #mn-cal-board:focus')).toHaveCount(1)
+		const focused = await page.evaluate(() => ({
+			tag: document.activeElement?.tagName,
+			id: document.activeElement?.id,
+			day: document.activeElement?.getAttribute('data-mn-cal-day'),
+		}))
+		expect(focused.tag).not.toBe('BODY')
+		if (focused.day) {
+			expect(focused.day).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+			expect(focused.day).not.toBe(lastDay)
+			// The focused day is inside the re-rendered matrix.
+			const rendered = await page.locator('.mn-cal-cell').evaluateAll(
+				(cells) => cells.map((c) => c.getAttribute('data-mn-cal-day')),
+			)
+			expect(rendered).toContain(focused.day)
+			await expect(page.locator('#mn-cal-period')).not.toHaveText(periodBefore ?? '')
+		}
+	})
+
+	test('shifting the period resets a selection that left the fetched window', async ({ page }) => {
+		test.skip(!techCreds, 'Requires NC_TECH_USER / NC_TECH_PASS')
+		await login(page, techCreds)
+		await page.goto('/apps/maintenancecheck/calendar')
+		const grid = page.locator('.mn-cal-grid')
+		if (!(await grid.isVisible({ timeout: 30_000 }).catch(() => false))) {
+			test.skip(true, 'Empty fixture — no cells to navigate')
+			return
+		}
+		const fmt = (ymd) =>
+			new Intl.DateTimeFormat(document.documentElement.lang || undefined, {
+				year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC',
+			}).format(new Date(`${ymd}T00:00:00Z`))
+		// Select the leading adjacent-month cell, then page forward — that day
+		// leaves the next matrix, so the selection must reset, not lie.
+		const first = page.locator('.mn-cal-cell').first()
+		const staleDay = await first.getAttribute('data-mn-cal-day')
+		await first.locator('.mn-cal-cell__date').click()
+		const refetch = page.waitForResponse(
+			(r) => r.url().includes('/api/calendar') && r.request().method() === 'GET',
+			{ timeout: 30_000 },
+		)
+		await page.locator('#mn-cal-next').click()
+		await refetch
+		// The next period may render the honest empty state (no grid at all) —
+		// either way the selection must point inside the fetched window.
+		const gridAfter = page.locator('.mn-cal-grid')
+		if (await gridAfter.isVisible()) {
+			const rendered = await page.locator('.mn-cal-cell').evaluateAll(
+				(cells) => cells.map((c) => c.getAttribute('data-mn-cal-day')),
+			)
+			const selected = page.locator('.mn-cal-cell--selected')
+			await expect(selected).toHaveCount(1)
+			const selectedDay = await selected.getAttribute('data-mn-cal-day')
+			expect(rendered).toContain(selectedDay)
+			const fmtSelected = await page.evaluate(fmt, selectedDay)
+			const agendaTitle = (await page.locator('.mn-cal-agenda__title').textContent()) ?? ''
+			expect(agendaTitle).toContain(fmtSelected)
+		}
+		// The stale day is always ≥25 days before the new window start —
+		// the agenda must never name it again.
+		const fmtStale = await page.evaluate(fmt, staleDay)
+		const agendaTitleAfter = (await page.locator('.mn-cal-agenda__title').textContent()) ?? ''
+		expect(agendaTitleAfter).not.toContain(fmtStale)
+	})
+
+	test('a never-fetched selected day renders a loading affordance, never an empty-day claim', async ({ page }) => {
+		test.skip(!techCreds, 'Requires NC_TECH_USER / NC_TECH_PASS')
+		// Delay the calendar fetch so the in-flight state is observable.
+		await page.route('**/api/calendar*', async (route) => {
+			await new Promise((resolve) => setTimeout(resolve, 1500))
+			await route.continue()
+		})
+		await login(page, techCreds)
+		await page.goto('/apps/maintenancecheck/calendar')
+		// While the window is unfetched the agenda shows a loading affordance —
+		// never the "No jobs on this day." claim about unknown data. (The
+		// agenda itself is a <768px surface; on desktop the skeleton is
+		// present in DOM but display:none by design.)
+		await expect(page.locator('#mn-cal-agenda .mn-skeleton')).toHaveCount(1, { timeout: 30_000 })
+		if ((page.viewportSize()?.width ?? 0) < 768) {
+			await expect(page.locator('#mn-cal-agenda .mn-skeleton')).toBeVisible()
+		}
+		await expect(page.locator('#mn-cal-agenda .mn-cal-agenda__empty')).toHaveCount(0)
+		// Once the fetch lands the skeleton resolves into a real verdict.
+		await expect(page.locator('#mn-cal-agenda .mn-skeleton')).toHaveCount(0, { timeout: 30_000 })
+	})
+
 	test('multi-day span renders as covered-day items, not duplicates-per-day', async ({ page }, testInfo) => {
 		test.skip(!officeCreds, 'Requires NC_ADMIN_USER / NC_ADMIN_PASS')
 		await login(page, officeCreds)

@@ -71,3 +71,29 @@ test('addMonths clamps month-end (S2 parity)', () => {
 	assert.equal(C.addMonths('2026-01-31', 1), '2026-02-28');
 	assert.equal(C.addMonths('2026-11-15', -1), '2026-10-15');
 });
+
+test('dayInWindow classifies selected/focus days vs the fetched window', () => {
+	const from = '2026-10-26';
+	const to = '2026-12-06';
+	assert.equal(C.dayInWindow('2026-11-15', from, to), true);
+	assert.equal(C.dayInWindow('2026-10-26', from, to), true); // inclusive edges
+	assert.equal(C.dayInWindow('2026-12-06', from, to), true);
+	assert.equal(C.dayInWindow('2026-12-07', from, to), false); // one past the 42-cell edge
+	assert.equal(C.dayInWindow('2026-10-25', from, to), false);
+	assert.equal(C.dayInWindow('bogus', from, to), false);
+	assert.equal(C.dayInWindow('2026-11-15', '2026-12-06', '2026-10-26'), false); // inverted window
+});
+
+test('selection_window_desync guards stay wired in calendar-page.js', () => {
+	// Regression contract for mn-crit-r22-calendar-selection-window-desync:
+	// selectedDay/focusDay ⊆ windowFor(), boundary arrows shift the window,
+	// and the agenda never asserts job-data for a day that was never fetched.
+	assert.match(src, /var loadedWindow = null;/);
+	assert.match(src, /function clampSelection\(/);
+	assert.match(src, /loadedWindow = w;/);
+	assert.match(src, /dayInWindow\(target, w\.from, w\.to\)/);
+	assert.match(src, /anchor = target;\s*\n\s*board\.focus\(\);\s*\n\s*load\(\);/);
+	assert.match(src, /tabindex: day === selectedDay \? '0' : '-1'/);
+	assert.match(src, /dayInWindow\(selectedDay, loadedWindow\.from, loadedWindow\.to\)/);
+	assert.match(src, /agenda\.appendChild\(skeleton\(2\)\)/);
+});
