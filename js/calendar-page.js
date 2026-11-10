@@ -21,6 +21,22 @@
 		return out;
 	}
 
+	function tn(singular, plural, count, vars) {
+		var n = typeof count === 'number' ? count : parseInt(String(count), 10) || 0;
+		var out;
+		if (typeof window !== 'undefined' && typeof window.n === 'function') {
+			out = window.n('maintenancecheck', singular, plural, n, vars);
+		} else {
+			out = String(n === 1 ? singular : plural).replace(/%n/g, String(n));
+		}
+		if (vars) {
+			Object.keys(vars).forEach(function (k) {
+				out = out.replace('{' + k + '}', String(vars[k]));
+			});
+		}
+		return out;
+	}
+
 	function isValidYmd(value) {
 		if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
 			return false;
@@ -264,9 +280,9 @@
 				dayMap = groupByDay(events);
 				render();
 				if (data && data.truncated) {
-					toast(tr('Showing the first {n} jobs in this window — narrow the filters.', { n: 1000 }), 'warning');
+					toast(tn('Showing the first %n job in this window — narrow the filters.', 'Showing the first %n jobs in this window — narrow the filters.', 1000), 'warning');
 				}
-				announce(tr('{n} jobs in this period', { n: events.length }), false);
+				announce(tn('%n job in this period', '%n jobs in this period', events.length), false);
 			}).catch(function (error) {
 				if (generation !== loadGeneration) {
 					return;
@@ -366,7 +382,7 @@
 							+ (day === todayYmd() ? ' mn-cal-cell--today' : '')
 							+ (day === selectedDay ? ' mn-cal-cell--selected' : ''),
 						role: 'gridcell',
-						'aria-label': dom.fmt(day) + (list.length ? ', ' + tr('{n} jobs', { n: list.length }) : ''),
+						'aria-label': dom.fmt(day) + (list.length ? ', ' + tn('%n job', '%n jobs', list.length) : ''),
 						'data-mn-cal-day': day,
 						tabindex: '0',
 					});
@@ -397,8 +413,8 @@
 							var more = el('button', {
 								type: 'button',
 								class: 'mn-cal-more',
-								text: tr('+{n} more', { n: extra }),
-								'aria-label': tr('{n} more jobs on {date}', { n: extra, date: dom.fmt(dayRef) }),
+								text: tn('+%n more', '+%n more', extra),
+								'aria-label': tn('%n more job on {date}', '%n more jobs on {date}', extra, { date: dom.fmt(dayRef) }),
 							});
 							more.addEventListener('click', function () { openDay(dayRef); });
 							cell.appendChild(more);
