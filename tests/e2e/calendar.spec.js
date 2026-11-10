@@ -15,20 +15,14 @@ import { login, credsFromEnv, primaryCreds } from './helpers/auth.js'
 const techCreds = credsFromEnv('TECH')
 const officeCreds = credsFromEnv('ADMIN') || primaryCreds()
 
-/** Y-m-d for a date `days` from today. */
-function ymd(days = 0) {
-	const d = new Date()
-	d.setDate(d.getDate() + days)
-	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
 /**
  * Seed a real customer + work order via the API inside the page context —
  * the calendar then renders an actual event instead of an empty fixture.
  */
 async function seedWorkOrder(page, { dueOn, dueUntil, title }) {
 	return page.evaluate(async ({ dueOn, dueUntil, title }) => {
-		const token = document.documentElement.getAttribute('data-requesttoken')
+		const token = document.querySelector('head[data-requesttoken]')?.getAttribute('data-requesttoken')
+			|| document.documentElement.getAttribute('data-requesttoken')
 			|| document.querySelector('head meta[name="requesttoken"]')?.getAttribute('content') || ''
 		const r = await fetch('/apps/maintenancecheck/api/customers', {
 			method: 'POST',
@@ -48,13 +42,16 @@ async function seedWorkOrder(page, { dueOn, dueUntil, title }) {
 				customerId: customer.id,
 				title,
 				kind: 'preventive',
-				status: 'planned',
+				// draft — planned triggers the planned-gate (equipment + procedure
+				// required); drafts still surface on the calendar (findForCalendar
+				// excludes only terminal statuses).
+				status: 'draft',
 				dueOn,
 				dueUntil,
 			}),
 		})
 		const wo = await r2.json()
-		return { ok: !!wo.id, customer, wo }
+		return { ok: !!wo.id, customer, wo, error: wo.id ? undefined : `wo: ${r2.status} ${JSON.stringify(wo)}` }
 	}, { dueOn, dueUntil, title })
 }
 
@@ -96,6 +93,25 @@ test.describe('calendar: page structure', () => {
 		// Recipe-A panel: technician picker + kind + status selects.
 		await expect(filters.locator('.mn-user-picker__input')).toBeVisible()
 		await expect(filters.locator('select[aria-label]')).toHaveCount(2)
+	})
+
+	test('load failure renders honest empty state with a retry hint', async ({ page }) => {
+		test.skip(!techCreds, 'Requires NC_TECH_USER / NC_TECH_PASS')
+		await login(page, techCreds)
+		await page.route('**/api/calendar*', (route) => route.fulfill({
+			status: 500,
+			contentType: 'application/json',
+			body: JSON.stringify({ error: { code: 'boom', message: 'injected failure' } }),
+		}))
+		await page.goto('/apps/maintenancecheck/calendar')
+		const empty = page.locator('#mn-cal-board .mn-empty')
+		await expect(empty).toBeVisible({ timeout: 30_000 })
+		// Plain-language title + a non-empty next-step hint — never a silent
+		// blank, never stuck skeleton chrome on a failed load.
+		await expect(empty.locator('.mn-empty__title')).not.toBeEmpty()
+		await expect(empty.locator('.mn-empty__hint')).not.toBeEmpty()
+		await expect(page.locator('#mn-cal-board .mn-cal-grid')).toHaveCount(0)
+		await expect(page.locator('#mn-cal-board .mn-skeleton')).toHaveCount(0)
 	})
 
 	test('month ↔ week toggle persists choice and re-renders', async ({ page }) => {
@@ -159,25 +175,49 @@ test.describe('calendar: responsive + a11y (F-2 / MH-11)', () => {
 		await expect(dialog.first()).toBeVisible()
 	})
 
-	test('multi-day span renders as covered-day items, not duplicates-per-day', async ({ page }) => {
+	test('multi-day span renders as covered-day items, not duplicates-per-day', async ({ page }, testInfo) => {
 		test.skip(!officeCreds, 'Requires NC_ADMIN_USER / NC_ADMIN_PASS')
 		await login(page, officeCreds)
-		const seeded = await seedWorkOrder(page, {
-			dueOn: ymd(0), dueUntil: ymd(2), title: 'CalE2E multi-day job',
-		})
-		test.skip(!seeded.ok, `WO seed failed: ${seeded.error ?? 'unknown'}`)
+		// Parallel projects seed the same span — tag each worker's job so the
+		// assertions count only its own event (shared fixture, no serialized lock).
+		const tag = `CalE2E-w${testInfo.parallelIndex}-${Date.now()}`
 		await page.goto('/apps/maintenancecheck/calendar')
 		await expect(page.locator('#mn-cal-board')).toBeVisible({ timeout: 30_000 })
-		// Every event is a link to an existing detail page (click-through MH-07).
-		const events = page.locator('.mn-cal-event', { hasText: 'CalE2E multi-day job' })
-		// A 3-day span shows the job on each covered day cell.
-		for (const day of [ymd(0), ymd(1), ymd(2)]) {
-			const cell = page.locator(`.mn-cal-cell[data-mn-cal-day="${day}"]`)
-			if (await cell.isVisible().catch(() => false)) {
-				await expect(cell.locator('.mn-cal-event', { hasText: 'CalE2E' })).toHaveCount(1)
+		// Cells render max 3 events then collapse into "+k more" — seeding onto a
+		// crowded day would bury the job in overflow. Find 3 consecutive grid days
+		// with zero events and no overflow, then seed a span across them.
+		const span = await page.evaluate(() => {
+			const cells = [...document.querySelectorAll('.mn-cal-cell[data-mn-cal-day]')]
+			const empty = cells
+				.filter((c) => !c.querySelector('.mn-cal-event') && !c.querySelector('.mn-cal-more'))
+				.map((c) => c.getAttribute('data-mn-cal-day'))
+			for (const day of empty) {
+				const next = new Date(`${day}T12:00:00Z`)
+				const seq = [0, 1, 2].map((i) => {
+					const d = new Date(next)
+					d.setUTCDate(d.getUTCDate() + i)
+					return d.toISOString().slice(0, 10)
+				})
+				if (seq.every((d) => empty.includes(d))) {
+					return seq
+				}
 			}
+			return null
+		})
+		test.skip(!span, 'No 3 consecutive event-free days in the visible grid')
+		const seeded = await seedWorkOrder(page, {
+			dueOn: span[0], dueUntil: span[2], title: `${tag} multi-day job`,
+		})
+		test.skip(!seeded.ok, `WO seed failed: ${seeded.error ?? 'unknown'}`)
+		await page.reload()
+		await expect(page.locator('#mn-cal-board')).toBeVisible({ timeout: 30_000 })
+		// A 3-day span shows the job exactly once on each covered day cell.
+		for (const day of span) {
+			const cell = page.locator(`.mn-cal-cell[data-mn-cal-day="${day}"]`)
+			await expect(cell.locator('.mn-cal-event', { hasText: tag })).toHaveCount(1)
 		}
-		const href = await events.first().getAttribute('href')
+		// Every event is a link to an existing detail page (click-through MH-07).
+		const href = await page.locator('.mn-cal-event', { hasText: tag }).first().getAttribute('href')
 		expect(href).toMatch(/\/work-orders\/\d+/)
 	})
 
@@ -188,7 +228,7 @@ test.describe('calendar: responsive + a11y (F-2 / MH-11)', () => {
 		await expect(page.locator('#mn-cal-board')).toBeVisible({ timeout: 30_000 })
 		const more = page.locator('.mn-cal-more').first()
 		if (!(await more.isVisible().catch(() => false))) {
-			test.skip(true, 'No day exceeds the 3-event cell cap in this fixture')
+			test.skip(true, 'No .mn-cal-more rendered — compact cells (<768px) or no day exceeds the 3-event cap')
 			return
 		}
 		await more.click()

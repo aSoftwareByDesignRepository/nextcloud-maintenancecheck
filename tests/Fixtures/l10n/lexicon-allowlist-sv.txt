@@ -5,3 +5,4 @@ fre # abbrev — reviewed: standard Swedish Friday abbreviation (mån–sön), s
 kitet # shared — reviewed: correct Swedish definite of borrowed 'kit' (ett-ord); same surface form in nb
 inspektionär # reviewed — legitimate Swedish word for an inspector (person); flat wordlist gap
 otilldelad # reviewed — legitimate Swedish compound (o- + tilldelad, unassigned)
+kalendervy # shared — reviewed: legitimate Swedish compound kalender+vy (calendar view); both morphemes in sv_SE, flat wordlist lacks the compound and 2-char right morpheme is below the decomposer MIN_LEN
