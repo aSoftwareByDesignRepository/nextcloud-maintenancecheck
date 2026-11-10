@@ -1335,6 +1335,5 @@ OC.L10N.register(
 	"{label} (required)" : "{label} (påkrævet)",
 	"{name} (deactivated)" : "{name} (deaktiveret)",
 	"“{name}” still has {children}. Deleting the customer removes all of it permanently." : "\"{name}\" har stadig {children}. Sletning af kunden fjerner det hele permanent."
-	},
-	"nplurals=2; plural=(n != 1);"
+	}
 );

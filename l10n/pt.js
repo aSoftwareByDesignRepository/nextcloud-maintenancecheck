@@ -201,7 +201,7 @@ OC.L10N.register(
 	"Change status" : "Mudar estado",
 	"Check Partner" : "Parceiro Check",
 	"Check master data" : "Verificar dados base",
-	"Checklist" : "Checklist",
+	"Checklist" : "Lista de verificação",
 	"Checklist and capacity rules" : "Regras de checklist e capacidade",
 	"Checklist blocks completion: {items}" : "A lista de verificação bloqueia a conclusão: {items}",
 	"Checklist is advisory only" : "A checklist é apenas indicativa",
@@ -1335,6 +1335,5 @@ OC.L10N.register(
 	"{label} (required)" : "{label} (obrigatório)",
 	"{name} (deactivated)" : "{name} (desativado)",
 	"“{name}” still has {children}. Deleting the customer removes all of it permanently." : "«{name}» ainda tem {children}. Eliminar o cliente remove tudo permanentemente."
-	},
-	"nplurals=2; plural=(n != 1);"
+	}
 );

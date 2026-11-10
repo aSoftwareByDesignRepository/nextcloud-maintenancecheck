@@ -1335,6 +1335,5 @@ OC.L10N.register(
 	"{label} (required)" : "{label} (zorunlu)",
 	"{name} (deactivated)" : "{name} (devre dışı)",
 	"“{name}” still has {children}. Deleting the customer removes all of it permanently." : "“{name}” kaydında hâlâ {children} var. Müşteriyi silmek hepsini kalıcı olarak kaldırır."
-	},
-	"nplurals=2; plural=(n != 1);"
+	}
 );

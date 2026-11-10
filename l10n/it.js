@@ -597,7 +597,7 @@ OC.L10N.register(
 	"Master data and equipment of this customer." : "Dati master e attrezzature di questo cliente.",
 	"Master data, sites and equipment for this organisation." : "Dati anagrafici, sedi e attrezzature di questa organizzazione.",
 	"Members of these Nextcloud groups get access while the restriction is on." : "I membri di questi gruppi Nextcloud ottengono l'accesso mentre la restrizione è attiva.",
-	"Menu" : "Menu",
+	"Menu" : "Menù",
 	"Meter" : "Contatore",
 	"Meter created." : "Contatore creato.",
 	"Meter is active" : "Il contatore è attivo",
@@ -1335,6 +1335,5 @@ OC.L10N.register(
 	"{label} (required)" : "{label} (richiesto)",
 	"{name} (deactivated)" : "{name} (disattivato)",
 	"“{name}” still has {children}. Deleting the customer removes all of it permanently." : "“{name}” ha ancora {children}. Cancellare il cliente rimuove tutto in modo permanente."
-	},
-	"nplurals=2; plural=(n != 1);"
+	}
 );
