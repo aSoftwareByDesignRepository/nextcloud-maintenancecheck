@@ -43,6 +43,13 @@
 		{ "id": "catalogs", "path": "/catalogs", "states": ["populated"] },
 		{ "id": "dispatch", "path": "/dispatch", "states": ["populated"], "dark": true },
 		{ "id": "tours", "path": "/tours", "states": ["populated"] },
+		{
+			"id": "calendar",
+			"path": "/calendar",
+			"states": ["populated", "empty"],
+			"emptyDriver": "calendarFarMonth",
+			"dark": true
+		},
 		{ "id": "kpi", "path": "/kpi", "states": ["populated"], "dark": true },
 		{ "id": "exceptions", "path": "/exceptions", "states": ["populated"] },
 		{ "id": "settings-access", "path": "/settings/access", "states": ["current"] },

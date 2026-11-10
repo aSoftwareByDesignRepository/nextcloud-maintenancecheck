@@ -62,6 +62,13 @@ const VIEWS = [
 		ready: '#mn-customer-list, .mn-empty, #mn-main-content',
 	},
 	{
+		name: 'calendar',
+		path: '/apps/maintenancecheck/calendar',
+		// #mn-cal-board renders immediately with skeletons — wait for the
+		// post-fetch markers so shots never capture the loading frame.
+		ready: '#mn-cal-board .mn-cal-grid, #mn-cal-board .mn-empty',
+	},
+	{
 		name: 'settings-access',
 		path: '/apps/maintenancecheck/settings/access',
 		ready: '#mn-settings-access, #mn-main-content',
@@ -251,6 +258,45 @@ test.describe('Atlas ds_chrome craft sweep (web)', () => {
 		}
 		await page.goto('/apps/maintenancecheck/')
 		await resetUserTheme(page)
+	})
+
+	test('capture calendar day dialog + load-error states', async ({ page }) => {
+		const creds = primaryCreds()
+		test.skip(!creds, 'Requires NC_E2E_* creds (tests/e2e/.env)')
+		await login(page, creds)
+		await page.setViewportSize({ width: 1440, height: 900 })
+
+		// ── Day dialog (light) — Enter on a cell opens the jobs-per-day
+		// dialog (cell click only selects; per FA-2 contract). Prefer a
+		// day that carries a real event so the dialog list is populated. ──
+		await page.goto('/apps/maintenancecheck/calendar')
+		await expect(page.locator('#mn-cal-board .mn-cal-grid, #mn-cal-board .mn-empty').first())
+			.toBeVisible({ timeout: 30_000 })
+		await expect(page.locator('#mn-cal-board[aria-busy="true"]'))
+			.toHaveCount(0, { timeout: 30_000 })
+		const eventCell = page.locator('.mn-cal-cell:has(.mn-cal-event)').first()
+		const cell = (await eventCell.count()) > 0
+			? eventCell
+			: page.locator('.mn-cal-cell--today')
+		await cell.press('Enter')
+		await expect(page.locator('.mn-dialog')).toBeVisible()
+		await shot(page, 'mn-web-dialog-calendar-day-light-1440.png')
+		await page.keyboard.press('Escape')
+		await expect(page.locator('.mn-dialog')).toBeHidden()
+
+		// ── Load error (light) — a failed /api/calendar fetch must render
+		// the honest empty state (title + retry hint), never a dead grid. ──
+		await page.route('**/api/calendar*', (route) => route.fulfill({
+			status: 500,
+			contentType: 'application/json',
+			body: JSON.stringify({ error: { code: 'boom', message: 'injected failure' } }),
+		}))
+		await page.goto('/apps/maintenancecheck/calendar')
+		const empty = page.locator('#mn-cal-board .mn-empty')
+		await expect(empty).toBeVisible({ timeout: 30_000 })
+		await expect(empty.locator('.mn-empty__title')).not.toBeEmpty()
+		await shot(page, 'mn-web-calendar-load-error-light-1440.png')
+		await page.unroute('**/api/calendar*')
 	})
 
 	test('capture technician-role crafts (office chrome absent)', async ({ page, browser }) => {

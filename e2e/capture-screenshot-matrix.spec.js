@@ -54,6 +54,7 @@ const READY = {
 	'catalogs': '#mn-catalogs-toolbar',
 	'dispatch': '#mn-dispatch-board',
 	'tours': '#mn-tours-board',
+	'calendar': '#mn-cal-board',
 	'kpi': '#mn-kpi-snapshot',
 	'exceptions': '#mn-exceptions-board',
 	'settings-access': '#mn-settings-subnav, .mn-empty',
@@ -164,6 +165,22 @@ async function driveEmpty(page, surface) {
 		await page.locator('#mn-filter-when-chips [data-mn-when="custom"]').click()
 		await page.locator('#mn-filter-from').fill('1999-01-01')
 		await page.locator('#mn-filter-to').fill('1999-01-02')
+	} else if (surface.emptyDriver === 'calendarFarMonth') {
+		// The calendar has no filter UI that yields a zero-row grid — walk
+		// the month anchor backwards until the board renders its honest
+		// empty state. Seeded fixtures cluster near today, so ~3y back is
+		// far beyond any real data; each shift waits for its fetch to land
+		// (aria-busy clears) before judging the board.
+		const prev = page.locator('#mn-cal-prev')
+		await expect(prev).toBeVisible({ timeout: 15_000 })
+		let empty = false
+		for (let i = 0; i < 48 && !empty; i++) {
+			await prev.click()
+			await expect(page.locator('#mn-cal-board[aria-busy="true"]'))
+				.toHaveCount(0, { timeout: 15_000 })
+			empty = (await page.locator('#mn-cal-board .mn-empty').count()) > 0
+		}
+		expect(empty, 'calendar: no empty month within 48 prev-shifts').toBeTruthy()
 	} else {
 		throw new Error(`surface ${surface.id}: unknown emptyDriver ${surface.emptyDriver}`)
 	}
