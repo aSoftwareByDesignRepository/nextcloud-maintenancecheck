@@ -3376,6 +3376,7 @@ textarea {
 .mn-cal-event {
 	display: flex;
 	align-items: center;
+	flex-wrap: wrap;
 	gap: var(--mn-space-1);
 	padding: 2px var(--mn-space-1);
 	border-radius: var(--mn-radius-sm);
@@ -3385,6 +3386,8 @@ textarea {
 	text-decoration: none;
 	font-size: var(--mn-fs-xs);
 	min-height: 24px;
+	max-width: 100%;
+	overflow: hidden;
 }
 .mn-cal-event:hover {
 	background: var(--mn-hover-fill);
@@ -3396,12 +3399,66 @@ textarea {
 	border-style: dashed;
 }
 .mn-cal-event__title {
+	flex: 1 1 auto;
+	min-width: 6ch;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+/* Text badges never squeeze or clip mid-word inside an event row — the
+   row wraps them to their own line instead (week/agenda) or the compact
+   month chip replaces them with fixed-size icon cues. */
+.mn-cal-event .mn-badge {
+	flex-shrink: 0;
+	max-width: 100%;
+}
 .mn-cal-event__cont {
 	font-weight: 700;
+	flex-shrink: 0;
+}
+/* Compact month-cell chip (a.mn-cal-event--compact): the job title leads
+   on its own full-width line; the kind pill + status icons share the meta
+   line. A squeezed kind pill ellipsizes its label — never mid-glyph clip. */
+.mn-cal-event--compact .mn-cal-event__title {
+	flex: 1 1 100%;
+	min-width: 0;
+}
+.mn-cal-event .mn-badge.mn-cal-event__kind {
+	flex: 0 1 auto;
+	min-width: 0;
+	overflow: hidden;
+}
+.mn-cal-event__kind .mn-badge__label {
+	flex: 0 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.mn-cal-event__ind {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	flex: 0 0 auto;
+	margin-inline-start: auto;
+}
+.mn-cal-ind--danger {
+	color: var(--mn-danger-ink);
+}
+.mn-cal-ind--warning {
+	color: var(--mn-warning-ink);
+}
+.mn-cal-ind--success {
+	color: var(--mn-success-ink);
+}
+.mn-cal-ind--info {
+	color: var(--color-info-text, var(--color-primary-element));
+}
+.mn-cal-ind--neutral {
+	color: var(--mn-muted);
+}
+.mn-cal-event--cancelled .mn-cal-event__title {
+	text-decoration: line-through;
 }
 .mn-cal-more {
 	align-self: flex-start;

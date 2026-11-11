@@ -364,29 +364,102 @@
 			return dlg;
 		}
 
+		/** Ink accent for a compact status icon — mirrors the badge tint family. */
+		function indInkClass(badgeClass) {
+			var b = String(badgeClass || '');
+			if (/mn-badge--(overdue|danger|error)/.test(b)) { return 'mn-cal-ind--danger'; }
+			if (/mn-badge--(warning|today)/.test(b)) { return 'mn-cal-ind--warning'; }
+			if (/mn-badge--(done|success)/.test(b)) { return 'mn-cal-ind--success'; }
+			if (/mn-badge--(scheduled|primary|info|role)/.test(b)) { return 'mn-cal-ind--info'; }
+			return 'mn-cal-ind--neutral';
+		}
+
+		function compactInd(iconName, inkClass) {
+			if (!dom.svgIcon) {
+				return null;
+			}
+			var wrap = dom.svgIcon(iconName);
+			if (wrap && wrap.classList) {
+				wrap.classList.add(inkClass);
+			}
+			return wrap;
+		}
+
+		/**
+		 * Kind badge built for shrink: the label lives in its own span so a
+		 * squeezed month cell ellipsizes 'Preventiv…' instead of hard-clipping
+		 * mid-glyph or crushing the title to zero width.
+		 */
+		function kindBadgeCompact(kind) {
+			return el('span', { class: 'mn-badge ' + kind.badge + ' mn-cal-event__kind' }, [
+				el('span', { class: 'mn-badge__dot', 'aria-hidden': 'true' }),
+				el('span', { class: 'mn-badge__label', text: kind.label }),
+			]);
+		}
+
 		function eventRow(ev, opts) {
 			opts = opts || {};
-			var parts = [
-				eventBadge(ev),
-				el('span', { class: 'mn-cal-event__title', text: eventLabel(ev) }),
-			];
+			var compact = !!opts.compact;
+			var domRef = window.MnApp.__dom;
+			var kind = KIND_META[ev.entity === 'visit' ? 'visit' : ev.kind] || KIND_META.other;
+			var sm = (ev.status && ev.status !== 'planned' && ev.status !== 'scheduled')
+				? domRef.statusMeta(ev.status)
+				: null;
+			var a11y = [kind.label + ': ' + eventLabel(ev)];
 			if (ev.unassigned) {
-				parts.push(window.MnApp.__dom.statusBadge(tr('Unassigned'), 'mn-badge--warning'));
+				a11y.push(tr('Unassigned'));
 			}
-			if (ev.status && ev.status !== 'planned' && ev.status !== 'scheduled') {
-				var domRef = window.MnApp.__dom;
-				var sm = domRef.statusMeta(ev.status);
-				parts.push(domRef.statusBadge(sm.label, sm.badge, sm.icon));
+			if (sm) {
+				a11y.push(sm.label);
 			}
+			var summary = a11y.join(' — ');
+			var parts = [];
 			if (opts.continuesBefore) {
-				parts.unshift(el('span', { class: 'mn-cal-event__cont', 'aria-hidden': 'true', text: '◂' }));
+				parts.push(el('span', { class: 'mn-cal-event__cont', 'aria-hidden': 'true', text: '◂' }));
+			}
+			if (compact) {
+				// Month cells (~7-col narrow): the job title leads on its own
+				// line, the kind pill + fixed-size status icons share the meta
+				// line. Full text badges could only clip mid-word at this width
+				// (de/fr labels are longer); unassigned keeps the --pool dashed
+				// border plus a warning-triangle cue.
+				parts.push(el('span', { class: 'mn-cal-event__title', text: eventLabel(ev) }));
+				parts.push(kindBadgeCompact(kind));
+				var ind = [];
+				var ci;
+				if (ev.unassigned) {
+					ci = compactInd('alert-triangle', 'mn-cal-ind--warning');
+					if (ci) { ind.push(ci); }
+				}
+				if (sm && sm.icon) {
+					ci = compactInd(sm.icon, indInkClass(sm.badge));
+					if (ci) { ind.push(ci); }
+				}
+				if (ind.length) {
+					parts.push(el('span', { class: 'mn-cal-event__ind', 'aria-hidden': 'true' }, ind));
+				}
+			} else {
+				parts.push(eventBadge(ev));
+				parts.push(el('span', { class: 'mn-cal-event__title', text: eventLabel(ev) }));
+				if (ev.unassigned) {
+					parts.push(domRef.statusBadge(tr('Unassigned'), 'mn-badge--warning'));
+				}
+				if (sm) {
+					parts.push(domRef.statusBadge(sm.label, sm.badge, sm.icon));
+				}
 			}
 			if (opts.continuesAfter) {
 				parts.push(el('span', { class: 'mn-cal-event__cont', 'aria-hidden': 'true', text: '▸' }));
 			}
 			var link = el('a', {
 				href: ev.url,
-				class: 'mn-cal-event' + (ev.entity === 'visit' ? ' mn-cal-event--visit' : '') + (ev.unassigned ? ' mn-cal-event--pool' : ''),
+				class: 'mn-cal-event'
+					+ (compact ? ' mn-cal-event--compact' : '')
+					+ (ev.entity === 'visit' ? ' mn-cal-event--visit' : '')
+					+ (ev.unassigned ? ' mn-cal-event--pool' : '')
+					+ (ev.status === 'cancelled' ? ' mn-cal-event--cancelled' : ''),
+				title: summary,
+				'aria-label': compact ? summary : null,
 			}, parts);
 			return el('li', { class: 'mn-cal-event-wrap' }, [link]);
 		}
@@ -439,8 +512,9 @@
 					var ul = el('ul', { class: 'mn-cal-cell__events' });
 					var split = cellSplit(list, MAX_CELL_EVENTS);
 					split.visible.forEach(function (ev) {
-						var clip = clipSpan(ev.startDay, ev.endDay || ev.startDay, w.from, w.to);
-						ul.appendChild(eventRow(ev, clip || {}));
+						var clip = clipSpan(ev.startDay, ev.endDay || ev.startDay, w.from, w.to) || {};
+						clip.compact = true;
+						ul.appendChild(eventRow(ev, clip));
 					});
 					cell.appendChild(ul);
 					if (split.overflow.length) {

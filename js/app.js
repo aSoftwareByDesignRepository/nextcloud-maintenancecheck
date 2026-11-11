@@ -6795,6 +6795,7 @@
 			renderPagination: renderPagination,
 			statusMeta: statusMeta,
 			statusBadge: statusBadge,
+			svgIcon: svgIcon,
 			exceptionReasonMeta: exceptionReasonMeta,
 			tableOrCards: tableOrCards,
 			tableStack: tableStack,

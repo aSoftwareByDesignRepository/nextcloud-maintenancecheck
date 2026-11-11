@@ -346,4 +346,51 @@ test.describe('calendar: responsive + a11y (F-2 / MH-11)', () => {
 		await expect(dialog).toBeVisible()
 		await expect(dialog.locator('.mn-cal-day-list__link').first()).toBeVisible()
 	})
+
+	// clipped_chip_in_calendar_month_cell non-regression (mc-vis-calendar-month-event-clip):
+	// nowrap badges once overran every populated month cell — the title
+	// collapsed to ~0 width and the next cell's opaque background sliced
+	// badges mid-word. The compact chip contract: title leads on its own
+	// line (always >0 width), kind pill ellipsizes as a unit, status cues
+	// are fixed-size icons — nothing overflows the chip or the cell.
+	test('month cells never clip event chips — title renders, badges/icons stay inside', async ({ page }) => {
+		test.skip(!officeCreds, 'Requires NC_ADMIN_USER / NC_ADMIN_PASS')
+		await login(page, officeCreds)
+		for (const width of [768, 1440]) {
+			await page.setViewportSize({ width, height: 900 })
+			await page.goto('/apps/maintenancecheck/calendar')
+			const grid = page.locator('.mn-cal-grid')
+			if (!(await grid.isVisible({ timeout: 30_000 }).catch(() => false))) {
+				test.skip(true, 'Empty fixture — no month grid rendered')
+				return
+			}
+			const report = await page.evaluate(() => {
+				const out = { events: 0, compact: 0, zeroTitle: 0, chipOverflow: 0, badgeOverflow: 0, outsideCell: 0, textBadges: 0 }
+				document.querySelectorAll('.mn-cal-cell .mn-cal-event').forEach((a) => {
+					out.events++
+					if (a.classList.contains('mn-cal-event--compact')) out.compact++
+					const title = a.querySelector('.mn-cal-event__title')
+					if (title && title.getBoundingClientRect().width < 4) out.zeroTitle++
+					if (a.scrollWidth > a.clientWidth + 1) out.chipOverflow++
+					const cell = a.closest('.mn-cal-cell').getBoundingClientRect()
+					const r = a.getBoundingClientRect()
+					if (r.right > cell.right + 1 || r.left < cell.left - 1) out.outsideCell++
+					a.querySelectorAll('.mn-badge').forEach((b) => {
+						if (b.scrollWidth > b.clientWidth + 1) out.badgeOverflow++
+						// Compact chips keep ONE kind pill — a second text badge is
+						// the old clip pattern (Unassigned/Draft as nowrap pills).
+						if (!b.classList.contains('mn-cal-event__kind')) out.textBadges++
+					})
+				})
+				return out
+			})
+			expect(report.events, `no month events rendered at ${width}px`).toBeGreaterThan(0)
+			expect(report.compact, `non-compact chips in month grid at ${width}px`).toBe(report.events)
+			expect(report.zeroTitle, `zero-width titles at ${width}px`).toBe(0)
+			expect(report.chipOverflow, `chip horizontal overflow at ${width}px`).toBe(0)
+			expect(report.badgeOverflow, `badge clipped inside chip at ${width}px`).toBe(0)
+			expect(report.outsideCell, `chip painted outside its cell at ${width}px`).toBe(0)
+			expect(report.textBadges, `nowrap text badges inside compact chip at ${width}px`).toBe(0)
+		}
+	})
 })
