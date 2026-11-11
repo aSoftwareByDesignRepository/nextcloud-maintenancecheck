@@ -69,14 +69,13 @@ test('no fixed-plural count-noun enumeration keys remain in catalogs', () => {
 	}
 });
 
-test('every l10n js mirror registers the locale pluralForm (multi-form locales need it)', () => {
+test('every l10n js mirror uses the two-arg CSP-safe register() form', () => {
 	for (const file of readdirSync(join(root, 'l10n'))) {
 		if (!file.endsWith('.js')) {
 			continue;
 		}
 		const src = readFileSync(join(root, 'l10n', file), 'utf8');
-		assert.match(src, /"nplurals=\d+; plural=/, `${file} missing nplurals register arg`);
+		assert.doesNotMatch(src, /"nplurals=\d+/, `${file} carries a banned plural-form third arg — CSP (Nextcloud >=26): register() receives only (appId, translations); plural rules come from @nextcloud/l10n getPlural()`);
+		assert.match(src, /\n\t\}\n\);\n?$/, `${file} must close with the two-arg register() form`);
 	}
-	const plJs = readFileSync(join(root, 'l10n/pl.js'), 'utf8');
-	assert.match(plJs, /nplurals=3/, 'pl.js must declare 3 plural forms');
 });
