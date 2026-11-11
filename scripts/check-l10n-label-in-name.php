@@ -16,7 +16,12 @@ declare(strict_types=1);
  */
 
 $base = __DIR__ . '/../l10n';
-$locales = ['de', 'da', 'es', 'fr', 'it', 'nb', 'nl', 'pl', 'sv', 'pt', 'pt_BR'];
+$locales = [];
+foreach (glob($base . '/*.json') ?: [] as $jsonFile) {
+	$locales[] = basename($jsonFile, '.json');
+}
+sort($locales);
+$locales = array_values(array_diff($locales, ['en']));
 
 $rules = [
 	'Assign' => [
