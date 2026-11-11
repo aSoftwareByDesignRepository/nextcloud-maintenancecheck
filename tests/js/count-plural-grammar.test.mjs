@@ -8,12 +8,23 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const app = readFileSync(join(root, 'js/app.js'), 'utf8');
 const pages = readFileSync(join(root, 'js/work-order-pages.js'), 'utf8');
 
+// CLDR plural-form counts for shipped locales without a declared
+// pluralForm in the catalog. Default below is 2 (one/other).
+const CLDR_NPLURALS = {
+	zh_CN: 1,
+	pl: 3,
+};
+
 const catalogs = {};
 for (const file of readdirSync(join(root, 'l10n'))) {
 	if (file.endsWith('.json')) {
-		catalogs[file.replace(/\.json$/, '')] = JSON.parse(
-			readFileSync(join(root, 'l10n', file), 'utf8'),
-		).translations;
+		const parsed = JSON.parse(readFileSync(join(root, 'l10n', file), 'utf8'));
+		const loc = file.replace(/\.json$/, '');
+		const np = /nplurals=(\d+)/.exec(parsed.pluralForm || '');
+		catalogs[loc] = {
+			translations: parsed.translations,
+			nplurals: np ? parseInt(np[1], 10) : (CLDR_NPLURALS[loc] || 2),
+		};
 	}
 }
 
@@ -34,10 +45,14 @@ test('every tn() source pair has a _::_ catalog entry with per-locale forms', ()
 	assert.ok(pairs.size >= 6, `expected >=6 tn() pairs, got ${pairs.size}`);
 	for (const [singular, plural] of pairs) {
 		const key = `_${singular}_::_${plural}_`;
-		for (const [loc, tr] of Object.entries(catalogs)) {
-			const entry = tr[key];
+		for (const [loc, cat] of Object.entries(catalogs)) {
+			const entry = cat.translations[key];
 			assert.ok(Array.isArray(entry), `${loc}: missing array entry for ${key}`);
-			assert.ok(entry.length >= 2, `${loc}: ${key} needs >=2 forms`);
+			assert.strictEqual(
+				entry.length,
+				cat.nplurals,
+				`${loc}: ${key} needs exactly ${cat.nplurals} form(s)`,
+			);
 			for (const form of entry) {
 				assert.match(form, /%n/, `${loc}: ${key} form must keep the %n placeholder`);
 			}
