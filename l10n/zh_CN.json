@@ -552,7 +552,7 @@
 		"Later": "稍后",
 		"Later (up to 30 days)": "稍后（最多 30 天）",
 		"Latest was {value}.": "最近值为 {value}。",
-		"Latest {value}{unit} on {date}": "{date} 最新值 {value}{unit}",
+		"Latest {value}{unit} on {date}": "最新值 {value}{unit}（{date}）",
 		"Latitude": "纬度",
 		"Learn more on our website": "在我们的网站了解更多",
 		"Leave empty for a single-day job — at most 31 days.": "单日工单请留空——最长 31 天。",
