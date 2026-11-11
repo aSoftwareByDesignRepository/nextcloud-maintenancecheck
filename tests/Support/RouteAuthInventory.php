@@ -23,6 +23,7 @@ use OCA\MaintenanceCheck\Controller\ProcedureController;
 use OCA\MaintenanceCheck\Controller\SiteController;
 use OCA\MaintenanceCheck\Controller\SkillController;
 use OCA\MaintenanceCheck\Controller\TourController;
+use OCA\MaintenanceCheck\Controller\TransferApiController;
 use OCA\MaintenanceCheck\Controller\VisitController;
 use OCA\MaintenanceCheck\Controller\WorkOrderController;
 
@@ -218,6 +219,11 @@ final class RouteAuthInventory
 			'ops#createFailureCode' => 'office',
 			'ops#updateFailureCode' => 'office',
 			'ops#reminderDryRun' => 'app_admin',
+			'transfer_api#status' => 'app_admin',
+			'transfer_api#export' => 'app_admin',
+			'transfer_api#preview' => 'app_admin',
+			'transfer_api#apply' => 'app_admin',
+			'transfer_api#reconcile' => 'app_admin',
 			'equip_doc#index' => 'l2_read',
 			'equip_doc#create' => 'office',
 			'equip_doc#destroy' => 'office',
@@ -262,6 +268,7 @@ final class RouteAuthInventory
 			'ops' => OpsController::class,
 			'equip_doc' => EquipDocController::class,
 			'inspection_obligation' => InspectionObligationController::class,
+			'transfer_api' => TransferApiController::class,
 			default => throw new \InvalidArgumentException('Unknown controller prefix: ' . $prefix),
 		};
 	}
@@ -338,6 +345,7 @@ final class RouteAuthInventory
 		'mobile#inspectionEvidence',
 		'mobile#inspectionEvidenceAlias',
 		'mobile#downloadEquipDoc',
+		'transfer_api#export',
 	];
 
 	public static function isJsonApi(string $url): bool

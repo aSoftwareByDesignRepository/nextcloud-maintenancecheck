@@ -24,6 +24,7 @@ use OCA\MaintenanceCheck\Controller\SiteController;
 use OCA\MaintenanceCheck\Controller\SkillController;
 use OCA\MaintenanceCheck\Controller\TourController;
 use OCA\MaintenanceCheck\Controller\VisitController;
+use OCA\MaintenanceCheck\ConfigTransfer\TransferReceiptStore;
 use OCA\MaintenanceCheck\Controller\WorkOrderController;
 use OCA\MaintenanceCheck\Exception\AppAccessDeniedException;
 use OCA\MaintenanceCheck\Exception\MobileGateException;
@@ -405,6 +406,18 @@ final class AtlasApiEndpointHappyAuthzTest extends TestCase
 		$key = $typeName . ':' . ($allow ? '1' : '0') . ':' . $mode . ':' . $controllerClass;
 		if (isset($this->byType[$key])) {
 			return $this->byType[$key];
+		}
+
+		// Final classes cannot be doubled — build the real store on a mocked
+		// IConfig that honours the caller's default (getAppValue(k,'[]') → '[]').
+		if ($typeName === TransferReceiptStore::class) {
+			$config = $this->createMock(IConfig::class);
+			$config->method('getAppValue')->willReturnCallback(
+				static fn (string $app, string $key, ?string $default = null): string => (string)$default
+			);
+			$store = new TransferReceiptStore($config, 'maintenancecheck');
+			$this->byType[$key] = $store;
+			return $store;
 		}
 
 		if ($typeName === AccessControlService::class) {

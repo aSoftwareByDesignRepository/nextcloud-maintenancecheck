@@ -38,6 +38,7 @@ class PageController extends Controller
 		private readonly Clock $clock,
 		private readonly IConfig $config,
 		private readonly EquipmentService $equipment,
+		private readonly \OCA\MaintenanceCheck\ConfigTransfer\TransferReceiptStore $transferReceipts,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -251,6 +252,14 @@ class PageController extends Controller
 		if ($pageId === 'calendar') {
 			Util::addScript(Application::APP_ID, 'calendar-page');
 		}
+		// Config & data transfer UI — the bridge exposes the
+		// window.MaintenanceCheckApi/MaintenanceCheckMessaging contract the
+		// synced transfer.js expects, so it must load before transfer.js.
+		if ($pageId === 'settings-transfer') {
+			Util::addStyle(Application::APP_ID, 'common/transfer');
+			Util::addScript(Application::APP_ID, 'transfer-bridge');
+			Util::addScript(Application::APP_ID, 'transfer');
+		}
 
 		$uid = $this->access->currentUserId();
 		$isAppAdmin = $this->access->isAppAdmin($uid);
@@ -265,6 +274,7 @@ class PageController extends Controller
 			'isAppAdmin' => $isAppAdmin,
 			'isOffice' => $isOffice,
 			'isSystemAdmin' => $this->access->isSystemAdmin($uid),
+			'transferLastReceipt' => $this->transferReceipts->lastReceipt(),
 			'mobileAppStatus' => LicenseService::MOBILE_APP_STATUS,
 			// S1: server calendar "today" — JS must prefer this over the browser clock.
 			'serverToday' => $this->clock->today(),

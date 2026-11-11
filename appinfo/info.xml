@@ -359,6 +359,9 @@ Vi forbedrer denne appen med bruk i praksis. Feilrapporter, friksjon og idéer h
 	<commands>
 		<command>OCA\MaintenanceCheck\Command\UpgradeBackupCommand</command>
 		<command>OCA\MaintenanceCheck\Command\SeedReferenceDatasetCommand</command>
+		<command>OCA\MaintenanceCheck\Command\ConfigExportCommand</command>
+		<command>OCA\MaintenanceCheck\Command\ConfigImportCommand</command>
+		<command>OCA\MaintenanceCheck\Command\ConfigReconcileCommand</command>
 	</commands>
 
 	<repair-steps>

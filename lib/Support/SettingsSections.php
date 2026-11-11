@@ -35,6 +35,7 @@ final class SettingsSections
 			'policies',
 			'capacity',
 			'license',
+			'transfer',
 			'support',
 		];
 	}
@@ -91,6 +92,13 @@ final class SettingsSections
 				'hint' => $l->t('Apply a mobile license key and assign named seats.'),
 				'icon' => 'smartphone',
 				'hasJsHost' => true,
+			],
+			[
+				'id' => 'transfer',
+				'title' => $l->t('Transfer'),
+				'hint' => $l->t('Copy all settings, catalogues and data between a test and a production instance — one encrypted file, dry-run before anything is written.'),
+				'icon' => 'upload',
+				'hasJsHost' => false,
 			],
 			[
 				'id' => 'support',

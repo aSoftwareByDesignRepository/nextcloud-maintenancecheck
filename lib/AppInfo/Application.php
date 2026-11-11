@@ -780,6 +780,58 @@ class Application extends App implements IBootstrap
 			);
 		});
 
+		// ── Config & data transfer (test → production) ──────────────────
+		$context->registerService(\OCA\MaintenanceCheck\ConfigTransfer\TransferManifest::class, fn () => new \OCA\MaintenanceCheck\ConfigTransfer\TransferManifest());
+		$context->registerService(\OCA\MaintenanceCheck\ConfigTransfer\TransferHooks::class, function ($c): \OCA\MaintenanceCheck\ConfigTransfer\TransferHooks {
+			return new \OCA\MaintenanceCheck\ConfigTransfer\TransferHooks(
+				$c->get(AccessControlService::class),
+				$c->get(UpgradeBackupService::class),
+				$c->get(LoggerInterface::class),
+			);
+		});
+		$context->registerService(\OCA\MaintenanceCheck\ConfigTransfer\TransferPendingStore::class, fn ($c) => new \OCA\MaintenanceCheck\ConfigTransfer\TransferPendingStore($c->get(IRootFolder::class), $c->get(IConfig::class), 'maintenancecheck'));
+		$context->registerService(\OCA\MaintenanceCheck\ConfigTransfer\TransferReceiptStore::class, fn ($c) => new \OCA\MaintenanceCheck\ConfigTransfer\TransferReceiptStore($c->get(IConfig::class), 'maintenancecheck'));
+		$context->registerService(\OCA\MaintenanceCheck\ConfigTransfer\TransferService::class, function ($c): \OCA\MaintenanceCheck\ConfigTransfer\TransferService {
+			return new \OCA\MaintenanceCheck\ConfigTransfer\TransferService(
+				$c->get(IDBConnection::class),
+				$c->get(IConfig::class),
+				$c->get(IUserManager::class),
+				$c->get(IGroupManager::class),
+				$c->get(IRootFolder::class),
+				$c->get(IAppManager::class),
+				$c->get(ILockingProvider::class),
+				$c->get(IURLGenerator::class),
+				$c->get(LoggerInterface::class),
+				$c->get(\OCA\MaintenanceCheck\ConfigTransfer\TransferManifest::class),
+				$c->get(\OCA\MaintenanceCheck\ConfigTransfer\TransferHooks::class),
+				$c->get(\OCA\MaintenanceCheck\ConfigTransfer\TransferPendingStore::class),
+				$c->get(\OCA\MaintenanceCheck\ConfigTransfer\TransferReceiptStore::class),
+				'maintenancecheck',
+				$c->get(\OCP\IAppConfig::class),
+			);
+		});
+		$context->registerService(\OCA\MaintenanceCheck\BackgroundJob\TransferApplyJob::class, function ($c): \OCA\MaintenanceCheck\BackgroundJob\TransferApplyJob {
+			return new \OCA\MaintenanceCheck\BackgroundJob\TransferApplyJob(
+				$c->get(ITimeFactory::class),
+				$c->get(\OCA\MaintenanceCheck\ConfigTransfer\TransferService::class),
+				$c->get(ILockingProvider::class),
+				$c->get(\OCP\BackgroundJob\IJobList::class),
+				$c->get(LoggerInterface::class),
+			);
+		});
+		$context->registerService(\OCA\MaintenanceCheck\Controller\TransferApiController::class, function ($c): \OCA\MaintenanceCheck\Controller\TransferApiController {
+			return new \OCA\MaintenanceCheck\Controller\TransferApiController(
+				'maintenancecheck',
+				$c->get(IRequest::class),
+				$c->get(\OCA\MaintenanceCheck\ConfigTransfer\TransferHooks::class),
+				$c->get(\OCA\MaintenanceCheck\ConfigTransfer\TransferService::class),
+				$c->get(\OCP\BackgroundJob\IJobList::class),
+				$c->get(\OCP\Security\Bruteforce\IThrottler::class),
+				$c->get(IGroupManager::class),
+				$c->get(IUserSession::class),
+			);
+		});
+
 
 		// ── Middleware ──────────────────────────────────────────────────
 		$context->registerService(AppAccessMiddleware::class, static function ($c): AppAccessMiddleware {

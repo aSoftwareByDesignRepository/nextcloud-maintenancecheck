@@ -25,7 +25,7 @@ final class SettingsUnderpagesContractTest extends TestCase
 	{
 		$ids = SettingsSections::ids();
 		$this->assertSame(
-			['access', 'roles', 'inventory', 'policies', 'capacity', 'license', 'support'],
+			['access', 'roles', 'inventory', 'policies', 'capacity', 'license', 'transfer', 'support'],
 			$ids
 		);
 		$this->assertSame('access', SettingsSections::DEFAULT);
@@ -90,6 +90,14 @@ final class SettingsUnderpagesContractTest extends TestCase
 				$this->assertArrayHasKey($id, $hostMap);
 				$this->assertStringContainsString('id="' . $hostMap[$id] . '"', $html, $id . ' missing JS host');
 				$this->assertStringContainsString('aria-busy="true"', $html, $id);
+			} elseif ($id === 'transfer') {
+				// Synced config-transfer partial — the section file is a thin
+				// dispatcher include, the pack ships the JS itself.
+				$this->assertStringContainsString('parts/settings/transfer.php', $html, 'transfer must include the synced partial');
+				$synced = (string)file_get_contents($this->root . '/templates/parts/settings/transfer.php');
+				$this->assertStringContainsString('mn-card', $synced);
+				$this->assertStringContainsString('mn-transfer-export-form', $synced);
+				$this->assertStringContainsString('mn-transfer-import-form', $synced);
 			} else {
 				$this->assertStringContainsString('support-us-section.php', $html, 'support must include Support & us');
 				$supportUs = (string)file_get_contents($this->root . '/templates/parts/support-us-section.php');

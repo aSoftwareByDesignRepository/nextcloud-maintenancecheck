@@ -209,6 +209,13 @@ return [
 		['name' => 'ops#createFailureCode', 'url' => '/api/failure-codes', 'verb' => 'POST'],
 		['name' => 'ops#updateFailureCode', 'url' => '/api/failure-codes/{id}', 'verb' => 'PUT', 'requirements' => ['id' => '\\d+']],
 		['name' => 'ops#reminderDryRun', 'url' => '/api/ops/reminders/dry-run', 'verb' => 'POST'],
+
+		// ── Config & data transfer (test → production) ──────────────────
+		['name' => 'transfer_api#status', 'url' => '/api/admin/transfer/status', 'verb' => 'GET'],
+		['name' => 'transfer_api#export', 'url' => '/api/admin/transfer/export', 'verb' => 'POST'],
+		['name' => 'transfer_api#preview', 'url' => '/api/admin/transfer/preview', 'verb' => 'POST'],
+		['name' => 'transfer_api#apply', 'url' => '/api/admin/transfer/apply', 'verb' => 'POST'],
+		['name' => 'transfer_api#reconcile', 'url' => '/api/admin/transfer/reconcile', 'verb' => 'POST'],
 		['name' => 'equip_doc#index', 'url' => '/api/equipment/{equipmentId}/docs', 'verb' => 'GET', 'requirements' => ['equipmentId' => '\\d+']],
 		['name' => 'equip_doc#create', 'url' => '/api/equipment/{equipmentId}/docs', 'verb' => 'POST', 'requirements' => ['equipmentId' => '\\d+']],
 

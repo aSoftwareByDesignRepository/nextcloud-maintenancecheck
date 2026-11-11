@@ -11,6 +11,7 @@ use OCA\MaintenanceCheck\Service\AccessControlService;
 use OCA\MaintenanceCheck\Tests\Support\RouteAuthInventory;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\RedirectResponse;
+use OCP\AppFramework\Http\Response;
 use OCP\IConfig;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -162,6 +163,14 @@ final class RouteRoleMatrixIntegrationTest extends IntegrationTestCase
 				$result,
 				$routeName . ' must redirect technicians away from the office page',
 			);
+			return;
+		}
+		// The synced transfer controller denies by response, not exception:
+		// every failure collapses into the canonical {error:NOT_FOUND} 404
+		// payload (api-security §1 — no existence oracle).
+		if (str_starts_with($routeName, 'transfer_api#')) {
+			$this->assertInstanceOf(Response::class, $result, $routeName . ' must return a denial response');
+			$this->assertSame(404, $result->getStatus(), $routeName . ' must collapse denial to 404 NOT_FOUND');
 			return;
 		}
 		$this->fail($routeName . ' returned ' . get_debug_type($result) . ' instead of denying the technician');

@@ -44,6 +44,382 @@
                 }
             }
         },
+        "/api/admin/transfer/apply": {
+            "post": {
+                "operationId": "transfer_api#apply",
+                "summary": "transfer_api#apply",
+                "x-mn-gate": "app_admin",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON success (object; list endpoints include data[])",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListEnvelope"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/JsonObject"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/transfer/export": {
+            "post": {
+                "operationId": "transfer_api#export",
+                "summary": "transfer_api#export",
+                "x-mn-gate": "app_admin",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Binary download (PDF, photo, CSV, signature)"
+                    },
+                    "401": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/transfer/preview": {
+            "post": {
+                "operationId": "transfer_api#preview",
+                "summary": "transfer_api#preview",
+                "x-mn-gate": "app_admin",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON success (object; list endpoints include data[])",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListEnvelope"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/JsonObject"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/transfer/reconcile": {
+            "post": {
+                "operationId": "transfer_api#reconcile",
+                "summary": "transfer_api#reconcile",
+                "x-mn-gate": "app_admin",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON success (object; list endpoints include data[])",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListEnvelope"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/JsonObject"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/transfer/status": {
+            "get": {
+                "operationId": "transfer_api#status",
+                "summary": "transfer_api#status",
+                "x-mn-gate": "app_admin",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON success (object; list endpoints include data[])",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListEnvelope"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/JsonObject"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/calendar": {
             "get": {
                 "operationId": "calendar#index",
