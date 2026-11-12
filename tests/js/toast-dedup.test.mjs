@@ -47,3 +47,11 @@ test('dedup hit resets the dismiss timer instead of stacking', () => {
 test('created toasts carry their dismiss timer for later resets', () => {
 	assert.match(toastBody, /node\._mnDismissTimer\s*=\s*timer/)
 })
+
+test('toast() flips toast--show so the card actually paints (opacity:0 base)', () => {
+	// .toast base is opacity:0 — without the next-frame toast--show flip the
+	// toast stays invisible to sighted users while toBeVisible() still passes.
+	assert.match(toastBody, /requestAnimationFrame\(function \(\) \{\s*node\.classList\.add\('toast--show'\)/)
+	// removal fades through the same class before unmounting
+	assert.match(toastBody, /classList\.remove\('toast--show'\)/)
+})

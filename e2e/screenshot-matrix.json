@@ -55,6 +55,12 @@
 		{ "id": "settings-access", "path": "/settings/access", "states": ["current"] },
 		{ "id": "settings-policies", "path": "/settings/policies", "states": ["current"] },
 		{ "id": "settings-license", "path": "/settings/license", "states": ["current"] },
-		{ "id": "settings-support", "path": "/settings/support", "states": ["current"] }
+		{ "id": "settings-support", "path": "/settings/support", "states": ["current"] },
+		{
+			"id": "settings-transfer",
+			"path": "/settings/transfer",
+			"states": ["current", "report-dialog", "progress-dialog"],
+			"dark": true
+		}
 	]
 }

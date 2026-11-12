@@ -727,9 +727,12 @@
 					window.clearTimeout(dupe._mnDismissTimer);
 				}
 				dupe._mnDismissTimer = window.setTimeout(function () {
-					if (dupe.parentNode) {
-						dupe.parentNode.removeChild(dupe);
-					}
+					dupe.classList.remove('toast--show');
+					window.setTimeout(function () {
+						if (dupe.parentNode) {
+							dupe.parentNode.removeChild(dupe);
+						}
+					}, 300);
 				}, lifetime);
 				return;
 			}
@@ -767,11 +770,27 @@
 			if (node._mnDismissTimer && node._mnDismissTimer !== timer) {
 				window.clearTimeout(node._mnDismissTimer);
 			}
-			if (node.parentNode) {
-				node.parentNode.removeChild(node);
-			}
+			/*
+			 * Fade out before unmounting — the .toast base is opacity:0
+			 * and only .toast--show paints it. Removing the class lets the
+			 * transition run; removing the node outright would pop it.
+			 */
+			node.classList.remove('toast--show');
+			window.setTimeout(function () {
+				if (node.parentNode) {
+					node.parentNode.removeChild(node);
+				}
+			}, 300);
 		}
 		region.appendChild(node);
+		/*
+		 * Reveal next frame: .toast starts at opacity:0 / translated down,
+		 * .toast--show is the only rule that paints it. Without this flip
+		 * every toast stays invisible to sighted users (aria still reads).
+		 */
+		window.requestAnimationFrame(function () {
+			node.classList.add('toast--show');
+		});
 		announce(message, type === 'error');
 	}
 

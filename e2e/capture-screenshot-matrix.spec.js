@@ -17,12 +17,16 @@
  *               work-orders and a far-past custom date range for visits.
  *               The app's real empty state — never a mocked response.
  *   current   — state-invariant chrome (settings underpages).
+ *   *-dialog  — modal states driven through the real flow before capture
+ *               (e.g. the transfer import report + apply progress dialogs
+ *               reached via a real .nctransfer export→preview→apply cycle).
  *
  * Run (from the app dir):
  *   npx playwright test e2e/capture-screenshot-matrix.spec.js
  */
 import { test, expect } from '@playwright/test'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { login, primaryCreds } from '../tests/e2e/helpers/auth.js'
@@ -61,6 +65,7 @@ const READY = {
 	'settings-policies': '#mn-settings-subnav, .mn-empty',
 	'settings-license': '#mn-settings-subnav, .mn-empty',
 	'settings-support': '#mn-settings-subnav, .mn-empty',
+	'settings-transfer': '#mn-transfer-export-card',
 }
 
 let fixtures = { customerId: 0, equipmentId: 0, woId: 0, visitId: 0 }
@@ -189,6 +194,60 @@ async function driveEmpty(page, surface) {
 		.toBeVisible({ timeout: 15_000 })
 }
 
+/**
+ * Modal-state drivers keyed by surface id → state name. A driver must leave
+ * the dialog open and painted; the capture happens immediately after
+ * (progress dialogs self-close on job completion — no extra settle delay).
+ */
+const TRANSFER_PASS = `Atlas-Xfer-${MARKER}-secret`
+let transferFilePath = null
+
+/**
+ * Real .nctransfer fixture: produced by the app's own export endpoint, so the
+ * import preview decrypts honestly (no hand-crafted JSON). Cached per run.
+ */
+async function ensureTransferFile(page) {
+	if (transferFilePath) {
+		return transferFilePath
+	}
+	const token = await page.evaluate(
+		() => (typeof window.OC !== 'undefined' && window.OC.requestToken)
+			|| document.querySelector('head[data-requesttoken]')?.getAttribute('data-requesttoken')
+			|| '')
+	const resp = await page.request.post(`${API}/admin/transfer/export`, {
+		data: { passphrase: TRANSFER_PASS },
+		headers: { requesttoken: token, 'OCS-APIRequest': 'true' },
+	})
+	expect(resp.ok(), `transfer export failed: ${resp.status()}`).toBeTruthy()
+	const buf = await resp.body()
+	expect(buf.byteLength, 'transfer export returned a tiny body').toBeGreaterThan(200)
+	transferFilePath = join(tmpdir(), `mn-matrix-${MARKER}.nctransfer`)
+	writeFileSync(transferFilePath, buf)
+	return transferFilePath
+}
+
+async function driveTransferReport(page) {
+	const file = await ensureTransferFile(page)
+	await page.locator('#mn-transfer-import-passphrase').fill(TRANSFER_PASS)
+	await page.locator('#mn-transfer-file').setInputFiles(file)
+	await expect(page.locator('#mn-transfer-report[open]')).toBeVisible({ timeout: 30_000 })
+}
+
+const DIALOG_DRIVERS = {
+	'settings-transfer': {
+		// Upload a real export → debounced preview → report dialog.
+		'report-dialog': driveTransferReport,
+		// Same flow plus confirm → async apply job opens the progress dialog.
+		// The dialog closes + reloads when the job reports done, so the caller
+		// captures immediately — the 350ms settle/height-grow would race it.
+		'progress-dialog': async (page) => {
+			await driveTransferReport(page)
+			await page.locator('#mn-transfer-confirm').click()
+			await expect(page.locator('#mn-transfer-progress[open]')).toBeVisible({ timeout: 15_000 })
+		},
+	},
+}
+
 function surfacePath(surface) {
 	return surface.path
 		.replace('{woId}', String(fixtures.woId))
@@ -299,16 +358,22 @@ test.describe('SCREENSHOT_MATRIX capture', () => {
 				if (state === 'empty') {
 					await driveEmpty(page, surface)
 				}
-				await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {})
-				await page.waitForTimeout(350)
-				// #app-content scrolls internally — grow the viewport to the full
-				// content height so the shot is not fold-clipped.
-				const contentH = await page.evaluate(() =>
-					(document.querySelector('#app-content') || document.documentElement).scrollHeight)
-				const shotH = Math.min(Math.max(contentH + 60, vp.height), 8192)
-				if (shotH !== vp.height) {
-					await page.setViewportSize({ width: vp.width, height: shotH })
-					await page.waitForTimeout(150)
+				const dialogDriver = DIALOG_DRIVERS[surface.id]?.[state]
+				if (dialogDriver) {
+					await dialogDriver(page)
+				}
+				if (!dialogDriver) {
+					await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {})
+					await page.waitForTimeout(350)
+					// #app-content scrolls internally — grow the viewport to the full
+					// content height so the shot is not fold-clipped.
+					const contentH = await page.evaluate(() =>
+						(document.querySelector('#app-content') || document.documentElement).scrollHeight)
+					const shotH = Math.min(Math.max(contentH + 60, vp.height), 8192)
+					if (shotH !== vp.height) {
+						await page.setViewportSize({ width: vp.width, height: shotH })
+						await page.waitForTimeout(150)
+					}
 				}
 				const file = join(OUT, shotName(surface, state, vp, theme))
 				await page.screenshot({ path: file })
