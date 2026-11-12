@@ -28,6 +28,8 @@
 	--mn-line-tight: 1.2;
 	--mn-line-base: 1.45;
 
+	--mn-mono: "SF Mono", Monaco, Inconsolata, "Roboto Mono", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+
 	--mn-breakpoint-sm: 480px;
 	--mn-breakpoint-md: 768px;
 	--mn-breakpoint-lg: 1024px;
