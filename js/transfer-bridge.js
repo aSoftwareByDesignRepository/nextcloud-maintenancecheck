@@ -56,20 +56,29 @@
 			}));
 		},
 	};
-	window.MaintenanceCheckMessaging = {
-		alert(text) {
-			if (window.OC && OC.Notification && OC.Notification.showTemporary) {
-				OC.Notification.showTemporary(text);
-			}
-			const el = document.getElementById('mn-alert-region');
-			if (el) el.textContent = text;
-		},
-		polite(text) {
-			if (window.OC && OC.Notification && OC.Notification.showTemporary) {
-				OC.Notification.showTemporary(text);
-			}
-			const el = document.getElementById('mn-live-region');
-			if (el) el.textContent = text;
-		},
-	};
+	// Messaging: the synced transfer.js asks for .alert/.polite — map both
+	// onto the app's own toast channel (visible + deduped + live-region
+	// announce built in) and mirror into the transfer live region the
+	// synced part renders. OC.Notification is NOT a visible channel:
+	// showTemporary was removed from NC>=31 bundles, so the guard never
+	// fires and feedback stays invisible to sighted users
+	// (dead_platform_toast_api / bc-vis-transfer-messaging-invisible-on-nc35).
+	const msg = window.MaintenanceCheckMessaging || {};
+	function live(text) {
+		const el = document.getElementById('mn-transfer-result-live');
+		if (el) el.textContent = text;
+	}
+	function announce(text, kind) {
+		const dom = window.MnApp && window.MnApp.__dom;
+		if (dom && typeof dom.toast === 'function') {
+			dom.toast(text, kind);
+			return;
+		}
+		if (window.OC && OC.Notification && OC.Notification.showTemporary) {
+			OC.Notification.showTemporary(text);
+		}
+	}
+	msg.alert = function (text) { announce(text, 'error'); live(text); };
+	msg.polite = function (text) { announce(text, 'success'); live(text); };
+	window.MaintenanceCheckMessaging = msg;
 })();

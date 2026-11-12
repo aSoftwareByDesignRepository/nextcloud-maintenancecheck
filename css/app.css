@@ -1878,6 +1878,23 @@ textarea.mn-input {
 	color: var(--color-main-text);
 }
 
+/* The toast region is a body-level overlay (position:fixed, outside the
+   app-scoped armor lists): NC core's button repaint
+   (button:not(.button-vue,[class^=vs__]) → width:130px + pale fill +
+   border + padding, and the :not(.app-navigation-entry-button)
+   margin-inline-start:0 at (0,2,1)) beats the bare (0,1,0) class rule and
+   collapses the transparent icon-close into a ~130px pale block. Pin the
+   repainted properties on the overlay scope. */
+#mn-toast-region button.mn-toast__close {
+	width: auto !important;
+	margin-inline-start: auto !important;
+	background: transparent !important;
+	border: 0 !important;
+	padding: var(--mn-space-1) !important;
+	min-width: 44px;
+	min-height: 44px;
+}
+
 /* ── Settings ─────────────────────────────────────────────────────── */
 
 /* Settings underpages use the full shell width (no hub / no reading-column cap). */
