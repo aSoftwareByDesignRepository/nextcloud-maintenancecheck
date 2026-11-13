@@ -162,7 +162,11 @@ progress {
 	white-space: nowrap;
 }
 @media (max-width: 480px) {
-	.mn-dialog { max-width: 100vw; margin: 0; border-radius: 0; }
+	/* Element+class selector: app stylesheets commonly pin
+	   'dialog.mn-dialog { max-width: … }' unified-dialog rules at
+	   specificity (0,1,1); a bare class here (0,1,0) could never
+	   override them and the sheet would stay capped on phones. */
+	dialog.mn-dialog { max-width: 100vw; margin: 0; border-radius: 0; }
 	.mn-dialog__body { padding: var(--mn-space-4, 16px); }
 	.mn-dialog__footer .mn-actions { flex-direction: column; }
 	.mn-dialog__footer .mn-btn { width: 100%; min-height: 48px; }
