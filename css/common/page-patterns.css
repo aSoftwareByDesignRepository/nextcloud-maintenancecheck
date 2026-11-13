@@ -31,7 +31,13 @@
 	min-width: 0;
 }
 
-#app-content.mn-app .mn-page-stack > * {
+/* Reset flow-children margins for the stack rhythm — but never while a
+   child renders :modal: a top-layer <dialog> relies on UA/pack
+   margin:auto centering and this reset at higher specificity would pin
+   it to the viewport top-left (native_dialog_margin_reset_uncentered).
+   :not(:modal) keeps the reset for flow children only — a closed dialog
+   is display:none anyway. */
+#app-content.mn-app .mn-page-stack > *:not(:modal) {
 	margin: 0;
 }
 

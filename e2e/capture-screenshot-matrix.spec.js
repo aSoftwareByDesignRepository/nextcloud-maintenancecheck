@@ -226,11 +226,49 @@ async function ensureTransferFile(page) {
 	return transferFilePath
 }
 
+/** native_dialog_margin_reset_uncentered: NC core's html,body,…,dialog
+ * reset zeroes the UA 'margin:auto' that centers a top-layer <dialog> —
+ * a pack dialog without a margin re-declaration anchors to the viewport
+ * top-left. mode 'centered' proves the pack margin:auto restored both-axis
+ * centering over the dimmed backdrop; mode 'fullbleed' proves the ≤480px
+ * media query margin:0 sheet still wins at narrow widths. */
+async function assertDialogTopLayerGeometry(dialog, mode, where) {
+	const m = await dialog.evaluate((d) => {
+		const r = d.getBoundingClientRect()
+		return { l: r.left, t: r.top, w: r.width, h: r.height, vpW: window.innerWidth, vpH: window.innerHeight }
+	})
+	if (mode === 'centered') {
+		const expL = Math.max(0, (m.vpW - m.w) / 2)
+		const expT = Math.max(0, (m.vpH - m.h) / 2)
+		expect(Math.abs(m.l - expL),
+			`${where}: dialog left ${Math.round(m.l)} ≠ centered ${Math.round(expL)} — margin:auto did not survive the NC reset`)
+			.toBeLessThanOrEqual(2)
+		expect(Math.abs(m.t - expT),
+			`${where}: dialog top ${Math.round(m.t)} ≠ centered ${Math.round(expT)}`)
+			.toBeLessThanOrEqual(2)
+		expect(m.l, `${where}: flush-left top-left anchor regression`).toBeGreaterThan(1)
+	} else {
+		expect(Math.abs(m.l), `${where}: ≤480 full-bleed sheet must pin to the left edge`).toBeLessThanOrEqual(1)
+		expect(m.w, `${where}: ≤480 full-bleed sheet must span viewport width`).toBeGreaterThanOrEqual(m.vpW - 1)
+		expect(m.t, `${where}: ≤480 full-bleed sheet must pin to the top edge`).toBeLessThanOrEqual(1)
+	}
+}
+
+async function assertTransferDialogGeometry(page, selector, where) {
+	const vpW = page.viewportSize()?.width ?? 0
+	await assertDialogTopLayerGeometry(
+		page.locator(selector),
+		vpW <= 480 ? 'fullbleed' : 'centered',
+		`${where} @${vpW}px`,
+	)
+}
+
 async function driveTransferReport(page) {
 	const file = await ensureTransferFile(page)
 	await page.locator('#mn-transfer-import-passphrase').fill(TRANSFER_PASS)
 	await page.locator('#mn-transfer-file').setInputFiles(file)
 	await expect(page.locator('#mn-transfer-report[open]')).toBeVisible({ timeout: 30_000 })
+	await assertTransferDialogGeometry(page, '#mn-transfer-report[open]', 'report')
 }
 
 const DIALOG_DRIVERS = {
@@ -243,7 +281,9 @@ const DIALOG_DRIVERS = {
 		'progress-dialog': async (page) => {
 			await driveTransferReport(page)
 			await page.locator('#mn-transfer-confirm').click()
-			await expect(page.locator('#mn-transfer-progress[open]')).toBeVisible({ timeout: 15_000 })
+			const progress = page.locator('#mn-transfer-progress[open]')
+			await expect(progress).toBeVisible({ timeout: 15_000 })
+			await assertTransferDialogGeometry(page, '#mn-transfer-progress[open]', 'progress')
 		},
 	},
 }
