@@ -6524,23 +6524,20 @@
 			var state = status.state;
 
 			if (state) {
+				var statusItem = function (label, value) {
+					return el('span', { class: 'mn-license-status__item' }, [
+						el('span', { class: 'mn-license-status__label', text: label }),
+						el('span', { class: 'mn-license-status__value', text: value }),
+					]);
+				};
 				licenseBox.appendChild(el('div', { class: 'mn-license-status' }, [
-					el('span', {}, [
-						el('strong', { text: tr('Customer:') + ' ' }),
-						el('span', { text: state.customerId }),
-					]),
-					el('span', {}, [
-						el('strong', { text: tr('Valid until:') + ' ' }),
-						el('span', { text: fmt(state.validUntil) }),
-					]),
+					statusItem(tr('Customer:'), state.customerId),
+					statusItem(tr('Valid until:'), fmt(state.validUntil)),
+					statusItem(tr('Seats:'), status.seats.assigned + ' / ' + status.seats.limit),
 					el('span', {
 						class: 'mn-badge ' + (state.valid ? 'mn-badge--success' : 'mn-badge--overdue'),
 						text: state.valid ? tr('Valid') : tr('Expired'),
 					}),
-					el('span', {}, [
-						el('strong', { text: tr('Seats:') + ' ' }),
-						el('span', { text: status.seats.assigned + ' / ' + status.seats.limit }),
-					]),
 				]));
 			} else {
 				licenseBox.appendChild(el('p', { class: 'mn-section__hint', text: tr('No license key stored. The web app stays fully functional without one.') }));
@@ -6571,7 +6568,7 @@
 				}),
 			]));
 
-			var keyInput = el('textarea', { rows: '3', autocomplete: 'off', spellcheck: 'false' });
+			var keyInput = el('textarea', { rows: '2', autocomplete: 'off', spellcheck: 'false' });
 			var keyField = field(tr('License key'), keyInput, { hint: tr('Paste the MN2 key exactly as you received it.'), wide: true });
 			var applyButton = el('button', {
 				type: 'button', class: 'mn-btn mn-btn--primary', text: tr('Apply key'),
@@ -6594,12 +6591,11 @@
 						});
 				},
 			});
-			var keyRow = el('div', {}, [keyField, applyButton]);
-			licenseBox.appendChild(keyRow);
+			var keyActions = el('div', { class: 'mn-license-actions' }, [applyButton]);
 
 			if (state) {
-				licenseBox.appendChild(el('button', {
-					type: 'button', class: 'mn-btn mn-btn--tertiary mn-btn--compact mn-btn--spaced-top', text: tr('Remove key'),
+				keyActions.appendChild(el('button', {
+					type: 'button', class: 'mn-btn mn-btn--tertiary mn-license-actions__remove', text: tr('Remove key'),
 					'data-mn-action': 'remove-license',
 					onClick: function () {
 						openDialog({
@@ -6627,6 +6623,7 @@
 					},
 				}));
 			}
+			licenseBox.appendChild(el('div', { class: 'mn-license-key' }, [keyField, keyActions]));
 
 			// Seats — SPEC §8.3 NC user picker
 			var seatsTitle = el('h3', { class: 'mn-section__title mn-section__title--spaced', text: tr('Mobile seats') });
@@ -6666,7 +6663,7 @@
 						});
 				},
 			});
-			licenseBox.appendChild(el('div', { class: 'mn-inline-row' }, [seatPicker.root, seatAdd]));
+			licenseBox.appendChild(el('div', { class: 'mn-inline-row mn-inline-row--center' }, [seatPicker.root, seatAdd]));
 
 			var seatList = el('ul', { class: 'mn-chips', 'aria-label': tr('Assigned mobile seats') });
 			if (seats.data.length === 0) {

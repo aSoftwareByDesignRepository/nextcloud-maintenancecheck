@@ -2008,11 +2008,66 @@ textarea.mn-input {
 	margin: 0;
 }
 
+/* License summary panel — label/value columns + validity badge pinned to
+ * the trailing edge. Reads as a card-in-card, not floating inline text. */
 .mn-license-status {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--mn-space-2) var(--mn-space-5);
+	align-items: center;
+	gap: var(--mn-space-3) var(--mn-space-6);
 	margin: 0 0 var(--mn-space-4);
+	padding: var(--mn-space-3) var(--mn-space-4);
+	background: var(--mn-bg-soft, var(--color-background-hover));
+	border: 1px solid var(--mn-border, var(--color-border));
+	border-radius: var(--mn-radius-md);
+}
+
+.mn-license-status__item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	min-width: 0;
+}
+
+.mn-license-status__label {
+	font-size: var(--mn-fs-xs);
+	color: var(--color-text-maxcontrast);
+}
+
+.mn-license-status__value {
+	font-weight: 600;
+}
+
+.mn-license-status > .mn-badge {
+	margin-inline-start: auto;
+}
+
+.mn-license-cta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--mn-space-1) var(--mn-space-2);
+	margin: 0 0 var(--mn-space-4);
+	font-size: var(--mn-fs-sm);
+}
+
+/* Key field + its actions: one block, one action line. Apply is primary;
+ * Remove is quiet tertiary pinned to the trailing edge — never a full-width
+ * slab competing with the primary action. */
+.mn-license-key .mn-field {
+	max-width: 42rem;
+	margin-bottom: var(--mn-space-2);
+}
+
+.mn-license-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--mn-space-2);
+}
+
+.mn-license-actions__remove {
+	margin-inline-start: auto;
 }
 
 .mn-user-picker {
