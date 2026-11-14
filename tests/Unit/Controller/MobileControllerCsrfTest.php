@@ -63,7 +63,6 @@ final class MobileControllerCsrfTest extends TestCase
 			$users,
 		);
 		$method = new ReflectionMethod(MobileController::class, 'assertSafeMutationChannel');
-		$method->setAccessible(true);
 		$method->invoke($controller);
 	}
 

@@ -48,7 +48,6 @@ final class LiveUninstallDropIntegrationTest extends IntegrationTestCase
 		try {
 			$step = Server::get(UninstallDropTables::class);
 			$method = (new ReflectionClass(UninstallDropTables::class))->getMethod('dropAllTablesAndMetadata');
-			$method->setAccessible(true);
 			$method->invoke($step, $this->createMock(IOutput::class));
 
 			foreach (UninstallDropTables::TABLES as $table) {

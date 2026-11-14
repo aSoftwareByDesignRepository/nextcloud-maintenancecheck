@@ -212,7 +212,6 @@ final class VisitServiceTest extends TestCase
 	public function testDbBoolRejectsPostgresFalseString(): void
 	{
 		$method = new \ReflectionMethod(VisitService::class, 'dbBool');
-		$method->setAccessible(true);
 		$this->assertFalse($method->invoke(null, 'f'), "(bool)'f' would be true — dbBool must reject it");
 		$this->assertFalse($method->invoke(null, '0'));
 		$this->assertTrue($method->invoke(null, 't'));

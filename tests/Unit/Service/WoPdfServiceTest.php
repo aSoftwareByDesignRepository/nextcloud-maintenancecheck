@@ -127,7 +127,6 @@ final class WoPdfServiceTest extends TestCase
 		);
 		$ref = new \ReflectionClass($pdf);
 		$method = $ref->getMethod('buildHtml');
-		$method->setAccessible(true);
 
 		$photos = [];
 		for ($i = 1; $i <= 13; $i++) {
@@ -205,7 +204,6 @@ final class WoPdfServiceTest extends TestCase
 	{
 		$ref = new \ReflectionClass($this->pdf);
 		$method = $ref->getMethod('buildHtml');
-		$method->setAccessible(true);
 		return (string)$method->invoke($this->pdf, $detail, $isReport);
 	}
 }

@@ -44,7 +44,6 @@ final class AtlasEntrypointsInvokeCoverageTest extends TestCase
 				if ($method->isConstructor() || $method->isDestructor() || $method->isStatic()) {
 					continue;
 				}
-				$method->setAccessible(true);
 				try {
 					$method->invokeArgs($obj, $this->dummyArgs($method));
 				} catch (\Throwable) {

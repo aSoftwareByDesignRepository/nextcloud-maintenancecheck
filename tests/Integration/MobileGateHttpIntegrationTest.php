@@ -372,11 +372,11 @@ final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 		);
 		$created = $controller->assignSeat();
 		$this->assertSame(Http::STATUS_CREATED, $created->getStatus());
-		$this->assertSame(self::UID, $created->getData()['uid']);
+		$this->assertSame(self::UID, $created->getData()['seat']['uid']);
 
 		$again = $controller->assignSeat();
 		$this->assertSame(Http::STATUS_OK, $again->getStatus(), 'idempotent re-assign must be 200');
-		$this->assertSame(self::UID, $again->getData()['uid']);
+		$this->assertSame(self::UID, $again->getData()['seat']['uid']);
 	}
 
 	private function ensureExtraUser(string $uid): string
