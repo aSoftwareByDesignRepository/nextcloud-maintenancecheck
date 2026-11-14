@@ -39,6 +39,7 @@ class PageController extends Controller
 		private readonly IConfig $config,
 		private readonly EquipmentService $equipment,
 		private readonly \OCA\MaintenanceCheck\ConfigTransfer\TransferReceiptStore $transferReceipts,
+		private readonly LicenseService $license,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -161,7 +162,10 @@ class PageController extends Controller
 			$title,
 			$hint,
 			null,
-			array_merge($this->settingsPageParams(), [
+			array_merge($this->settingsPageParams(), $section === 'license' ? [
+				'licenseStatus' => $this->license->status(),
+				'licenseSeatsList' => $this->license->listSeats('200', '0'),
+			] : [], [
 				'pageId' => 'settings-' . $section,
 				'settingsSection' => $section,
 				'settingsSectionMeta' => $meta,
@@ -255,6 +259,10 @@ class PageController extends Controller
 		// Config & data transfer UI — the bridge exposes the
 		// window.MaintenanceCheckApi/MaintenanceCheckMessaging contract the
 		// synced transfer.js expects, so it must load before transfer.js.
+		if ($pageId === 'settings-license') {
+			Util::addScript(Application::APP_ID, 'common/license-page');
+			Util::addStyle(Application::APP_ID, 'common/license-page');
+		}
 		if ($pageId === 'settings-transfer') {
 			Util::addStyle(Application::APP_ID, 'common/transfer');
 			Util::addScript(Application::APP_ID, 'transfer-bridge');

@@ -91,7 +91,7 @@ final class SettingsSections
 				'title' => $l->t('License & mobile'),
 				'hint' => $l->t('Apply a mobile license key and assign named seats.'),
 				'icon' => 'smartphone',
-				'hasJsHost' => true,
+				'hasJsHost' => false,
 			],
 			[
 				'id' => 'transfer',

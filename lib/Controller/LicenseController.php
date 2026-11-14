@@ -68,9 +68,25 @@ class LicenseController extends Controller
 		$result = $this->license->assignSeat($uid, $this->request->getParam('userId'));
 		// SPEC §8.2: new seat → 201; idempotent re-assign of an existing seat → 200.
 		return new JSONResponse(
-			$result['seat'],
+			['ok' => true, 'seat' => $result['seat'], 'created' => !empty($result['created'])],
 			$result['created'] ? Http::STATUS_CREATED : Http::STATUS_OK,
 		);
+	}
+
+	/**
+	 * POST twin of removeSeat — the shared license page posts {userId} to a
+	 * collection route instead of DELETE /seats/{uid}.
+	 */
+	#[NoAdminRequired]
+	public function removeSeatPost(): JSONResponse
+	{
+		$this->access->requireAppAdmin($this->access->currentUserId());
+		$uid = (string)($this->request->getParam('userId') ?? $this->request->getParam('uid') ?? '');
+		if ($uid === '') {
+			throw new ValidationException('uid_required', 'A user id is required.');
+		}
+		$this->license->removeSeat($uid);
+		return new JSONResponse(['ok' => true, 'deleted' => true]);
 	}
 
 	#[NoAdminRequired]

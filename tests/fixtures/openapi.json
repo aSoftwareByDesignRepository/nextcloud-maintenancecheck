@@ -4792,6 +4792,90 @@
                 }
             }
         },
+        "/api/license/seats/remove": {
+            "post": {
+                "operationId": "license#removeSeatPost",
+                "summary": "license#removeSeatPost",
+                "x-mn-gate": "app_admin",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON success (object; list endpoints include data[])",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListEnvelope"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/JsonObject"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "SPEC \u00a77.1 error envelope",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/license/seats/{uid}": {
             "delete": {
                 "operationId": "license#removeSeat",

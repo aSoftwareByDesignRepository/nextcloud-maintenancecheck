@@ -113,6 +113,7 @@ final class RouteAuthInventory
 			'license#seats' => 'app_admin',
 			'license#assignSeat' => 'app_admin',
 			'license#removeSeat' => 'app_admin',
+			'license#removeSeatPost' => 'app_admin',
 			'calendar#index' => 'l2_read',
 			'work_order#index' => 'l2_mine_or_office',
 			'work_order#create' => 'l2_corrective_or_office',

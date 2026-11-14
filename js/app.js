@@ -6061,10 +6061,9 @@
 		var flangeBox = document.getElementById('mn-settings-inventory-flange');
 		var policiesBox = document.getElementById('mn-settings-policies');
 		var capacityBox = document.getElementById('mn-settings-capacity');
-		var licenseBox = document.getElementById('mn-settings-license');
 		// Hub has no hosts — underpages mount one (or a few) boxes only.
 		var needsConfig = !!(accessBox || rolesBox || flangeBox || policiesBox);
-		if (!needsConfig && !capacityBox && !licenseBox) {
+		if (!needsConfig && !capacityBox) {
 			return;
 		}
 
@@ -6086,9 +6085,6 @@
 		}
 		if (capacityBox) {
 			loadCapacity();
-		}
-		if (licenseBox) {
-			loadLicense();
 		}
 
 		function saveAccess(patch, done) {
@@ -6503,192 +6499,6 @@
 			});
 			flangeBox.appendChild(locField);
 			flangeBox.appendChild(saveLoc);
-		}
-
-		function loadLicense() {
-			if (!licenseBox) {
-				return;
-			}
-			licenseBox.setAttribute('aria-busy', 'true');
-			Promise.all([
-				api('GET', apiUrl('license')),
-				api('GET', withQuery(apiUrl('licenseSeats'), { limit: 200 })),
-			]).then(function (results) {
-				renderLicense(results[0], results[1]);
-			}).catch(handleGlobalError)
-				.finally(function () { licenseBox.removeAttribute('aria-busy'); });
-		}
-
-		function renderLicense(status, seats) {
-			clear(licenseBox);
-			var state = status.state;
-
-			if (state) {
-				var statusItem = function (label, value) {
-					return el('span', { class: 'mn-license-status__item' }, [
-						el('span', { class: 'mn-license-status__label', text: label }),
-						el('span', { class: 'mn-license-status__value', text: value }),
-					]);
-				};
-				licenseBox.appendChild(el('div', { class: 'mn-license-status' }, [
-					statusItem(tr('Customer:'), state.customerId),
-					statusItem(tr('Valid until:'), fmt(state.validUntil)),
-					statusItem(tr('Seats:'), status.seats.assigned + ' / ' + status.seats.limit),
-					el('span', {
-						class: 'mn-badge ' + (state.valid ? 'mn-badge--success' : 'mn-badge--overdue'),
-						text: state.valid ? tr('Valid') : tr('Expired'),
-					}),
-				]));
-			} else {
-				licenseBox.appendChild(el('p', { class: 'mn-section__hint', text: tr('No license key stored. The web app stays fully functional without one.') }));
-			}
-			licenseBox.appendChild(el('p', {
-				class: 'mn-section__hint',
-				text: ctx.mobileAppStatus === 'available'
-					? tr('The official mobile app is available. Assigned seats can sign in.')
-					: tr('The official mobile app is in preparation. Seats can already be assigned.'),
-			}));
-
-			// SPEC §8.3 — pricing page + mailto CTA (no € amounts in-app).
-			var pricingLang = (document.documentElement.lang || 'en').toLowerCase().indexOf('de') === 0 ? 'de' : 'en';
-			var pricingUrl = 'https://nextcloud.software-by-design.de/' + pricingLang + '/support.html#packages';
-			var mobileMailto = 'mailto:info@software-by-design.de?subject='
-				+ encodeURIComponent('MaintenanceCheck: Mobile Lizenzen');
-			licenseBox.appendChild(el('p', { class: 'mn-license-cta' }, [
-				el('a', {
-					href: pricingUrl,
-					target: '_blank',
-					rel: 'noopener noreferrer',
-					text: tr('View mobile license options'),
-				}),
-				el('span', { text: ' · ' }),
-				el('a', {
-					href: mobileMailto,
-					text: tr('Request mobile seats by e-mail'),
-				}),
-			]));
-
-			var keyInput = el('textarea', { rows: '2', autocomplete: 'off', spellcheck: 'false' });
-			var keyField = field(tr('License key'), keyInput, { hint: tr('Paste the MN2 key exactly as you received it.'), wide: true });
-			var applyButton = el('button', {
-				type: 'button', class: 'mn-btn mn-btn--primary', text: tr('Apply key'),
-				onClick: function () {
-					applyButton.disabled = true;
-					keyField.mnSetError(null);
-					api('POST', apiUrl('license'), { key: keyInput.value })
-						.then(function () {
-							toast(tr('License key applied.'), 'success');
-							loadLicense();
-						})
-						.catch(function (error) {
-							applyButton.disabled = false;
-							if (error.code === 'license_invalid') {
-								keyField.mnSetError(error.message);
-								keyInput.focus();
-							} else {
-								toast(error.message, 'error');
-							}
-						});
-				},
-			});
-			var keyActions = el('div', { class: 'mn-license-actions' }, [applyButton]);
-
-			if (state) {
-				keyActions.appendChild(el('button', {
-					type: 'button', class: 'mn-btn mn-btn--tertiary mn-license-actions__remove', text: tr('Remove key'),
-					'data-mn-action': 'remove-license',
-					onClick: function () {
-						openDialog({
-							title: tr('Remove license key'),
-							text: tr('Seats stay assigned; the mobile gate will report a missing license until a new key is applied.'),
-							actions: [
-								{ label: tr('Keep key'), variant: 'mn-btn--tertiary', onClick: function (d) { d.close(); } },
-								{
-									label: tr('Remove key'),
-									variant: 'mn-btn--danger',
-									onClick: function (d) {
-										api('DELETE', apiUrl('license'))
-											.then(function () {
-												d.close();
-												toast(tr('License key removed.'), 'success');
-												loadLicense();
-											})
-											.catch(function (error) {
-												d.setError(error.message);
-											});
-									},
-								},
-							],
-						});
-					},
-				}));
-			}
-			licenseBox.appendChild(el('div', { class: 'mn-license-key' }, [keyField, keyActions]));
-
-			// Seats — SPEC §8.3 NC user picker
-			var seatsTitle = el('h3', { class: 'mn-section__title mn-section__title--spaced', text: tr('Mobile seats') });
-			licenseBox.appendChild(seatsTitle);
-			var seatPicker = attachUserPicker({
-				label: tr('Nextcloud user'),
-				hint: tr('Search and pick a colleague, then assign a named seat for the official mobile app. Never type a raw user id.'),
-				placeholder: tr('Start typing a name…'),
-			});
-			var seatAdd = el('button', {
-				type: 'button', class: 'mn-btn mn-btn--secondary', text: tr('Assign seat'),
-				onClick: function () {
-					var userId = seatPicker.getValue();
-					seatAdd.disabled = true;
-					seatPicker.setError(null);
-					if (!userId) {
-						seatAdd.disabled = false;
-						seatPicker.setError(tr('Choose a Nextcloud user from the list.'));
-						seatPicker.focus();
-						return;
-					}
-					api('POST', apiUrl('licenseSeats'), { userId: userId })
-						.then(function () {
-							toast(tr('Seat assigned.'), 'success');
-							loadLicense();
-						})
-						.catch(function (error) {
-							seatAdd.disabled = false;
-							if (error.code === 'unknown_user') {
-								seatPicker.setError(tr('This Nextcloud user does not exist.'));
-								seatPicker.focus();
-							} else if (error.code === 'seat_limit_reached') {
-								seatPicker.setError(tr('All licensed seats are assigned. Remove a seat or request more via the license options above.'));
-							} else {
-								toast(error.message, 'error');
-							}
-						});
-				},
-			});
-			licenseBox.appendChild(el('div', { class: 'mn-inline-row mn-inline-row--center' }, [seatPicker.root, seatAdd]));
-
-			var seatList = el('ul', { class: 'mn-chips', 'aria-label': tr('Assigned mobile seats') });
-			if (seats.data.length === 0) {
-				seatList.appendChild(el('li', { class: 'mn-chips__empty', text: tr('No seats assigned yet.') }));
-			}
-			seats.data.forEach(function (seat) {
-				seatList.appendChild(el('li', { class: 'mn-chip' + (seat.withinLimit ? '' : ' mn-chip--over-limit') }, [
-					el('span', { text: seat.displayName + (seat.withinLimit ? '' : ' — ' + tr('over limit')) }),
-					el('button', {
-						type: 'button',
-						class: 'mn-chip__remove',
-						'aria-label': tr('Remove seat for {user}', { user: seat.displayName }),
-						html: ICONS.x,
-						onClick: function () {
-							api('DELETE', apiUrl('licenseSeats') + '/' + encodeURIComponent(seat.uid))
-								.then(function () {
-									toast(tr('Seat removed.'), 'success');
-									loadLicense();
-								})
-								.catch(function (error) { toast(error.message, 'error'); });
-						},
-					}),
-				]));
-			});
-			licenseBox.appendChild(seatList);
 		}
 	}
 

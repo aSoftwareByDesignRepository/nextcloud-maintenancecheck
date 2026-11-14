@@ -90,6 +90,15 @@ final class SettingsUnderpagesContractTest extends TestCase
 				$this->assertArrayHasKey($id, $hostMap);
 				$this->assertStringContainsString('id="' . $hostMap[$id] . '"', $html, $id . ' missing JS host');
 				$this->assertStringContainsString('aria-busy="true"', $html, $id);
+			} elseif ($id === 'license') {
+				// Shared license page — the section file dispatches to a
+				// normalizer wrapper that includes the synced pack template.
+				$this->assertStringContainsString('license-panel.php', $html, 'license must include the wrapper');
+				$wrapper = (string)file_get_contents($this->root . '/templates/settings/license-panel.php');
+				$this->assertStringContainsString('common/license-page.php', $wrapper);
+				$shared = (string)file_get_contents($this->root . '/templates/common/license-page.php');
+				$this->assertStringContainsString('mn-license-page', $shared);
+				$this->assertStringContainsString('<dialog id="mn-license-', $shared);
 			} elseif ($id === 'transfer') {
 				// Synced config-transfer partial — the section file is a thin
 				// dispatcher include, the pack ships the JS itself.
@@ -144,7 +153,6 @@ final class SettingsUnderpagesContractTest extends TestCase
 		$this->assertStringContainsString("page.indexOf('settings-') === 0", $js);
 		$this->assertStringContainsString('if (!accessBox)', $js);
 		$this->assertStringContainsString('if (!rolesBox)', $js);
-		$this->assertStringContainsString('if (!licenseBox)', $js);
 		$this->assertStringContainsString('if (!capacityBox)', $js);
 		$this->assertStringContainsString('if (!flangeBox)', $js);
 		$this->assertStringContainsString('if (!policiesBox)', $js);
