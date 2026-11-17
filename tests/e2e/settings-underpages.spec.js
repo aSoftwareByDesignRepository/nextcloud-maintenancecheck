@@ -61,7 +61,7 @@ test.describe('Settings underpages', () => {
 			test.skip(true, 'Signed-in user is not an app admin')
 		}
 		await expect(page.locator('#mn-settings-access')).toBeVisible()
-		await expect(page.locator('#mn-settings-license')).toHaveCount(0)
+		await expect(page.locator('#mn-license-page')).toHaveCount(0)
 		await expect(page.locator('.mn-settings-subnav__link.is-active, .mn-settings-subnav__link[aria-current="page"]').first()).toBeVisible()
 	})
 

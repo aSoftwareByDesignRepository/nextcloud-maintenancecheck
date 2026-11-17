@@ -31,11 +31,14 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { login, primaryCreds } from '../tests/e2e/helpers/auth.js'
 import {
+	acquireStateLock,
 	acquireThemeLock,
+	releaseStateLock,
 	releaseThemeLock,
 	resetUserTheme,
 	setUserTheme,
 } from '../tests/e2e/helpers/theming.js'
+import { seedLicenseViaCli } from '../tests/e2e/helpers/seedLicense.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const MANIFEST = JSON.parse(readFileSync(join(__dirname, 'screenshot-matrix.json'), 'utf8'))
@@ -63,7 +66,7 @@ const READY = {
 	'exceptions': '#mn-exceptions-board',
 	'settings-access': '#mn-settings-subnav, .mn-empty',
 	'settings-policies': '#mn-settings-subnav, .mn-empty',
-	'settings-license': '#mn-settings-subnav, .mn-empty',
+	'settings-license': '#mn-license-page, #mn-settings-subnav, .mn-empty',
 	'settings-support': '#mn-settings-subnav, .mn-empty',
 	'settings-transfer': '#mn-transfer-export-card',
 }
@@ -271,6 +274,39 @@ async function driveTransferReport(page) {
 	await assertTransferDialogGeometry(page, '#mn-transfer-report[open]', 'report')
 }
 
+let licenseSeededByMatrix = false
+const SEAT_UID = process.env.NC_E2E_USER || 'mn_atlas'
+
+/**
+ * 'seats' state — seed a valid org licence + assign one mobile seat via the
+ * real API, then reload so the painted seat row + remove-seat affordance are
+ * server-rendered (never mocked). Instance-wide licence state uses the same
+ * 'instance-config' lock UJ-6 / dialog-inventory hold while seeding; cleanup
+ * runs once in afterAll (seat removed, licence cleared).
+ */
+async function driveLicenseSeats(page) {
+	await acquireStateLock('instance-config')
+	try {
+		expect(seedLicenseViaCli('valid')).toMatch(/^SEEDED:valid:valid=1$/)
+		licenseSeededByMatrix = true
+		const seat = await api(page, 'POST', `${API}/license/seats`, { userId: SEAT_UID })
+		expect([200, 201].includes(seat.status), `seat assign: ${JSON.stringify(seat.data)}`).toBeTruthy()
+		await page.reload({ waitUntil: 'domcontentloaded' })
+		await expect(page.locator('#mn-license-page')).toBeVisible({ timeout: 30_000 })
+		await expect(page.locator('#mn-seat-list-body tr[data-user-id]').first()).toBeVisible({ timeout: 15_000 })
+		await expect(page.locator('#mn-seat-list-body .mn-seat-remove').first()).toBeVisible({ timeout: 15_000 })
+	} finally {
+		releaseStateLock('instance-config')
+	}
+}
+
+/** Non-dialog state drivers — run before the capture, keep the grow path. */
+const STATE_DRIVERS = {
+	'settings-license': {
+		'seats': driveLicenseSeats,
+	},
+}
+
 const DIALOG_DRIVERS = {
 	'settings-transfer': {
 		// Upload a real export → debounced preview → report dialog.
@@ -342,6 +378,17 @@ test.describe('SCREENSHOT_MATRIX capture', () => {
 				await login(page, creds)
 				await resetUserTheme(page).catch(() => {})
 				await cleanupFixtures(page)
+				if (licenseSeededByMatrix) {
+					await acquireStateLock('instance-config').catch(() => {})
+					try {
+						await api(page, 'POST', `${API}/license/seats/remove`, { userId: SEAT_UID }).catch(() => {})
+						seedLicenseViaCli('clear')
+					} catch {
+						/* best-effort licence restore */
+					} finally {
+						releaseStateLock('instance-config')
+					}
+				}
 			}
 			await ctx.close()
 		} finally {
@@ -398,6 +445,10 @@ test.describe('SCREENSHOT_MATRIX capture', () => {
 				if (state === 'empty') {
 					await driveEmpty(page, surface)
 				}
+				const stateDriver = STATE_DRIVERS[surface.id]?.[state]
+				if (stateDriver) {
+					await stateDriver(page)
+				}
 				const dialogDriver = DIALOG_DRIVERS[surface.id]?.[state]
 				if (dialogDriver) {
 					await dialogDriver(page)
@@ -418,6 +469,16 @@ test.describe('SCREENSHOT_MATRIX capture', () => {
 				const file = join(OUT, shotName(surface, state, vp, theme))
 				await page.screenshot({ path: file })
 				capturedFiles.push(shotName(surface, state, vp, theme))
+				// Trailing-edge accordion chevrons proof — one nav clip per run on
+				// the license surface (post pack-convergence nav regression watch).
+				if (surface.id === 'settings-license' && state === 'current' && vp.name === 'desktop' && theme === 'light') {
+					const nav = page.locator('#app-navigation').first()
+					if (await nav.isVisible().catch(() => false)) {
+						const navName = `${MANIFEST.prefix}-nav-accordion-chevrons-desktop.png`
+						await nav.screenshot({ path: join(OUT, navName) })
+						capturedFiles.push(navName)
+					}
+				}
 				if (!existsSync(file)) {
 					missing.push(file)
 				}

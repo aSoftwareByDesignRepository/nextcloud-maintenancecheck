@@ -54,7 +54,7 @@
 		{ "id": "exceptions", "path": "/exceptions", "states": ["populated"] },
 		{ "id": "settings-access", "path": "/settings/access", "states": ["current"] },
 		{ "id": "settings-policies", "path": "/settings/policies", "states": ["current"] },
-		{ "id": "settings-license", "path": "/settings/license", "states": ["current"] },
+		{ "id": "settings-license", "path": "/settings/license", "states": ["current", "seats"], "dark": true },
 		{ "id": "settings-support", "path": "/settings/support", "states": ["current"] },
 		{
 			"id": "settings-transfer",

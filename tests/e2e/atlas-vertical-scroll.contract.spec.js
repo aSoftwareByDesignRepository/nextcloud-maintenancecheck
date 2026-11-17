@@ -20,15 +20,15 @@ test('ATLAS_VERTICAL_SCROLL_CONTRACT license settings scrolls to seats', async (
 	await page.setViewportSize({ width: 1280, height: 640 })
 	await login(page, creds)
 	await page.goto('/apps/maintenancecheck/settings/license')
-	await page.waitForSelector('#mn-settings-license, .mn-empty', { timeout: 30_000 })
+	await page.waitForSelector('#mn-license-page, .mn-empty', { timeout: 30_000 })
 	if (await page.locator('.mn-empty').count()) {
 		test.skip(true, 'Signed-in user is not an app admin')
 	}
-	await page.waitForSelector('#mn-settings-license:not([aria-busy="true"]), #mn-settings-license .mn-license-status, #mn-settings-license .mn-section__title', {
+	await page.waitForSelector('#mn-license-page:not([aria-busy="true"]), #mn-license-page .mn-license-stat-tile', {
 		timeout: 30_000,
 	})
 	await assertAtlasVerticalScrollReachable(page, {
 		scrollport: '#app-content',
-		target: '#mn-settings-license .mn-chips, #mn-settings-license .mn-inline-row, #mn-settings-license .mn-license-cta, #mn-settings-license',
+		target: '#mn-license-page .mn-license-section:last-of-type',
 	})
 })

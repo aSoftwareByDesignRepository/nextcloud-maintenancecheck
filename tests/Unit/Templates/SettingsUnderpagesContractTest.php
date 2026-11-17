@@ -80,7 +80,6 @@ final class SettingsUnderpagesContractTest extends TestCase
 			'inventory' => 'mn-settings-inventory-flange',
 			'policies' => 'mn-settings-policies',
 			'capacity' => 'mn-settings-capacity',
-			'license' => 'mn-settings-license',
 		];
 		foreach (SettingsSections::all($l) as $meta) {
 			$id = $meta['id'];

@@ -42,14 +42,14 @@ function expectOk(result, label = 'API') {
 }
 
 function dialog(page) {
-	return page.locator('.mn-dialog[role="dialog"], [role="dialog"].mn-dialog, [role="dialog"]').first()
+	return page.locator('dialog[open], .mn-dialog[role="dialog"], [role="dialog"].mn-dialog, [role="dialog"]').first()
 }
 
 async function openEsc(page, id, openFn) {
 	await openFn()
 	const dlg = dialog(page)
 	await expect(dlg).toBeVisible({ timeout: 15_000 })
-	const title = (await dlg.locator('.mn-dialog__title, h2').first().textContent().catch(() => '')) || ''
+	const title = (await dlg.locator('.mn-dialog__title, h2, h3').first().textContent().catch(() => '')) || ''
 	await page.keyboard.press('Escape')
 	await expect(dlg).toBeHidden({ timeout: 10_000 })
 	console.log(`EVIDENCE ${id} OPEN title=${JSON.stringify(title.trim())} CANCEL Esc`)
@@ -64,7 +64,7 @@ async function openConfirm(page, id, openFn, { fill } = {}) {
 	await openFn()
 	const dlg = dialog(page)
 	await expect(dlg).toBeVisible({ timeout: 15_000 })
-	const title = (await dlg.locator('.mn-dialog__title, h2').first().textContent().catch(() => '')) || ''
+	const title = (await dlg.locator('.mn-dialog__title, h2, h3').first().textContent().catch(() => '')) || ''
 	if (typeof fill === 'function') {
 		await fill(dlg)
 	}
@@ -93,7 +93,11 @@ async function openConfirm(page, id, openFn, { fill } = {}) {
 	await page.route('**/apps/maintenancecheck/api/**', routeHandler)
 
 	// Confirm = last non-tertiary action (primary, danger, or secondary Preview).
-	const confirmBtn = dlg.locator('.mn-dialog__actions button:not(.mn-btn--tertiary)').last()
+	// Shared license-page modals use .mn-license-modal__actions with cancel ids
+	// (`*-cancel`), the mutating button last.
+	const confirmBtn = dlg.locator(
+		'.mn-dialog__actions button:not(.mn-btn--tertiary), .mn-license-modal__actions button:not([id$="-cancel"])',
+	).last()
 	await expect(confirmBtn).toBeVisible({ timeout: 10_000 })
 
 	// S9 / force-delete: checkbox gate may leave danger button disabled until checked.
@@ -633,13 +637,22 @@ test.describe('MaintenanceCheck openDialog inventory', () => {
 			try {
 				await page.goto('/apps/maintenancecheck/settings/license')
 				await expect(page.locator('#mn-main-content')).toBeVisible({ timeout: 20_000 })
-				const removeKey = page.locator('[data-mn-action="remove-license"]').first()
+				const removeKey = page.locator('#mn-license-clear').first()
 				if (await removeKey.isVisible().catch(() => false)) {
+					// Pack modal #mn-license-clear-modal: explicit Cancel-button leg
+					// alongside the generic Esc + CONFIRM legs.
+					await removeKey.click()
+					const clearDlg = page.locator('#mn-license-clear-modal[open]')
+					await expect(clearDlg).toBeVisible({ timeout: 15_000 })
+					await clearDlg.locator('#mn-license-clear-cancel').click()
+					await expect(clearDlg).toBeHidden({ timeout: 10_000 })
+					console.log('EVIDENCE dlg-remove-license CANCEL-BUTTON title="Remove license"')
 					await openEscThenConfirm(page, 'dlg-remove-license', async () => {
 						await removeKey.click()
 					})
 				} else {
-					console.log('EVIDENCE dlg-remove-license SKIP soft — remove license openDialog in js/app.js')
+					console.log('EVIDENCE dlg-remove-license SKIP hard — #mn-license-clear absent after expired-license seed')
+					expect(removeKey, 'license seeded but #mn-license-clear trigger missing').toBeVisible()
 				}
 			} finally {
 				if (licenseSeeded) {

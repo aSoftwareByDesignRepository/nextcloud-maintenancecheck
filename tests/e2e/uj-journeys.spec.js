@@ -791,7 +791,7 @@ test.describe('UJ journeys', () => {
 		try {
 		await login(page, admin)
 		await openApp(page, '/apps/maintenancecheck/settings/license')
-		await expect(page.locator('#mn-settings-license, .mn-empty').first()).toBeVisible({ timeout: 30_000 })
+		await expect(page.locator('#mn-license-page, .mn-empty').first()).toBeVisible({ timeout: 30_000 })
 		await axeMain(page)
 
 		const before = await api(page, 'GET', '/index.php/apps/maintenancecheck/api/license')
@@ -1318,8 +1318,8 @@ test.describe('UJ journeys', () => {
 			}, { timeout: 20_000 }).toBeTruthy()
 
 			await openApp(page, '/apps/maintenancecheck/settings/license')
-			await expect(page.locator('#mn-settings-license')).toBeVisible({ timeout: 30_000 })
-			await expect(page.locator('#mn-settings-license .mn-badge.mn-badge--overdue').first()).toBeVisible({ timeout: 20_000 })
+			await expect(page.locator('#mn-license-page')).toBeVisible({ timeout: 30_000 })
+			await expect(page.locator('#mn-license-active-badge.mn-license-badge--warning').first()).toBeVisible({ timeout: 20_000 })
 			await expect(page.getByText('e2e-expired').first()).toBeVisible()
 			await axeMain(page)
 		} finally {
