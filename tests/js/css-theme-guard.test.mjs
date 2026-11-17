@@ -35,6 +35,7 @@ const NC_PROVIDED_PREFIXES = [
 	'--default-',
 	'--body-container-',
 	'--body-height', // theming DefaultTheme.php (viewport minus header/safe-area)
+	'--font-', // core --font-face* theming vars (license-page pack consumes with fallback)
 ]
 
 function cssFiles(dir) {

@@ -42,6 +42,7 @@
 	--mn-icon-stroke: 2;
 
 	--mn-tab-num: tabular-nums;
+	--mn-touch: 44px;
 
 	/* Print/QR stickers stay light for scanners regardless of NC theme */
 	--mn-print-surface: #fff;

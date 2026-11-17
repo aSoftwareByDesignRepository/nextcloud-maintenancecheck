@@ -81,7 +81,7 @@ class LicenseController extends Controller
 	public function removeSeatPost(): JSONResponse
 	{
 		$this->access->requireAppAdmin($this->access->currentUserId());
-		$uid = (string)($this->request->getParam('userId') ?? $this->request->getParam('uid') ?? '');
+		$uid = trim((string)($this->request->getParam('userId') ?? $this->request->getParam('uid') ?? ''));
 		if ($uid === '') {
 			throw new ValidationException('uid_required', 'A user id is required.');
 		}

@@ -113,7 +113,7 @@ final class AtlasApiEndpointHappyAuthzTest extends TestCase
 			'addLine', 'attach', 'createTemplate', 'packLine', 'removeLine', 'showTemplate', 'updateTemplate',
 		],
 		LicenseController::class => [
-			'apply', 'assignSeat', 'remove', 'removeSeat',
+			'apply', 'assignSeat', 'remove', 'removeSeat', 'removeSeatPost',
 		],
 		MeterController::class => [
 			'addReading', 'create', 'destroy', 'importCsv', 'indexForEquipment', 'readings', 'update',

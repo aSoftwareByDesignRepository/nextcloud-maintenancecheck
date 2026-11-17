@@ -3,16 +3,10 @@
 		"#": "#",
 		"%1$d of %2$d device slots in use.": "%1$d of %2$d device slots in use.",
 		"%1$d of %2$d seats assigned": "%1$d of %2$d seats assigned",
-		"%d row(s) need a value on this instance": "%d row(s) need a value on this instance",
-		"%d row(s) skipped and %d reference(s) unresolved — see the groups below.": "%d row(s) skipped and %d reference(s) unresolved — see the groups below.",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:": "%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:": "%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:": "%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, or commissioned work:": "%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, or commissioned work:",
-		"(%d env-bound value(s) emptied)": "(%d env-bound value(s) emptied)",
-		"(%d filtered)": "(%d filtered)",
-		"(%d secret(s) redacted)": "(%d secret(s) redacted)",
-		"(%d unresolved ref)": "(%d unresolved ref)",
 		"(opens in a new tab)": "(opens in a new tab)",
 		"(unknown — skipped)": "(unknown — skipped)",
 		"+{n} more": "+{n} more",
@@ -509,6 +503,7 @@
 		"Force-close work order": "Force-close work order",
 		"Fork": "Fork",
 		"Format: %1$s followed by a signed payload. One key per organisation.": "Format: %1$s followed by a signed payload. One key per organisation.",
+		"Fri": "Fri",
 		"From": "From",
 		"From (due date)": "From (due date)",
 		"Gate codes, dogs, preferred hours — copied from the site when empty.": "Gate codes, dogs, preferred hours — copied from the site when empty.",
@@ -691,6 +686,7 @@
 		"Mobile seats used": "Mobile seats used",
 		"Mode": "Mode",
 		"Model": "Model",
+		"Mon": "Mon",
 		"Month": "Month",
 		"Months": "Months",
 		"More": "More",
@@ -1098,6 +1094,7 @@
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "Run the checklist, add photos, then move the status forward with the big buttons.",
 		"SN {sn}": "SN {sn}",
 		"Safety snapshot": "Safety snapshot",
+		"Sat": "Sat",
 		"Save": "Save",
 		"Save assignment": "Save assignment",
 		"Save capacity": "Save capacity",
@@ -1230,6 +1227,7 @@
 		"Suggest an improvement": "Suggest an improvement",
 		"Suggest order": "Suggest order",
 		"Suggested order — verify drive times": "Suggested order — verify drive times",
+		"Sun": "Sun",
 		"Support & us": "Support & us",
 		"Support us": "Support us",
 		"Switch between 30 and 90 days.": "Switch between 30 and 90 days.",
@@ -1339,6 +1337,7 @@
 		"This will update %d settings and %d rows — nothing is deleted.": "This will update %d settings and %d rows — nothing is deleted.",
 		"This work order is already part of a tour.": "This work order is already part of a tour.",
 		"Threshold": "Threshold",
+		"Thu": "Thu",
 		"Timezone": "Timezone",
 		"Tip": "Tip",
 		"Title": "Title",
@@ -1359,6 +1358,7 @@
 		"Transfer file downloaded — store it and the passphrase safely.": "Transfer file downloaded — store it and the passphrase safely.",
 		"Try a shorter search term.": "Try a shorter search term.",
 		"Try widening the date range or clearing filters.": "Try widening the date range or clearing filters.",
+		"Tue": "Tue",
 		"Two letters, e.g. DE or AT.": "Two letters, e.g. DE or AT.",
 		"Type": "Type",
 		"Type REPLACE to confirm": "Type REPLACE to confirm",
@@ -1425,10 +1425,10 @@
 		"Waiting for the job…": "Waiting for the job…",
 		"Warn": "Warn",
 		"Warn when projected load exceeds this share of daily minutes (1.0 = 100%).": "Warn when projected load exceeds this share of daily minutes (1.0 = 100%%).",
-		"Warning: %d row(s) will be permanently deleted, then the file data is loaded.": "Warning: %d row(s) will be permanently deleted, then the file data is loaded.",
 		"Warranty end": "Warranty end",
 		"Warranty ended": "Warranty ended",
 		"Warranty warning: check the equipment.": "Warranty warning: check the equipment.",
+		"Wed": "Wed",
 		"Week": "Week",
 		"Week of {date}": "Week of {date}",
 		"Weeks": "Weeks",
@@ -1519,13 +1519,45 @@
 			"%n visit",
 			"%n visits"
 		],
-		"_+%n more_::+%n more_": [
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"(1 env-bound value emptied)",
+			"(%n env-bound values emptied)"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"(1 filtered)",
+			"(%n filtered)"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"(1 secret redacted)",
+			"(%n secrets redacted)"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"(1 unresolved ref)",
+			"(%n unresolved refs)"
+		],
+		"_+%n more_::_+%n more_": [
 			"+%n more",
 			"+%n more"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 reference unresolved — see the groups below.",
+			"%n references unresolved — see the groups below."
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 row needs a value on this instance",
+			"%n rows need a value on this instance"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"1 row skipped.",
+			"%n rows skipped."
 		],
 		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
 			"Showing the first %n job in this window — narrow the filters.",
 			"Showing the first %n jobs in this window — narrow the filters."
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"Warning: 1 row will be permanently deleted, then the file data is loaded.",
+			"Warning: %n rows will be permanently deleted, then the file data is loaded."
 		],
 		"add and update; nothing is deleted": "add and update; nothing is deleted",
 		"applied": "applied",

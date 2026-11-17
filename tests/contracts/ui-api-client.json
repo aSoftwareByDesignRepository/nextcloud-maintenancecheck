@@ -2,5 +2,41 @@
   "schemaVersion": 1,
   "appId": "maintenancecheck",
   "companionDir": "mobile/maintenancecheck",
-  "contracts": []
+  "contracts": [
+    {
+      "id": "license-remove-seat-uid",
+      "param": "userId",
+      "description": "POST /api/license/seats/remove requires a non-empty trimmed user id (uid_required, 422) — POST twin of DELETE /api/license/seats/{uid} used by the shared license page.",
+      "errorCodes": [
+        "uid_required"
+      ],
+      "server": [
+        {
+          "file": "lib/Controller/LicenseController.php",
+          "needles": [
+            "removeSeatPost",
+            "uid_required",
+            "getParam('userId')"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "file": "js/common/license-page.js",
+          "needles": [
+            "apiRemoveSeat",
+            "userId"
+          ]
+        },
+        {
+          "file": "templates/common/license-page.php",
+          "needles": [
+            "mn-seat-search-results",
+            "role=\"listbox\""
+          ]
+        }
+      ],
+      "mobile": null
+    }
+  ]
 }

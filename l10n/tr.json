@@ -4,16 +4,10 @@
 		"#": "#",
 		"%1$d of %2$d device slots in use.": "%2$d cihaz yuvasından %1$d tanesi kullanımda.",
 		"%1$d of %2$d seats assigned": "%2$d lisans hakkından %1$d'i atandı",
-		"%d row(s) need a value on this instance": "%d satırın bu örnekte bir değere ihtiyacı var",
-		"%d row(s) skipped and %d reference(s) unresolved — see the groups below.": "%d satır atlandı ve %d başvuru çözümlenemedi — aşağıdaki gruplara bakın.",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:": "%s, Nextcloud'unuzda ücretsiz kalır (AGPL). GitHub'da hata bildirimleri ve fikirler her zaman memnuniyetle karşılanır — bu, ücretsiz açık kaynak desteğidir. Kuruluşunuz faturalı, rezerve edilebilir yardıma — veya resmi mobil lisanslara — ihtiyaç duyuyorsa aşağıdaki seçeneklerden birini seçin:",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:": "%s, Nextcloud'unuzda ücretsiz kalır (AGPL). GitHub'da hata bildirimleri ve fikirler her zaman memnuniyetle karşılanır — bu, ücretsiz açık kaynak desteğidir. Kuruluşunuz faturalı, rezerve edilebilir yardıma ihtiyaç duyuyorsa aşağıdaki seçeneklerden birini seçin:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:": "%s, Nextcloud'unuzda ücretsiz kalır (AGPL). Hata ve fikirler için GitHub sorunları memnuniyetle karşılanmaya devam eder. Faturalı, rezerve edilebilir yardım — kurulum, saat paketleri, özel geliştirme — veya resmi mobil uygulama için:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, or commissioned work:": "%s, Nextcloud'unuzda ücretsiz kalır (AGPL). Hata ve fikirler için GitHub sorunları memnuniyetle karşılanmaya devam eder. Faturalı, rezerve edilebilir yardım — kurulum, saat paketleri veya özel geliştirme — için:",
-		"(%d env-bound value(s) emptied)": "(%d örneğe bağlı değer boşaltıldı)",
-		"(%d filtered)": "(%d filtrelendi)",
-		"(%d secret(s) redacted)": "(%d sır gizlendi)",
-		"(%d unresolved ref)": "(%d çözümlenemeyen başvuru)",
 		"(opens in a new tab)": "(yeni sekmede açılır)",
 		"(unknown — skipped)": "(bilinmiyor — atlandı)",
 		"+{n} more": "+{n} daha",
@@ -278,7 +272,7 @@
 		"Contract reference": "Sözleşme referansı",
 		"Copied.": "Kopyalandı.",
 		"Copy all settings, catalogues and data between a test and a production instance — one encrypted file, dry-run before anything is written.": "Bir test ve bir üretim ortamı arasında tüm ayarları, katalogları ve verileri kopyalayın — tek şifreli dosya, yazmadan önce deneme çalıştırması.",
-		"Copy token": "Belirteci kopyala",
+		"Copy token": "Tokenı kopyala",
 		"Corrective": "Düzeltici",
 		"Corrective closed": "Kapatılan düzeltici",
 		"Corrective follow-up work order created.": "Düzeltici takip iş emri oluşturuldu.",
@@ -510,6 +504,7 @@
 		"Force-close work order": "İş emrini zorla kapat",
 		"Fork": "Çatalla",
 		"Format: %1$s followed by a signed payload. One key per organisation.": "Biçim: %1$s ve ardından imzalı bir yük. Kuruluş başına bir anahtar.",
+		"Fri": "Cum",
 		"From": "Başlangıç",
 		"From (due date)": "Başlangıç (son tarih)",
 		"Gate codes, dogs, preferred hours — copied from the site when empty.": "Kapı kodları, köpekler, tercih edilen saatler — boşken lokasyondan kopyalanır.",
@@ -692,6 +687,7 @@
 		"Mobile seats used": "Kullanılan mobil lisanslar",
 		"Mode": "Mod",
 		"Model": "Model",
+		"Mon": "Pzt",
 		"Month": "Ay",
 		"Months": "Ay",
 		"More": "Diğer",
@@ -1050,7 +1046,7 @@
 		"Remove license key": "Lisans anahtarını kaldır",
 		"Remove line": "Satırı kaldır",
 		"Remove mobile seat": "Mobil lisansı kaldır",
-		"Remove mobile seat for this person?": "Bu kişinin mobil koltuğu kaldırılsın mı?",
+		"Remove mobile seat for this person?": "Bu kişinin mobil lisansı kaldırılsın mı?",
 		"Remove seat for {user}": "{user} için lisansı kaldır",
 		"Remove stop": "Durağı kaldır",
 		"Remove technician {name}": "{name} teknisyenini kaldır",
@@ -1099,6 +1095,7 @@
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "Kontrol listesini işletin, fotoğraf ekleyin, sonra büyük düğmelerle durumu ilerletin.",
 		"SN {sn}": "SN {sn}",
 		"Safety snapshot": "Güvenlik anlık görüntüsü",
+		"Sat": "Cmt",
 		"Save": "Kaydet",
 		"Save assignment": "Atamayı kaydet",
 		"Save capacity": "Kapasiteyi kaydet",
@@ -1231,6 +1228,7 @@
 		"Suggest an improvement": "İyileştirme öner",
 		"Suggest order": "Sıra öner",
 		"Suggested order — verify drive times": "Önerilen sıra — sürüş sürelerini doğrulayın",
+		"Sun": "Paz",
 		"Support & us": "Destek ve biz",
 		"Support us": "Bizi destekleyin",
 		"Switch between 30 and 90 days.": "30 ve 90 gün arasında geçiş yapın.",
@@ -1327,7 +1325,7 @@
 		"This server’s Nextcloud instance ID (for support / sales reference). Licenses are not instance-bound.": "Bu sunucunun Nextcloud örnek kimliği (destek / satış referansı için). Lisanslar örneğe bağlı değildir.",
 		"This settings page is not available.": "Bu ayar sayfası kullanılamıyor.",
 		"This text is too long.": "Bu metin çok uzun.",
-		"This token is shown only once. Paste it into the companion app on the device.": "Bu belirteç yalnızca bir kez gösterilir. Cihazdaki eşlik uygulamasına yapıştır.",
+		"This token is shown only once. Paste it into the companion app on the device.": "Bu token yalnızca bir kez gösterilir. Cihazdaki eşlik uygulamasına yapıştır.",
 		"This tour is locked. Unlock it to change the order.": "Bu tur kilitli. Sırayı değiştirmek için kilidini açın.",
 		"This user currently cannot open MaintenanceCheck (access restriction). You can still assign the visit — the warning is informational only.": "Bu kullanıcı şu anda MaintenanceCheck'i açamaz (erişim kısıtlaması). Ziyareti yine de atayabilirsiniz — uyarı yalnızca bilgilendirmedir.",
 		"This value has the wrong format.": "Bu değer yanlış biçimde.",
@@ -1340,6 +1338,7 @@
 		"This will update %d settings and %d rows — nothing is deleted.": "Bu işlem %d ayarı ve %d satırı güncelleyecek — hiçbir şey silinmeyecek.",
 		"This work order is already part of a tour.": "Bu iş emri zaten bir turun parçası.",
 		"Threshold": "Eşik",
+		"Thu": "Per",
 		"Timezone": "Saat dilimi",
 		"Tip": "İpucu",
 		"Title": "Başlık",
@@ -1360,6 +1359,7 @@
 		"Transfer file downloaded — store it and the passphrase safely.": "Aktarım dosyası indirildi — dosyayı ve parolayı güvenli saklayın.",
 		"Try a shorter search term.": "Daha kısa bir arama terimi deneyin.",
 		"Try widening the date range or clearing filters.": "Tarih aralığını genişletmeyi veya filtreleri temizlemeyi deneyin.",
+		"Tue": "Sal",
 		"Two letters, e.g. DE or AT.": "İki harf, örn. TR veya DE.",
 		"Type": "Tür",
 		"Type REPLACE to confirm": "Onaylamak için REPLACE yazın",
@@ -1426,10 +1426,10 @@
 		"Waiting for the job…": "İş bekleniyor…",
 		"Warn": "Uyar",
 		"Warn when projected load exceeds this share of daily minutes (1.0 = 100%).": "Öngörülen yük günlük dakikaların bu payını aştığında uyar (1,0 = yüzde 100).",
-		"Warning: %d row(s) will be permanently deleted, then the file data is loaded.": "Uyarı: %d satır kalıcı olarak silinecek, ardından dosya verileri yüklenecek.",
 		"Warranty end": "Garanti bitişi",
 		"Warranty ended": "Garanti bitti",
 		"Warranty warning: check the equipment.": "Garanti uyarısı: demirbaşı kontrol edin.",
+		"Wed": "Çar",
 		"Week": "Hafta",
 		"Week of {date}": "{date} haftası",
 		"Weeks": "Hafta",
@@ -1520,13 +1520,45 @@
 			"%n ziyaret",
 			"%n ziyaret"
 		],
-		"_+%n more_::+%n more_": [
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"(1 örneğe bağlı değer boşaltıldı)",
+			"(%n örneğe bağlı değer boşaltıldı)"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"(1 filtrelendi)",
+			"(%n filtrelendi)"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"(1 sır gizlendi)",
+			"(%n sır gizlendi)"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"(1 çözümlenemeyen başvuru)",
+			"(%n çözümlenemeyen başvuru)"
+		],
+		"_+%n more_::_+%n more_": [
 			"+%n daha",
 			"+%n daha"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 başvuru çözümlenemedi — aşağıdaki gruplara bakın.",
+			"%n başvuru çözümlenemedi — aşağıdaki gruplara bakın."
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 satırın bu örnekte bir değere ihtiyacı var",
+			"%n satırın bu örnekte bir değere ihtiyacı var"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"1 satır atlandı.",
+			"%n satır atlandı."
 		],
 		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
 			"Bu pencerede ilk %n iş gösteriliyor — filtreleri daraltın.",
 			"Bu pencerede ilk %n iş gösteriliyor — filtreleri daraltın."
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"Uyarı: 1 satır kalıcı olarak silinecek, ardından dosya verileri yüklenecek.",
+			"Uyarı: %n satır kalıcı olarak silinecek, ardından dosya verileri yüklenecek."
 		],
 		"add and update; nothing is deleted": "ekle ve güncelle; hiçbir şey silinmez",
 		"applied": "uygulandı",

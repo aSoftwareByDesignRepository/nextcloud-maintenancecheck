@@ -4,16 +4,10 @@
 		"#": "#",
 		"%1$d of %2$d device slots in use.": "已使用 %2$d 個裝置名額中的 %1$d 個。",
 		"%1$d of %2$d seats assigned": "已指派 %2$d 個席位中的 %1$d 個",
-		"%d row(s) need a value on this instance": "%d 列需要在此實例上填寫值",
-		"%d row(s) skipped and %d reference(s) unresolved — see the groups below.": "已略過 %d 列，%d 個參照未能解析——請查看下方群組。",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:": "%s 在您的 Nextcloud 上保持免費（AGPL）。歡迎在 GitHub 提交缺陷報告和建議——這是自由開源的關懷。如果您的組織需要可開票的幫助或官方行動端授權，請選擇下方選項：",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:": "%s 在您的 Nextcloud 上保持免費（AGPL）。歡迎在 GitHub 提交缺陷報告和建議——這是自由開源的關懷。如果您的組織需要可開票的幫助，請選擇下方選項：",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:": "%s 在您的 Nextcloud 上保持免費（AGPL）。歡迎在 GitHub 提交缺陷和建議。需要可開票的幫助——部署、工時包或委託開發——或官方行動應用：",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, or commissioned work:": "%s 在您的 Nextcloud 上保持免費（AGPL）。歡迎在 GitHub 提交缺陷報告和建議——這是自由開源的關懷。如果您的組織需要可開票的幫助，請選擇下方選項：",
-		"(%d env-bound value(s) emptied)": "（已清空 %d 個實例綁定值）",
-		"(%d filtered)": "（已篩選 %d 項）",
-		"(%d secret(s) redacted)": "（已遮蔽 %d 個密鑰）",
-		"(%d unresolved ref)": "（%d 個參照未解析）",
 		"(opens in a new tab)": "（在新標籤頁中開啟）",
 		"(unknown — skipped)": "（未知——已跳過）",
 		"+{n} more": "+{n} 更多",
@@ -510,6 +504,7 @@
 		"Force-close work order": "強制關閉工單",
 		"Fork": "分叉",
 		"Format: %1$s followed by a signed payload. One key per organisation.": "格式：%1$s 後接簽章酬載。每個組織一個金鑰。",
+		"Fri": "週五",
 		"From": "從",
 		"From (due date)": "從（到期日）",
 		"Gate codes, dogs, preferred hours — copied from the site when empty.": "門禁密碼、犬隻、偏好時段——留空時從站點複製。",
@@ -692,6 +687,7 @@
 		"Mobile seats used": "已使用的行動版席位",
 		"Mode": "模式",
 		"Model": "型號",
+		"Mon": "週一",
 		"Month": "月",
 		"Months": "月",
 		"More": "更多",
@@ -1099,6 +1095,7 @@
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "執行檢查表、新增照片，然後用大按鈕推進狀態。",
 		"SN {sn}": "序列號 {sn}",
 		"Safety snapshot": "安全快照",
+		"Sat": "週六",
 		"Save": "儲存",
 		"Save assignment": "儲存分配",
 		"Save capacity": "儲存容量",
@@ -1231,6 +1228,7 @@
 		"Suggest an improvement": "提出改進建議",
 		"Suggest order": "建議順序",
 		"Suggested order — verify drive times": "建議順序——請核實車程",
+		"Sun": "週日",
 		"Support & us": "支援與我們聯絡",
 		"Support us": "支援我們",
 		"Switch between 30 and 90 days.": "在 30 天和 90 天之間切換。",
@@ -1340,6 +1338,7 @@
 		"This will update %d settings and %d rows — nothing is deleted.": "這將更新 %d 項設定與 %d 列資料——不會刪除任何內容。",
 		"This work order is already part of a tour.": "此工單已在一條巡線中。",
 		"Threshold": "閾值",
+		"Thu": "週四",
 		"Timezone": "時區",
 		"Tip": "提示",
 		"Title": "標題",
@@ -1360,6 +1359,7 @@
 		"Transfer file downloaded — store it and the passphrase safely.": "傳輸檔案已下載——請妥善保管檔案和密碼短語。",
 		"Try a shorter search term.": "試試更短的搜尋詞。",
 		"Try widening the date range or clearing filters.": "試試擴大日期範圍或清除篩選。",
+		"Tue": "週二",
 		"Two letters, e.g. DE or AT.": "兩個字母，例如 DE 或 AT。",
 		"Type": "型別",
 		"Type REPLACE to confirm": "輸入 REPLACE 確認",
@@ -1426,10 +1426,10 @@
 		"Waiting for the job…": "正在等待任務……",
 		"Warn": "警告",
 		"Warn when projected load exceeds this share of daily minutes (1.0 = 100%).": "預計負荷超過每日分鐘數的此比例時警告（1.0 = 100%）。",
-		"Warning: %d row(s) will be permanently deleted, then the file data is loaded.": "警告：%d 列將被永久刪除，然後載入檔案資料。",
 		"Warranty end": "保修到期",
 		"Warranty ended": "保修已到期",
 		"Warranty warning: check the equipment.": "保修警告：請檢查裝置。",
+		"Wed": "週三",
 		"Week": "周",
 		"Week of {date}": "{date} 所在周",
 		"Weeks": "周",
@@ -1510,11 +1510,43 @@
 		"_%n visit_::_%n visits_": [
 			"%n 次巡檢"
 		],
-		"_+%n more_::+%n more_": [
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"（已清空 1 個實例綁定值）",
+			"（已清空 %n 個實例綁定值）"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"（已篩選 1 項）",
+			"（已篩選 %n 項）"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"（已遮蔽 1 個密鑰）",
+			"（已遮蔽 %n 個密鑰）"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"（1 個參照未解析）",
+			"（%n 個參照未解析）"
+		],
+		"_+%n more_::_+%n more_": [
 			"再 +%n 項"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 個參照未能解析——請查看下方群組。",
+			"%n 個參照未能解析——請查看下方群組。"
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 列需要在此實例上填寫值",
+			"%n 列需要在此實例上填寫值"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"已略過 1 列。",
+			"已略過 %n 列。"
 		],
 		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
 			"當前視窗僅顯示前 %n 個工單——請縮小篩選範圍。"
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"警告：1 列將被永久刪除，然後載入檔案資料。",
+			"警告：%n 列將被永久刪除，然後載入檔案資料。"
 		],
 		"add and update; nothing is deleted": "新增並更新；不刪除任何內容",
 		"applied": "已應用",

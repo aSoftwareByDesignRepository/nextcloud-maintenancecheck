@@ -3,16 +3,10 @@
 		"#": "#",
 		"%1$d of %2$d device slots in use.": "%1$d af %2$d enhedspladser i brug.",
 		"%1$d of %2$d seats assigned": "%1$d af %2$d pladser tildelt",
-		"%d row(s) need a value on this instance": "%d række(r) kræver en værdi på denne instans",
-		"%d row(s) skipped and %d reference(s) unresolved — see the groups below.": "%d række(r) sprunget over og %d reference(r) uopløst — se grupperne nedenfor.",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:": "%s forbliver gratis (AGPL) på Nextcloud. Fejlrapporter og idéer på GitHub er velkomne — det er gratis open source-support. Hvis organisationen har brug for bookbar hjælp på faktura — eller officielle mobillicenser — vælg en mulighed nedenfor:",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:": "%s forbliver gratis (AGPL) på Nextcloud. Fejlrapporter og idéer på GitHub er velkomne — det er gratis open source-support. Hvis organisationen har brug for bookbar hjælp på faktura, vælg en mulighed nedenfor:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:": "%s forbliver gratis (AGPL) på Nextcloud. GitHub-issues om fejl og idéer er velkomne. For bookbar hjælp på faktura — opsætning, timepakker, bestillingsarbejde — eller den officielle mobilapp:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, or commissioned work:": "%s forbliver gratis (AGPL) på Nextcloud. GitHub-issues om fejl og idéer er velkomne. For bookbar hjælp på faktura — opsætning, timepakker eller bestillingsarbejde:",
-		"(%d env-bound value(s) emptied)": "(%d instansbundne værdier tømt)",
-		"(%d filtered)": "(%d filtreret)",
-		"(%d secret(s) redacted)": "(%d hemmelighed(er) sløret)",
-		"(%d unresolved ref)": "(%d uopløst reference)",
 		"(opens in a new tab)": "(åbner i en ny fane)",
 		"(unknown — skipped)": "(ukendt — sprunget over)",
 		"+{n} more": "+{n} flere",
@@ -509,6 +503,7 @@
 		"Force-close work order": "Force- close work orden",
 		"Fork": "Forgren",
 		"Format: %1$s followed by a signed payload. One key per organisation.": "Format: %1$s efterfulgt af en signeret nyttelast. Én nøgle pr. organisation.",
+		"Fri": "fre",
 		"From": "Fra",
 		"From (due date)": "fra (forfaldsdato)",
 		"Gate codes, dogs, preferred hours — copied from the site when empty.": "Portkoder, hunde, foretrukne tider — kopieres fra lokaliteten, når feltet er tomt.",
@@ -691,6 +686,7 @@
 		"Mobile seats used": "Mobilpladser i brug",
 		"Mode": "Tilstand",
 		"Model": "Modelbetegnelse",
+		"Mon": "man",
 		"Month": "Måned",
 		"Months": "Måneder",
 		"More": "Mere",
@@ -1016,7 +1012,7 @@
 		"Procedure saved.": "Proceduren er gemt.",
 		"Procedures": "Procedurer",
 		"ProjectCheck customer id": "ProjectCheck-kunde-id",
-		"Provide this ID when ordering a license so the key can be bound to this server.": "Angiv dette ID, Når bestiller en licens, så nøglen kan knyttes til denne server.",
+		"Provide this ID when ordering a license so the key can be bound to this server.": "Angiv dette ID, når du afgiver en licensordre, så nøglen kan knyttes til denne server.",
 		"Purchase or renew license": "Køb eller forny licens",
 		"QR code for this equipment": "QR-kode for dette udstyr",
 		"QR sticker": "QR-klistermærke",
@@ -1048,7 +1044,7 @@
 		"Remove license": "Fjern licens",
 		"Remove license key": "Fjern licensnøgle",
 		"Remove line": "Fjern linje",
-		"Remove mobile seat": "Fjern mobil plads",
+		"Remove mobile seat": "Fjern mobilplads",
 		"Remove mobile seat for this person?": "Fjern mobilplads for denne person?",
 		"Remove seat for {user}": "Fjern plads for {user}",
 		"Remove stop": "Fjern stop",
@@ -1098,6 +1094,7 @@
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "Kør tjeklisten, tilføj fotos, og flyt derefter status frem med de store knapper.",
 		"SN {sn}": "SN {sn}",
 		"Safety snapshot": "Sikkerhedssnapshot",
+		"Sat": "lør",
 		"Save": "Gem",
 		"Save assignment": "Gem tildeling",
 		"Save capacity": "Gem kapacitet",
@@ -1230,6 +1227,7 @@
 		"Suggest an improvement": "Foreslå en forbedring",
 		"Suggest order": "Foreslåede rækkefølge",
 		"Suggested order — verify drive times": "Foreslåede rækkefølge - verificer køretider",
+		"Sun": "søn",
 		"Support & us": "Support og os",
 		"Support us": "Støt os",
 		"Switch between 30 and 90 days.": "Skift mellem 30 og 90 dage.",
@@ -1339,6 +1337,7 @@
 		"This will update %d settings and %d rows — nothing is deleted.": "Dette opdaterer %d indstillinger og %d rækker — intet slettes.",
 		"This work order is already part of a tour.": "Denne arbejdsordre er allerede del af en tur.",
 		"Threshold": "Tærskel",
+		"Thu": "tor",
 		"Timezone": "Tidszone",
 		"Tip": "Tip",
 		"Title": "Titel",
@@ -1359,6 +1358,7 @@
 		"Transfer file downloaded — store it and the passphrase safely.": "Overførselsfil downloadet — opbevar den og adgangssætningen sikkert.",
 		"Try a shorter search term.": "Prøv en kortere søgeperiode.",
 		"Try widening the date range or clearing filters.": "Prøv at udvide datoområdet eller clearingfiltrene.",
+		"Tue": "tir",
 		"Two letters, e.g. DE or AT.": "To bogstaver, f.eks. DE eller AT.",
 		"Type": "Art",
 		"Type REPLACE to confirm": "Skriv REPLACE for at bekræfte",
@@ -1425,10 +1425,10 @@
 		"Waiting for the job…": "Venter på jobbet…",
 		"Warn": "Advar",
 		"Warn when projected load exceeds this share of daily minutes (1.0 = 100%).": "Advar når projiceret belastning overstiger denne andel af daglige minutter (1, 0 = 100%%).",
-		"Warning: %d row(s) will be permanently deleted, then the file data is loaded.": "Advarsel: %d række(r) slettes permanent, derefter indlæses fildataene.",
 		"Warranty end": "Garantiafslutning",
 		"Warranty ended": "Garanti afsluttet",
 		"Warranty warning: check the equipment.": "Garantiadvarsel: kontrollér udstyret.",
+		"Wed": "ons",
 		"Week": "Uge",
 		"Week of {date}": "Uge fra {date}",
 		"Weeks": "Uger",
@@ -1519,13 +1519,45 @@
 			"%n besøg",
 			"%n besøg"
 		],
-		"_+%n more_::+%n more_": [
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"(1 instansbunden værdi tømt)",
+			"(%n instansbundne værdier tømt)"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"(1 filtreret)",
+			"(%n filtreret)"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"(1 hemmelighed sløret)",
+			"(%n hemmeligheder sløret)"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"(1 uopløst reference)",
+			"(%n uopløste referencer)"
+		],
+		"_+%n more_::_+%n more_": [
 			"+%n yderligere",
 			"+%n yderligere"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 reference uopløst — se grupperne nedenfor.",
+			"%n referencer uopløst — se grupperne nedenfor."
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 række kræver en værdi på denne instans",
+			"%n rækker kræver en værdi på denne instans"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"1 række sprunget over.",
+			"%n rækker sprunget over."
 		],
 		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
 			"Viser den første %n ordre i dette vindue — indsnævr filtrene.",
 			"Viser de første %n ordrer i dette vindue — indsnævr filtrene."
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"Advarsel: 1 række slettes permanent, derefter indlæses fildataene.",
+			"Advarsel: %n rækker slettes permanent, derefter indlæses fildataene."
 		],
 		"add and update; nothing is deleted": "tilføj og opdatér; intet slettes",
 		"applied": "anvendt",

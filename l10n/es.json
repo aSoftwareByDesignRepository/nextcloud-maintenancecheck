@@ -3,16 +3,10 @@
 		"#": "#",
 		"%1$d of %2$d device slots in use.": "%1$d de %2$d espacios para dispositivos en uso.",
 		"%1$d of %2$d seats assigned": "%1$d de %2$d plazas asignadas",
-		"%d row(s) need a value on this instance": "%d fila(s) necesitan un valor en esta instancia",
-		"%d row(s) skipped and %d reference(s) unresolved — see the groups below.": "%d fila(s) omitida(s) y %d referencia(s) sin resolver — consulta los grupos siguientes.",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:": "%s sigue siendo gratuito (AGPL) en su Nextcloud. Los informes de errores y las ideas en GitHub siguen siendo bienvenidos: eso forma parte del mantenimiento open source gratuito. Si su organización necesita ayuda reservable con factura — o licencias móviles oficiales — elija una opción abajo:",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:": "%s sigue siendo gratuito (AGPL) en su Nextcloud. Los informes de errores y las ideas en GitHub siguen siendo bienvenidos: eso forma parte del mantenimiento open source gratuito. Si su organización necesita ayuda reservable con factura, elija una opción abajo:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:": "%s sigue siendo gratuito (AGPL) en su Nextcloud. Las issues de GitHub para errores e ideas siguen siendo bienvenidas. Para ayuda reservable con factura — instalación, paquetes de horas, desarrollo por encargo — o la app móvil oficial:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, or commissioned work:": "%s sigue siendo gratuito (AGPL) en su Nextcloud. Las issues de GitHub para errores e ideas siguen siendo bienvenidas. Para ayuda reservable con factura — instalación, paquetes de horas o desarrollo por encargo:",
-		"(%d env-bound value(s) emptied)": "(%d valor(es) ligados a la instancia vaciados)",
-		"(%d filtered)": "(%d filtrada(s))",
-		"(%d secret(s) redacted)": "(%d secreto(s) ocultado(s))",
-		"(%d unresolved ref)": "(%d referencia(s) sin resolver)",
 		"(opens in a new tab)": "(se abre en una pestaña nueva)",
 		"(unknown — skipped)": "(desconocido — omitido)",
 		"+{n} more": "+{n} más",
@@ -508,7 +502,8 @@
 		"Force-close reason": "Razón de cierre de la fuerza",
 		"Force-close work order": "Orden de trabajo de cierre de la fuerza",
 		"Fork": "Bifurcar",
-		"Format: %1$s followed by a signed payload. One key per organisation.": "Formato: %1$s seguido de una carga firmada. Una clave por organización.",
+		"Format: %1$s followed by a signed payload. One key per organisation.": "Formato: %1$s seguido de una carga útil firmada. Una clave por organización.",
+		"Fri": "vie",
 		"From": "Desde",
 		"From (due date)": "Desde (fecha de vencimiento)",
 		"Gate codes, dogs, preferred hours — copied from the site when empty.": "Códigos de acceso, perros, horarios preferidos — se copian del sitio cuando están vacíos.",
@@ -691,6 +686,7 @@
 		"Mobile seats used": "Plazas móviles usadas",
 		"Mode": "Modo",
 		"Model": "Modelo",
+		"Mon": "lun",
 		"Month": "Mes",
 		"Months": "Meses",
 		"More": "Más",
@@ -1098,6 +1094,7 @@
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "Ejecute la lista de verificación, añada fotos, luego avance el estado con los botones grandes.",
 		"SN {sn}": "SN {sn}",
 		"Safety snapshot": "Instantánea de seguridad",
+		"Sat": "sáb",
 		"Save": "Guardar",
 		"Save assignment": "Guardar asignación",
 		"Save capacity": "Guardar capacidad",
@@ -1230,6 +1227,7 @@
 		"Suggest an improvement": "Sugerir una mejora",
 		"Suggest order": "Sugerir orden",
 		"Suggested order — verify drive times": "Orden sugerido — verifique los tiempos de la unidad",
+		"Sun": "dom",
 		"Support & us": "Soporte y nosotros",
 		"Support us": "Apóyenos",
 		"Switch between 30 and 90 days.": "Cambiar entre 30 y 90 días.",
@@ -1339,6 +1337,7 @@
 		"This will update %d settings and %d rows — nothing is deleted.": "Esto actualizará %d ajustes y %d filas — no se eliminará nada.",
 		"This work order is already part of a tour.": "Esta orden de trabajo ya es parte de una ruta.",
 		"Threshold": "Umbral",
+		"Thu": "jue",
 		"Timezone": "Zona horaria",
 		"Tip": "Consejo",
 		"Title": "Título",
@@ -1359,6 +1358,7 @@
 		"Transfer file downloaded — store it and the passphrase safely.": "Archivo de transferencia descargado — guárdelo junto con la frase de contraseña en lugar seguro.",
 		"Try a shorter search term.": "Pruebe un plazo de búsqueda más corto.",
 		"Try widening the date range or clearing filters.": "Trate de ampliar el rango de fechas o de limpiar filtros.",
+		"Tue": "mar",
 		"Two letters, e.g. DE or AT.": "Dos cartas, por ejemplo DE o AT.",
 		"Type": "Tipo",
 		"Type REPLACE to confirm": "Escriba REPLACE para confirmar",
@@ -1425,10 +1425,10 @@
 		"Waiting for the job…": "Esperando el trabajo…",
 		"Warn": "Advertir",
 		"Warn when projected load exceeds this share of daily minutes (1.0 = 100%).": "Advertido cuando la carga proyectada supera esta parte de minutos diarios (1.0 = 100%%).",
-		"Warning: %d row(s) will be permanently deleted, then the file data is loaded.": "Advertencia: %d fila(s) se eliminarán permanentemente y después se cargarán los datos del archivo.",
 		"Warranty end": "Final de garantía",
 		"Warranty ended": "Garantía terminada",
 		"Warranty warning: check the equipment.": "Aviso de garantía: revise el equipo.",
+		"Wed": "mié",
 		"Week": "Semana",
 		"Week of {date}": "Semana del {date}",
 		"Weeks": "Semanas",
@@ -1519,13 +1519,45 @@
 			"%n visita",
 			"%n visitas"
 		],
-		"_+%n more_::+%n more_": [
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"(1 valor ligado a la instancia vaciado)",
+			"(%n valores ligados a la instancia vaciados)"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"(1 filtrada)",
+			"(%n filtradas)"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"(1 secreto ocultado)",
+			"(%n secretos ocultados)"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"(1 referencia sin resolver)",
+			"(%n referencias sin resolver)"
+		],
+		"_+%n more_::_+%n more_": [
 			"+%n más",
 			"+%n más"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 referencia sin resolver — consulta los grupos siguientes.",
+			"%n referencias sin resolver — consulta los grupos siguientes."
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 fila necesita un valor en esta instancia",
+			"%n filas necesitan un valor en esta instancia"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"1 fila omitida.",
+			"%n filas omitidas."
 		],
 		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
 			"Se muestra el primer %n trabajo en esta ventana — acote los filtros.",
 			"Se muestran los primeros %n trabajos en esta ventana — acote los filtros."
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"Advertencia: 1 fila se eliminará permanentemente y después se cargarán los datos del archivo.",
+			"Advertencia: %n filas se eliminarán permanentemente y después se cargarán los datos del archivo."
 		],
 		"add and update; nothing is deleted": "añadir y actualizar; nada se elimina",
 		"applied": "aplicado",

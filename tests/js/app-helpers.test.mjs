@@ -264,11 +264,16 @@ test('S9 force-delete dialog re-applies checkbox gate after setBusy(false)', () 
 	assert.match(source, /if \(hasChildren && !confirmBox\.checked\) \{\s*return;/);
 });
 
-test('SPEC §8.3 seat assignment uses NC user picker combobox', () => {
-	assert.match(source, /function attachUserPicker\(/);
-	assert.match(source, /apiUrl\('usersSearch'\)/);
-	assert.match(source, /role:\s*'combobox'/);
-	assert.match(source, /Choose a Nextcloud user from the list\./);
+test('SPEC §8.3 seat assignment uses NC user picker combobox', async () => {
+	// Seat assignment moved to the shared license-page pack: the combobox
+	// lives in the synced template, the users-search fetch in synced JS.
+	const tpl = await readFile(join(root, 'templates', 'common', 'license-page.php'), 'utf8');
+	const packJs = await readFile(join(root, 'js', 'common', 'license-page.js'), 'utf8');
+	assert.match(tpl, /id="mn-seat-user-search"[\s\S]*?role="combobox"/);
+	assert.match(tpl, /aria-controls="mn-seat-search-results"/);
+	assert.match(tpl, /aria-autocomplete="list"/);
+	assert.match(packJs, /apiSearchUsers \+ .*encodeURIComponent\(q\)/);
+	assert.match(packJs, /aria-expanded', 'true'|"aria-expanded", "true"|setAttribute\('aria-expanded', 'true'\)/);
 });
 
 test('A9 touch targets: chip remove and toast close are ≥44px in CSS', async () => {
