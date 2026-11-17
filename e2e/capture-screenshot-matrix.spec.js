@@ -326,6 +326,8 @@ async function driveLicenseSeats(page) {
 			await picker.screenshot({ path: join(OUT, selName) })
 			capturedFiles.push(selName)
 			await page.locator('#mn-seat-assign-selected').click()
+			await expect(page.locator('#mn-license-confirm-modal[open]')).toBeVisible({ timeout: 10_000 })
+			await page.locator('#mn-license-confirm-ok').click()
 			await expect(page.locator('#mn-seat-batch-result'),
 				'positive state: populated batch-result callout must paint after assign')
 				.toBeVisible({ timeout: 15_000 })
