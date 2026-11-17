@@ -276,6 +276,8 @@ async function driveTransferReport(page) {
 
 let licenseSeededByMatrix = false
 const SEAT_UID = process.env.NC_E2E_USER || 'mn_atlas'
+const SEAT_UID_EXTRA = process.env.NC_TECH_USER || 'mn_atlas_tech'
+let licensePositiveCaptured = false
 
 /**
  * 'seats' state — seed a valid org licence + assign one mobile seat via the
@@ -283,6 +285,14 @@ const SEAT_UID = process.env.NC_E2E_USER || 'mn_atlas'
  * server-rendered (never mocked). Instance-wide licence state uses the same
  * 'instance-config' lock UJ-6 / dialog-inventory hold while seeding; cleanup
  * runs once in afterAll (seat removed, licence cleared).
+ *
+ * hidden_attr_display_override regression proof (r32): at zero selection the
+ * shared pack's [hidden] guard must keep both phantoms unpainted — the empty
+ * batch-result callout and the dead 'Assign selected' button. Once per run a
+ * positive leg drives the real picker flow (search → tick → Assign selected →
+ * batch assign) so the guard is also proven NOT to break the populated states;
+ * the extra seat is removed and the page reloaded so the cell capture still
+ * lands on the honest zero-selection state.
  */
 async function driveLicenseSeats(page) {
 	await acquireStateLock('instance-config')
@@ -295,9 +305,46 @@ async function driveLicenseSeats(page) {
 		await expect(page.locator('#mn-license-page')).toBeVisible({ timeout: 30_000 })
 		await expect(page.locator('#mn-seat-list-body tr[data-user-id]').first()).toBeVisible({ timeout: 15_000 })
 		await expect(page.locator('#mn-seat-list-body .mn-seat-remove').first()).toBeVisible({ timeout: 15_000 })
+		await expect(page.locator('#mn-seat-assign-selected'),
+			'hidden-attr guard: dead assign-selected button must not paint at zero selection')
+			.toBeHidden()
+		await expect(page.locator('#mn-seat-batch-result'),
+			'hidden-attr guard: empty batch-result callout must not paint at zero selection')
+			.toBeHidden()
+		if (!licensePositiveCaptured) {
+			licensePositiveCaptured = true
+			const picker = page.locator('.mn-license-seat-picker')
+			await page.locator('#mn-seat-user-search').fill(SEAT_UID_EXTRA)
+			const option = page.locator(
+				`#mn-seat-search-results li[data-user-id="${SEAT_UID_EXTRA}"] input[type="checkbox"]`)
+			await expect(option).toBeVisible({ timeout: 15_000 })
+			await option.check()
+			await expect(page.locator('#mn-seat-assign-selected'),
+				'positive state: assign-selected must paint once selection is non-empty')
+				.toBeVisible()
+			const selName = `${MANIFEST.prefix}-settings-license-seats-selected-${vpNameFor(page)}.png`
+			await picker.screenshot({ path: join(OUT, selName) })
+			capturedFiles.push(selName)
+			await page.locator('#mn-seat-assign-selected').click()
+			await expect(page.locator('#mn-seat-batch-result'),
+				'positive state: populated batch-result callout must paint after assign')
+				.toBeVisible({ timeout: 15_000 })
+			const calloutName = `${MANIFEST.prefix}-settings-license-seats-batch-callout-${vpNameFor(page)}.png`
+			await picker.screenshot({ path: join(OUT, calloutName) })
+			capturedFiles.push(calloutName)
+			await api(page, 'POST', `${API}/license/seats/remove`, { userId: SEAT_UID_EXTRA }).catch(() => {})
+			await page.reload({ waitUntil: 'domcontentloaded' })
+			await expect(page.locator('#mn-seat-assign-selected')).toBeHidden()
+			await expect(page.locator('#mn-seat-batch-result')).toBeHidden()
+		}
 	} finally {
 		releaseStateLock('instance-config')
 	}
+}
+
+function vpNameFor(page) {
+	const w = page.viewportSize()?.width ?? 0
+	return MANIFEST.viewports.find((v) => v.width === w)?.name || `w${w}`
 }
 
 /** Non-dialog state drivers — run before the capture, keep the grow path. */
@@ -382,6 +429,7 @@ test.describe('SCREENSHOT_MATRIX capture', () => {
 					await acquireStateLock('instance-config').catch(() => {})
 					try {
 						await api(page, 'POST', `${API}/license/seats/remove`, { userId: SEAT_UID }).catch(() => {})
+						await api(page, 'POST', `${API}/license/seats/remove`, { userId: SEAT_UID_EXTRA }).catch(() => {})
 						seedLicenseViaCli('clear')
 					} catch {
 						/* best-effort licence restore */
@@ -478,6 +526,15 @@ test.describe('SCREENSHOT_MATRIX capture', () => {
 						await nav.screenshot({ path: join(OUT, navName) })
 						capturedFiles.push(navName)
 					}
+				}
+				// hidden_attr_display_override regression (r32): the seats state
+				// also needs a dark-theme cell — the manifest dark pass only
+				// covers states[0], so drive + capture it as an extra file.
+				if (surface.id === 'settings-license' && state === 'current' && vp.name === 'desktop' && theme === 'dark') {
+					await driveLicenseSeats(page)
+					const darkSeatsName = `${MANIFEST.prefix}-${surface.id}-seats-desktop-dark.png`
+					await page.screenshot({ path: join(OUT, darkSeatsName) })
+					capturedFiles.push(darkSeatsName)
 				}
 				if (!existsSync(file)) {
 					missing.push(file)

@@ -22,6 +22,12 @@
 	min-width: 0;
 }
 
+/* [hidden] wins over any display rule — JS toggles el.hidden on elements
+ * whose classes declare display (callout, buttons, results list). */
+.mn-license-page [hidden] {
+	display: none !important;
+}
+
 /* ── Screen-reader-only + live regions ───────────────────────── */
 .mn-license-sr-only,
 .mn-license-page .mn-license-sr-only {
