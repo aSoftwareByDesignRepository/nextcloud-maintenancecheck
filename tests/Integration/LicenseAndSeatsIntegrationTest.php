@@ -245,6 +245,10 @@ final class LicenseAndSeatsIntegrationTest extends IntegrationTestCase
 		$this->assertCount(2, $page['data']);
 		$page2 = $this->license->listSeats('2', '2');
 		$this->assertCount(1, $page2['data']);
+		// Pack contract keys: licence limit, never the pagination limit.
+		$this->assertSame(3, $page['mobileSeatsLimit']);
+		$this->assertSame(3, $page['mobileSeatsUsed']);
+		$this->assertSame(2, $page['limit']);
 	}
 
 	// ── Mobile gate ladder (SPEC §9.1) ──────────────────────────────────

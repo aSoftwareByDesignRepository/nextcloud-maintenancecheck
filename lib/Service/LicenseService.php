@@ -166,6 +166,11 @@ class LicenseService
 			'total' => count($rows),
 			'limit' => $page['limit'],
 			'offset' => $page['offset'],
+			// License-page pack contract: normalizeSeats reads mobileSeats* first —
+			// without these keys it misreads the pagination 'limit' (50) as the
+			// licence entitlement and repaints "N of 50 seats" after mutations.
+			'mobileSeatsUsed' => count($rows),
+			'mobileSeatsLimit' => $seatLimit,
 		];
 	}
 
