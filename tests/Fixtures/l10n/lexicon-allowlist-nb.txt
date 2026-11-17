@@ -7,3 +7,7 @@ omplanlegg # reviewed — Bokmål imperative of omplanlegge (reschedule); standa
 deaktivert # reviewed — correct Bokmål past participle of deaktivere
 forfallne # reviewed — correct Bokmål plural participle (overdue)
 utilordnet # reviewed — correct Bokmål compound (u- + tilordnet, unassigned)
+ons # abbrev — reviewed: standard Bokmål Wednesday abbreviation (onsdag); shared surface with da
+søn # abbrev — reviewed: standard Bokmål Sunday abbreviation (søndag); also the native noun 'sønn' (son) — shared surface with da
+leverandørsignernøkkelen # reviewed — legitimate Bokmål compound leverandør+signer+nøkkelen (vendor signing key); flat wordlist lacks the compound
+tokenen # reviewed — Bokmål definite of loanword 'token' (technical term); standard form

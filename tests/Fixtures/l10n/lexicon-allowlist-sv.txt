@@ -6,3 +6,7 @@ kitet # shared — reviewed: correct Swedish definite of borrowed 'kit' (ett-ord
 inspektionär # reviewed — legitimate Swedish word for an inspector (person); flat wordlist gap
 otilldelad # reviewed — legitimate Swedish compound (o- + tilldelad, unassigned)
 kalendervy # shared — reviewed: legitimate Swedish compound kalender+vy (calendar view); both morphemes in sv_SE, flat wordlist lacks the compound and 2-char right morpheme is below the decomposer MIN_LEN
+tis # abbrev — reviewed: standard Swedish Tuesday abbreviation (tisdag), mån–sön set
+ons # abbrev — reviewed: standard Swedish Wednesday abbreviation (onsdag); shared surface with da/nb
+lör # abbrev — reviewed: standard Swedish Saturday abbreviation (lördag)
+sön # abbrev — reviewed: standard Swedish Sunday abbreviation (söndag); shared surface with nb/da
