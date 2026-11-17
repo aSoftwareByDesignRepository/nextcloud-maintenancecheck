@@ -532,10 +532,14 @@ test.describe('SCREENSHOT_MATRIX capture', () => {
 				// hidden_attr_display_override regression (r32): the seats state
 				// also needs a dark-theme cell — the manifest dark pass only
 				// covers states[0], so drive + capture it as an extra file.
+				// The full page here is byte-identical to current-*-dark (the
+				// licence persists from the light pass), so this clip targets
+				// the seats card itself — distinct bytes, tighter proof.
 				if (surface.id === 'settings-license' && state === 'current' && vp.name === 'desktop' && theme === 'dark') {
 					await driveLicenseSeats(page)
 					const darkSeatsName = `${MANIFEST.prefix}-${surface.id}-seats-desktop-dark.png`
-					await page.screenshot({ path: join(OUT, darkSeatsName) })
+					await page.locator('.mn-license-card:has(#mn-seat-list-body)')
+						.screenshot({ path: join(OUT, darkSeatsName) })
 					capturedFiles.push(darkSeatsName)
 				}
 				if (!existsSync(file)) {
