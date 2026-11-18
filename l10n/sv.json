@@ -61,6 +61,86 @@
 		"4. Track the work": "4. Följ arbetet",
 		"5. Hand over the site": "5. Överlämna platsen",
 		"90 days": "90 dagar",
+		"_%n equipment item_::_%n equipment items_": [
+			"%n utrustningsenhet",
+			"%n utrustningsenheter"
+		],
+		"_%n exception_::_%n exceptions_": [
+			"%n undantag",
+			"%n undantag"
+		],
+		"_%n job in this period_::_%n jobs in this period_": [
+			"%n jobb under den här perioden",
+			"%n jobb under den här perioden"
+		],
+		"_%n job_::_%n jobs_": [
+			"%n jobb",
+			"%n jobb"
+		],
+		"_%n minute per day_::_%n minutes per day_": [
+			"%n minut per dag",
+			"%n minuter per dag"
+		],
+		"_%n more job on {date}_::_%n more jobs on {date}_": [
+			"%n jobb till {date}",
+			"%n jobb till {date}"
+		],
+		"_%n plan_::_%n plans_": [
+			"%n plan",
+			"%n planer"
+		],
+		"_%n result_::_%n results_": [
+			"%n resultat",
+			"%n resultat"
+		],
+		"_%n stop_::_%n stops_": [
+			"%n stopp",
+			"%n stopp"
+		],
+		"_%n visit_::_%n visits_": [
+			"%n besök",
+			"%n besök"
+		],
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"(1 instansbundet värde tömt)",
+			"(%n instansbundna värden tömda)"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"(1 filtrerad)",
+			"(%n filtrerade)"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"(1 hemlighet maskerad)",
+			"(%n hemligheter maskerade)"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"(1 olöst referens)",
+			"(%n olösta referenser)"
+		],
+		"_+%n more_::_+%n more_": [
+			"+%n till",
+			"+%n till"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 referens är olöst — se grupperna nedan.",
+			"%n referenser är olösta — se grupperna nedan."
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 rad behöver ett värde på den här instansen",
+			"%n rader behöver ett värde på den här instansen"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"1 rad hoppades över.",
+			"%n rader hoppades över."
+		],
+		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
+			"Visar det första %n jobbet i det här fönstret — avgränsa filtren.",
+			"Visar de första %n jobben i det här fönstret — avgränsa filtren."
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"Varning: 1 rad raderas permanent, sedan läses filens data in.",
+			"Varning: %n rader raderas permanent, sedan läses filens data in."
+		],
 		"A license key is stored, but this server cannot verify its signature with the vendor public key. The companion apps will reject the license until the key was signed with the matching vendor signing key. Re-apply a correctly signed license, or contact support if this persists after an app update.": "En licensnyckel är lagrad, men den här servern kan inte verifiera signaturen med leverantörens publika nyckel. Kompanjonapparna avvisar licensen tills nyckeln signerats med den matchande leverantörssigneringsnyckeln. Applicera en korrekt signerad licens igen eller kontakta supporten om det kvarstår efter en appuppdatering.",
 		"A line label is required.": "En linje etikett krävs.",
 		"A maintenance visit was due on %s.": "Ett underhållsbesök förföll den %s.",
@@ -98,6 +178,7 @@
 		"Add a skill code, then grant it to technicians.": "Lägg till en kompetenskod och tilldela den till tekniker.",
 		"Add a unit": "Lägg till en anläggning",
 		"Add an obligation from an equipment class to schedule the next inspection.": "Lägg till en skyldighet från en utrustningsklass för att planera nästa inspektion.",
+		"add and update; nothing is deleted": "lägg till och uppdatera; inget raderas",
 		"Add another defect": "Lägg till en annan defekt",
 		"Add at least one defect when the result is not pass.": "Lägg till minst en brist när resultatet inte är godkänt.",
 		"Add document": "Lägg till dokument",
@@ -147,6 +228,7 @@
 		"Any time": "Varje gång",
 		"App administrators": "Appadministratörer",
 		"Append-only — comments cannot be edited or deleted.": "Append-only - kommentarer kan inte redigeras eller tas bort.",
+		"applied": "tillämpad",
 		"Apply a mobile license key and assign named seats.": "Använd en mobil licensnyckel och tilldela namngivna platser.",
 		"Apply filters": "Verkställ filter",
 		"Apply import": "Tillämpa import",
@@ -196,8 +278,6 @@
 		"Blocked work orders will show up here.": "Blockerade arbetsorder visas här.",
 		"Breadcrumb": "Brödsmulor",
 		"By default every logged-in user can open MaintenanceCheck. Turn on the restriction to limit access to the lists below. Administrators always keep access.": "Som standard kan varje inloggad användare öppna MaintenanceCheck. Slå på begränsningen för att begränsa åtkomsten till listorna nedan. Administratörer håller alltid tillgång.",
-		"CRM company id": "CRM-företags-id",
-		"CSV readings": "CSV-avläsningar",
 		"Calendar": "Kalender",
 		"Calendar controls": "Kalenderkontroller",
 		"Calendar could not load": "Kalendern kunde inte laddas",
@@ -217,8 +297,8 @@
 		"Change only what you need on this page, then save. Other settings stay unchanged.": "Ändra bara det nödvändiga på den här sidan och spara. Övriga inställningar förblir oförändrade.",
 		"Change period": "Byt period",
 		"Change status": "Ändra status",
-		"Check Partner": "Check-partner",
 		"Check master data": "Kontrollera stamdata",
+		"Check Partner": "Check-partner",
 		"Checklist": "Checklista",
 		"Checklist and capacity rules": "Regler för checklistor och kapacitet",
 		"Checklist blocks completion: {items}": "Checklistan blockerar slutförande: {items}",
@@ -229,8 +309,8 @@
 		"Checklist templates for work orders. Create, fork, import and export packs from the actions.": "Checklistmallar för arbetsorder. Skapa, förgrena, importera och exportera paket från åtgärderna.",
 		"Checklist templates for work orders. Import and export packs from the actions.": "Checklistmallar för arbetsorder. Importera och exportera paket från åtgärderna.",
 		"Checklist to finish a job": "Checklista för att avsluta ett jobb",
-		"Choose a Nextcloud user from the list.": "Välj en Nextcloud-användare från listan.",
 		"Choose a customer.": "Välj en kund.",
+		"Choose a Nextcloud user from the list.": "Välj en Nextcloud-användare från listan.",
 		"Choose a passphrase of at least 12 characters.": "Välj en lösenfras på minst 12 tecken.",
 		"Choose which people may use %1$s. Only assigned users can sign in from their companion device.": "Välj vilka som får använda %1$s. Endast tilldelade användare kan logga in från sin kompanjonenhet.",
 		"City": "Ort",
@@ -279,11 +359,11 @@
 		"Corrective work order": "Korrigerande arbetsorder",
 		"Could not assign seat.": "Kunde inte tilldela plats.",
 		"Could not generate a pairing code.": "Det gick inte att generera parkopplingskoden.",
-		"Could not load KPI.": "Kan inte ladda KPI.",
 		"Could not load comments.": "Kunde inte ladda kommentarer.",
 		"Could not load customers.": "Kunde inte ladda kunder.",
 		"Could not load documents.": "Kunde inte läsa in dokument.",
 		"Could not load exceptions.": "Kunde inte läsa in undantag.",
+		"Could not load KPI.": "Kan inte ladda KPI.",
 		"Could not load obligations.": "Kunde inte läsa in skyldigheter.",
 		"Could not load procedures.": "Kunde inte ladda förfaranden.",
 		"Could not reach the server. Check your connection and try again.": "Servern kunde inte nås. Kontrollera anslutningen och försök igen.",
@@ -298,7 +378,6 @@
 		"Country code": "Landskod",
 		"Counts up only": "Räknar upp bara",
 		"Create": "Skapa",
-		"Create QR sticker": "Skapa QR klistermärke",
 		"Create a checklist template or import a pack.": "Skapa en checklistemall eller importera ett paket.",
 		"Create a customer": "Skapa en kund",
 		"Create a parts list for packing vans.": "Skapa en reservdelslista för packning av bilar.",
@@ -310,6 +389,7 @@
 		"Create inspection work order": "Skapa inspektionsarbetsorder",
 		"Create meter": "Skapa mätare",
 		"Create plan": "Skapa plan",
+		"Create QR sticker": "Skapa QR klistermärke",
 		"Create site": "Skapa plats",
 		"Create the first customer": "Skapa den första kunden",
 		"Create the first one to categorise your data.": "Skapa den första posten för att kategorisera data.",
@@ -320,11 +400,13 @@
 		"Creates a new open visit for this plan — use this after a cancellation.": "Skapar ett nytt öppet besök för denna plan - använd detta efter en avbokning.",
 		"Creates a new sticker. The previous sticker stops working.": "Skapar en ny klistermärke. Den tidigare klistermärken slutar fungera.",
 		"Creates one part line with quantity 1.": "Skapar en del linje med kvantitet 1.",
+		"CRM company id": "CRM-företags-id",
+		"CSV readings": "CSV-avläsningar",
 		"Current license": "Nuvarande licens",
 		"Customer": "Kund",
-		"Customer ID": "Kund-ID",
 		"Customer created.": "Kund skapade.",
 		"Customer deleted.": "Kunden raderade.",
+		"Customer ID": "Kund-ID",
 		"Customer is active": "Kunden är aktiv",
 		"Customer not found": "Kunden hittades inte",
 		"Customer number": "Kundnummer",
@@ -385,12 +467,12 @@
 		"Documents": "Dokument",
 		"Done": "Klart",
 		"Download": "Ladda ner",
-		"Download CSV": "Ladda ner CSV",
-		"Download KPI as CSV": "Ladda ner KPI som CSV",
 		"Download all settings, catalogues and business data as one encrypted file — then import it on your production instance.": "Ladda ner alla inställningar, kataloger och affärsdata som en krypterad fil — importera den sedan på din produktionsinstans.",
+		"Download CSV": "Ladda ner CSV",
 		"Download encrypted transfer file": "Ladda ner krypterad överföringsfil",
 		"Download inspection evidence": "Ladda ner inspektionbevis",
 		"Download job pack": "Ladda ner jobbpaket",
+		"Download KPI as CSV": "Ladda ner KPI som CSV",
 		"Download service report": "Ladda ner servicerapport",
 		"Draft": "Utkast",
 		"Draw a signature first.": "Rita en signatur först.",
@@ -407,6 +489,7 @@
 		"Due {date}": "Förfaller {date}",
 		"Due {start} – {end}": "Förfaller {start} – {end}",
 		"Duration (minutes)": "Varaktighet (minuter)",
+		"e.g. Mon–Fri 08:00–12:00": "t.ex. mån–fre 08:00–12:00",
 		"Edit": "Redigera",
 		"Edit customer": "Redigera kund",
 		"Edit dates": "Redigera datum",
@@ -476,6 +559,7 @@
 		"Fail": "Misslyckades",
 		"Fail if location is ambiguous (safest)": "Misslyckas om platsen är tvetydig (säkrast)",
 		"Failed": "Misslyckades",
+		"failed": "misslyckades",
 		"Failed inspection blocks next-due roll": "Underkänd inspektion blockerar framflyttning av nästa förfallodag",
 		"Failure code": "Misslyckandekod",
 		"Failure code on corrective Done": "Felkod vid korrigerande Klart",
@@ -540,9 +624,9 @@
 		"How your team refers to this unit, e.g. “Boiler cellar left”.": "Hur teamet refererar till denna enhet, t.ex. «Panna källare vänster».",
 		"If you believe this is a mistake, contact your MaintenanceCheck administrator.": "Om detta anses vara ett misstag, kontakta MaintenanceCheck-administratören.",
 		"Import": "Importera",
-		"Import CSV": "Importera CSV",
 		"Import applied. %d settings and %d rows written.": "Importen har tillämpats. %d inställningar och %d rader skrivna.",
 		"Import configuration": "Importera konfiguration",
+		"Import CSV": "Importera CSV",
 		"Import failed — nothing was changed.": "Importen misslyckades — inget ändrades.",
 		"Import meter readings": "Importera mätavläsningar",
 		"Import pack": "Importera paket",
@@ -592,13 +676,13 @@
 		"Jobs on {date}": "Jobb {date}",
 		"Jobs stuck for any reason — tap a chip, then open the job.": "Jobb som fastnat av någon anledning — tryck på ett chip, öppna sedan jobbet.",
 		"Jobs without an owner — tap Assign, pick a person, done.": "Jobb utan ägare - tryck på Tilldela, välj en person, gjort.",
-		"KPI window": "KPI-fönster",
 		"Keep active": "Håll aktiv",
 		"Keep customer": "Håll kund",
 		"Keep equipment": "Håll utrustningen",
 		"Keep key": "Håll nyckeln",
 		"Keep site": "Håll platsen",
 		"Keep visit": "Behåll besök",
+		"kept as-is": "behölls som det var",
 		"Keys and seats": "Nycklar och platser",
 		"Kind": "Typ",
 		"Kit / parts": "Kit / delar",
@@ -608,6 +692,7 @@
 		"Kit template saved.": "Kit mall sparad.",
 		"Kit templates": "Kit mallar",
 		"Kit — parts and tools to pack": "Kit — delar och verktyg att packa",
+		"KPI window": "KPI-fönster",
 		"Label": "Etikett",
 		"Last transfer": "Senaste överföring",
 		"Later": "Senare",
@@ -647,7 +732,6 @@
 		"Low": "Lav",
 		"Lower numbers appear first.": "Lägre siffror visas först.",
 		"Lowercase letters, digits and underscores, e.g. heat_pump.": "Lowercase brev, siffror och understrykningar, t.ex. heat pump.",
-		"MTTR (minutes)": "MTTR (minuter)",
 		"Main navigation": "Huvudnavigering",
 		"Maintenance": "Underhåll",
 		"Maintenance plans": "Underhållsplaner",
@@ -655,6 +739,7 @@
 		"Maintenance types": "Underhållstyper",
 		"MaintenanceCheck": "MaintenanceCheck",
 		"MaintenanceCheck navigation": "MaintenanceCheck-navigering",
+		"make identical to the file; prod-only rows are deleted": "gör identisk med filen; rader som bara finns i prod raderas",
 		"Make your changes": "Gör dina ändringar",
 		"Manage devices": "Hantera enheter",
 		"Manufacturer": "Tillverkare",
@@ -690,11 +775,12 @@
 		"Month": "Månad",
 		"Months": "Månader",
 		"More": "Mer",
-		"More Check apps": "Fler Check-appar",
 		"More actions": "Fler åtgärder",
+		"More Check apps": "Fler Check-appar",
 		"More — procedure, skills, kit, comments": "Mer - Procedur, färdigheter, kit, kommentarer",
 		"Move down": "Flytta ner",
 		"Move up": "Flytta upp",
+		"MTTR (minutes)": "MTTR (minuter)",
 		"My tour": "Min tur",
 		"N/A": "saknas",
 		"N/A note required": "Anteckning för \"saknas\" krävs",
@@ -821,8 +907,6 @@
 		"Nothing to dispatch": "Inget att skicka",
 		"Notifications": "Aviseringar",
 		"Number or title": "Nummer eller titel",
-		"OK": "OK",
-		"OK — a longer passphrase is safer.": "OK — en längre lösenfras är säkrare.",
 		"Off": "Av",
 		"Off duty": "Tjänstledig",
 		"Off, warn in the UI, or automatically open a corrective work order.": "Av, varna i gränssnittet eller öppna automatiskt en korrigerande arbetsorder.",
@@ -839,32 +923,33 @@
 		"Office users": "Kontorsanvändare",
 		"Office vs technicians": "Kontor och tekniker",
 		"Official mobile & terminal licenses": "Officiella mobil- och terminallicenser",
+		"OK": "OK",
+		"OK — a longer passphrase is safer.": "OK — en längre lösenfras är säkrare.",
 		"On a calendar interval": "På ett kalenderintervall",
 		"On duty": "Tullen",
 		"On-time visits in the window": "Punktliga besök i perioden",
 		"One job sheet — status, checklist, evidence.": "Ett jobbkort — status, checklista, bevis.",
 		"One screen: status button, checklist, then evidence.": "En skärm: statusknapp, checklista, sedan bevis.",
 		"One tour per technician per day — open a stop to do the work.": "En tur per tekniker per dag — öppna ett stopp för att göra jobbet.",
-		"Only Nextcloud administrators manage this app.": "Endast Nextcloud-administratörer hanterar denna app.",
 		"Only allow readings that count up": "Låt endast läsningar som räknas upp",
 		"Only jobs waiting for a technician show first.": "Endast jobb som väntar på en tekniker visas först.",
 		"Only my jobs": "Bara mina jobb",
 		"Only my visits": "Endast mina besök",
+		"Only Nextcloud administrators manage this app.": "Endast Nextcloud-administratörer hanterar denna app.",
 		"Only used when the policy is “Always use the location ID below”. Leave empty to clear.": "Används endast när policyn är \"Använd alltid plats-ID nedan\". Lämna tom för att rensa.",
 		"Open": "Öppen",
-		"Open ArbeitszeitCheck with work order {number} in the note": "Öppna ArbeitszeitCheck med arbetsorder {number} i anteckningen",
-		"Open Customers": "Öppna kunder",
-		"Open Due board": "Öppna förfallotavla",
-		"Open GitHub Issues": "Öppna GitHub Issues",
-		"Open ProjectCheck with work order {number} in the note": "Öppna ProjectCheck med arbetsorder {number} i anteckningen",
-		"Open Work orders": "Öppna arbetsorder",
 		"Open a customer, add a unit, then create a maintenance plan. The first visit appears on this board automatically.": "Öppna en kund, lägg till en anläggning och skapa sedan en underhållsplan. Det första besöket visas automatiskt på den här tavlan.",
 		"Open a job and clear the blocker.": "Öppna ett jobb och rensa blockeraren.",
 		"Open a job to run the checklist and add photos. Office can create new jobs here.": "Öppna en arbetsorder för att köra checklistan och lägga till foton. Kontoret kan skapa nya jobb här.",
+		"Open ArbeitszeitCheck with work order {number} in the note": "Öppna ArbeitszeitCheck med arbetsorder {number} i anteckningen",
+		"Open Customers": "Öppna kunder",
 		"Open dispatch board": "Öppna utsändningstavla",
+		"Open Due board": "Öppna förfallotavla",
+		"Open GitHub Issues": "Öppna GitHub Issues",
 		"Open inspection work order": "Öppna inspektionsarbetsorder",
 		"Open inspection work past due": "Öppet inspektionsarbete förfallet",
 		"Open navigation menu": "Öppna navigeringsmeny",
+		"Open ProjectCheck with work order {number} in the note": "Öppna ProjectCheck med arbetsorder {number} i anteckningen",
 		"Open settings": "Öppna inställningar",
 		"Open support page": "Öppna supportsidan",
 		"Open the customer": "Öppna kunden",
@@ -872,6 +957,7 @@
 		"Open the unit": "Öppna anläggningen",
 		"Open visit history": "Öppna besökshistorik",
 		"Open work order": "Öppna arbetsorder",
+		"Open Work orders": "Öppna arbetsorder",
 		"Open work orders by status": "Öppna arbetsordrar efter status",
 		"Open work orders will appear here for assignment.": "Öppna arbetsorder visas här för uppdrag.",
 		"Ops KPI": "Drifts-KPI",
@@ -909,6 +995,7 @@
 		"Outside job dates": "Utanför jobb-datum",
 		"Over capacity": "Över kapacitet",
 		"Over capacity on assign": "Över kapacitet på uppdrag",
+		"over limit": "över gränsen",
 		"Overdue": "Försenade",
 		"Overdue maintenance visit": "Förfallet underhållsbesök",
 		"Overdue visits": "Förfallna besök",
@@ -920,7 +1007,6 @@
 		"Overwrite pack?": "Skriv över paketet?",
 		"Owner": "Ägare",
 		"Ownership": "Ägarskap",
-		"PM compliance": "PM-efterlevnad",
 		"Pack": "Packa",
 		"Pack code": "Paketkod",
 		"Pack code is required.": "Paketkod krävs.",
@@ -942,8 +1028,8 @@
 		"Past and filtered visits — change a filter and the list updates immediately.": "Tidigare och filtrerade besök — ändra ett filter och listan uppdateras omedelbart.",
 		"Past and filtered visits — tap a status or due window and the list updates immediately.": "Tidigare och filtrerade besök — tryck på en status eller ett förfallofönster och listan uppdateras omedelbart.",
 		"Paste mn_procedure_pack_v1 JSON.": "Klistra in mn_procedure_pack_v1-JSON.",
-		"Paste the MN2 key exactly as you received it.": "Klistra in MN2-nyckeln exakt som den mottogs.",
 		"Paste the license key you received after purchase. The web app stays free — this key unlocks %1$s for your organisation.": "Klistra in licensnyckeln du fick efter köpet. Webbappen förblir gratis — denna nyckel låser upp %1$s för din organisation.",
+		"Paste the MN2 key exactly as you received it.": "Klistra in MN2-nyckeln exakt som den mottogs.",
 		"Paste your %1$s license key below to unlock %2$s. The web app stays free.": "Klistra in din %1$s-licensnyckel nedan för att låsa upp %2$s. Webbappen förblir gratis.",
 		"Person": "Person",
 		"Phase: %s": "Fas: %s",
@@ -991,6 +1077,7 @@
 		"Please select a checklist procedure.": "Välj en checklistprocedur.",
 		"Please select the equipment this work order is for.": "Välj anläggningen som den här arbetsordern gäller.",
 		"Please try again.": "Försök igen.",
+		"PM compliance": "PM-efterlevnad",
 		"Pop-up blocked — allow pop-ups to print the sticker.": "Pop-up blockerad - låt pop-ups skriva ut klistermärket.",
 		"Post comment": "Publicera kommentar",
 		"Postal code": "Postkod",
@@ -1051,8 +1138,9 @@
 		"Remove technician {name}": "Ta bort teknikern {name}",
 		"Remove the organisation license and revoke all seats and devices? This cannot be undone.": "Ta bort organisationslicensen och återkalla alla platser och enheter? Detta kan inte ångras.",
 		"Remove {id}": "Ta bort {id}",
-		"Renew QR sticker": "Förnya QR klistermärke",
+		"removed from the list": "borttagen från listan",
 		"Renew and show": "Förnya och visa",
+		"Renew QR sticker": "Förnya QR klistermärke",
 		"Repeat every": "Upprepa varje",
 		"Replace": "Ersätt",
 		"Replace is available to Nextcloud system administrators only.": "Ersättning är endast tillgänglig för Nextcloud-systemadministratörer.",
@@ -1092,7 +1180,6 @@
 		"Role settings saved.": "Rollinställningar sparade.",
 		"Roles": "Roller",
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "Kör checklistan, lägg till foton och flytta sedan statusen framåt med de stora knapparna.",
-		"SN {sn}": "SN {sn}",
 		"Safety snapshot": "Säkerhetsögonblicksbild",
 		"Sat": "lör",
 		"Save": "Spara",
@@ -1155,6 +1242,7 @@
 		"Service report": "Servicerapport",
 		"Service report PDF": "Servicerapport PDF",
 		"Set a due date first.": "Ange ett förfallodatum först.",
+		"set it on this instance": "sätt det på den här instansen",
 		"Settings": "Inställningar",
 		"Settings are managed by your MaintenanceCheck administrator.": "Inställningar hanteras av MaintenanceCheck-administratören.",
 		"Settings sections": "Inställningsavsnitt",
@@ -1195,6 +1283,7 @@
 		"Skip with reason": "Hoppa med förnuft",
 		"Skip without procedure": "Hoppa utan förfarande",
 		"Skipped": "Överhoppad",
+		"SN {sn}": "SN {sn}",
 		"Software by Design — Nextcloud Apps": "Software by Design · Nextcloud-appar",
 		"Something went wrong. Please try again.": "Något gick fel. Försök igen.",
 		"Sort order": "Sorteringsordning",
@@ -1232,13 +1321,13 @@
 		"Support us": "Stöd oss",
 		"Switch between 30 and 90 days.": "Växla mellan 30 och 90 dagar.",
 		"Symptom": "Symptom",
+		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "Tryck på en status eller ett förfallofönster (den här veckan, den här månaden eller välj datum). „Endast mina besök” är också ett tryck.",
+		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "Tryck på en status, välj datum eller byt till endast egna besök — ingen Tillämpa-knapp.",
 		"Tap Assign on a job — search and pick a technician, never type an id.": "Tryck på Tilldela på ett jobb - sök och välj en tekniker, skriv aldrig ett id.",
 		"Tap Assign on a job — search and pick, never type an id.": "Tryck på Tilldela på ett jobb - sök och välj, skriv aldrig ett id.",
 		"Tap Complete on a row when the job is done. Overdue is always at the top.": "Tryck på Slutför på en rad när jobbet är klart. Försenat står alltid högst upp.",
 		"Tap Complete on overdue and today cards. Use More for details or skip.": "Tryck på Slutför på förfallna och dagens kort. Använd Mer för detaljer eller hoppa över.",
 		"Tap Open on a stop to run the work order.": "Tryck på Öppna på ett stopp för att köra arbetsordern.",
-		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "Tryck på en status eller ett förfallofönster (den här veckan, den här månaden eller välj datum). „Endast mina besök” är också ett tryck.",
-		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "Tryck på en status, välj datum eller byt till endast egna besök — ingen Tillämpa-knapp.",
 		"Tap the big status button, mark the checklist, add photos if needed. Everything else is under More.": "Tryck på den stora statusknappen, markera checklistan, lägg till bilder om det behövs. Allt annat är under mer.",
 		"Tap the status button, finish the checklist, then add evidence. More holds kit and comments.": "Tryck på statusknappen, avsluta checklistan, lägg sedan till bevis. Mer håller kit och kommentarer.",
 		"Tech": "Tekniker",
@@ -1253,6 +1342,7 @@
 		"The assignee is missing required skills. Confirm to assign anyway.": "Den tilldelade saknar obligatoriska kompetenser. Bekräfta för att tilldela ändå.",
 		"The checklist already has results. Clear them before changing the procedure.": "Checklistan har redan resultat. Rensa dem innan proceduren ändras.",
 		"The code cannot be changed after creation.": "Koden kan inte ändras efter skapelsen.",
+		"the companion apps": "kompanjonapparna",
 		"The completion date is not valid.": "Slutdatumet är inte giltigt.",
 		"The completion date must be a real date between 2000-01-01 and today.": "Slutdatumet måste vara ett verkligt datum mellan 2000-01-01 och idag.",
 		"The due date is not valid.": "Förfallodatum är inte giltigt.",
@@ -1264,6 +1354,7 @@
 		"The list updates the moment you tap a filter.": "Listan uppdateras i samma ögonblick som ett filter trycks på.",
 		"The maintenance interval is not valid.": "Underhållsintervallet är inte giltigt.",
 		"The meter value is not valid.": "Mätarvärdet är ogiltigt.",
+		"the mobile companion app": "den mobila kompanjonappen",
 		"The mobile license has expired.": "Den mobila licensen har löpt ut.",
 		"The next visit will be due on {date} (counted from today).": "Nästa besök förfaller den {date} (räknat från idag).",
 		"The next visit will be due on {date}.": "Nästa besök förfaller {date}.",
@@ -1289,8 +1380,6 @@
 		"There is a maintenance contract": "Det finns ett underhållsavtal",
 		"There is nothing to configure for your account here.": "Det finns inget att konfigurera för detta konto här.",
 		"These users manage settings, catalogs and the license in addition to Nextcloud admins.": "Dessa användare hanterar inställningar, kataloger och licensen utöver Nextcloud-administratörer.",
-		"This Nextcloud group does not exist.": "Denna Nextcloud-grupp existerar inte.",
-		"This Nextcloud user does not exist.": "Denna Nextcloud-användare finns inte.",
 		"This action is not possible in the current status. Reload and try again.": "Den här åtgärden går inte i aktuell status. Ladda om och försök igen.",
 		"This assignment exceeds the technician’s daily capacity limit.": "Den här tilldelningen överskrider teknikerns dagliga kapacitetsgräns.",
 		"This assignment would exceed the technician’s daily capacity. Confirm to assign anyway.": "Den här tilldelningen skulle överskrida teknikerns dagliga kapacitet. Bekräfta för att tilldela ändå.",
@@ -1315,6 +1404,8 @@
 		"This meter is deactivated.": "Den här mätaren är inaktiverad.",
 		"This meter only counts up — the value is lower than the last reading.": "Den här mätaren räknar bara upp — värdet är lägre än senaste avläsningen.",
 		"This month": "Den här månaden",
+		"This Nextcloud group does not exist.": "Denna Nextcloud-grupp existerar inte.",
+		"This Nextcloud user does not exist.": "Denna Nextcloud-användare finns inte.",
 		"This page is the home for one organisation.": "Den här sidan är startsidan för en organisation.",
 		"This plan already has an open visit.": "Denna plan har redan ett öppet besök.",
 		"This plan is inactive. Activate it before scheduling a visit.": "Denna plan är inaktiv. Aktivera den innan ett besök schemaläggs.",
@@ -1361,17 +1452,17 @@
 		"Tue": "tis",
 		"Two letters, e.g. DE or AT.": "Två brev, t.ex. DE eller AT.",
 		"Type": "Typ",
-		"Type REPLACE to confirm": "Skriv REPLACE för att bekräfta",
-		"Type REPLACE to confirm.": "Skriv REPLACE för att bekräfta.",
 		"Type at least two characters, tick several people, then assign them together.": "Skriv minst två tecken, kryssa i flera personer och tilldela dem tillsammans.",
 		"Type created.": "Typ skapad.",
 		"Type is active (selectable for new entries)": "Typ är aktiv (väljbar för nya poster)",
+		"Type REPLACE to confirm": "Skriv REPLACE för att bekräfta",
+		"Type REPLACE to confirm.": "Skriv REPLACE för att bekräfta.",
 		"Type saved.": "Typ sparad.",
 		"Type the exact pack code to overwrite.": "Skriv den exakta paketkoden för att skriva över.",
 		"Types and checklists": "Typer och checklistor",
 		"Types and intervals": "Typer och intervaller",
-		"URL": "URL",
 		"Unassigned": "Otilldelad",
+		"undo via snapshot": "ångra via ögonblicksbild",
 		"Unit": "Enhet",
 		"Units you maintain": "Enheter som underhålls",
 		"Unknown customer.": "Okänd kund.",
@@ -1381,16 +1472,17 @@
 		"Unlink identity": "Ta bort identitetskoppling",
 		"Unlock order": "Lås upp order",
 		"Unresolved users / groups": "Ej upplösta användare / grupper",
-		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "Använd Ny kund. Lägg till ett namn (och nummer om ni använder ett). Platser är valfria adresser under samma kund.",
-		"Use New in the toolbar, or tap a name to edit.": "Använd nytt i verktygsfältet eller tryck på ett namn för att redigera.",
-		"Use Register → Customers, open a customer, then add equipment there.": "Gå till Register → Kunder, öppna en kund och lägg till anläggningar där.",
-		"Use Today or the arrows. The list updates immediately.": "Använd idag eller pilarna. Listan uppdateras omedelbart.",
+		"URL": "URL",
 		"Use a two-letter country code, e.g. DE.": "Använd en tvåbokstavs landskod, t.ex. DE.",
 		"Use arrow keys to move between jobs, Enter to open.": "Använd piltangenter för att flytta mellan jobb, Retur för att öppna.",
 		"Use equipment default location": "Använd utrustning standard plats",
 		"Use lowercase letters, digits and underscores only.": "Använd mindre bokstäver, siffror och understreck.",
+		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "Använd Ny kund. Lägg till ett namn (och nummer om ni använder ett). Platser är valfria adresser under samma kund.",
+		"Use New in the toolbar, or tap a name to edit.": "Använd nytt i verktygsfältet eller tryck på ett namn för att redigera.",
+		"Use Register → Customers, open a customer, then add equipment there.": "Gå till Register → Kunder, öppna en kund och lägg till anläggningar där.",
 		"Use sites when one customer has several addresses — then link equipment to the right site.": "Använd platser när en kund har flera adresser — koppla sedan anläggningar till rätt plats.",
 		"Use the search pickers for people and groups — never type raw ids.": "Använd sökväljarna för personer och grupper — skriv aldrig in råa id:n.",
+		"Use Today or the arrows. The list updates immediately.": "Använd idag eller pilarna. Listan uppdateras omedelbart.",
 		"Used when the checklist policy is “minimum percent”.": "Används när checklistan är \"minst procent\".",
 		"User": "Användare",
 		"User ID": "Användar-ID",
@@ -1448,13 +1540,14 @@
 		"Who may open MaintenanceCheck — restriction, allow-lists, and app admins.": "Vem som får öppna MaintenanceCheck — begränsning, tillåtelselistor och appadministratörer.",
 		"Who may open the app": "Vem som får öppna appen",
 		"Why": "Varför",
+		"will be skipped": "kommer att hoppas över",
 		"Work": "Arbete",
 		"Work order": "Arbetsorder",
 		"Work order %1$s was due on %2$s.": "Arbetsorder %1$s förföll den %2$s.",
-		"Work order ID": "Arbetsorder ID",
 		"Work order created from visit.": "Arbetsorder som skapats från besök.",
 		"Work order created.": "Arbetsorder skapad.",
 		"Work order filters": "Arbetsorderfilter",
+		"Work order ID": "Arbetsorder ID",
 		"Work order not found": "Arbetsorder som inte hittats",
 		"Work order pages": "Arbetsordersidor",
 		"Work orders": "Arbetsorder",
@@ -1479,104 +1572,25 @@
 		"Your mobile seat is above the licensed limit.": "Mobilplatsen ligger över licensgränsen.",
 		"Your organisation restricts MaintenanceCheck access. You are not on the allow-list.": "Organisationen begränsar åtkomst till MaintenanceCheck. Ingen post på tillåtelselistan.",
 		"Your stops today": "Era stopp idag",
-		"_%n equipment item_::_%n equipment items_": [
-			"%n utrustningsenhet",
-			"%n utrustningsenheter"
-		],
-		"_%n exception_::_%n exceptions_": [
-			"%n undantag",
-			"%n undantag"
-		],
-		"_%n job in this period_::_%n jobs in this period_": [
-			"%n jobb under den här perioden",
-			"%n jobb under den här perioden"
-		],
-		"_%n job_::_%n jobs_": [
-			"%n jobb",
-			"%n jobb"
-		],
-		"_%n minute per day_::_%n minutes per day_": [
-			"%n minut per dag",
-			"%n minuter per dag"
-		],
-		"_%n more job on {date}_::_%n more jobs on {date}_": [
-			"%n jobb till {date}",
-			"%n jobb till {date}"
-		],
-		"_%n plan_::_%n plans_": [
-			"%n plan",
-			"%n planer"
-		],
-		"_%n result_::_%n results_": [
-			"%n resultat",
-			"%n resultat"
-		],
-		"_%n stop_::_%n stops_": [
-			"%n stopp",
-			"%n stopp"
-		],
-		"_%n visit_::_%n visits_": [
-			"%n besök",
-			"%n besök"
-		],
-		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
-			"(1 instansbundet värde tömt)",
-			"(%n instansbundna värden tömda)"
-		],
-		"_(1 filtered)_::_(%n filtered)_": [
-			"(1 filtrerad)",
-			"(%n filtrerade)"
-		],
-		"_(1 secret redacted)_::_(%n secrets redacted)_": [
-			"(1 hemlighet maskerad)",
-			"(%n hemligheter maskerade)"
-		],
-		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
-			"(1 olöst referens)",
-			"(%n olösta referenser)"
-		],
-		"_+%n more_::_+%n more_": [
-			"+%n till",
-			"+%n till"
-		],
-		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
-			"1 referens är olöst — se grupperna nedan.",
-			"%n referenser är olösta — se grupperna nedan."
-		],
-		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
-			"1 rad behöver ett värde på den här instansen",
-			"%n rader behöver ett värde på den här instansen"
-		],
-		"_1 row skipped._::_%n rows skipped._": [
-			"1 rad hoppades över.",
-			"%n rader hoppades över."
-		],
-		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
-			"Visar det första %n jobbet i det här fönstret — avgränsa filtren.",
-			"Visar de första %n jobben i det här fönstret — avgränsa filtren."
-		],
-		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
-			"Varning: 1 rad raderas permanent, sedan läses filens data in.",
-			"Varning: %n rader raderas permanent, sedan läses filens data in."
-		],
-		"add and update; nothing is deleted": "lägg till och uppdatera; inget raderas",
-		"applied": "tillämpad",
-		"e.g. Mon–Fri 08:00–12:00": "t.ex. mån–fre 08:00–12:00",
-		"failed": "misslyckades",
-		"kept as-is": "behölls som det var",
-		"make identical to the file; prod-only rows are deleted": "gör identisk med filen; rader som bara finns i prod raderas",
-		"over limit": "över gränsen",
-		"removed from the list": "borttagen från listan",
-		"set it on this instance": "sätt det på den här instansen",
-		"the companion apps": "kompanjonapparna",
-		"the mobile companion app": "den mobila kompanjonappen",
-		"undo via snapshot": "ångra via ögonblicksbild",
-		"will be skipped": "kommer att hoppas över",
 		"{a}, {b} and {c}": "{a}, {b} och {c}",
 		"{customer} — {equipment}, {type}": "{customer} – {equipment}, {type}",
 		"{from}–{to} of {total}": "{from}-{to} av {total}",
 		"{label} (required)": "{label} (krävs)",
 		"{name} (deactivated)": "{name} (deaktiverad)",
-		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "\"{name}\" har fortfarande {children}. Att ta bort kunden tar bort allt det permanent."
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "\"{name}\" har fortfarande {children}. Att ta bort kunden tar bort allt det permanent.",
+		"1 setting": "1 inställning",
+		"%n settings": "%n inställningar",
+		"1 row": "1 rad",
+		"%n rows": "%n rader",
+		"_1 row_::_%n rows_": [
+			"1 rad",
+			"%n rader"
+		],
+		"_1 setting_::_%n settings_": [
+			"1 inställning",
+			"%n inställningar"
+		],
+		"This will update %1$s and %2$s — nothing is deleted.": "Detta uppdaterar %1$s och %2$s — inget raderas.",
+		"Import applied. %1$s and %2$s written.": "Importen har tillämpats. %1$s och %2$s skrivna."
 	}
 }

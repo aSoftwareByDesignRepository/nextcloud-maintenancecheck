@@ -61,6 +61,86 @@
 		"4. Track the work": "4. Arbeit verfolgen",
 		"5. Hand over the site": "5. Standort übergeben",
 		"90 days": "90 Tage",
+		"_%n equipment item_::_%n equipment items_": [
+			"%n Anlage",
+			"%n Anlagen"
+		],
+		"_%n exception_::_%n exceptions_": [
+			"%n Ausnahme",
+			"%n Ausnahmen"
+		],
+		"_%n job in this period_::_%n jobs in this period_": [
+			"%n Auftrag in diesem Zeitraum",
+			"%n Aufträge in diesem Zeitraum"
+		],
+		"_%n job_::_%n jobs_": [
+			"%n Auftrag",
+			"%n Aufträge"
+		],
+		"_%n minute per day_::_%n minutes per day_": [
+			"%n Minute pro Tag",
+			"%n Minuten pro Tag"
+		],
+		"_%n more job on {date}_::_%n more jobs on {date}_": [
+			"%n weiterer Auftrag am {date}",
+			"%n weitere Aufträge am {date}"
+		],
+		"_%n plan_::_%n plans_": [
+			"%n Plan",
+			"%n Pläne"
+		],
+		"_%n result_::_%n results_": [
+			"%n Ergebnis",
+			"%n Ergebnisse"
+		],
+		"_%n stop_::_%n stops_": [
+			"%n Stopp",
+			"%n Stopps"
+		],
+		"_%n visit_::_%n visits_": [
+			"%n Einsatz",
+			"%n Einsätze"
+		],
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"(1 instanzgebundener Wert geleert)",
+			"(%n instanzgebundene Werte geleert)"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"(1 gefiltert)",
+			"(%n gefiltert)"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"(1 Geheimnis geschwärzt)",
+			"(%n Geheimnisse geschwärzt)"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"(1 unaufgelöster Verweis)",
+			"(%n unaufgelöste Verweise)"
+		],
+		"_+%n more_::_+%n more_": [
+			"+%n weiterer",
+			"+%n weitere"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 Verweis unaufgelöst — siehe die Gruppen unten.",
+			"%n Verweise unaufgelöst — siehe die Gruppen unten."
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 Zeile benötigt einen Wert auf dieser Instanz",
+			"%n Zeilen benötigen einen Wert auf dieser Instanz"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"1 Zeile übersprungen.",
+			"%n Zeilen übersprungen."
+		],
+		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
+			"Es wird der erste %n Auftrag in diesem Fenster angezeigt — grenzen Sie die Filter ein.",
+			"Es werden die ersten %n Aufträge in diesem Fenster angezeigt — grenzen Sie die Filter ein."
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"Warnung: 1 Zeile wird endgültig gelöscht, danach werden die Dateidaten geladen.",
+			"Warnung: %n Zeilen werden endgültig gelöscht, danach werden die Dateidaten geladen."
+		],
 		"A license key is stored, but this server cannot verify its signature with the vendor public key. The companion apps will reject the license until the key was signed with the matching vendor signing key. Re-apply a correctly signed license, or contact support if this persists after an app update.": "Ein Lizenzschlüssel ist hinterlegt, aber dieser Server kann die Signatur nicht mit dem öffentlichen Herstellerschlüssel prüfen. Die Begleit-Apps lehnen die Lizenz ab, bis der Schlüssel mit dem passenden Signierschlüssel erstellt wurde. Hinterlege eine korrekt signierte Lizenz erneut oder kontaktiere den Support, falls das nach einem App-Update weiterhin auftritt.",
 		"A line label is required.": "Eine Positionsbezeichnung ist erforderlich.",
 		"A maintenance visit was due on %s.": "Ein Wartungstermin war am %s fällig.",
@@ -98,6 +178,7 @@
 		"Add a skill code, then grant it to technicians.": "Fügen Sie einen Qualifikationscode hinzu und weisen Sie ihn Technikern zu.",
 		"Add a unit": "Anlage hinzufügen",
 		"Add an obligation from an equipment class to schedule the next inspection.": "Fügen Sie eine Prüfpflicht aus einer Geräteklasse hinzu, um die nächste Prüfung zu planen.",
+		"add and update; nothing is deleted": "hinzufügen und aktualisieren; nichts wird gelöscht",
 		"Add another defect": "Weiteren Mangel erfassen",
 		"Add at least one defect when the result is not pass.": "Fügen Sie mindestens einen Mangel hinzu, wenn das Ergebnis nicht „bestanden“ ist.",
 		"Add document": "Dokument hinzufügen",
@@ -147,6 +228,7 @@
 		"Any time": "Jederzeit",
 		"App administrators": "App-Administratoren",
 		"Append-only — comments cannot be edited or deleted.": "Nur anhängen — Kommentare können nicht bearbeitet oder gelöscht werden.",
+		"applied": "angewendet",
 		"Apply a mobile license key and assign named seats.": "Mobile-Lizenzschlüssel einspielen und benannte Plätze zuweisen.",
 		"Apply filters": "Filter anwenden",
 		"Apply import": "Import anwenden",
@@ -196,8 +278,6 @@
 		"Blocked work orders will show up here.": "Blockierte Arbeitsaufträge erscheinen hier.",
 		"Breadcrumb": "Brotkrumennavigation",
 		"By default every logged-in user can open MaintenanceCheck. Turn on the restriction to limit access to the lists below. Administrators always keep access.": "Standardmäßig kann jeder angemeldete Benutzer MaintenanceCheck öffnen. Aktivieren Sie die Beschränkung, um den Zugriff auf die folgenden Listen zu begrenzen. Administratoren behalten immer Zugriff.",
-		"CRM company id": "CRM-Unternehmens-ID",
-		"CSV readings": "CSV-Zählerstände",
 		"Calendar": "Kalender",
 		"Calendar controls": "Kalendersteuerung",
 		"Calendar could not load": "Kalender konnte nicht geladen werden",
@@ -217,8 +297,8 @@
 		"Change only what you need on this page, then save. Other settings stay unchanged.": "Ändern Sie nur das Nötige auf dieser Seite und speichern Sie dann. Andere Einstellungen bleiben unverändert.",
 		"Change period": "Zeitraum wechseln",
 		"Change status": "Status ändern",
-		"Check Partner": "Check Partner",
 		"Check master data": "Stammdaten prüfen",
+		"Check Partner": "Check Partner",
 		"Checklist": "Checkliste",
 		"Checklist and capacity rules": "Checklisten- und Kapazitätsregeln",
 		"Checklist blocks completion: {items}": "Checkliste verhindert den Abschluss: {items}",
@@ -229,8 +309,8 @@
 		"Checklist templates for work orders. Create, fork, import and export packs from the actions.": "Checklistenvorlagen für Arbeitsaufträge. Erstellen, forken, Pakete importieren und exportieren.",
 		"Checklist templates for work orders. Import and export packs from the actions.": "Checklisten-Vorlagen für Arbeitsaufträge. Pakete über die Aktionen importieren und exportieren.",
 		"Checklist to finish a job": "Checkliste zum Abschließen eines Auftrags",
-		"Choose a Nextcloud user from the list.": "Wählen Sie einen Nextcloud-Benutzer aus der Liste.",
 		"Choose a customer.": "Wählen Sie einen Kunden.",
+		"Choose a Nextcloud user from the list.": "Wählen Sie einen Nextcloud-Benutzer aus der Liste.",
 		"Choose a passphrase of at least 12 characters.": "Eine Passphrase mit mindestens 12 Zeichen wählen.",
 		"Choose which people may use %1$s. Only assigned users can sign in from their companion device.": "Wähle aus, wer %1$s nutzen darf. Nur zugewiesene Benutzer können sich von ihrem Begleitgerät anmelden.",
 		"City": "Stadt",
@@ -279,11 +359,11 @@
 		"Corrective work order": "Korrektiver Arbeitsauftrag",
 		"Could not assign seat.": "Platz konnte nicht zugewiesen werden.",
 		"Could not generate a pairing code.": "Der Pairing-Code konnte nicht erzeugt werden.",
-		"Could not load KPI.": "KPI konnte nicht geladen werden.",
 		"Could not load comments.": "Kommentare konnten nicht geladen werden.",
 		"Could not load customers.": "Kunden konnten nicht geladen werden.",
 		"Could not load documents.": "Dokumente konnten nicht geladen werden.",
 		"Could not load exceptions.": "Ausnahmen konnten nicht geladen werden.",
+		"Could not load KPI.": "KPI konnte nicht geladen werden.",
 		"Could not load obligations.": "Prüfpflichten konnten nicht geladen werden.",
 		"Could not load procedures.": "Verfahren konnten nicht geladen werden.",
 		"Could not reach the server. Check your connection and try again.": "Der Server ist nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
@@ -298,7 +378,6 @@
 		"Country code": "Ländercode",
 		"Counts up only": "Nur aufwärts",
 		"Create": "Anlegen",
-		"Create QR sticker": "QR-Aufkleber erstellen",
 		"Create a checklist template or import a pack.": "Erstellen Sie eine Checklisten-Vorlage oder importieren Sie ein Paket.",
 		"Create a customer": "Kunden anlegen",
 		"Create a parts list for packing vans.": "Erstellen Sie eine Teileliste zum Beladen der Fahrzeuge.",
@@ -310,6 +389,7 @@
 		"Create inspection work order": "Prüfungs-Arbeitsauftrag anlegen",
 		"Create meter": "Zähler anlegen",
 		"Create plan": "Plan anlegen",
+		"Create QR sticker": "QR-Aufkleber erstellen",
 		"Create site": "Standort anlegen",
 		"Create the first customer": "Ersten Kunden anlegen",
 		"Create the first one to categorise your data.": "Legen Sie den ersten Typ an, um Ihre Daten zu kategorisieren.",
@@ -320,11 +400,13 @@
 		"Creates a new open visit for this plan — use this after a cancellation.": "Erstellt einen neuen offenen Einsatz für diesen Plan — nützlich nach einer Stornierung.",
 		"Creates a new sticker. The previous sticker stops working.": "Erstellt einen neuen Aufkleber. Der vorherige Aufkleber funktioniert nicht mehr.",
 		"Creates one part line with quantity 1.": "Erstellt eine Teile-Position mit Menge 1.",
+		"CRM company id": "CRM-Unternehmens-ID",
+		"CSV readings": "CSV-Zählerstände",
 		"Current license": "Aktuelle Lizenz",
 		"Customer": "Kunde",
-		"Customer ID": "Kunden-ID",
 		"Customer created.": "Kunde angelegt.",
 		"Customer deleted.": "Kunde gelöscht.",
+		"Customer ID": "Kunden-ID",
 		"Customer is active": "Kunde ist aktiv",
 		"Customer not found": "Kunde nicht gefunden",
 		"Customer number": "Kundennummer",
@@ -385,12 +467,12 @@
 		"Documents": "Dokumente",
 		"Done": "Fertig",
 		"Download": "Herunterladen",
-		"Download CSV": "CSV herunterladen",
-		"Download KPI as CSV": "KPI als CSV herunterladen",
 		"Download all settings, catalogues and business data as one encrypted file — then import it on your production instance.": "Alle Einstellungen, Kataloge und Geschäftsdaten als eine verschlüsselte Datei herunterladen — dann auf der Produktivinstanz importieren.",
+		"Download CSV": "CSV herunterladen",
 		"Download encrypted transfer file": "Verschlüsselte Transferdatei herunterladen",
 		"Download inspection evidence": "Prüfungsnachweise herunterladen",
 		"Download job pack": "Auftragspaket herunterladen",
+		"Download KPI as CSV": "KPI als CSV herunterladen",
 		"Download service report": "Servicebericht herunterladen",
 		"Draft": "Entwurf",
 		"Draw a signature first.": "Bitte zuerst unterschreiben.",
@@ -407,6 +489,7 @@
 		"Due {date}": "Fällig {date}",
 		"Due {start} – {end}": "Fällig {start} – {end}",
 		"Duration (minutes)": "Dauer (Minuten)",
+		"e.g. Mon–Fri 08:00–12:00": "z. B. Mo–Fr 08:00–12:00",
 		"Edit": "Bearbeiten",
 		"Edit customer": "Kunden bearbeiten",
 		"Edit dates": "Termine bearbeiten",
@@ -476,6 +559,7 @@
 		"Fail": "Mangel",
 		"Fail if location is ambiguous (safest)": "Fehlschlagen, wenn der Lagerort mehrdeutig ist (am sichersten)",
 		"Failed": "Fehlgeschlagen",
+		"failed": "fehlgeschlagen",
 		"Failed inspection blocks next-due roll": "Nicht bestandene Prüfung blockiert das Fortschreiben des nächsten Termins",
 		"Failure code": "Fehlercode",
 		"Failure code on corrective Done": "Fehlercode bei Korrektiv „Erledigt“",
@@ -540,9 +624,9 @@
 		"How your team refers to this unit, e.g. “Boiler cellar left”.": "So nennt Ihr Team diese Anlage, z. B. „Kessel Keller links“.",
 		"If you believe this is a mistake, contact your MaintenanceCheck administrator.": "Wenn Sie dies für einen Fehler halten, wenden Sie sich an Ihren MaintenanceCheck-Administrator.",
 		"Import": "Importieren",
-		"Import CSV": "CSV importieren",
 		"Import applied. %d settings and %d rows written.": "Import angewendet. %d Einstellungen und %d Zeilen geschrieben.",
 		"Import configuration": "Konfiguration importieren",
+		"Import CSV": "CSV importieren",
 		"Import failed — nothing was changed.": "Import fehlgeschlagen — es wurde nichts geändert.",
 		"Import meter readings": "Zählerstände importieren",
 		"Import pack": "Paket importieren",
@@ -592,13 +676,13 @@
 		"Jobs on {date}": "Aufträge am {date}",
 		"Jobs stuck for any reason — tap a chip, then open the job.": "Aufträge, die stecken — tippen Sie einen Chip, dann öffnen Sie den Auftrag.",
 		"Jobs without an owner — tap Assign, pick a person, done.": "Aufträge ohne Verantwortlichen — Zuweisen tippen, Person wählen, fertig.",
-		"KPI window": "KPI-Fenster",
 		"Keep active": "Aktiv lassen",
 		"Keep customer": "Kunden behalten",
 		"Keep equipment": "Anlage behalten",
 		"Keep key": "Schlüssel behalten",
 		"Keep site": "Standort behalten",
 		"Keep visit": "Einsatz behalten",
+		"kept as-is": "unverändert übernommen",
 		"Keys and seats": "Schlüssel und Plätze",
 		"Kind": "Art",
 		"Kit / parts": "Kit / Teile",
@@ -608,6 +692,7 @@
 		"Kit template saved.": "Kit-Vorlage gespeichert.",
 		"Kit templates": "Kit-Vorlagen",
 		"Kit — parts and tools to pack": "Kit — zu packende Teile und Werkzeuge",
+		"KPI window": "KPI-Fenster",
 		"Label": "Bezeichnung",
 		"Last transfer": "Letzte Übertragung",
 		"Later": "Später",
@@ -647,7 +732,6 @@
 		"Low": "Niedrig",
 		"Lower numbers appear first.": "Kleinere Zahlen erscheinen zuerst.",
 		"Lowercase letters, digits and underscores, e.g. heat_pump.": "Kleinbuchstaben, Ziffern und Unterstriche, z. B. heat_pump.",
-		"MTTR (minutes)": "MTTR (Minuten)",
 		"Main navigation": "Hauptnavigation",
 		"Maintenance": "Wartung",
 		"Maintenance plans": "Wartungspläne",
@@ -655,6 +739,7 @@
 		"Maintenance types": "Wartungsarten",
 		"MaintenanceCheck": "MaintenanceCheck",
 		"MaintenanceCheck navigation": "MaintenanceCheck-Navigation",
+		"make identical to the file; prod-only rows are deleted": "identisch zur Datei machen; nur-prod-Zeilen werden gelöscht",
 		"Make your changes": "Änderungen vornehmen",
 		"Manage devices": "Geräte verwalten",
 		"Manufacturer": "Hersteller",
@@ -690,17 +775,18 @@
 		"Month": "Monat",
 		"Months": "Monate",
 		"More": "Mehr",
-		"More Check apps": "Weitere Check-Apps",
 		"More actions": "Weitere Aktionen",
+		"More Check apps": "Weitere Check-Apps",
 		"More — procedure, skills, kit, comments": "Mehr — Verfahren, Skills, Kit, Kommentare",
 		"Move down": "Nach unten",
 		"Move up": "Nach oben",
+		"MTTR (minutes)": "MTTR (Minuten)",
 		"My tour": "Meine Tour",
 		"N/A": "n. z.",
 		"N/A note required": "Notiz für n. z. erforderlich",
 		"Name": "Name",
 		"Named seat for the official mobile app.": "Namentlicher Platz für die offizielle Mobile-App.",
-		"Named seats for the official apps — a software licence on invoice.": "Namensgebundene Plätze für die offiziellen Apps — Softwarelizenz mit Rechnung.",
+		"Named seats for the official apps — a software licence on invoice.": "Namensgebundene Sitze für die offiziellen Apps — Softwarelizenz mit Rechnung.",
 		"Narrow the list": "Liste eingrenzen",
 		"Narrow visits by status, due date, or ownership.": "Besuche nach Status, Fälligkeit oder Zuständigkeit eingrenzen.",
 		"Needs owner": "Ohne Verantwortlichen",
@@ -821,8 +907,6 @@
 		"Nothing to dispatch": "Nichts zu disponieren",
 		"Notifications": "Benachrichtigungen",
 		"Number or title": "Nummer oder Titel",
-		"OK": "OK",
-		"OK — a longer passphrase is safer.": "OK — eine längere Passphrase ist sicherer.",
 		"Off": "Aus",
 		"Off duty": "Außer Dienst",
 		"Off, warn in the UI, or automatically open a corrective work order.": "Aus, in der Oberfläche warnen oder automatisch einen korrektiven Arbeitsauftrag öffnen.",
@@ -839,32 +923,33 @@
 		"Office users": "Büro-Benutzer",
 		"Office vs technicians": "Büro und Techniker",
 		"Official mobile & terminal licenses": "Offizielle Mobile- und Terminal-Lizenzen",
+		"OK": "OK",
+		"OK — a longer passphrase is safer.": "OK — eine längere Passphrase ist sicherer.",
 		"On a calendar interval": "Nach Kalenderintervall",
 		"On duty": "Im Dienst",
 		"On-time visits in the window": "Pünktliche Einsätze im Zeitraum",
 		"One job sheet — status, checklist, evidence.": "Ein Auftragsblatt — Status, Checkliste, Nachweise.",
 		"One screen: status button, checklist, then evidence.": "Ein Bildschirm: Status-Taste, Checkliste, dann Nachweise.",
 		"One tour per technician per day — open a stop to do the work.": "Eine Tour pro Techniker und Tag — öffnen Sie einen Stopp, um zu arbeiten.",
-		"Only Nextcloud administrators manage this app.": "Nur Nextcloud-Administratoren verwalten diese App.",
 		"Only allow readings that count up": "Nur aufwärts zählende Stände zulassen",
 		"Only jobs waiting for a technician show first.": "Zuerst erscheinen nur Aufträge, die auf einen Techniker warten.",
 		"Only my jobs": "Nur meine Jobs",
 		"Only my visits": "Nur meine Einsätze",
+		"Only Nextcloud administrators manage this app.": "Nur Nextcloud-Administratoren verwalten diese App.",
 		"Only used when the policy is “Always use the location ID below”. Leave empty to clear.": "Wird nur verwendet, wenn die Richtlinie „Immer die unten angegebene Lagerort-ID verwenden“ ist. Leer lassen zum Entfernen.",
 		"Open": "Öffnen",
-		"Open ArbeitszeitCheck with work order {number} in the note": "ArbeitszeitCheck mit Arbeitsauftrag {number} in der Notiz öffnen",
-		"Open Customers": "Kunden öffnen",
-		"Open Due board": "Fälligkeitsübersicht öffnen",
-		"Open GitHub Issues": "GitHub Issues öffnen",
-		"Open ProjectCheck with work order {number} in the note": "ProjectCheck mit Arbeitsauftrag {number} in der Notiz öffnen",
-		"Open Work orders": "Arbeitsaufträge öffnen",
 		"Open a customer, add a unit, then create a maintenance plan. The first visit appears on this board automatically.": "Öffnen Sie einen Kunden, fügen Sie eine Anlage hinzu und erstellen Sie dann einen Wartungsplan. Der erste Besuch erscheint automatisch auf dieser Übersicht.",
 		"Open a job and clear the blocker.": "Auftrag öffnen und die Blockade lösen.",
 		"Open a job to run the checklist and add photos. Office can create new jobs here.": "Öffnen Sie einen Arbeitsauftrag, um die Checkliste abzuarbeiten und Fotos hinzuzufügen. Das Büro kann hier neue Aufträge anlegen.",
+		"Open ArbeitszeitCheck with work order {number} in the note": "ArbeitszeitCheck mit Arbeitsauftrag {number} in der Notiz öffnen",
+		"Open Customers": "Kunden öffnen",
 		"Open dispatch board": "Dispositionsboard öffnen",
+		"Open Due board": "Fälligkeitsübersicht öffnen",
+		"Open GitHub Issues": "GitHub Issues öffnen",
 		"Open inspection work order": "Prüfungs-Arbeitsauftrag öffnen",
 		"Open inspection work past due": "Offene Prüfungsarbeit überfällig",
 		"Open navigation menu": "Navigationsmenü öffnen",
+		"Open ProjectCheck with work order {number} in the note": "ProjectCheck mit Arbeitsauftrag {number} in der Notiz öffnen",
 		"Open settings": "Einstellungen öffnen",
 		"Open support page": "Support-Seite öffnen",
 		"Open the customer": "Kunden öffnen",
@@ -872,6 +957,7 @@
 		"Open the unit": "Anlage öffnen",
 		"Open visit history": "Einsatzhistorie öffnen",
 		"Open work order": "Arbeitsauftrag öffnen",
+		"Open Work orders": "Arbeitsaufträge öffnen",
 		"Open work orders by status": "Offene Arbeitsaufträge nach Status",
 		"Open work orders will appear here for assignment.": "Offene Arbeitsaufträge erscheinen hier zur Zuweisung.",
 		"Ops KPI": "Ops-KPI",
@@ -909,6 +995,7 @@
 		"Outside job dates": "Außerhalb der Arbeitsauftragsdaten",
 		"Over capacity": "Über Kapazität",
 		"Over capacity on assign": "Über Kapazität bei Zuweisung",
+		"over limit": "über Limit",
 		"Overdue": "Überfällig",
 		"Overdue maintenance visit": "Überfälliger Wartungstermin",
 		"Overdue visits": "Überfällige Einsätze",
@@ -920,7 +1007,6 @@
 		"Overwrite pack?": "Paket überschreiben?",
 		"Owner": "Verantwortlich",
 		"Ownership": "Zuständigkeit",
-		"PM compliance": "PM-Einhaltung",
 		"Pack": "Einpacken",
 		"Pack code": "Paket-Code",
 		"Pack code is required.": "Paket-Code ist erforderlich.",
@@ -942,8 +1028,8 @@
 		"Past and filtered visits — change a filter and the list updates immediately.": "Vergangene und gefilterte Besuche — ein Filter ändert die Liste sofort.",
 		"Past and filtered visits — tap a status or due window and the list updates immediately.": "Vergangene und gefilterte Besuche — Status oder Fälligkeitszeitraum antippen, die Liste aktualisiert sich sofort.",
 		"Paste mn_procedure_pack_v1 JSON.": "mn_procedure_pack_v1-JSON einfügen.",
-		"Paste the MN2 key exactly as you received it.": "Fügen Sie den MN2-Schlüssel genau so ein, wie Sie ihn erhalten haben.",
 		"Paste the license key you received after purchase. The web app stays free — this key unlocks %1$s for your organisation.": "Füge den Lizenzschlüssel ein, den du nach dem Kauf erhalten hast. Die Web-App bleibt kostenlos — dieser Schlüssel schaltet %1$s für deine Organisation frei.",
+		"Paste the MN2 key exactly as you received it.": "Fügen Sie den MN2-Schlüssel genau so ein, wie Sie ihn erhalten haben.",
 		"Paste your %1$s license key below to unlock %2$s. The web app stays free.": "Füge unten deinen %1$s-Lizenzschlüssel ein, um %2$s freizuschalten. Die Web-App bleibt kostenlos.",
 		"Person": "Person",
 		"Phase: %s": "Phase: %s",
@@ -991,6 +1077,7 @@
 		"Please select a checklist procedure.": "Bitte wählen Sie ein Checklistenverfahren.",
 		"Please select the equipment this work order is for.": "Bitte wählen Sie die Anlage aus, für die dieser Arbeitsauftrag bestimmt ist.",
 		"Please try again.": "Bitte versuchen Sie es erneut.",
+		"PM compliance": "PM-Einhaltung",
 		"Pop-up blocked — allow pop-ups to print the sticker.": "Pop-up blockiert — erlauben Sie Pop-ups, um den Aufkleber zu drucken.",
 		"Post comment": "Kommentar senden",
 		"Postal code": "Postleitzahl",
@@ -1051,8 +1138,9 @@
 		"Remove technician {name}": "Techniker {name} entfernen",
 		"Remove the organisation license and revoke all seats and devices? This cannot be undone.": "Die Organisationslizenz entfernen und alle Plätze und Geräte sperren? Dies kann nicht rückgängig gemacht werden.",
 		"Remove {id}": "{id} entfernen",
-		"Renew QR sticker": "QR-Aufkleber erneuern",
+		"removed from the list": "aus der Liste entfernt",
 		"Renew and show": "Erneuern und anzeigen",
+		"Renew QR sticker": "QR-Aufkleber erneuern",
 		"Repeat every": "Wiederholen alle",
 		"Replace": "Ersetzen",
 		"Replace is available to Nextcloud system administrators only.": "Ersetzen ist nur für Nextcloud-Systemadministratoren verfügbar.",
@@ -1092,7 +1180,6 @@
 		"Role settings saved.": "Rolleneinstellungen gespeichert.",
 		"Roles": "Rollen",
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "Führen Sie die Checkliste aus, fügen Sie Fotos hinzu und setzen Sie dann den Status mit den großen Schaltflächen fort.",
-		"SN {sn}": "SN {sn}",
 		"Safety snapshot": "Sicherheitssnapshot",
 		"Sat": "Sa",
 		"Save": "Speichern",
@@ -1155,6 +1242,7 @@
 		"Service report": "Servicebericht",
 		"Service report PDF": "Servicebericht PDF",
 		"Set a due date first.": "Bitte zuerst ein Fälligkeitsdatum setzen.",
+		"set it on this instance": "auf dieser Instanz setzen",
 		"Settings": "Einstellungen",
 		"Settings are managed by your MaintenanceCheck administrator.": "Die Einstellungen werden von Ihrem MaintenanceCheck-Administrator verwaltet.",
 		"Settings sections": "Einstellungsbereiche",
@@ -1195,6 +1283,7 @@
 		"Skip with reason": "Mit Begründung überspringen",
 		"Skip without procedure": "Ohne Verfahren überspringen",
 		"Skipped": "Ausgesetzt",
+		"SN {sn}": "SN {sn}",
 		"Software by Design — Nextcloud Apps": "Software by Design — Nextcloud-Apps",
 		"Something went wrong. Please try again.": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
 		"Sort order": "Sortierreihenfolge",
@@ -1232,13 +1321,13 @@
 		"Support us": "Unterstützen Sie uns",
 		"Switch between 30 and 90 days.": "Zwischen 30 und 90 Tagen wechseln.",
 		"Symptom": "Symptom",
+		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "Tippen Sie auf einen Status oder Fälligkeitszeitraum (diese Woche, diesen Monat oder Datum wählen). „Nur meine Einsätze“ geht ebenfalls mit einem Tipp.",
+		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "Status tippen, Daten wählen oder nur eigene Besuche — ohne „Anwenden“.",
 		"Tap Assign on a job — search and pick a technician, never type an id.": "Tippen Sie bei einem Auftrag auf Zuweisen — suchen und wählen Sie einen Techniker, tippen Sie keine ID.",
 		"Tap Assign on a job — search and pick, never type an id.": "Tippen Sie bei einem Auftrag auf Zuweisen — suchen und wählen Sie, tippen Sie keine ID.",
 		"Tap Complete on a row when the job is done. Overdue is always at the top.": "Tippen Sie auf Abschließen in einer Zeile, wenn der Auftrag fertig ist. Überfälliges steht immer oben.",
 		"Tap Complete on overdue and today cards. Use More for details or skip.": "Tippen Sie auf „Abschließen“ bei überfälligen und heutigen Karten. Über „Mehr“ gelangen Sie zu Details oder zum Überspringen.",
 		"Tap Open on a stop to run the work order.": "Tippen Sie bei einem Stopp auf Öffnen, um den Auftrag auszuführen.",
-		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "Tippen Sie auf einen Status oder Fälligkeitszeitraum (diese Woche, diesen Monat oder Datum wählen). „Nur meine Einsätze“ geht ebenfalls mit einem Tipp.",
-		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "Status tippen, Daten wählen oder nur eigene Besuche — ohne „Anwenden“.",
 		"Tap the big status button, mark the checklist, add photos if needed. Everything else is under More.": "Große Status-Taste tippen, Checkliste abhaken, bei Bedarf Fotos. Alles andere steckt unter Mehr.",
 		"Tap the status button, finish the checklist, then add evidence. More holds kit and comments.": "Status-Taste tippen, Checkliste fertigstellen, dann Nachweise. Unter Mehr liegen Kit und Kommentare.",
 		"Tech": "Techniker",
@@ -1253,6 +1342,7 @@
 		"The assignee is missing required skills. Confirm to assign anyway.": "Dem Zuständigen fehlen erforderliche Qualifikationen. Bestätigen Sie, um trotzdem zuzuweisen.",
 		"The checklist already has results. Clear them before changing the procedure.": "Die Checkliste hat bereits Ergebnisse. Löschen Sie diese, bevor Sie das Verfahren ändern.",
 		"The code cannot be changed after creation.": "Der Code kann nach dem Anlegen nicht mehr geändert werden.",
+		"the companion apps": "die Begleit-Apps",
 		"The completion date is not valid.": "Das Abschlussdatum ist ungültig.",
 		"The completion date must be a real date between 2000-01-01 and today.": "Das Abschlussdatum muss ein reales Datum zwischen dem 01.01.2000 und heute sein.",
 		"The due date is not valid.": "Das Fälligkeitsdatum ist ungültig.",
@@ -1264,6 +1354,7 @@
 		"The list updates the moment you tap a filter.": "Die Liste aktualisiert sich, sobald Sie einen Filter antippen.",
 		"The maintenance interval is not valid.": "Das Wartungsintervall ist ungültig.",
 		"The meter value is not valid.": "Der Zählerwert ist ungültig.",
+		"the mobile companion app": "die mobile Begleit-App",
 		"The mobile license has expired.": "Die Mobile-Lizenz ist abgelaufen.",
 		"The next visit will be due on {date} (counted from today).": "Der nächste Einsatz wird am {date} fällig (gerechnet ab heute).",
 		"The next visit will be due on {date}.": "Der nächste Einsatz wird am {date} fällig.",
@@ -1289,8 +1380,6 @@
 		"There is a maintenance contract": "Es besteht ein Wartungsvertrag",
 		"There is nothing to configure for your account here.": "Für Ihr Konto gibt es hier nichts zu konfigurieren.",
 		"These users manage settings, catalogs and the license in addition to Nextcloud admins.": "Diese Benutzer verwalten Einstellungen, Kataloge und die Lizenz zusätzlich zu den Nextcloud-Administratoren.",
-		"This Nextcloud group does not exist.": "Diese Nextcloud-Gruppe existiert nicht.",
-		"This Nextcloud user does not exist.": "Dieser Nextcloud-Benutzer existiert nicht.",
 		"This action is not possible in the current status. Reload and try again.": "Diese Aktion ist im aktuellen Status nicht möglich. Laden Sie neu und versuchen Sie es erneut.",
 		"This assignment exceeds the technician’s daily capacity limit.": "Diese Zuweisung überschreitet das tägliche Kapazitätslimit des Technikers.",
 		"This assignment would exceed the technician’s daily capacity. Confirm to assign anyway.": "Diese Zuweisung würde die tägliche Kapazität des Technikers überschreiten. Bestätigen Sie, um trotzdem zuzuweisen.",
@@ -1315,6 +1404,8 @@
 		"This meter is deactivated.": "Dieser Zähler ist deaktiviert.",
 		"This meter only counts up — the value is lower than the last reading.": "Dieser Zähler zählt nur aufwärts — der Wert ist niedriger als der letzte Messwert.",
 		"This month": "Diesen Monat",
+		"This Nextcloud group does not exist.": "Diese Nextcloud-Gruppe existiert nicht.",
+		"This Nextcloud user does not exist.": "Dieser Nextcloud-Benutzer existiert nicht.",
 		"This page is the home for one organisation.": "Diese Seite ist die Startseite für eine Organisation.",
 		"This plan already has an open visit.": "Dieser Plan hat bereits einen offenen Einsatz.",
 		"This plan is inactive. Activate it before scheduling a visit.": "Dieser Plan ist inaktiv. Aktivieren Sie ihn, bevor Sie einen Einsatz planen.",
@@ -1361,17 +1452,17 @@
 		"Tue": "Di",
 		"Two letters, e.g. DE or AT.": "Zwei Buchstaben, z. B. DE oder AT.",
 		"Type": "Typ",
-		"Type REPLACE to confirm": "REPLACE zur Bestätigung tippen",
-		"Type REPLACE to confirm.": "REPLACE zur Bestätigung tippen.",
 		"Type at least two characters, tick several people, then assign them together.": "Gib mindestens zwei Zeichen ein, markiere mehrere Personen und weise sie gemeinsam zu.",
 		"Type created.": "Typ angelegt.",
 		"Type is active (selectable for new entries)": "Typ ist aktiv (für neue Einträge wählbar)",
+		"Type REPLACE to confirm": "REPLACE zur Bestätigung tippen",
+		"Type REPLACE to confirm.": "REPLACE zur Bestätigung tippen.",
 		"Type saved.": "Typ gespeichert.",
 		"Type the exact pack code to overwrite.": "Geben Sie den genauen Paket-Code zum Überschreiben ein.",
 		"Types and checklists": "Typen und Checklisten",
 		"Types and intervals": "Typen und Intervalle",
-		"URL": "URL",
 		"Unassigned": "Nicht zugewiesen",
+		"undo via snapshot": "per Snapshot rückgängig machen",
 		"Unit": "Einheit",
 		"Units you maintain": "Anlagen, die Sie warten",
 		"Unknown customer.": "Unbekannter Kunde.",
@@ -1381,16 +1472,17 @@
 		"Unlink identity": "Identität lösen",
 		"Unlock order": "Sperre aufheben",
 		"Unresolved users / groups": "Nicht auflösbare Benutzer / Gruppen",
-		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "Verwenden Sie Neuer Kunde. Fügen Sie einen Namen hinzu (und eine Nummer, falls verwendet). Standorte sind optionale Adressen unter demselben Kunden.",
-		"Use New in the toolbar, or tap a name to edit.": "New in der Leiste nutzen oder einen Namen tippen zum Bearbeiten.",
-		"Use Register → Customers, open a customer, then add equipment there.": "Verwenden Sie Register → Kunden, öffnen Sie einen Kunden und fügen Sie dann dort Anlagen hinzu.",
-		"Use Today or the arrows. The list updates immediately.": "Nutzen Sie Heute oder die Pfeile. Die Liste aktualisiert sich sofort.",
+		"URL": "URL",
 		"Use a two-letter country code, e.g. DE.": "Verwenden Sie einen zweistelligen Ländercode, z. B. DE.",
 		"Use arrow keys to move between jobs, Enter to open.": "Mit den Pfeiltasten zwischen Aufträgen wechseln, Enter zum Öffnen.",
 		"Use equipment default location": "Standard-Lagerort der Anlage verwenden",
 		"Use lowercase letters, digits and underscores only.": "Verwenden Sie nur Kleinbuchstaben, Ziffern und Unterstriche.",
+		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "Verwenden Sie Neuer Kunde. Fügen Sie einen Namen hinzu (und eine Nummer, falls verwendet). Standorte sind optionale Adressen unter demselben Kunden.",
+		"Use New in the toolbar, or tap a name to edit.": "New in der Leiste nutzen oder einen Namen tippen zum Bearbeiten.",
+		"Use Register → Customers, open a customer, then add equipment there.": "Verwenden Sie Register → Kunden, öffnen Sie einen Kunden und fügen Sie dann dort Anlagen hinzu.",
 		"Use sites when one customer has several addresses — then link equipment to the right site.": "Verwenden Sie Standorte, wenn ein Kunde mehrere Adressen hat — verknüpfen Sie dann Anlagen mit dem richtigen Standort.",
 		"Use the search pickers for people and groups — never type raw ids.": "Verwenden Sie die Suchauswahl für Personen und Gruppen — geben Sie niemals rohe IDs ein.",
+		"Use Today or the arrows. The list updates immediately.": "Nutzen Sie Heute oder die Pfeile. Die Liste aktualisiert sich sofort.",
 		"Used when the checklist policy is “minimum percent”.": "Wird genutzt, wenn die Checklistenrichtlinie „Mindestanteil“ ist.",
 		"User": "Benutzer",
 		"User ID": "Benutzer-ID",
@@ -1448,13 +1540,14 @@
 		"Who may open MaintenanceCheck — restriction, allow-lists, and app admins.": "Wer MaintenanceCheck öffnen darf — Beschränkung, Freigabelisten und App-Administratoren.",
 		"Who may open the app": "Wer die App öffnen darf",
 		"Why": "Grund",
+		"will be skipped": "wird übersprungen",
 		"Work": "Arbeit",
 		"Work order": "Arbeitsauftrag",
 		"Work order %1$s was due on %2$s.": "Arbeitsauftrag %1$s war am %2$s fällig.",
-		"Work order ID": "Arbeitsauftrags-ID",
 		"Work order created from visit.": "Arbeitsauftrag aus dem Einsatz angelegt.",
 		"Work order created.": "Arbeitsauftrag angelegt.",
 		"Work order filters": "Arbeitsauftrag-Filter",
+		"Work order ID": "Arbeitsauftrags-ID",
 		"Work order not found": "Arbeitsauftrag nicht gefunden",
 		"Work order pages": "Arbeitsauftrag-Seiten",
 		"Work orders": "Arbeitsaufträge",
@@ -1479,104 +1572,25 @@
 		"Your mobile seat is above the licensed limit.": "Ihr Mobile-Platz liegt über dem lizenzierten Limit.",
 		"Your organisation restricts MaintenanceCheck access. You are not on the allow-list.": "Ihre Organisation beschränkt den Zugriff auf MaintenanceCheck. Sie stehen nicht auf der Erlaubnisliste.",
 		"Your stops today": "Ihre Stopps heute",
-		"_%n equipment item_::_%n equipment items_": [
-			"%n Anlage",
-			"%n Anlagen"
-		],
-		"_%n exception_::_%n exceptions_": [
-			"%n Ausnahme",
-			"%n Ausnahmen"
-		],
-		"_%n job in this period_::_%n jobs in this period_": [
-			"%n Auftrag in diesem Zeitraum",
-			"%n Aufträge in diesem Zeitraum"
-		],
-		"_%n job_::_%n jobs_": [
-			"%n Auftrag",
-			"%n Aufträge"
-		],
-		"_%n minute per day_::_%n minutes per day_": [
-			"%n Minute pro Tag",
-			"%n Minuten pro Tag"
-		],
-		"_%n more job on {date}_::_%n more jobs on {date}_": [
-			"%n weiterer Auftrag am {date}",
-			"%n weitere Aufträge am {date}"
-		],
-		"_%n plan_::_%n plans_": [
-			"%n Plan",
-			"%n Pläne"
-		],
-		"_%n result_::_%n results_": [
-			"%n Ergebnis",
-			"%n Ergebnisse"
-		],
-		"_%n stop_::_%n stops_": [
-			"%n Stopp",
-			"%n Stopps"
-		],
-		"_%n visit_::_%n visits_": [
-			"%n Einsatz",
-			"%n Einsätze"
-		],
-		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
-			"(1 instanzgebundener Wert geleert)",
-			"(%n instanzgebundene Werte geleert)"
-		],
-		"_(1 filtered)_::_(%n filtered)_": [
-			"(1 gefiltert)",
-			"(%n gefiltert)"
-		],
-		"_(1 secret redacted)_::_(%n secrets redacted)_": [
-			"(1 Geheimnis geschwärzt)",
-			"(%n Geheimnisse geschwärzt)"
-		],
-		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
-			"(1 unaufgelöster Verweis)",
-			"(%n unaufgelöste Verweise)"
-		],
-		"_+%n more_::_+%n more_": [
-			"+%n weiterer",
-			"+%n weitere"
-		],
-		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
-			"1 Verweis unaufgelöst — siehe die Gruppen unten.",
-			"%n Verweise unaufgelöst — siehe die Gruppen unten."
-		],
-		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
-			"1 Zeile benötigt einen Wert auf dieser Instanz",
-			"%n Zeilen benötigen einen Wert auf dieser Instanz"
-		],
-		"_1 row skipped._::_%n rows skipped._": [
-			"1 Zeile übersprungen.",
-			"%n Zeilen übersprungen."
-		],
-		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
-			"Es wird der erste %n Auftrag in diesem Fenster angezeigt — grenzen Sie die Filter ein.",
-			"Es werden die ersten %n Aufträge in diesem Fenster angezeigt — grenzen Sie die Filter ein."
-		],
-		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
-			"Warnung: 1 Zeile wird endgültig gelöscht, danach werden die Dateidaten geladen.",
-			"Warnung: %n Zeilen werden endgültig gelöscht, danach werden die Dateidaten geladen."
-		],
-		"add and update; nothing is deleted": "hinzufügen und aktualisieren; nichts wird gelöscht",
-		"applied": "angewendet",
-		"e.g. Mon–Fri 08:00–12:00": "z. B. Mo–Fr 08:00–12:00",
-		"failed": "fehlgeschlagen",
-		"kept as-is": "unverändert übernommen",
-		"make identical to the file; prod-only rows are deleted": "identisch zur Datei machen; nur-prod-Zeilen werden gelöscht",
-		"over limit": "über Limit",
-		"removed from the list": "aus der Liste entfernt",
-		"set it on this instance": "auf dieser Instanz setzen",
-		"the companion apps": "die Begleit-Apps",
-		"the mobile companion app": "die mobile Begleit-App",
-		"undo via snapshot": "per Snapshot rückgängig machen",
-		"will be skipped": "wird übersprungen",
 		"{a}, {b} and {c}": "{a}, {b} und {c}",
 		"{customer} — {equipment}, {type}": "{customer} — {equipment}, {type}",
 		"{from}–{to} of {total}": "{from}–{to} von {total}",
 		"{label} (required)": "{label} (erforderlich)",
 		"{name} (deactivated)": "{name} (deaktiviert)",
-		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "„{name}“ hat noch {children}. Das Löschen des Kunden entfernt alles endgültig."
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "„{name}“ hat noch {children}. Das Löschen des Kunden entfernt alles endgültig.",
+		"1 setting": "1 Einstellung",
+		"%n settings": "%n Einstellungen",
+		"1 row": "1 Zeile",
+		"%n rows": "%n Zeilen",
+		"_1 row_::_%n rows_": [
+			"1 Zeile",
+			"%n Zeilen"
+		],
+		"_1 setting_::_%n settings_": [
+			"1 Einstellung",
+			"%n Einstellungen"
+		],
+		"This will update %1$s and %2$s — nothing is deleted.": "Dies aktualisiert %1$s und %2$s — nichts wird gelöscht.",
+		"Import applied. %1$s and %2$s written.": "Import angewendet. %1$s und %2$s geschrieben."
 	}
 }

@@ -61,6 +61,86 @@
 		"4. Track the work": "4. Acompanhe o trabalho",
 		"5. Hand over the site": "5. Entregue o local",
 		"90 days": "90 dias",
+		"_%n equipment item_::_%n equipment items_": [
+			"%n equipamento",
+			"%n equipamentos"
+		],
+		"_%n exception_::_%n exceptions_": [
+			"%n exceção",
+			"%n exceções"
+		],
+		"_%n job in this period_::_%n jobs in this period_": [
+			"%n trabalho neste período",
+			"%n trabalhos neste período"
+		],
+		"_%n job_::_%n jobs_": [
+			"%n trabalho",
+			"%n trabalhos"
+		],
+		"_%n minute per day_::_%n minutes per day_": [
+			"%n minuto por dia",
+			"%n minutos por dia"
+		],
+		"_%n more job on {date}_::_%n more jobs on {date}_": [
+			"%n trabalho a mais em {date}",
+			"%n trabalhos a mais em {date}"
+		],
+		"_%n plan_::_%n plans_": [
+			"%n plano",
+			"%n planos"
+		],
+		"_%n result_::_%n results_": [
+			"%n resultado",
+			"%n resultados"
+		],
+		"_%n stop_::_%n stops_": [
+			"%n paragem",
+			"%n paragens"
+		],
+		"_%n visit_::_%n visits_": [
+			"%n visita",
+			"%n visitas"
+		],
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"(1 valor ligado à instância esvaziado)",
+			"(%n valores ligados à instância esvaziados)"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"(1 filtrada)",
+			"(%n filtradas)"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"(1 segredo ocultado)",
+			"(%n segredos ocultados)"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"(1 referência por resolver)",
+			"(%n referências por resolver)"
+		],
+		"_+%n more_::_+%n more_": [
+			"+%n adicional",
+			"+%n adicionais"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 referência por resolver — vê os grupos abaixo.",
+			"%n referências por resolver — vê os grupos abaixo."
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 linha precisa de um valor nesta instância",
+			"%n linhas precisam de um valor nesta instância"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"1 linha ignorada.",
+			"%n linhas ignoradas."
+		],
+		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
+			"A mostrar o primeiro %n trabalho nesta janela — restrinja os filtros.",
+			"A mostrar os primeiros %n trabalhos nesta janela — restrinja os filtros."
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"Aviso: 1 linha será eliminada permanentemente e, depois, os dados do ficheiro serão carregados.",
+			"Aviso: %n linhas serão eliminadas permanentemente e, depois, os dados do ficheiro serão carregados."
+		],
 		"A license key is stored, but this server cannot verify its signature with the vendor public key. The companion apps will reject the license until the key was signed with the matching vendor signing key. Re-apply a correctly signed license, or contact support if this persists after an app update.": "Está guardada uma chave de licença, mas este servidor não consegue verificar a assinatura com a chave pública do fornecedor. As aplicações complementares rejeitarão a licença até a chave ser assinada com a chave de assinatura do fornecedor correspondente. Volta a aplicar uma licença corretamente assinada ou contacta o suporte se persistir após uma atualização da aplicação.",
 		"A line label is required.": "A etiqueta da linha é obrigatória.",
 		"A maintenance visit was due on %s.": "Uma visita de manutenção vencia em %s.",
@@ -98,6 +178,7 @@
 		"Add a skill code, then grant it to technicians.": "Adicione um código de competência e depois atribua-o a técnicos.",
 		"Add a unit": "Adicionar uma unidade",
 		"Add an obligation from an equipment class to schedule the next inspection.": "Adicione uma obrigação a partir de uma classe de equipamento para agendar a próxima inspeção.",
+		"add and update; nothing is deleted": "adicionar e atualizar; nada é eliminado",
 		"Add another defect": "Adicionar outro defeito",
 		"Add at least one defect when the result is not pass.": "Adicione pelo menos um defeito quando o resultado não for aprovado.",
 		"Add document": "Adicionar documento",
@@ -147,6 +228,7 @@
 		"Any time": "A qualquer hora",
 		"App administrators": "Administradores da aplicação",
 		"Append-only — comments cannot be edited or deleted.": "Só de adição — os comentários não podem ser editados nem eliminados.",
+		"applied": "aplicado",
 		"Apply a mobile license key and assign named seats.": "Aplique uma chave de licença móvel e atribua lugares nomeados.",
 		"Apply filters": "Aplicar filtros",
 		"Apply import": "Aplicar importação",
@@ -196,8 +278,6 @@
 		"Blocked work orders will show up here.": "As ordens de trabalho bloqueadas aparecem aqui.",
 		"Breadcrumb": "Caminho de navegação",
 		"By default every logged-in user can open MaintenanceCheck. Turn on the restriction to limit access to the lists below. Administrators always keep access.": "Por predefinição, qualquer utilizador com sessão iniciada pode abrir o MaintenanceCheck. Ative a restrição para limitar o acesso às listas abaixo. Os administradores mantêm sempre o acesso.",
-		"CRM company id": "ID da empresa no CRM",
-		"CSV readings": "Leituras CSV",
 		"Calendar": "Calendário",
 		"Calendar controls": "Controlos do calendário",
 		"Calendar could not load": "Não foi possível carregar o calendário",
@@ -217,8 +297,8 @@
 		"Change only what you need on this page, then save. Other settings stay unchanged.": "Altere apenas o que precisa nesta página e depois guarde. As outras definições ficam inalteradas.",
 		"Change period": "Mudar período",
 		"Change status": "Mudar estado",
-		"Check Partner": "Parceiro Check",
 		"Check master data": "Verificar dados base",
+		"Check Partner": "Parceiro Check",
 		"Checklist": "Lista de verificação",
 		"Checklist and capacity rules": "Regras de checklist e capacidade",
 		"Checklist blocks completion: {items}": "A lista de verificação bloqueia a conclusão: {items}",
@@ -229,8 +309,8 @@
 		"Checklist templates for work orders. Create, fork, import and export packs from the actions.": "Modelos de checklist para ordens de trabalho. Crie, duplique, importe e exporte pacotes a partir das ações.",
 		"Checklist templates for work orders. Import and export packs from the actions.": "Modelos de checklist para ordens de trabalho. Importe e exporte pacotes a partir das ações.",
 		"Checklist to finish a job": "Lista de verificação para concluir um trabalho",
-		"Choose a Nextcloud user from the list.": "Escolha um utilizador Nextcloud da lista.",
 		"Choose a customer.": "Escolha um cliente.",
+		"Choose a Nextcloud user from the list.": "Escolha um utilizador Nextcloud da lista.",
 		"Choose a passphrase of at least 12 characters.": "Escolha uma frase-passe com pelo menos 12 caracteres.",
 		"Choose which people may use %1$s. Only assigned users can sign in from their companion device.": "Escolhe quem pode usar %1$s. Apenas os utilizadores atribuídos podem iniciar sessão a partir do dispositivo complementar.",
 		"City": "Cidade",
@@ -279,11 +359,11 @@
 		"Corrective work order": "Ordem de trabalho corretiva",
 		"Could not assign seat.": "Não foi possível atribuir lugar.",
 		"Could not generate a pairing code.": "Não foi possível gerar o código de emparelhamento.",
-		"Could not load KPI.": "Não foi possível carregar os KPI.",
 		"Could not load comments.": "Não foi possível carregar os comentários.",
 		"Could not load customers.": "Não foi possível carregar os clientes.",
 		"Could not load documents.": "Não foi possível carregar os documentos.",
 		"Could not load exceptions.": "Não foi possível carregar as exceções.",
+		"Could not load KPI.": "Não foi possível carregar os KPI.",
 		"Could not load obligations.": "Não foi possível carregar as obrigações.",
 		"Could not load procedures.": "Não foi possível carregar os procedimentos.",
 		"Could not reach the server. Check your connection and try again.": "Não foi possível alcançar o servidor. Verifique a ligação e tente novamente.",
@@ -298,7 +378,6 @@
 		"Country code": "Código do país",
 		"Counts up only": "Só conta para cima",
 		"Create": "Criar",
-		"Create QR sticker": "Criar autocolante QR",
 		"Create a checklist template or import a pack.": "Crie um modelo de checklist ou importe um pacote.",
 		"Create a customer": "Criar um cliente",
 		"Create a parts list for packing vans.": "Crie uma lista de peças para carregar as carrinhas.",
@@ -310,6 +389,7 @@
 		"Create inspection work order": "Criar ordem de trabalho de inspeção",
 		"Create meter": "Criar contador",
 		"Create plan": "Criar plano",
+		"Create QR sticker": "Criar autocolante QR",
 		"Create site": "Criar local",
 		"Create the first customer": "Criar o primeiro cliente",
 		"Create the first one to categorise your data.": "Crie o primeiro para categorizar os seus dados.",
@@ -320,11 +400,13 @@
 		"Creates a new open visit for this plan — use this after a cancellation.": "Cria uma nova visita em aberto para este plano — use após um cancelamento.",
 		"Creates a new sticker. The previous sticker stops working.": "Cria um novo autocolante. O autocolante anterior deixa de funcionar.",
 		"Creates one part line with quantity 1.": "Cria uma linha de peça com quantidade 1.",
+		"CRM company id": "ID da empresa no CRM",
+		"CSV readings": "Leituras CSV",
 		"Current license": "Licença atual",
 		"Customer": "Cliente",
-		"Customer ID": "ID do cliente",
 		"Customer created.": "Cliente criado.",
 		"Customer deleted.": "Cliente eliminado.",
+		"Customer ID": "ID do cliente",
 		"Customer is active": "O cliente está ativo",
 		"Customer not found": "Cliente não encontrado",
 		"Customer number": "Número de cliente",
@@ -385,12 +467,12 @@
 		"Documents": "Documentos",
 		"Done": "Concluído",
 		"Download": "Descarregar",
-		"Download CSV": "Descarregar CSV",
-		"Download KPI as CSV": "Descarregar KPI em CSV",
 		"Download all settings, catalogues and business data as one encrypted file — then import it on your production instance.": "Descarregue todas as definições, catálogos e dados do negócio num único ficheiro encriptado — e importe-o na sua instância de produção.",
+		"Download CSV": "Descarregar CSV",
 		"Download encrypted transfer file": "Descarregar ficheiro de transferência encriptado",
 		"Download inspection evidence": "Descarregar evidência da inspeção",
 		"Download job pack": "Descarregar pacote do trabalho",
+		"Download KPI as CSV": "Descarregar KPI em CSV",
 		"Download service report": "Descarregar relatório de serviço",
 		"Draft": "Rascunho",
 		"Draw a signature first.": "Desenhe primeiro uma assinatura.",
@@ -407,6 +489,7 @@
 		"Due {date}": "Vence {date}",
 		"Due {start} – {end}": "Vence {start} – {end}",
 		"Duration (minutes)": "Duração (minutos)",
+		"e.g. Mon–Fri 08:00–12:00": "p. ex. Seg–Sex 08:00–12:00",
 		"Edit": "Editar",
 		"Edit customer": "Editar cliente",
 		"Edit dates": "Editar datas",
@@ -476,6 +559,7 @@
 		"Fail": "Reprovar",
 		"Fail if location is ambiguous (safest)": "Falhar se o local for ambíguo (mais seguro)",
 		"Failed": "Falhou",
+		"failed": "falhou",
 		"Failed inspection blocks next-due roll": "Inspeção reprovada bloqueia o avanço do próximo vencimento",
 		"Failure code": "Código de falha",
 		"Failure code on corrective Done": "Código de falha ao concluir a corretiva",
@@ -540,9 +624,9 @@
 		"How your team refers to this unit, e.g. “Boiler cellar left”.": "Como a sua equipa chama esta unidade, p. ex. «Caldeira cave esquerda».",
 		"If you believe this is a mistake, contact your MaintenanceCheck administrator.": "Se achar que é um erro, contacte o administrador do MaintenanceCheck.",
 		"Import": "Importar",
-		"Import CSV": "Importar CSV",
 		"Import applied. %d settings and %d rows written.": "Importação aplicada. %d definições e %d linhas escritas.",
 		"Import configuration": "Importar configuração",
+		"Import CSV": "Importar CSV",
 		"Import failed — nothing was changed.": "A importação falhou — nada foi alterado.",
 		"Import meter readings": "Importar leituras do contador",
 		"Import pack": "Importar pacote",
@@ -592,13 +676,13 @@
 		"Jobs on {date}": "Trabalhos em {date}",
 		"Jobs stuck for any reason — tap a chip, then open the job.": "Trabalhos parados por qualquer motivo — toque numa etiqueta e abra o trabalho.",
 		"Jobs without an owner — tap Assign, pick a person, done.": "Trabalhos sem responsável — toque em Atribuir, escolha uma pessoa, feito.",
-		"KPI window": "Janela de KPI",
 		"Keep active": "Manter ativo",
 		"Keep customer": "Manter cliente",
 		"Keep equipment": "Manter equipamento",
 		"Keep key": "Manter chave",
 		"Keep site": "Manter local",
 		"Keep visit": "Manter visita",
+		"kept as-is": "mantido como está",
 		"Keys and seats": "Chaves e lugares",
 		"Kind": "Tipo",
 		"Kit / parts": "Kit / peças",
@@ -608,6 +692,7 @@
 		"Kit template saved.": "Modelo de kit guardado.",
 		"Kit templates": "Modelos de kit",
 		"Kit — parts and tools to pack": "Kit — peças e ferramentas a embalar",
+		"KPI window": "Janela de KPI",
 		"Label": "Rótulo",
 		"Last transfer": "Última transferência",
 		"Later": "Mais tarde",
@@ -647,7 +732,6 @@
 		"Low": "Baixa",
 		"Lower numbers appear first.": "Os números mais baixos aparecem primeiro.",
 		"Lowercase letters, digits and underscores, e.g. heat_pump.": "Letras minúsculas, dígitos e underscores, p. ex. heat_pump.",
-		"MTTR (minutes)": "MTTR (minutos)",
 		"Main navigation": "Navegação principal",
 		"Maintenance": "Manutenção",
 		"Maintenance plans": "Planos de manutenção",
@@ -655,6 +739,7 @@
 		"Maintenance types": "Tipos de manutenção",
 		"MaintenanceCheck": "MaintenanceCheck",
 		"MaintenanceCheck navigation": "Navegação do MaintenanceCheck",
+		"make identical to the file; prod-only rows are deleted": "igualar ao ficheiro; as linhas só existentes em prod são eliminadas",
 		"Make your changes": "Faça as suas alterações",
 		"Manage devices": "Gerir dispositivos",
 		"Manufacturer": "Fabricante",
@@ -690,11 +775,12 @@
 		"Month": "Mês",
 		"Months": "Meses",
 		"More": "Mais",
-		"More Check apps": "Mais aplicações Check",
 		"More actions": "Mais ações",
+		"More Check apps": "Mais aplicações Check",
 		"More — procedure, skills, kit, comments": "Mais — procedimento, competências, kit, comentários",
 		"Move down": "Mover para baixo",
 		"Move up": "Mover para cima",
+		"MTTR (minutes)": "MTTR (minutos)",
 		"My tour": "A minha rota",
 		"N/A": "N/A",
 		"N/A note required": "Nota obrigatória para N/A",
@@ -821,8 +907,6 @@
 		"Nothing to dispatch": "Nada para atribuir",
 		"Notifications": "Notificações",
 		"Number or title": "Número ou título",
-		"OK": "OK",
-		"OK — a longer passphrase is safer.": "OK — uma frase-passe mais longa é mais segura.",
 		"Off": "Desligado",
 		"Off duty": "Fora de serviço",
 		"Off, warn in the UI, or automatically open a corrective work order.": "Desligado, avisar na interface ou abrir automaticamente uma ordem de trabalho corretiva.",
@@ -839,32 +923,33 @@
 		"Office users": "Utilizadores de escritório",
 		"Office vs technicians": "Escritório vs. técnicos",
 		"Official mobile & terminal licenses": "Licenças oficiais móveis e de terminal",
+		"OK": "OK",
+		"OK — a longer passphrase is safer.": "OK — uma frase-passe mais longa é mais segura.",
 		"On a calendar interval": "Num intervalo de calendário",
 		"On duty": "De serviço",
 		"On-time visits in the window": "Visitas a tempo na janela",
 		"One job sheet — status, checklist, evidence.": "Uma ficha de trabalho — estado, checklist, evidência.",
 		"One screen: status button, checklist, then evidence.": "Um ecrã: botão de estado, checklist, depois evidência.",
 		"One tour per technician per day — open a stop to do the work.": "Uma rota por técnico por dia — abra uma paragem para fazer o trabalho.",
-		"Only Nextcloud administrators manage this app.": "Apenas os administradores do Nextcloud gerem esta aplicação.",
 		"Only allow readings that count up": "Permitir apenas leituras crescentes",
 		"Only jobs waiting for a technician show first.": "Só aparecem primeiro os trabalhos à espera de técnico.",
 		"Only my jobs": "Só os meus trabalhos",
 		"Only my visits": "Só as minhas visitas",
+		"Only Nextcloud administrators manage this app.": "Apenas os administradores do Nextcloud gerem esta aplicação.",
 		"Only used when the policy is “Always use the location ID below”. Leave empty to clear.": "Usado apenas quando a política é «Usar sempre o ID de local abaixo». Deixe vazio para limpar.",
 		"Open": "Aberto",
-		"Open ArbeitszeitCheck with work order {number} in the note": "Abrir o ArbeitszeitCheck com a ordem de trabalho {number} na nota",
-		"Open Customers": "Abrir Clientes",
-		"Open Due board": "Abrir o Quadro de vencimentos",
-		"Open GitHub Issues": "Abrir o GitHub Issues",
-		"Open ProjectCheck with work order {number} in the note": "Abrir o ProjectCheck com a ordem de trabalho {number} na nota",
-		"Open Work orders": "Abrir Ordens de trabalho",
 		"Open a customer, add a unit, then create a maintenance plan. The first visit appears on this board automatically.": "Abra um cliente, adicione uma unidade e depois crie um plano de manutenção. A primeira visita aparece automaticamente neste quadro.",
 		"Open a job and clear the blocker.": "Abra um trabalho e resolva o bloqueio.",
 		"Open a job to run the checklist and add photos. Office can create new jobs here.": "Abra um trabalho para executar a checklist e adicionar fotos. O escritório pode criar novos trabalhos aqui.",
+		"Open ArbeitszeitCheck with work order {number} in the note": "Abrir o ArbeitszeitCheck com a ordem de trabalho {number} na nota",
+		"Open Customers": "Abrir Clientes",
 		"Open dispatch board": "Abrir o quadro de atribuição",
+		"Open Due board": "Abrir o Quadro de vencimentos",
+		"Open GitHub Issues": "Abrir o GitHub Issues",
 		"Open inspection work order": "Abrir ordem de trabalho de inspeção",
 		"Open inspection work past due": "Trabalho de inspeção em aberto e em atraso",
 		"Open navigation menu": "Abrir o menu de navegação",
+		"Open ProjectCheck with work order {number} in the note": "Abrir o ProjectCheck com a ordem de trabalho {number} na nota",
 		"Open settings": "Abrir definições",
 		"Open support page": "Abrir página de suporte",
 		"Open the customer": "Abrir o cliente",
@@ -872,6 +957,7 @@
 		"Open the unit": "Abrir a unidade",
 		"Open visit history": "Abrir o histórico de visitas",
 		"Open work order": "Abrir ordem de trabalho",
+		"Open Work orders": "Abrir Ordens de trabalho",
 		"Open work orders by status": "Ordens de trabalho em aberto por estado",
 		"Open work orders will appear here for assignment.": "As ordens de trabalho em aberto aparecem aqui para atribuição.",
 		"Ops KPI": "KPI operacionais",
@@ -909,6 +995,7 @@
 		"Outside job dates": "Fora das datas do trabalho",
 		"Over capacity": "Excesso de capacidade",
 		"Over capacity on assign": "Excesso de capacidade na atribuição",
+		"over limit": "acima do limite",
 		"Overdue": "Em atraso",
 		"Overdue maintenance visit": "Visita de manutenção em atraso",
 		"Overdue visits": "Visitas em atraso",
@@ -920,7 +1007,6 @@
 		"Overwrite pack?": "Substituir o pacote?",
 		"Owner": "Responsável",
 		"Ownership": "Responsabilidade",
-		"PM compliance": "Conformidade de manutenção preventiva",
 		"Pack": "Embalar",
 		"Pack code": "Código do pacote",
 		"Pack code is required.": "O código do pacote é obrigatório.",
@@ -942,8 +1028,8 @@
 		"Past and filtered visits — change a filter and the list updates immediately.": "Visitas passadas e filtradas — mude um filtro e a lista atualiza imediatamente.",
 		"Past and filtered visits — tap a status or due window and the list updates immediately.": "Visitas passadas e filtradas — toque num estado ou janela de vencimento e a lista atualiza imediatamente.",
 		"Paste mn_procedure_pack_v1 JSON.": "Cole o JSON mn_procedure_pack_v1.",
-		"Paste the MN2 key exactly as you received it.": "Cole a chave MN2 exatamente como a recebeu.",
 		"Paste the license key you received after purchase. The web app stays free — this key unlocks %1$s for your organisation.": "Cole a chave de licença que recebeu após a compra. A aplicação web continua gratuita — esta chave desbloqueia %1$s para a sua organização.",
+		"Paste the MN2 key exactly as you received it.": "Cole a chave MN2 exatamente como a recebeu.",
 		"Paste your %1$s license key below to unlock %2$s. The web app stays free.": "Cole a sua chave de licença %1$s abaixo para desbloquear %2$s. A aplicação web continua gratuita.",
 		"Person": "Pessoa",
 		"Phase: %s": "Fase: %s",
@@ -991,6 +1077,7 @@
 		"Please select a checklist procedure.": "Selecione um procedimento de checklist.",
 		"Please select the equipment this work order is for.": "Selecione o equipamento a que esta ordem de trabalho se refere.",
 		"Please try again.": "Tente novamente.",
+		"PM compliance": "Conformidade de manutenção preventiva",
 		"Pop-up blocked — allow pop-ups to print the sticker.": "Pop-up bloqueado — permita pop-ups para imprimir o autocolante.",
 		"Post comment": "Publicar comentário",
 		"Postal code": "Código postal",
@@ -1051,8 +1138,9 @@
 		"Remove technician {name}": "Remover o técnico {name}",
 		"Remove the organisation license and revoke all seats and devices? This cannot be undone.": "Remover a licença da organização e revogar todos os lugares e dispositivos? Esta ação não pode ser anulada.",
 		"Remove {id}": "Remover {id}",
-		"Renew QR sticker": "Renovar autocolante QR",
+		"removed from the list": "removido da lista",
 		"Renew and show": "Renovar e mostrar",
+		"Renew QR sticker": "Renovar autocolante QR",
 		"Repeat every": "Repetir a cada",
 		"Replace": "Substituir",
 		"Replace is available to Nextcloud system administrators only.": "A substituição está disponível apenas para administradores de sistema do Nextcloud.",
@@ -1092,7 +1180,6 @@
 		"Role settings saved.": "Definições de funções guardadas.",
 		"Roles": "Funções",
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "Execute a checklist, adicione fotos e depois avance o estado com os botões grandes.",
-		"SN {sn}": "NS {sn}",
 		"Safety snapshot": "Snapshot de segurança",
 		"Sat": "Sáb",
 		"Save": "Guardar",
@@ -1155,6 +1242,7 @@
 		"Service report": "Relatório de serviço",
 		"Service report PDF": "Relatório de serviço PDF",
 		"Set a due date first.": "Defina primeiro uma data de vencimento.",
+		"set it on this instance": "defini-lo nesta instância",
 		"Settings": "Definições",
 		"Settings are managed by your MaintenanceCheck administrator.": "As definições são geridas pelo administrador do MaintenanceCheck.",
 		"Settings sections": "Secções de definições",
@@ -1195,6 +1283,7 @@
 		"Skip with reason": "Saltar com motivo",
 		"Skip without procedure": "Saltar sem procedimento",
 		"Skipped": "Saltada",
+		"SN {sn}": "NS {sn}",
 		"Software by Design — Nextcloud Apps": "Software desenvolvido — Nextcloud Aplicativos",
 		"Something went wrong. Please try again.": "Ocorreu um erro. Tente novamente.",
 		"Sort order": "Ordem de ordenação",
@@ -1232,13 +1321,13 @@
 		"Support us": "Apoie-nos",
 		"Switch between 30 and 90 days.": "Alterne entre 30 e 90 dias.",
 		"Symptom": "Sintoma",
+		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "Toque num estado ou numa janela de vencimento (esta semana, este mês, ou escolha datas). «Só as minhas visitas» também é um toque.",
+		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "Toque num estado, escolha datas ou mude para as suas visitas — sem botão Aplicar.",
 		"Tap Assign on a job — search and pick a technician, never type an id.": "Toque em Atribuir num trabalho — pesquise e escolha um técnico, nunca escreva um ID.",
 		"Tap Assign on a job — search and pick, never type an id.": "Toque em Atribuir num trabalho — pesquise e escolha, nunca escreva um ID.",
 		"Tap Complete on a row when the job is done. Overdue is always at the top.": "Toque em Concluir numa linha quando o trabalho estiver feito. O que está em atraso fica sempre no topo.",
 		"Tap Complete on overdue and today cards. Use More for details or skip.": "Toque em Concluir nos cartões em atraso e de hoje. Use Mais para detalhes ou saltar.",
 		"Tap Open on a stop to run the work order.": "Toque em Abrir numa paragem para executar a ordem de trabalho.",
-		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "Toque num estado ou numa janela de vencimento (esta semana, este mês, ou escolha datas). «Só as minhas visitas» também é um toque.",
-		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "Toque num estado, escolha datas ou mude para as suas visitas — sem botão Aplicar.",
 		"Tap the big status button, mark the checklist, add photos if needed. Everything else is under More.": "Toque no botão grande de estado, marque a checklist, adicione fotos se necessário. Tudo o resto está em Mais.",
 		"Tap the status button, finish the checklist, then add evidence. More holds kit and comments.": "Toque no botão de estado, termine a checklist e depois adicione evidência. O kit e os comentários estão em Mais.",
 		"Tech": "Técnico",
@@ -1253,6 +1342,7 @@
 		"The assignee is missing required skills. Confirm to assign anyway.": "Faltam competências exigidas ao destinatário. Confirme para atribuir mesmo assim.",
 		"The checklist already has results. Clear them before changing the procedure.": "A checklist já tem resultados. Limpe-os antes de mudar o procedimento.",
 		"The code cannot be changed after creation.": "O código não pode ser alterado depois de criado.",
+		"the companion apps": "as aplicações complementares",
 		"The completion date is not valid.": "A data de conclusão não é válida.",
 		"The completion date must be a real date between 2000-01-01 and today.": "A data de conclusão tem de ser uma data real entre 01-01-2000 e hoje.",
 		"The due date is not valid.": "A data de vencimento não é válida.",
@@ -1264,6 +1354,7 @@
 		"The list updates the moment you tap a filter.": "A lista atualiza no momento em que toca num filtro.",
 		"The maintenance interval is not valid.": "O intervalo de manutenção não é válido.",
 		"The meter value is not valid.": "O valor do contador não é válido.",
+		"the mobile companion app": "a aplicação complementar móvel",
 		"The mobile license has expired.": "A licença móvel expirou.",
 		"The next visit will be due on {date} (counted from today).": "A próxima visita vence em {date} (contado a partir de hoje).",
 		"The next visit will be due on {date}.": "A próxima visita vence em {date}.",
@@ -1289,8 +1380,6 @@
 		"There is a maintenance contract": "Existe um contrato de manutenção",
 		"There is nothing to configure for your account here.": "Não há nada a configurar para a sua conta aqui.",
 		"These users manage settings, catalogs and the license in addition to Nextcloud admins.": "Estes utilizadores gerem definições, catálogos e a licença, além dos administradores do Nextcloud.",
-		"This Nextcloud group does not exist.": "Este grupo Nextcloud não existe.",
-		"This Nextcloud user does not exist.": "Este utilizador Nextcloud não existe.",
 		"This action is not possible in the current status. Reload and try again.": "Esta ação não é possível no estado atual. Recarregue e tente novamente.",
 		"This assignment exceeds the technician’s daily capacity limit.": "Esta atribuição excede o limite de capacidade diária do técnico.",
 		"This assignment would exceed the technician’s daily capacity. Confirm to assign anyway.": "Esta atribuição excederia a capacidade diária do técnico. Confirme para atribuir mesmo assim.",
@@ -1315,6 +1404,8 @@
 		"This meter is deactivated.": "Este contador está desativado.",
 		"This meter only counts up — the value is lower than the last reading.": "Este contador só conta para cima — o valor é inferior à última leitura.",
 		"This month": "Este mês",
+		"This Nextcloud group does not exist.": "Este grupo Nextcloud não existe.",
+		"This Nextcloud user does not exist.": "Este utilizador Nextcloud não existe.",
 		"This page is the home for one organisation.": "Esta página é a casa de uma organização.",
 		"This plan already has an open visit.": "Este plano já tem uma visita em aberto.",
 		"This plan is inactive. Activate it before scheduling a visit.": "Este plano está inativo. Ative-o antes de agendar uma visita.",
@@ -1361,17 +1452,17 @@
 		"Tue": "Ter",
 		"Two letters, e.g. DE or AT.": "Duas letras, p. ex. DE ou AT.",
 		"Type": "Tipo",
-		"Type REPLACE to confirm": "Escreva REPLACE para confirmar",
-		"Type REPLACE to confirm.": "Escreva REPLACE para confirmar.",
 		"Type at least two characters, tick several people, then assign them together.": "Escreva pelo menos dois caracteres, marque várias pessoas e depois atribua-as em conjunto.",
 		"Type created.": "Tipo criado.",
 		"Type is active (selectable for new entries)": "O tipo está ativo (selecionável para novos itens)",
+		"Type REPLACE to confirm": "Escreva REPLACE para confirmar",
+		"Type REPLACE to confirm.": "Escreva REPLACE para confirmar.",
 		"Type saved.": "Tipo guardado.",
 		"Type the exact pack code to overwrite.": "Escreva o código exato do pacote para substituir.",
 		"Types and checklists": "Tipos e checklists",
 		"Types and intervals": "Tipos e intervalos",
-		"URL": "URL",
 		"Unassigned": "Não atribuído",
+		"undo via snapshot": "anular via instantâneo",
 		"Unit": "Unidade",
 		"Units you maintain": "Unidades que mantém",
 		"Unknown customer.": "Cliente desconhecido.",
@@ -1381,16 +1472,17 @@
 		"Unlink identity": "Remover ligação de identidade",
 		"Unlock order": "Desbloquear ordem",
 		"Unresolved users / groups": "Utilizadores / grupos não resolvidos",
-		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "Use «Novo cliente». Adicione um nome (e número se usar). Os locais são moradas opcionais dentro do mesmo cliente.",
-		"Use New in the toolbar, or tap a name to edit.": "Use «Novo» na barra de ferramentas, ou toque num nome para editar.",
-		"Use Register → Customers, open a customer, then add equipment there.": "Use Registo → Clientes, abra um cliente e depois adicione equipamento aí.",
-		"Use Today or the arrows. The list updates immediately.": "Use Hoje ou as setas. A lista atualiza imediatamente.",
+		"URL": "URL",
 		"Use a two-letter country code, e.g. DE.": "Use um código de país de duas letras, p. ex. DE.",
 		"Use arrow keys to move between jobs, Enter to open.": "Use as setas para se mover entre trabalhos e Enter para abrir.",
 		"Use equipment default location": "Usar a localização predefinida do equipamento",
 		"Use lowercase letters, digits and underscores only.": "Use apenas letras minúsculas, dígitos e underscores.",
+		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "Use «Novo cliente». Adicione um nome (e número se usar). Os locais são moradas opcionais dentro do mesmo cliente.",
+		"Use New in the toolbar, or tap a name to edit.": "Use «Novo» na barra de ferramentas, ou toque num nome para editar.",
+		"Use Register → Customers, open a customer, then add equipment there.": "Use Registo → Clientes, abra um cliente e depois adicione equipamento aí.",
 		"Use sites when one customer has several addresses — then link equipment to the right site.": "Use locais quando um cliente tem várias moradas — depois ligue o equipamento ao local certo.",
 		"Use the search pickers for people and groups — never type raw ids.": "Use os seletores de pesquisa para pessoas e grupos — nunca escreva IDs diretamente.",
+		"Use Today or the arrows. The list updates immediately.": "Use Hoje ou as setas. A lista atualiza imediatamente.",
 		"Used when the checklist policy is “minimum percent”.": "Usado quando a política da checklist é «percentagem mínima».",
 		"User": "Utilizador",
 		"User ID": "ID de utilizador",
@@ -1448,13 +1540,14 @@
 		"Who may open MaintenanceCheck — restriction, allow-lists, and app admins.": "Quem pode abrir o MaintenanceCheck — restrição, listas de permitidos e administradores da aplicação.",
 		"Who may open the app": "Quem pode abrir a aplicação",
 		"Why": "Porquê",
+		"will be skipped": "será ignorado",
 		"Work": "Trabalho",
 		"Work order": "Ordem de trabalho",
 		"Work order %1$s was due on %2$s.": "A ordem de trabalho %1$s vencia em %2$s.",
-		"Work order ID": "ID da ordem de trabalho",
 		"Work order created from visit.": "Ordem de trabalho criada a partir da visita.",
 		"Work order created.": "Ordem de trabalho criada.",
 		"Work order filters": "Filtros de ordens de trabalho",
+		"Work order ID": "ID da ordem de trabalho",
 		"Work order not found": "Ordem de trabalho não encontrada",
 		"Work order pages": "Páginas de ordem de trabalho",
 		"Work orders": "Ordens de trabalho",
@@ -1479,104 +1572,25 @@
 		"Your mobile seat is above the licensed limit.": "O seu lugar móvel está acima do limite licenciado.",
 		"Your organisation restricts MaintenanceCheck access. You are not on the allow-list.": "A sua organização restringe o acesso ao MaintenanceCheck. Não está na lista de permitidos.",
 		"Your stops today": "As suas paragens de hoje",
-		"_%n equipment item_::_%n equipment items_": [
-			"%n equipamento",
-			"%n equipamentos"
-		],
-		"_%n exception_::_%n exceptions_": [
-			"%n exceção",
-			"%n exceções"
-		],
-		"_%n job in this period_::_%n jobs in this period_": [
-			"%n trabalho neste período",
-			"%n trabalhos neste período"
-		],
-		"_%n job_::_%n jobs_": [
-			"%n trabalho",
-			"%n trabalhos"
-		],
-		"_%n minute per day_::_%n minutes per day_": [
-			"%n minuto por dia",
-			"%n minutos por dia"
-		],
-		"_%n more job on {date}_::_%n more jobs on {date}_": [
-			"%n trabalho a mais em {date}",
-			"%n trabalhos a mais em {date}"
-		],
-		"_%n plan_::_%n plans_": [
-			"%n plano",
-			"%n planos"
-		],
-		"_%n result_::_%n results_": [
-			"%n resultado",
-			"%n resultados"
-		],
-		"_%n stop_::_%n stops_": [
-			"%n paragem",
-			"%n paragens"
-		],
-		"_%n visit_::_%n visits_": [
-			"%n visita",
-			"%n visitas"
-		],
-		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
-			"(1 valor ligado à instância esvaziado)",
-			"(%n valores ligados à instância esvaziados)"
-		],
-		"_(1 filtered)_::_(%n filtered)_": [
-			"(1 filtrada)",
-			"(%n filtradas)"
-		],
-		"_(1 secret redacted)_::_(%n secrets redacted)_": [
-			"(1 segredo ocultado)",
-			"(%n segredos ocultados)"
-		],
-		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
-			"(1 referência por resolver)",
-			"(%n referências por resolver)"
-		],
-		"_+%n more_::_+%n more_": [
-			"+%n adicional",
-			"+%n adicionais"
-		],
-		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
-			"1 referência por resolver — vê os grupos abaixo.",
-			"%n referências por resolver — vê os grupos abaixo."
-		],
-		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
-			"1 linha precisa de um valor nesta instância",
-			"%n linhas precisam de um valor nesta instância"
-		],
-		"_1 row skipped._::_%n rows skipped._": [
-			"1 linha ignorada.",
-			"%n linhas ignoradas."
-		],
-		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
-			"A mostrar o primeiro %n trabalho nesta janela — restrinja os filtros.",
-			"A mostrar os primeiros %n trabalhos nesta janela — restrinja os filtros."
-		],
-		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
-			"Aviso: 1 linha será eliminada permanentemente e, depois, os dados do ficheiro serão carregados.",
-			"Aviso: %n linhas serão eliminadas permanentemente e, depois, os dados do ficheiro serão carregados."
-		],
-		"add and update; nothing is deleted": "adicionar e atualizar; nada é eliminado",
-		"applied": "aplicado",
-		"e.g. Mon–Fri 08:00–12:00": "p. ex. Seg–Sex 08:00–12:00",
-		"failed": "falhou",
-		"kept as-is": "mantido como está",
-		"make identical to the file; prod-only rows are deleted": "igualar ao ficheiro; as linhas só existentes em prod são eliminadas",
-		"over limit": "acima do limite",
-		"removed from the list": "removido da lista",
-		"set it on this instance": "defini-lo nesta instância",
-		"the companion apps": "as aplicações complementares",
-		"the mobile companion app": "a aplicação complementar móvel",
-		"undo via snapshot": "anular via instantâneo",
-		"will be skipped": "será ignorado",
 		"{a}, {b} and {c}": "{a}, {b} e {c}",
 		"{customer} — {equipment}, {type}": "{customer} — {equipment}, {type}",
 		"{from}–{to} of {total}": "{from}–{to} de {total}",
 		"{label} (required)": "{label} (obrigatório)",
 		"{name} (deactivated)": "{name} (desativado)",
-		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "«{name}» ainda tem {children}. Eliminar o cliente remove tudo permanentemente."
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "«{name}» ainda tem {children}. Eliminar o cliente remove tudo permanentemente.",
+		"1 setting": "1 definição",
+		"%n settings": "%n definições",
+		"1 row": "1 linha",
+		"%n rows": "%n linhas",
+		"_1 row_::_%n rows_": [
+			"1 linha",
+			"%n linhas"
+		],
+		"_1 setting_::_%n settings_": [
+			"1 definição",
+			"%n definições"
+		],
+		"This will update %1$s and %2$s — nothing is deleted.": "Isto irá atualizar %1$s e %2$s — nada será eliminado.",
+		"Import applied. %1$s and %2$s written.": "Importação aplicada. %1$s e %2$s escritas."
 	}
 }

@@ -62,6 +62,86 @@
 		"4. Track the work": "4. İşi izleyin",
 		"5. Hand over the site": "5. Lokasyonu teslim edin",
 		"90 days": "90 gün",
+		"_%n equipment item_::_%n equipment items_": [
+			"%n demirbaş",
+			"%n demirbaş"
+		],
+		"_%n exception_::_%n exceptions_": [
+			"%n istisna",
+			"%n istisna"
+		],
+		"_%n job in this period_::_%n jobs in this period_": [
+			"bu dönemde %n iş",
+			"bu dönemde %n iş"
+		],
+		"_%n job_::_%n jobs_": [
+			"%n iş",
+			"%n iş"
+		],
+		"_%n minute per day_::_%n minutes per day_": [
+			"günde %n dakika",
+			"günde %n dakika"
+		],
+		"_%n more job on {date}_::_%n more jobs on {date}_": [
+			"{date} tarihinde %n iş daha",
+			"{date} tarihinde %n iş daha"
+		],
+		"_%n plan_::_%n plans_": [
+			"%n plan",
+			"%n plan"
+		],
+		"_%n result_::_%n results_": [
+			"%n sonuç",
+			"%n sonuç"
+		],
+		"_%n stop_::_%n stops_": [
+			"%n durak",
+			"%n durak"
+		],
+		"_%n visit_::_%n visits_": [
+			"%n ziyaret",
+			"%n ziyaret"
+		],
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"(1 örneğe bağlı değer boşaltıldı)",
+			"(%n örneğe bağlı değer boşaltıldı)"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"(1 filtrelendi)",
+			"(%n filtrelendi)"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"(1 sır gizlendi)",
+			"(%n sır gizlendi)"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"(1 çözümlenemeyen başvuru)",
+			"(%n çözümlenemeyen başvuru)"
+		],
+		"_+%n more_::_+%n more_": [
+			"+%n daha",
+			"+%n daha"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 başvuru çözümlenemedi — aşağıdaki gruplara bakın.",
+			"%n başvuru çözümlenemedi — aşağıdaki gruplara bakın."
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 satırın bu örnekte bir değere ihtiyacı var",
+			"%n satırın bu örnekte bir değere ihtiyacı var"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"1 satır atlandı.",
+			"%n satır atlandı."
+		],
+		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
+			"Bu pencerede ilk %n iş gösteriliyor — filtreleri daraltın.",
+			"Bu pencerede ilk %n iş gösteriliyor — filtreleri daraltın."
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"Uyarı: 1 satır kalıcı olarak silinecek, ardından dosya verileri yüklenecek.",
+			"Uyarı: %n satır kalıcı olarak silinecek, ardından dosya verileri yüklenecek."
+		],
 		"A license key is stored, but this server cannot verify its signature with the vendor public key. The companion apps will reject the license until the key was signed with the matching vendor signing key. Re-apply a correctly signed license, or contact support if this persists after an app update.": "Bir lisans anahtarı kayıtlı ancak bu sunucu imzasını satıcı genel anahtarıyla doğrulayamıyor. Eşlik eden uygulamalar, anahtar eşleşen satıcı imzalama anahtarıyla imzalanana kadar lisansı reddeder. Doğru imzalanmış bir lisansı yeniden uygula veya bir uygulama güncellemesinden sonra sorun devam ederse destek ile iletişime geç.",
 		"A line label is required.": "Satır etiketi zorunludur.",
 		"A maintenance visit was due on %s.": "Bir bakım ziyaretinin son tarihi %s idi.",
@@ -99,6 +179,7 @@
 		"Add a skill code, then grant it to technicians.": "Bir yetkinlik kodu ekleyin, ardından teknisyenlere tanımlayın.",
 		"Add a unit": "Demirbaş ekle",
 		"Add an obligation from an equipment class to schedule the next inspection.": "Sonraki denetimi planlamak için bir demirbaş sınıfından yükümlülük ekleyin.",
+		"add and update; nothing is deleted": "ekle ve güncelle; hiçbir şey silinmez",
 		"Add another defect": "Başka kusur ekle",
 		"Add at least one defect when the result is not pass.": "Sonuç geçti değilse en az bir kusur ekleyin.",
 		"Add document": "Belge ekle",
@@ -148,6 +229,7 @@
 		"Any time": "Herhangi bir zaman",
 		"App administrators": "Uygulama yöneticileri",
 		"Append-only — comments cannot be edited or deleted.": "Yalnızca ekleme — yorumlar düzenlenemez veya silinemez.",
+		"applied": "uygulandı",
 		"Apply a mobile license key and assign named seats.": "Mobil lisans anahtarı uygulayın ve isimli lisanslar atayın.",
 		"Apply filters": "Filtreleri uygula",
 		"Apply import": "İçe aktarmayı uygula",
@@ -197,8 +279,6 @@
 		"Blocked work orders will show up here.": "Engellenen iş emirleri burada görünür.",
 		"Breadcrumb": "İçerik haritası",
 		"By default every logged-in user can open MaintenanceCheck. Turn on the restriction to limit access to the lists below. Administrators always keep access.": "Varsayılan olarak oturum açmış her kullanıcı MaintenanceCheck'i açabilir. Erişimi aşağıdaki listelerle sınırlamak için kısıtlamayı açın. Yöneticiler her zaman erişimi korur.",
-		"CRM company id": "CRM şirket kimliği",
-		"CSV readings": "CSV okumaları",
 		"Calendar": "Takvim",
 		"Calendar controls": "Takvim denetimleri",
 		"Calendar could not load": "Takvim yüklenemedi",
@@ -218,8 +298,8 @@
 		"Change only what you need on this page, then save. Other settings stay unchanged.": "Bu sayfada yalnızca gerekeni değiştirin, sonra kaydedin. Diğer ayarlar değişmeden kalır.",
 		"Change period": "Dönemi değiştir",
 		"Change status": "Durumu değiştir",
-		"Check Partner": "Check Partner",
 		"Check master data": "Ana verileri kontrol et",
+		"Check Partner": "Check Partner",
 		"Checklist": "Kontrol listesi",
 		"Checklist and capacity rules": "Kontrol listesi ve kapasite kuralları",
 		"Checklist blocks completion: {items}": "Kontrol listesi tamamlamayı engelliyor: {items}",
@@ -230,8 +310,8 @@
 		"Checklist templates for work orders. Create, fork, import and export packs from the actions.": "İş emirleri için kontrol listesi şablonları. İşlemlerden şablon oluşturun, çatallayın, paket içe ve dışa aktarın.",
 		"Checklist templates for work orders. Import and export packs from the actions.": "İş emirleri için kontrol listesi şablonları. İşlemlerden paket içe ve dışa aktarın.",
 		"Checklist to finish a job": "İşi bitirmek için kontrol listesi",
-		"Choose a Nextcloud user from the list.": "Listeden bir Nextcloud kullanıcısı seçin.",
 		"Choose a customer.": "Bir müşteri seçin.",
+		"Choose a Nextcloud user from the list.": "Listeden bir Nextcloud kullanıcısı seçin.",
 		"Choose a passphrase of at least 12 characters.": "En az 12 karakterli bir parola seçin.",
 		"Choose which people may use %1$s. Only assigned users can sign in from their companion device.": "%1$s uygulamasını kimlerin kullanabileceğini seç. Yalnızca atanan kullanıcılar eşlik cihazlarından giriş yapabilir.",
 		"City": "Şehir",
@@ -280,11 +360,11 @@
 		"Corrective work order": "Düzeltici iş emri",
 		"Could not assign seat.": "Lisans hakkı atanamadı.",
 		"Could not generate a pairing code.": "Eşleştirme kodu oluşturulamadı.",
-		"Could not load KPI.": "KPI yüklenemedi.",
 		"Could not load comments.": "Yorumlar yüklenemedi.",
 		"Could not load customers.": "Müşteriler yüklenemedi.",
 		"Could not load documents.": "Belgeler yüklenemedi.",
 		"Could not load exceptions.": "İstisnalar yüklenemedi.",
+		"Could not load KPI.": "KPI yüklenemedi.",
 		"Could not load obligations.": "Yükümlülükler yüklenemedi.",
 		"Could not load procedures.": "Prosedürler yüklenemedi.",
 		"Could not reach the server. Check your connection and try again.": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip yeniden deneyin.",
@@ -299,7 +379,6 @@
 		"Country code": "Ülke kodu",
 		"Counts up only": "Yalnızca yukarı sayar",
 		"Create": "Oluştur",
-		"Create QR sticker": "QR etiket oluştur",
 		"Create a checklist template or import a pack.": "Bir kontrol listesi şablonu oluşturun veya paket içe aktarın.",
 		"Create a customer": "Müşteri oluştur",
 		"Create a parts list for packing vans.": "Araçları paketlemek için parça listesi oluşturun.",
@@ -311,6 +390,7 @@
 		"Create inspection work order": "Denetim iş emri oluştur",
 		"Create meter": "Sayaç oluştur",
 		"Create plan": "Plan oluştur",
+		"Create QR sticker": "QR etiket oluştur",
 		"Create site": "Lokasyon oluştur",
 		"Create the first customer": "İlk müşteriyi oluşturun",
 		"Create the first one to categorise your data.": "Verilerinizi kategorize etmek için ilkini oluşturun.",
@@ -321,11 +401,13 @@
 		"Creates a new open visit for this plan — use this after a cancellation.": "Bu plan için yeni bir açık ziyaret oluşturur — iptal sonrası bunu kullanın.",
 		"Creates a new sticker. The previous sticker stops working.": "Yeni bir etiket oluşturur. Önceki etiket çalışmayı durdurur.",
 		"Creates one part line with quantity 1.": "Miktarı 1 olan bir parça satırı oluşturur.",
+		"CRM company id": "CRM şirket kimliği",
+		"CSV readings": "CSV okumaları",
 		"Current license": "Mevcut lisans",
 		"Customer": "Müşteri",
-		"Customer ID": "Müşteri numarası",
 		"Customer created.": "Müşteri oluşturuldu.",
 		"Customer deleted.": "Müşteri silindi.",
+		"Customer ID": "Müşteri numarası",
 		"Customer is active": "Müşteri etkin",
 		"Customer not found": "Müşteri bulunamadı",
 		"Customer number": "Müşteri numarası",
@@ -386,12 +468,12 @@
 		"Documents": "Belgeler",
 		"Done": "Tamam",
 		"Download": "İndir",
-		"Download CSV": "CSV indir",
-		"Download KPI as CSV": "KPI'yı CSV olarak indir",
 		"Download all settings, catalogues and business data as one encrypted file — then import it on your production instance.": "Tüm ayarları, katalogları ve iş verilerini tek şifreli dosya olarak indirin — ardından üretim ortamınıza içe aktarın.",
+		"Download CSV": "CSV indir",
 		"Download encrypted transfer file": "Şifreli aktarım dosyasını indir",
 		"Download inspection evidence": "Denetim kanıtını indir",
 		"Download job pack": "İş paketini indir",
+		"Download KPI as CSV": "KPI'yı CSV olarak indir",
 		"Download service report": "Servis raporunu indir",
 		"Draft": "Taslak",
 		"Draw a signature first.": "Önce bir imza çizin.",
@@ -408,6 +490,7 @@
 		"Due {date}": "Son tarih {date}",
 		"Due {start} – {end}": "Son tarih {start} – {end}",
 		"Duration (minutes)": "Süre (dakika)",
+		"e.g. Mon–Fri 08:00–12:00": "örn. Pzt–Cum 08:00–12:00",
 		"Edit": "Düzenle",
 		"Edit customer": "Müşteriyi düzenle",
 		"Edit dates": "Tarihleri düzenle",
@@ -477,6 +560,7 @@
 		"Fail": "Kaldı",
 		"Fail if location is ambiguous (safest)": "Konum belirsizse başarısız say (en güvenli)",
 		"Failed": "Başarısız",
+		"failed": "başarısız",
 		"Failed inspection blocks next-due roll": "Başarısız denetim sonraki son tarihi engeller",
 		"Failure code": "Arıza kodu",
 		"Failure code on corrective Done": "Düzeltici Tamamlandı durumunda arıza kodu",
@@ -541,9 +625,9 @@
 		"How your team refers to this unit, e.g. “Boiler cellar left”.": "Ekibinizin bu demirbaşa nasıl hitap ettiği, örn. “Kazan dairesi sol”.",
 		"If you believe this is a mistake, contact your MaintenanceCheck administrator.": "Bunun bir hata olduğunu düşünüyorsanız MaintenanceCheck yöneticinize başvurun.",
 		"Import": "İçe aktar",
-		"Import CSV": "CSV içe aktar",
 		"Import applied. %d settings and %d rows written.": "İçe aktarma uygulandı. %d ayar ve %d satır yazıldı.",
 		"Import configuration": "Yapılandırmayı içe aktar",
+		"Import CSV": "CSV içe aktar",
 		"Import failed — nothing was changed.": "İçe aktarma başarısız — hiçbir şey değiştirilmedi.",
 		"Import meter readings": "Sayaç okumalarını içe aktar",
 		"Import pack": "Paket içe aktar",
@@ -593,13 +677,13 @@
 		"Jobs on {date}": "{date} işleri",
 		"Jobs stuck for any reason — tap a chip, then open the job.": "Herhangi bir nedenle takılan işler — bir çipe dokunun, sonra işi açın.",
 		"Jobs without an owner — tap Assign, pick a person, done.": "Sahibi olmayan işler — Ata'ya dokunun, bir kişi seçin, bitti.",
-		"KPI window": "KPI aralığı",
 		"Keep active": "Etkin tut",
 		"Keep customer": "Müşteriyi tut",
 		"Keep equipment": "Demirbaşı tut",
 		"Keep key": "Anahtarı tut",
 		"Keep site": "Lokasyonu tut",
 		"Keep visit": "Ziyareti tut",
+		"kept as-is": "olduğu gibi tutuldu",
 		"Keys and seats": "Anahtarlar ve lisanslar",
 		"Kind": "Tür",
 		"Kit / parts": "Kit / parçalar",
@@ -609,6 +693,7 @@
 		"Kit template saved.": "Kit şablonu kaydedildi.",
 		"Kit templates": "Kit şablonları",
 		"Kit — parts and tools to pack": "Kit — paketlenecek parçalar ve aletler",
+		"KPI window": "KPI aralığı",
 		"Label": "Etiket",
 		"Last transfer": "Son aktarım",
 		"Later": "Daha sonra",
@@ -648,7 +733,6 @@
 		"Low": "Düşük",
 		"Lower numbers appear first.": "Küçük numaralar önce görünür.",
 		"Lowercase letters, digits and underscores, e.g. heat_pump.": "Küçük harf, rakam ve alt çizgi, örn. heat_pump.",
-		"MTTR (minutes)": "MTTR (dakika)",
 		"Main navigation": "Ana gezinme",
 		"Maintenance": "Bakım",
 		"Maintenance plans": "Bakım planları",
@@ -656,6 +740,7 @@
 		"Maintenance types": "Bakım türleri",
 		"MaintenanceCheck": "MaintenanceCheck",
 		"MaintenanceCheck navigation": "MaintenanceCheck gezinmesi",
+		"make identical to the file; prod-only rows are deleted": "dosyayla aynı yap; yalnızca üretimde olan satırlar silinir",
 		"Make your changes": "Değişikliklerinizi yapın",
 		"Manage devices": "Cihazları yönet",
 		"Manufacturer": "Üretici",
@@ -691,11 +776,12 @@
 		"Month": "Ay",
 		"Months": "Ay",
 		"More": "Diğer",
-		"More Check apps": "Diğer Check uygulamaları",
 		"More actions": "Diğer işlemler",
+		"More Check apps": "Diğer Check uygulamaları",
 		"More — procedure, skills, kit, comments": "Diğer — prosedür, yetkinlikler, kit, yorumlar",
 		"Move down": "Aşağı taşı",
 		"Move up": "Yukarı taşı",
+		"MTTR (minutes)": "MTTR (dakika)",
 		"My tour": "Turum",
 		"N/A": "N/A",
 		"N/A note required": "N/A için not gerekli",
@@ -822,8 +908,6 @@
 		"Nothing to dispatch": "Dağıtılacak bir şey yok",
 		"Notifications": "Bildirimler",
 		"Number or title": "Numara veya başlık",
-		"OK": "OK",
-		"OK — a longer passphrase is safer.": "Tamam — daha uzun bir parola daha güvenlidir.",
 		"Off": "Kapalı",
 		"Off duty": "Görev dışı",
 		"Off, warn in the UI, or automatically open a corrective work order.": "Kapalı, arayüzde uyar veya otomatik düzeltici iş emri aç.",
@@ -840,32 +924,33 @@
 		"Office users": "Ofis kullanıcıları",
 		"Office vs technicians": "Ofis ve teknisyenler",
 		"Official mobile & terminal licenses": "Resmi mobil ve terminal lisansları",
+		"OK": "OK",
+		"OK — a longer passphrase is safer.": "Tamam — daha uzun bir parola daha güvenlidir.",
 		"On a calendar interval": "Takvim aralığıyla",
 		"On duty": "Görevde",
 		"On-time visits in the window": "Aralıktaki zamanında ziyaretler",
 		"One job sheet — status, checklist, evidence.": "Tek iş sayfası — durum, kontrol listesi, kanıt.",
 		"One screen: status button, checklist, then evidence.": "Tek ekran: durum düğmesi, kontrol listesi, sonra kanıt.",
 		"One tour per technician per day — open a stop to do the work.": "Teknisyen başına günde bir tur — işi yapmak için bir durak açın.",
-		"Only Nextcloud administrators manage this app.": "Bu uygulamayı yalnızca Nextcloud yöneticileri yönetir.",
 		"Only allow readings that count up": "Yalnızca yukarı sayan okumalara izin ver",
 		"Only jobs waiting for a technician show first.": "Önce yalnızca teknisyen bekleyen işler gösterilir.",
 		"Only my jobs": "Yalnızca işlerim",
 		"Only my visits": "Yalnızca ziyaretlerim",
+		"Only Nextcloud administrators manage this app.": "Bu uygulamayı yalnızca Nextcloud yöneticileri yönetir.",
 		"Only used when the policy is “Always use the location ID below”. Leave empty to clear.": "Yalnızca ilke “Her zaman aşağıdaki konum kimliğini kullan” olduğunda kullanılır. Temizlemek için boş bırakın.",
 		"Open": "Aç",
-		"Open ArbeitszeitCheck with work order {number} in the note": "İş emri {number} notuyla ArbeitszeitCheck'i aç",
-		"Open Customers": "Müşterileri aç",
-		"Open Due board": "Son tarih panosunu aç",
-		"Open GitHub Issues": "GitHub Issues'u aç",
-		"Open ProjectCheck with work order {number} in the note": "İş emri {number} notuyla ProjectCheck'i aç",
-		"Open Work orders": "İş emirlerini aç",
 		"Open a customer, add a unit, then create a maintenance plan. The first visit appears on this board automatically.": "Bir müşteri açın, demirbaş ekleyin, sonra bakım planı oluşturun. İlk ziyaret bu panoda otomatik görünür.",
 		"Open a job and clear the blocker.": "Bir iş açıp engeli kaldırın.",
 		"Open a job to run the checklist and add photos. Office can create new jobs here.": "Kontrol listesini işletmek ve fotoğraf eklemek için bir iş açın. Ofis burada yeni işler oluşturabilir.",
+		"Open ArbeitszeitCheck with work order {number} in the note": "İş emri {number} notuyla ArbeitszeitCheck'i aç",
+		"Open Customers": "Müşterileri aç",
 		"Open dispatch board": "İş dağıtım panosunu aç",
+		"Open Due board": "Son tarih panosunu aç",
+		"Open GitHub Issues": "GitHub Issues'u aç",
 		"Open inspection work order": "Denetim iş emrini aç",
 		"Open inspection work past due": "Son tarihi geçmiş açık denetim işi",
 		"Open navigation menu": "Gezinme menüsünü aç",
+		"Open ProjectCheck with work order {number} in the note": "İş emri {number} notuyla ProjectCheck'i aç",
 		"Open settings": "Ayarları aç",
 		"Open support page": "Destek sayfasını aç",
 		"Open the customer": "Müşteriyi açın",
@@ -873,6 +958,7 @@
 		"Open the unit": "Demirbaşı açın",
 		"Open visit history": "Ziyaret geçmişini aç",
 		"Open work order": "İş emrini aç",
+		"Open Work orders": "İş emirlerini aç",
 		"Open work orders by status": "Duruma göre açık iş emirleri",
 		"Open work orders will appear here for assignment.": "Açık iş emirleri atama için burada görünecek.",
 		"Ops KPI": "Operasyonel KPI",
@@ -910,6 +996,7 @@
 		"Outside job dates": "İş tarihlerinin dışında",
 		"Over capacity": "Kapasite aşımı",
 		"Over capacity on assign": "Atamada kapasite aşımı",
+		"over limit": "limit aşıldı",
 		"Overdue": "Süresi geçmiş",
 		"Overdue maintenance visit": "Süresi geçmiş bakım ziyareti",
 		"Overdue visits": "Süresi geçen ziyaretler",
@@ -921,7 +1008,6 @@
 		"Overwrite pack?": "Paketin üzerine yazılsın mı?",
 		"Owner": "Sahip",
 		"Ownership": "Sahiplik",
-		"PM compliance": "Önleyici bakım uyumu",
 		"Pack": "Paketle",
 		"Pack code": "Paket kodu",
 		"Pack code is required.": "Paket kodu zorunludur.",
@@ -943,8 +1029,8 @@
 		"Past and filtered visits — change a filter and the list updates immediately.": "Geçmiş ve filtrelenmiş ziyaretler — bir filtre değiştirin, liste anında güncellenir.",
 		"Past and filtered visits — tap a status or due window and the list updates immediately.": "Geçmiş ve filtrelenmiş ziyaretler — bir duruma veya son tarih aralığına dokunun, liste anında güncellenir.",
 		"Paste mn_procedure_pack_v1 JSON.": "mn_procedure_pack_v1 JSON'unu yapıştırın.",
-		"Paste the MN2 key exactly as you received it.": "MN2 anahtarını aldığınız gibi yapıştırın.",
 		"Paste the license key you received after purchase. The web app stays free — this key unlocks %1$s for your organisation.": "Satın aldıktan sonra aldığın lisans anahtarını yapıştır. Web uygulaması ücretsiz kalır — bu anahtar kuruluşun için %1$s öğesini açar.",
+		"Paste the MN2 key exactly as you received it.": "MN2 anahtarını aldığınız gibi yapıştırın.",
 		"Paste your %1$s license key below to unlock %2$s. The web app stays free.": "%2$s öğesini açmak için %1$s lisans anahtarını aşağıya yapıştır. Web uygulaması ücretsiz kalır.",
 		"Person": "Kişi",
 		"Phase: %s": "Aşama: %s",
@@ -992,6 +1078,7 @@
 		"Please select a checklist procedure.": "Bir kontrol listesi prosedürü seçin.",
 		"Please select the equipment this work order is for.": "Bu iş emrinin ait olduğu demirbaşı seçin.",
 		"Please try again.": "Lütfen tekrar deneyin.",
+		"PM compliance": "Önleyici bakım uyumu",
 		"Pop-up blocked — allow pop-ups to print the sticker.": "Açılır pencere engellendi — etiketi yazdırmak için açılır pencerelere izin verin.",
 		"Post comment": "Yorum gönder",
 		"Postal code": "Posta kodu",
@@ -1052,8 +1139,9 @@
 		"Remove technician {name}": "{name} teknisyenini kaldır",
 		"Remove the organisation license and revoke all seats and devices? This cannot be undone.": "Kuruluş lisansı kaldırılsın ve tüm koltuklar ile cihazlar iptal edilsin mi? Bu işlem geri alınamaz.",
 		"Remove {id}": "{id} kaldır",
-		"Renew QR sticker": "QR etiketi yenile",
+		"removed from the list": "listeden kaldırıldı",
 		"Renew and show": "Yenile ve göster",
+		"Renew QR sticker": "QR etiketi yenile",
 		"Repeat every": "Yineleme aralığı",
 		"Replace": "Değiştir",
 		"Replace is available to Nextcloud system administrators only.": "Değiştirme yalnızca Nextcloud sistem yöneticilerine açıktır.",
@@ -1093,7 +1181,6 @@
 		"Role settings saved.": "Rol ayarları kaydedildi.",
 		"Roles": "Roller",
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "Kontrol listesini işletin, fotoğraf ekleyin, sonra büyük düğmelerle durumu ilerletin.",
-		"SN {sn}": "SN {sn}",
 		"Safety snapshot": "Güvenlik anlık görüntüsü",
 		"Sat": "Cmt",
 		"Save": "Kaydet",
@@ -1156,6 +1243,7 @@
 		"Service report": "Servis raporu",
 		"Service report PDF": "Servis raporu PDF",
 		"Set a due date first.": "Önce bir son tarih belirleyin.",
+		"set it on this instance": "bu ortamda ayarla",
 		"Settings": "Ayarlar",
 		"Settings are managed by your MaintenanceCheck administrator.": "Ayarlar MaintenanceCheck yöneticiniz tarafından yönetilir.",
 		"Settings sections": "Ayar bölümleri",
@@ -1196,6 +1284,7 @@
 		"Skip with reason": "Neden belirterek atla",
 		"Skip without procedure": "Prosedürsüz atla",
 		"Skipped": "Atlandı",
+		"SN {sn}": "SN {sn}",
 		"Software by Design — Nextcloud Apps": "Software by Design — Nextcloud uygulamaları",
 		"Something went wrong. Please try again.": "Bir şeyler ters gitti. Yeniden deneyin.",
 		"Sort order": "Sıralama",
@@ -1233,13 +1322,13 @@
 		"Support us": "Bizi destekleyin",
 		"Switch between 30 and 90 days.": "30 ve 90 gün arasında geçiş yapın.",
 		"Symptom": "Belirti",
+		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "Bir duruma veya son tarih aralığına dokunun (bu hafta, bu ay veya tarih seçin). Yalnızca ziyaretlerim de tek dokunuş uzakta.",
+		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "Bir duruma dokunun, tarih seçin veya yalnızca kendi ziyaretlerinize geçin — Uygula düğmesi yok.",
 		"Tap Assign on a job — search and pick a technician, never type an id.": "Bir işte Ata'ya dokunun — teknisyeni arayıp seçin, asla kimlik yazmayın.",
 		"Tap Assign on a job — search and pick, never type an id.": "Bir işte Ata'ya dokunun — arayıp seçin, asla kimlik yazmayın.",
 		"Tap Complete on a row when the job is done. Overdue is always at the top.": "İş bitince satırdaki Tamamla'ya dokunun. Süresi geçenler her zaman en üstte.",
 		"Tap Complete on overdue and today cards. Use More for details or skip.": "Son tarihi geçen ve bugünkü kartlarda Tamamla’ya dokunun. Ayrıntılar veya atlama için Diğer’i kullanın.",
 		"Tap Open on a stop to run the work order.": "İş emrini işletmek için duraktaki Aç'a dokunun.",
-		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "Bir duruma veya son tarih aralığına dokunun (bu hafta, bu ay veya tarih seçin). Yalnızca ziyaretlerim de tek dokunuş uzakta.",
-		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "Bir duruma dokunun, tarih seçin veya yalnızca kendi ziyaretlerinize geçin — Uygula düğmesi yok.",
 		"Tap the big status button, mark the checklist, add photos if needed. Everything else is under More.": "Büyük durum düğmesine dokunun, kontrol listesini işaretleyin, gerekirse fotoğraf ekleyin. Diğer her şey Diğer altında.",
 		"Tap the status button, finish the checklist, then add evidence. More holds kit and comments.": "Durum düğmesine dokunun, kontrol listesini bitirin, sonra kanıt ekleyin. Kit ve yorumlar Diğer'de.",
 		"Tech": "Teknisyen",
@@ -1254,6 +1343,7 @@
 		"The assignee is missing required skills. Confirm to assign anyway.": "Atanan kişide gerekli yetkinlikler eksik. Yine de atamak için onaylayın.",
 		"The checklist already has results. Clear them before changing the procedure.": "Kontrol listesinde zaten sonuçlar var. Prosedürü değiştirmeden önce temizleyin.",
 		"The code cannot be changed after creation.": "Kod oluşturulduktan sonra değiştirilemez.",
+		"the companion apps": "eşlik uygulamaları",
 		"The completion date is not valid.": "Tamamlanma tarihi geçerli değil.",
 		"The completion date must be a real date between 2000-01-01 and today.": "Tamamlanma tarihi 01.01.2000 ile bugün arasında gerçek bir tarih olmalıdır.",
 		"The due date is not valid.": "Son tarih geçerli değil.",
@@ -1265,6 +1355,7 @@
 		"The list updates the moment you tap a filter.": "Bir filtreye dokunduğunuz anda liste güncellenir.",
 		"The maintenance interval is not valid.": "Bakım aralığı geçerli değil.",
 		"The meter value is not valid.": "Sayaç değeri geçerli değil.",
+		"the mobile companion app": "mobil eşlik uygulaması",
 		"The mobile license has expired.": "Mobil lisansın süresi doldu.",
 		"The next visit will be due on {date} (counted from today).": "Sonraki ziyaretin son tarihi {date} olacak (bugünden sayılarak).",
 		"The next visit will be due on {date}.": "Sonraki ziyaretin son tarihi {date} olacak.",
@@ -1290,8 +1381,6 @@
 		"There is a maintenance contract": "Bakım sözleşmesi var",
 		"There is nothing to configure for your account here.": "Burada hesabınız için yapılandırılacak bir şey yok.",
 		"These users manage settings, catalogs and the license in addition to Nextcloud admins.": "Bu kullanıcılar Nextcloud yöneticilerine ek olarak ayarları, katalogları ve lisansı yönetir.",
-		"This Nextcloud group does not exist.": "Bu Nextcloud grubu mevcut değil.",
-		"This Nextcloud user does not exist.": "Bu Nextcloud kullanıcısı mevcut değil.",
 		"This action is not possible in the current status. Reload and try again.": "Bu işlem mevcut durumda mümkün değil. Yeniden yükleyip deneyin.",
 		"This assignment exceeds the technician’s daily capacity limit.": "Bu atama teknisyenin günlük kapasite sınırını aşıyor.",
 		"This assignment would exceed the technician’s daily capacity. Confirm to assign anyway.": "Bu atama teknisyenin günlük kapasitesini aşar. Yine de atamak için onaylayın.",
@@ -1316,6 +1405,8 @@
 		"This meter is deactivated.": "Bu sayaç devre dışı.",
 		"This meter only counts up — the value is lower than the last reading.": "Bu sayaç yalnızca yukarı sayar — değer son okumadan düşük.",
 		"This month": "Bu ay",
+		"This Nextcloud group does not exist.": "Bu Nextcloud grubu mevcut değil.",
+		"This Nextcloud user does not exist.": "Bu Nextcloud kullanıcısı mevcut değil.",
 		"This page is the home for one organisation.": "Bu sayfa tek bir kuruluşun evidir.",
 		"This plan already has an open visit.": "Bu planın zaten açık bir ziyareti var.",
 		"This plan is inactive. Activate it before scheduling a visit.": "Bu plan etkin değil. Ziyaret planlamadan önce etkinleştirin.",
@@ -1362,17 +1453,17 @@
 		"Tue": "Sal",
 		"Two letters, e.g. DE or AT.": "İki harf, örn. TR veya DE.",
 		"Type": "Tür",
-		"Type REPLACE to confirm": "Onaylamak için REPLACE yazın",
-		"Type REPLACE to confirm.": "Onaylamak için REPLACE yazın.",
 		"Type at least two characters, tick several people, then assign them together.": "En az iki karakter yazın, birkaç kişiyi işaretleyin, ardından onları birlikte atayın.",
 		"Type created.": "Tür oluşturuldu.",
 		"Type is active (selectable for new entries)": "Tür etkin (yeni kayıtlar için seçilebilir)",
+		"Type REPLACE to confirm": "Onaylamak için REPLACE yazın",
+		"Type REPLACE to confirm.": "Onaylamak için REPLACE yazın.",
 		"Type saved.": "Tür kaydedildi.",
 		"Type the exact pack code to overwrite.": "Üzerine yazmak için paket kodunu tam olarak yazın.",
 		"Types and checklists": "Türler ve kontrol listeleri",
 		"Types and intervals": "Türler ve aralıklar",
-		"URL": "URL",
 		"Unassigned": "Atanmadı",
+		"undo via snapshot": "anlık görüntüyle geri al",
 		"Unit": "Birim",
 		"Units you maintain": "Bakımını yaptığınız demirbaşlar",
 		"Unknown customer.": "Bilinmeyen müşteri.",
@@ -1382,16 +1473,17 @@
 		"Unlink identity": "Kimlik bağlantısını kaldır",
 		"Unlock order": "Sıra kilidini aç",
 		"Unresolved users / groups": "Çözümlenemeyen kullanıcılar / gruplar",
-		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "Yeni müşteri'yi kullanın. Ad ekleyin (kullanıyorsanız numara da). Lokasyonlar aynı müşteri altındaki isteğe bağlı adreslerdir.",
-		"Use New in the toolbar, or tap a name to edit.": "Araç çubuğundaki Yeni'yi kullanın veya düzenlemek için bir ada dokunun.",
-		"Use Register → Customers, open a customer, then add equipment there.": "Kayıtlar → Müşteriler'i kullanın, bir müşteri açın, sonra orada demirbaş ekleyin.",
-		"Use Today or the arrows. The list updates immediately.": "Bugün'ü veya okları kullanın. Liste anında güncellenir.",
+		"URL": "URL",
 		"Use a two-letter country code, e.g. DE.": "İki harfli ülke kodu kullanın, örn. TR.",
 		"Use arrow keys to move between jobs, Enter to open.": "İşler arasında ok tuşlarıyla gezinin, açmak için Enter.",
 		"Use equipment default location": "Demirbaşın varsayılan konumunu kullan",
 		"Use lowercase letters, digits and underscores only.": "Yalnızca küçük harf, rakam ve alt çizgi kullanın.",
+		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "Yeni müşteri'yi kullanın. Ad ekleyin (kullanıyorsanız numara da). Lokasyonlar aynı müşteri altındaki isteğe bağlı adreslerdir.",
+		"Use New in the toolbar, or tap a name to edit.": "Araç çubuğundaki Yeni'yi kullanın veya düzenlemek için bir ada dokunun.",
+		"Use Register → Customers, open a customer, then add equipment there.": "Kayıtlar → Müşteriler'i kullanın, bir müşteri açın, sonra orada demirbaş ekleyin.",
 		"Use sites when one customer has several addresses — then link equipment to the right site.": "Bir müşterinin birden çok adresi olduğunda lokasyonları kullanın — sonra demirbaşı doğru lokasyona bağlayın.",
 		"Use the search pickers for people and groups — never type raw ids.": "Kişiler ve gruplar için arama seçicilerini kullanın — asla ham kimlik yazmayın.",
+		"Use Today or the arrows. The list updates immediately.": "Bugün'ü veya okları kullanın. Liste anında güncellenir.",
 		"Used when the checklist policy is “minimum percent”.": "Kontrol listesi ilkesi “asgari yüzde” olduğunda kullanılır.",
 		"User": "Kullanıcı",
 		"User ID": "Kullanıcı kimliği",
@@ -1449,13 +1541,14 @@
 		"Who may open MaintenanceCheck — restriction, allow-lists, and app admins.": "MaintenanceCheck'i kimler açabilir — kısıtlama, izin listeleri ve uygulama yöneticileri.",
 		"Who may open the app": "Uygulamayı kimler açabilir",
 		"Why": "Neden",
+		"will be skipped": "atlanacak",
 		"Work": "İş",
 		"Work order": "İş emri",
 		"Work order %1$s was due on %2$s.": "%1$s iş emrinin son tarihi %2$s idi.",
-		"Work order ID": "İş emri kimliği",
 		"Work order created from visit.": "Ziyaretten iş emri oluşturuldu.",
 		"Work order created.": "İş emri oluşturuldu.",
 		"Work order filters": "İş emri filtreleri",
+		"Work order ID": "İş emri kimliği",
 		"Work order not found": "İş emri bulunamadı",
 		"Work order pages": "İş emri sayfaları",
 		"Work orders": "İş emirleri",
@@ -1480,104 +1573,23 @@
 		"Your mobile seat is above the licensed limit.": "Mobil lisansınız lisanslı sınırın üzerinde.",
 		"Your organisation restricts MaintenanceCheck access. You are not on the allow-list.": "Kuruluşunuz MaintenanceCheck erişimini kısıtlıyor. İzin listesinde değilsiniz.",
 		"Your stops today": "Bugünkü duraklarınız",
-		"_%n equipment item_::_%n equipment items_": [
-			"%n demirbaş",
-			"%n demirbaş"
-		],
-		"_%n exception_::_%n exceptions_": [
-			"%n istisna",
-			"%n istisna"
-		],
-		"_%n job in this period_::_%n jobs in this period_": [
-			"bu dönemde %n iş",
-			"bu dönemde %n iş"
-		],
-		"_%n job_::_%n jobs_": [
-			"%n iş",
-			"%n iş"
-		],
-		"_%n minute per day_::_%n minutes per day_": [
-			"günde %n dakika",
-			"günde %n dakika"
-		],
-		"_%n more job on {date}_::_%n more jobs on {date}_": [
-			"{date} tarihinde %n iş daha",
-			"{date} tarihinde %n iş daha"
-		],
-		"_%n plan_::_%n plans_": [
-			"%n plan",
-			"%n plan"
-		],
-		"_%n result_::_%n results_": [
-			"%n sonuç",
-			"%n sonuç"
-		],
-		"_%n stop_::_%n stops_": [
-			"%n durak",
-			"%n durak"
-		],
-		"_%n visit_::_%n visits_": [
-			"%n ziyaret",
-			"%n ziyaret"
-		],
-		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
-			"(1 örneğe bağlı değer boşaltıldı)",
-			"(%n örneğe bağlı değer boşaltıldı)"
-		],
-		"_(1 filtered)_::_(%n filtered)_": [
-			"(1 filtrelendi)",
-			"(%n filtrelendi)"
-		],
-		"_(1 secret redacted)_::_(%n secrets redacted)_": [
-			"(1 sır gizlendi)",
-			"(%n sır gizlendi)"
-		],
-		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
-			"(1 çözümlenemeyen başvuru)",
-			"(%n çözümlenemeyen başvuru)"
-		],
-		"_+%n more_::_+%n more_": [
-			"+%n daha",
-			"+%n daha"
-		],
-		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
-			"1 başvuru çözümlenemedi — aşağıdaki gruplara bakın.",
-			"%n başvuru çözümlenemedi — aşağıdaki gruplara bakın."
-		],
-		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
-			"1 satırın bu örnekte bir değere ihtiyacı var",
-			"%n satırın bu örnekte bir değere ihtiyacı var"
-		],
-		"_1 row skipped._::_%n rows skipped._": [
-			"1 satır atlandı.",
-			"%n satır atlandı."
-		],
-		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
-			"Bu pencerede ilk %n iş gösteriliyor — filtreleri daraltın.",
-			"Bu pencerede ilk %n iş gösteriliyor — filtreleri daraltın."
-		],
-		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
-			"Uyarı: 1 satır kalıcı olarak silinecek, ardından dosya verileri yüklenecek.",
-			"Uyarı: %n satır kalıcı olarak silinecek, ardından dosya verileri yüklenecek."
-		],
-		"add and update; nothing is deleted": "ekle ve güncelle; hiçbir şey silinmez",
-		"applied": "uygulandı",
-		"e.g. Mon–Fri 08:00–12:00": "örn. Pzt–Cum 08:00–12:00",
-		"failed": "başarısız",
-		"kept as-is": "olduğu gibi tutuldu",
-		"make identical to the file; prod-only rows are deleted": "dosyayla aynı yap; yalnızca üretimde olan satırlar silinir",
-		"over limit": "limit aşıldı",
-		"removed from the list": "listeden kaldırıldı",
-		"set it on this instance": "bu ortamda ayarla",
-		"the companion apps": "eşlik uygulamaları",
-		"the mobile companion app": "mobil eşlik uygulaması",
-		"undo via snapshot": "anlık görüntüyle geri al",
-		"will be skipped": "atlanacak",
 		"{a}, {b} and {c}": "{a}, {b} ve {c}",
 		"{customer} — {equipment}, {type}": "{customer} — {equipment}, {type}",
 		"{from}–{to} of {total}": "{total} içinden {from}–{to}",
 		"{label} (required)": "{label} (zorunlu)",
 		"{name} (deactivated)": "{name} (devre dışı)",
-		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}” kaydında hâlâ {children} var. Müşteriyi silmek hepsini kalıcı olarak kaldırır."
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}” kaydında hâlâ {children} var. Müşteriyi silmek hepsini kalıcı olarak kaldırır.",
+		"1 setting": "1 ayar",
+		"%n settings": "%n ayar",
+		"1 row": "1 satır",
+		"%n rows": "%n satır",
+		"_1 row_::_%n rows_": [
+			"%n satır"
+		],
+		"_1 setting_::_%n settings_": [
+			"%n ayar"
+		],
+		"This will update %1$s and %2$s — nothing is deleted.": "Bu işlem %1$s ve %2$s güncelleyecek — hiçbir şey silinmeyecek.",
+		"Import applied. %1$s and %2$s written.": "İçe aktarma uygulandı. %1$s ve %2$s yazıldı."
 	}
 }

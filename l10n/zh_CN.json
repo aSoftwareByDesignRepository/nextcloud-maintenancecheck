@@ -62,6 +62,74 @@
 		"4. Track the work": "4. 跟踪工作",
 		"5. Hand over the site": "5. 移交站点",
 		"90 days": "90 天",
+		"_%n equipment item_::_%n equipment items_": [
+			"%n 件设备"
+		],
+		"_%n exception_::_%n exceptions_": [
+			"%n 个例外"
+		],
+		"_%n job in this period_::_%n jobs in this period_": [
+			"本周期 %n 个工单"
+		],
+		"_%n job_::_%n jobs_": [
+			"%n 个工单"
+		],
+		"_%n minute per day_::_%n minutes per day_": [
+			"每天 %n 分钟"
+		],
+		"_%n more job on {date}_::_%n more jobs on {date}_": [
+			"{date} 还有 %n 个工单"
+		],
+		"_%n plan_::_%n plans_": [
+			"%n 个计划"
+		],
+		"_%n result_::_%n results_": [
+			"%n 个结果"
+		],
+		"_%n stop_::_%n stops_": [
+			"%n 个站点"
+		],
+		"_%n visit_::_%n visits_": [
+			"%n 次巡检"
+		],
+		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
+			"（已清空 1 个实例绑定值）",
+			"（已清空 %n 个实例绑定值）"
+		],
+		"_(1 filtered)_::_(%n filtered)_": [
+			"（已过滤 1 项）",
+			"（已过滤 %n 项）"
+		],
+		"_(1 secret redacted)_::_(%n secrets redacted)_": [
+			"（已遮蔽 1 个机密）",
+			"（已遮蔽 %n 个机密）"
+		],
+		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
+			"（1 个引用未解析）",
+			"（%n 个引用未解析）"
+		],
+		"_+%n more_::_+%n more_": [
+			"再 +%n 项"
+		],
+		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
+			"1 个引用未能解析——请查看下方分组。",
+			"%n 个引用未能解析——请查看下方分组。"
+		],
+		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
+			"1 行需要在此实例上填写值",
+			"%n 行需要在此实例上填写值"
+		],
+		"_1 row skipped._::_%n rows skipped._": [
+			"已跳过 1 行。",
+			"已跳过 %n 行。"
+		],
+		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
+			"当前窗口仅显示前 %n 个工单——请缩小筛选范围。"
+		],
+		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
+			"警告：1 行将被永久删除，然后加载文件数据。",
+			"警告：%n 行将被永久删除，然后加载文件数据。"
+		],
 		"A license key is stored, but this server cannot verify its signature with the vendor public key. The companion apps will reject the license until the key was signed with the matching vendor signing key. Re-apply a correctly signed license, or contact support if this persists after an app update.": "已存储许可证密钥，但此服务器无法使用供应商公钥验证其签名。配套应用将拒绝该许可证，直到密钥使用匹配的供应商签名密钥签署。请重新应用签名正确的许可证；若应用更新后问题仍存在，请联系支持。",
 		"A line label is required.": "行标签为必填。",
 		"A maintenance visit was due on %s.": "一次保养巡检于 %s 到期。",
@@ -99,6 +167,7 @@
 		"Add a skill code, then grant it to technicians.": "添加技能代码，然后授予技术员。",
 		"Add a unit": "添加设备",
 		"Add an obligation from an equipment class to schedule the next inspection.": "从设备类别添加义务以安排下次检验。",
+		"add and update; nothing is deleted": "添加并更新；不删除任何内容",
 		"Add another defect": "添加另一个缺陷",
 		"Add at least one defect when the result is not pass.": "结果不是“通过”时请至少添加一个缺陷。",
 		"Add document": "添加文档",
@@ -148,6 +217,7 @@
 		"Any time": "任意时间",
 		"App administrators": "应用管理员",
 		"Append-only — comments cannot be edited or deleted.": "仅追加——备注不能编辑或删除。",
+		"applied": "已应用",
 		"Apply a mobile license key and assign named seats.": "应用移动许可证密钥并分配记名席位。",
 		"Apply filters": "应用筛选",
 		"Apply import": "应用导入",
@@ -197,8 +267,6 @@
 		"Blocked work orders will show up here.": "阻塞的工单会显示在此。",
 		"Breadcrumb": "面包屑",
 		"By default every logged-in user can open MaintenanceCheck. Turn on the restriction to limit access to the lists below. Administrators always keep access.": "默认所有登录用户都可打开 MaintenanceCheck。开启限制可将访问限定为下方名单。管理员始终保留访问权限。",
-		"CRM company id": "CRM 公司 ID",
-		"CSV readings": "CSV 读数",
 		"Calendar": "日历",
 		"Calendar controls": "日历控制",
 		"Calendar could not load": "无法加载日历",
@@ -218,8 +286,8 @@
 		"Change only what you need on this page, then save. Other settings stay unchanged.": "只改此页需要的内容，然后保存。其他设置不变。",
 		"Change period": "更改周期",
 		"Change status": "更改状态",
-		"Check Partner": "Check 合作伙伴",
 		"Check master data": "检查主数据",
+		"Check Partner": "Check 合作伙伴",
 		"Checklist": "检查表",
 		"Checklist and capacity rules": "检查表和容量规则",
 		"Checklist blocks completion: {items}": "检查表阻止完成：{items}",
@@ -230,8 +298,8 @@
 		"Checklist templates for work orders. Create, fork, import and export packs from the actions.": "工单的检查表模板。可从操作中创建、分叉、导入和导出包。",
 		"Checklist templates for work orders. Import and export packs from the actions.": "工单的检查表模板。可从操作中导入和导出包。",
 		"Checklist to finish a job": "完成工单的检查表",
-		"Choose a Nextcloud user from the list.": "从列表中选择 Nextcloud 用户。",
 		"Choose a customer.": "请选择客户。",
+		"Choose a Nextcloud user from the list.": "从列表中选择 Nextcloud 用户。",
 		"Choose a passphrase of at least 12 characters.": "请选择至少 12 个字符的密码短语。",
 		"Choose which people may use %1$s. Only assigned users can sign in from their companion device.": "选择哪些人可以使用 %1$s。只有被指派的用户才能在其配套设备上登录。",
 		"City": "城市",
@@ -280,11 +348,11 @@
 		"Corrective work order": "维修工单",
 		"Could not assign seat.": "无法指派席位。",
 		"Could not generate a pairing code.": "无法生成配对码。",
-		"Could not load KPI.": "无法加载 KPI。",
 		"Could not load comments.": "无法加载备注。",
 		"Could not load customers.": "无法加载客户。",
 		"Could not load documents.": "无法加载文档。",
 		"Could not load exceptions.": "无法加载异常。",
+		"Could not load KPI.": "无法加载 KPI。",
 		"Could not load obligations.": "无法加载义务。",
 		"Could not load procedures.": "无法加载作业规程。",
 		"Could not reach the server. Check your connection and try again.": "无法连接服务器。请检查连接后重试。",
@@ -299,7 +367,6 @@
 		"Country code": "国家代码",
 		"Counts up only": "仅递增",
 		"Create": "创建",
-		"Create QR sticker": "创建 QR 贴纸",
 		"Create a checklist template or import a pack.": "创建检查表模板或导入包。",
 		"Create a customer": "创建客户",
 		"Create a parts list for packing vans.": "创建装车物料清单。",
@@ -311,6 +378,7 @@
 		"Create inspection work order": "创建检验工单",
 		"Create meter": "创建仪表",
 		"Create plan": "创建计划",
+		"Create QR sticker": "创建 QR 贴纸",
 		"Create site": "创建站点",
 		"Create the first customer": "创建第一个客户",
 		"Create the first one to categorise your data.": "创建第一个以分类您的数据。",
@@ -321,11 +389,13 @@
 		"Creates a new open visit for this plan — use this after a cancellation.": "为此计划创建新的待办巡检——取消后使用。",
 		"Creates a new sticker. The previous sticker stops working.": "创建新贴纸。之前的贴纸失效。",
 		"Creates one part line with quantity 1.": "创建一条数量为 1 的物料行。",
+		"CRM company id": "CRM 公司 ID",
+		"CSV readings": "CSV 读数",
 		"Current license": "当前许可证",
 		"Customer": "客户",
-		"Customer ID": "客户编号",
 		"Customer created.": "客户已创建。",
 		"Customer deleted.": "客户已删除。",
+		"Customer ID": "客户编号",
 		"Customer is active": "客户为启用状态",
 		"Customer not found": "未找到客户",
 		"Customer number": "客户编号",
@@ -386,12 +456,12 @@
 		"Documents": "文档",
 		"Done": "完成",
 		"Download": "下载",
-		"Download CSV": "下载 CSV",
-		"Download KPI as CSV": "下载 KPI 为 CSV",
 		"Download all settings, catalogues and business data as one encrypted file — then import it on your production instance.": "将全部设置、目录和业务数据下载为一个加密文件——然后导入到生产实例。",
+		"Download CSV": "下载 CSV",
 		"Download encrypted transfer file": "下载加密传输文件",
 		"Download inspection evidence": "下载检验证据",
 		"Download job pack": "下载作业包",
+		"Download KPI as CSV": "下载 KPI 为 CSV",
 		"Download service report": "下载服务报告",
 		"Draft": "草稿",
 		"Draw a signature first.": "请先手写签名。",
@@ -408,6 +478,7 @@
 		"Due {date}": "{date} 到期",
 		"Due {start} – {end}": "{start} – {end} 到期",
 		"Duration (minutes)": "时长（分钟）",
+		"e.g. Mon–Fri 08:00–12:00": "例如 周一至周五 08:00–12:00",
 		"Edit": "编辑",
 		"Edit customer": "编辑客户",
 		"Edit dates": "编辑日期",
@@ -477,6 +548,7 @@
 		"Fail": "不合格",
 		"Fail if location is ambiguous (safest)": "位置不明确时失败（最安全）",
 		"Failed": "失败",
+		"failed": "失败",
 		"Failed inspection blocks next-due roll": "检验不合格阻止下次到期滚动",
 		"Failure code": "故障代码",
 		"Failure code on corrective Done": "维修单完成时的故障代码",
@@ -541,9 +613,9 @@
 		"How your team refers to this unit, e.g. “Boiler cellar left”.": "您的团队对此设备的称呼，例如“地下室左侧锅炉”。",
 		"If you believe this is a mistake, contact your MaintenanceCheck administrator.": "如果您认为这是误操作，请联系您的 MaintenanceCheck 管理员。",
 		"Import": "导入",
-		"Import CSV": "导入 CSV",
 		"Import applied. %d settings and %d rows written.": "导入已应用。已写入 %d 项设置和 %d 行。",
 		"Import configuration": "导入配置",
+		"Import CSV": "导入 CSV",
 		"Import failed — nothing was changed.": "导入失败——未做任何更改。",
 		"Import meter readings": "导入仪表读数",
 		"Import pack": "导入包",
@@ -593,13 +665,13 @@
 		"Jobs on {date}": "{date} 的工单",
 		"Jobs stuck for any reason — tap a chip, then open the job.": "因各种原因卡住的工单——点按标签，然后打开工单。",
 		"Jobs without an owner — tap Assign, pick a person, done.": "没有负责人的工单——点按“分配”，选个人，完成。",
-		"KPI window": "KPI 窗口",
 		"Keep active": "保持启用",
 		"Keep customer": "保留客户",
 		"Keep equipment": "保留设备",
 		"Keep key": "保留密钥",
 		"Keep site": "保留站点",
 		"Keep visit": "保留巡检",
+		"kept as-is": "保持原样",
 		"Keys and seats": "密钥与席位",
 		"Kind": "类型",
 		"Kit / parts": "物料包 / 物料",
@@ -609,6 +681,7 @@
 		"Kit template saved.": "物料包模板已保存。",
 		"Kit templates": "物料包模板",
 		"Kit — parts and tools to pack": "物料包——需打包的物料和工具",
+		"KPI window": "KPI 窗口",
 		"Label": "标签",
 		"Last transfer": "上次传输",
 		"Later": "稍后",
@@ -648,7 +721,6 @@
 		"Low": "低",
 		"Lower numbers appear first.": "数值小的排在前面。",
 		"Lowercase letters, digits and underscores, e.g. heat_pump.": "小写字母、数字和下划线，例如 heat_pump。",
-		"MTTR (minutes)": "MTTR（分钟）",
 		"Main navigation": "主导航",
 		"Maintenance": "保养",
 		"Maintenance plans": "保养计划",
@@ -656,6 +728,7 @@
 		"Maintenance types": "保养类型",
 		"MaintenanceCheck": "MaintenanceCheck",
 		"MaintenanceCheck navigation": "MaintenanceCheck 导航",
+		"make identical to the file; prod-only rows are deleted": "与文件完全一致；仅生产端存在的行将被删除",
 		"Make your changes": "进行更改",
 		"Manage devices": "管理设备",
 		"Manufacturer": "制造商",
@@ -691,11 +764,12 @@
 		"Month": "月",
 		"Months": "月",
 		"More": "更多",
-		"More Check apps": "更多 Check 应用",
 		"More actions": "更多操作",
+		"More Check apps": "更多 Check 应用",
 		"More — procedure, skills, kit, comments": "更多——作业规程、技能、物料包、备注",
 		"Move down": "下移",
 		"Move up": "上移",
+		"MTTR (minutes)": "MTTR（分钟）",
 		"My tour": "我的巡线",
 		"N/A": "不适用",
 		"N/A note required": "“不适用”需要备注",
@@ -822,8 +896,6 @@
 		"Nothing to dispatch": "没有可调度项",
 		"Notifications": "通知",
 		"Number or title": "编号或标题",
-		"OK": "OK",
-		"OK — a longer passphrase is safer.": "好——更长的密码短语更安全。",
 		"Off": "关",
 		"Off duty": "下班",
 		"Off, warn in the UI, or automatically open a corrective work order.": "关闭、在界面警告，或自动开维修工单。",
@@ -840,32 +912,33 @@
 		"Office users": "办公室用户",
 		"Office vs technicians": "办公室 vs 技术员",
 		"Official mobile & terminal licenses": "官方移动端与终端许可证",
+		"OK": "OK",
+		"OK — a longer passphrase is safer.": "好——更长的密码短语更安全。",
 		"On a calendar interval": "按日历周期",
 		"On duty": "上班",
 		"On-time visits in the window": "窗口内准时巡检",
 		"One job sheet — status, checklist, evidence.": "一个工单页——状态、检查表、证据。",
 		"One screen: status button, checklist, then evidence.": "一个界面：状态按钮、检查表，然后证据。",
 		"One tour per technician per day — open a stop to do the work.": "每位技术员每天一条巡线——打开站点开始工作。",
-		"Only Nextcloud administrators manage this app.": "仅 Nextcloud 管理员管理此应用。",
 		"Only allow readings that count up": "仅允许递增读数",
 		"Only jobs waiting for a technician show first.": "仅优先显示等待技术员的工单。",
 		"Only my jobs": "仅我的工单",
 		"Only my visits": "仅我的巡检",
+		"Only Nextcloud administrators manage this app.": "仅 Nextcloud 管理员管理此应用。",
 		"Only used when the policy is “Always use the location ID below”. Leave empty to clear.": "仅在策略为“始终使用下方的位置 ID”时使用。留空以清除。",
 		"Open": "打开",
-		"Open ArbeitszeitCheck with work order {number} in the note": "打开 ArbeitszeitCheck 并在备注中带入工单 {number}",
-		"Open Customers": "打开客户",
-		"Open Due board": "打开到期看板",
-		"Open GitHub Issues": "打开 GitHub Issues",
-		"Open ProjectCheck with work order {number} in the note": "打开 ProjectCheck 并在备注中带入工单 {number}",
-		"Open Work orders": "打开工单",
 		"Open a customer, add a unit, then create a maintenance plan. The first visit appears on this board automatically.": "打开客户，添加设备，然后创建保养计划。首次巡检自动出现在此看板。",
 		"Open a job and clear the blocker.": "打开工单并解决阻塞。",
 		"Open a job to run the checklist and add photos. Office can create new jobs here.": "打开工单执行检查表并添加照片。办公室可在此创建新工单。",
+		"Open ArbeitszeitCheck with work order {number} in the note": "打开 ArbeitszeitCheck 并在备注中带入工单 {number}",
+		"Open Customers": "打开客户",
 		"Open dispatch board": "打开调度看板",
+		"Open Due board": "打开到期看板",
+		"Open GitHub Issues": "打开 GitHub Issues",
 		"Open inspection work order": "打开检验工单",
 		"Open inspection work past due": "打开逾期的检验工作",
 		"Open navigation menu": "打开导航菜单",
+		"Open ProjectCheck with work order {number} in the note": "打开 ProjectCheck 并在备注中带入工单 {number}",
 		"Open settings": "打开设置",
 		"Open support page": "打开支持页",
 		"Open the customer": "打开客户",
@@ -873,6 +946,7 @@
 		"Open the unit": "打开设备",
 		"Open visit history": "打开巡检历史",
 		"Open work order": "打开工单",
+		"Open Work orders": "打开工单",
 		"Open work orders by status": "按状态的未结工单",
 		"Open work orders will appear here for assignment.": "未结工单会显示在此供分配。",
 		"Ops KPI": "运营 KPI",
@@ -910,6 +984,7 @@
 		"Outside job dates": "在工单日期之外",
 		"Over capacity": "超出容量",
 		"Over capacity on assign": "分配时超出容量",
+		"over limit": "超出上限",
 		"Overdue": "已逾期",
 		"Overdue maintenance visit": "逾期的保养巡检",
 		"Overdue visits": "逾期巡检",
@@ -921,7 +996,6 @@
 		"Overwrite pack?": "覆盖包？",
 		"Owner": "负责人",
 		"Ownership": "归属",
-		"PM compliance": "PM 合规率",
 		"Pack": "包",
 		"Pack code": "包代码",
 		"Pack code is required.": "包代码为必填。",
@@ -943,8 +1017,8 @@
 		"Past and filtered visits — change a filter and the list updates immediately.": "过往和已筛选的巡检——更改筛选，列表立即更新。",
 		"Past and filtered visits — tap a status or due window and the list updates immediately.": "过往和已筛选的巡检——点按状态或到期窗口，列表立即更新。",
 		"Paste mn_procedure_pack_v1 JSON.": "粘贴 mn_procedure_pack_v1 JSON。",
-		"Paste the MN2 key exactly as you received it.": "按收到的内容原样粘贴 MN2 密钥。",
 		"Paste the license key you received after purchase. The web app stays free — this key unlocks %1$s for your organisation.": "粘贴购买后收到的许可证密钥。网页版应用保持免费——此密钥为您的组织解锁 %1$s。",
+		"Paste the MN2 key exactly as you received it.": "按收到的内容原样粘贴 MN2 密钥。",
 		"Paste your %1$s license key below to unlock %2$s. The web app stays free.": "在下方粘贴您的 %1$s 许可证密钥以解锁 %2$s。网页版应用保持免费。",
 		"Person": "成员",
 		"Phase: %s": "阶段：%s",
@@ -992,6 +1066,7 @@
 		"Please select a checklist procedure.": "请选择检查表作业规程。",
 		"Please select the equipment this work order is for.": "请选择此工单对应的设备。",
 		"Please try again.": "请重试。",
+		"PM compliance": "PM 合规率",
 		"Pop-up blocked — allow pop-ups to print the sticker.": "弹窗被阻止——请允许弹窗以打印贴纸。",
 		"Post comment": "发布备注",
 		"Postal code": "邮编",
@@ -1052,8 +1127,9 @@
 		"Remove technician {name}": "移除技术员 {name}",
 		"Remove the organisation license and revoke all seats and devices? This cannot be undone.": "移除组织许可证并吊销所有席位和设备？此操作无法撤销。",
 		"Remove {id}": "移除 {id}",
-		"Renew QR sticker": "更新 QR 贴纸",
+		"removed from the list": "已从列表移除",
 		"Renew and show": "更新并显示",
+		"Renew QR sticker": "更新 QR 贴纸",
 		"Repeat every": "重复间隔",
 		"Replace": "替换",
 		"Replace is available to Nextcloud system administrators only.": "替换仅对 Nextcloud 系统管理员可用。",
@@ -1093,7 +1169,6 @@
 		"Role settings saved.": "角色设置已保存。",
 		"Roles": "角色",
 		"Run the checklist, add photos, then move the status forward with the big buttons.": "执行检查表、添加照片，然后用大按钮推进状态。",
-		"SN {sn}": "序列号 {sn}",
 		"Safety snapshot": "安全快照",
 		"Sat": "周六",
 		"Save": "保存",
@@ -1156,6 +1231,7 @@
 		"Service report": "服务报告",
 		"Service report PDF": "服务报告 PDF",
 		"Set a due date first.": "请先设置到期日。",
+		"set it on this instance": "在此实例上设置",
 		"Settings": "设置",
 		"Settings are managed by your MaintenanceCheck administrator.": "设置由您的 MaintenanceCheck 管理员管理。",
 		"Settings sections": "设置分区",
@@ -1196,6 +1272,7 @@
 		"Skip with reason": "带原因跳过",
 		"Skip without procedure": "不带作业规程跳过",
 		"Skipped": "已跳过",
+		"SN {sn}": "序列号 {sn}",
 		"Software by Design — Nextcloud Apps": "Software by Design — Nextcloud 应用",
 		"Something went wrong. Please try again.": "出现问题。请重试。",
 		"Sort order": "排序",
@@ -1233,13 +1310,13 @@
 		"Support us": "支持我们",
 		"Switch between 30 and 90 days.": "在 30 天和 90 天之间切换。",
 		"Symptom": "症状",
+		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "点按状态或到期窗口（本周、本月或自选日期）。“仅我的巡检”也只需一按。",
+		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "点按状态、选择日期，或切换到仅您的巡检——没有“应用”按钮。",
 		"Tap Assign on a job — search and pick a technician, never type an id.": "在工单上点按“分配”——搜索并选择技术员，切勿输入 ID。",
 		"Tap Assign on a job — search and pick, never type an id.": "在工单上点按“分配”——搜索并选择，切勿输入 ID。",
 		"Tap Complete on a row when the job is done. Overdue is always at the top.": "工单完成后点按行上的“完成”。逾期始终排在最前。",
 		"Tap Complete on overdue and today cards. Use More for details or skip.": "在逾期和今日卡片上点按“完成”。详情或跳过请用“更多”。",
 		"Tap Open on a stop to run the work order.": "在站点上点按“打开”执行工单。",
-		"Tap a status or a due window (this week, this month, or pick dates). Only my visits is one tap too.": "点按状态或到期窗口（本周、本月或自选日期）。“仅我的巡检”也只需一按。",
-		"Tap a status, pick dates, or switch to only your visits — no Apply button.": "点按状态、选择日期，或切换到仅您的巡检——没有“应用”按钮。",
 		"Tap the big status button, mark the checklist, add photos if needed. Everything else is under More.": "点按大状态按钮、勾选检查表、需要时添加照片。其余都在“更多”下。",
 		"Tap the status button, finish the checklist, then add evidence. More holds kit and comments.": "点按状态按钮、完成检查表，然后添加证据。“更多”里是物料包和备注。",
 		"Tech": "技术员",
@@ -1254,6 +1331,7 @@
 		"The assignee is missing required skills. Confirm to assign anyway.": "被分配人缺少所需技能。确认即可仍然分配。",
 		"The checklist already has results. Clear them before changing the procedure.": "检查表已有结果。更换作业规程前请先清除。",
 		"The code cannot be changed after creation.": "代码创建后不可更改。",
+		"the companion apps": "配套应用",
 		"The completion date is not valid.": "完成日期无效。",
 		"The completion date must be a real date between 2000-01-01 and today.": "完成日期必须是 2000-01-01 至今天之间的真实日期。",
 		"The due date is not valid.": "到期日无效。",
@@ -1265,6 +1343,7 @@
 		"The list updates the moment you tap a filter.": "点按筛选后列表立即更新。",
 		"The maintenance interval is not valid.": "保养周期无效。",
 		"The meter value is not valid.": "仪表值无效。",
+		"the mobile companion app": "移动端配套应用",
 		"The mobile license has expired.": "移动许可证已过期。",
 		"The next visit will be due on {date} (counted from today).": "下次巡检将于 {date} 到期（从今天算起）。",
 		"The next visit will be due on {date}.": "下次巡检将于 {date} 到期。",
@@ -1290,8 +1369,6 @@
 		"There is a maintenance contract": "存在保养合同",
 		"There is nothing to configure for your account here.": "您的账号在此没有可配置的内容。",
 		"These users manage settings, catalogs and the license in addition to Nextcloud admins.": "这些用户与 Nextcloud 管理员一起管理设置、目录和许可证。",
-		"This Nextcloud group does not exist.": "此 Nextcloud 组不存在。",
-		"This Nextcloud user does not exist.": "此 Nextcloud 用户不存在。",
 		"This action is not possible in the current status. Reload and try again.": "当前状态下无法执行此操作。请刷新后重试。",
 		"This assignment exceeds the technician’s daily capacity limit.": "此分配超出该技术员的每日容量上限。",
 		"This assignment would exceed the technician’s daily capacity. Confirm to assign anyway.": "此分配将超出该技术员的每日容量。确认即可仍然分配。",
@@ -1316,6 +1393,8 @@
 		"This meter is deactivated.": "此仪表已停用。",
 		"This meter only counts up — the value is lower than the last reading.": "此仪表仅递增——此值低于上次读数。",
 		"This month": "本月",
+		"This Nextcloud group does not exist.": "此 Nextcloud 组不存在。",
+		"This Nextcloud user does not exist.": "此 Nextcloud 用户不存在。",
 		"This page is the home for one organisation.": "此页面是一个组织的主页。",
 		"This plan already has an open visit.": "此计划已有待办巡检。",
 		"This plan is inactive. Activate it before scheduling a visit.": "此计划未激活。排定巡检前请先启用。",
@@ -1362,17 +1441,17 @@
 		"Tue": "周二",
 		"Two letters, e.g. DE or AT.": "两个字母，例如 DE 或 AT。",
 		"Type": "类型",
-		"Type REPLACE to confirm": "输入 REPLACE 确认",
-		"Type REPLACE to confirm.": "输入 REPLACE 确认。",
 		"Type at least two characters, tick several people, then assign them together.": "输入至少两个字符，勾选若干成员，然后一起指派。",
 		"Type created.": "类型已创建。",
 		"Type is active (selectable for new entries)": "类型为启用状态（可用于新条目）",
+		"Type REPLACE to confirm": "输入 REPLACE 确认",
+		"Type REPLACE to confirm.": "输入 REPLACE 确认。",
 		"Type saved.": "类型已保存。",
 		"Type the exact pack code to overwrite.": "输入准确的包代码以覆盖。",
 		"Types and checklists": "类型与检查表",
 		"Types and intervals": "类型与周期",
-		"URL": "URL",
 		"Unassigned": "未分配",
+		"undo via snapshot": "通过快照撤销",
 		"Unit": "设备",
 		"Units you maintain": "您维护的设备",
 		"Unknown customer.": "未知客户。",
@@ -1382,16 +1461,17 @@
 		"Unlink identity": "解除标识关联",
 		"Unlock order": "解锁顺序",
 		"Unresolved users / groups": "无法解析的用户/组",
-		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "使用“新建客户”。添加名称（以及您使用的编号）。站点是同一客户下的可选地址。",
-		"Use New in the toolbar, or tap a name to edit.": "用工具栏的“新建”，或点按名称编辑。",
-		"Use Register → Customers, open a customer, then add equipment there.": "用“台账 → 客户”，打开客户，然后在那里添加设备。",
-		"Use Today or the arrows. The list updates immediately.": "用“今天”或箭头。列表立即更新。",
+		"URL": "URL",
 		"Use a two-letter country code, e.g. DE.": "使用两位国家代码，例如 DE。",
 		"Use arrow keys to move between jobs, Enter to open.": "用方向键在工单间移动，Enter 打开。",
 		"Use equipment default location": "使用设备默认位置",
 		"Use lowercase letters, digits and underscores only.": "仅使用小写字母、数字和下划线。",
+		"Use New customer. Add a name (and number if you use one). Sites are optional addresses under the same customer.": "使用“新建客户”。添加名称（以及您使用的编号）。站点是同一客户下的可选地址。",
+		"Use New in the toolbar, or tap a name to edit.": "用工具栏的“新建”，或点按名称编辑。",
+		"Use Register → Customers, open a customer, then add equipment there.": "用“台账 → 客户”，打开客户，然后在那里添加设备。",
 		"Use sites when one customer has several addresses — then link equipment to the right site.": "一个客户有多个地址时使用站点——然后把设备关联到正确的站点。",
 		"Use the search pickers for people and groups — never type raw ids.": "用搜索选择器选人员和组——切勿直接输入 ID。",
+		"Use Today or the arrows. The list updates immediately.": "用“今天”或箭头。列表立即更新。",
 		"Used when the checklist policy is “minimum percent”.": "当检查表策略为“最低百分比”时使用。",
 		"User": "用户",
 		"User ID": "用户 ID",
@@ -1449,13 +1529,14 @@
 		"Who may open MaintenanceCheck — restriction, allow-lists, and app admins.": "谁可以打开 MaintenanceCheck——限制、允许名单和应用管理员。",
 		"Who may open the app": "谁可以打开此应用",
 		"Why": "原因",
+		"will be skipped": "将被跳过",
 		"Work": "工作",
 		"Work order": "工单",
 		"Work order %1$s was due on %2$s.": "工单 %1$s 于 %2$s 到期。",
-		"Work order ID": "工单 ID",
 		"Work order created from visit.": "已从巡检创建工单。",
 		"Work order created.": "工单已创建。",
 		"Work order filters": "工单筛选",
+		"Work order ID": "工单 ID",
 		"Work order not found": "未找到工单",
 		"Work order pages": "工单页面",
 		"Work orders": "工单",
@@ -1480,92 +1561,23 @@
 		"Your mobile seat is above the licensed limit.": "您的移动席位超出许可上限。",
 		"Your organisation restricts MaintenanceCheck access. You are not on the allow-list.": "您的组织限制了 MaintenanceCheck 访问。您不在允许名单中。",
 		"Your stops today": "您今天的站点",
-		"_%n equipment item_::_%n equipment items_": [
-			"%n 件设备"
-		],
-		"_%n exception_::_%n exceptions_": [
-			"%n 个例外"
-		],
-		"_%n job in this period_::_%n jobs in this period_": [
-			"本周期 %n 个工单"
-		],
-		"_%n job_::_%n jobs_": [
-			"%n 个工单"
-		],
-		"_%n minute per day_::_%n minutes per day_": [
-			"每天 %n 分钟"
-		],
-		"_%n more job on {date}_::_%n more jobs on {date}_": [
-			"{date} 还有 %n 个工单"
-		],
-		"_%n plan_::_%n plans_": [
-			"%n 个计划"
-		],
-		"_%n result_::_%n results_": [
-			"%n 个结果"
-		],
-		"_%n stop_::_%n stops_": [
-			"%n 个站点"
-		],
-		"_%n visit_::_%n visits_": [
-			"%n 次巡检"
-		],
-		"_(1 env-bound value emptied)_::_(%n env-bound values emptied)_": [
-			"（已清空 1 个实例绑定值）",
-			"（已清空 %n 个实例绑定值）"
-		],
-		"_(1 filtered)_::_(%n filtered)_": [
-			"（已过滤 1 项）",
-			"（已过滤 %n 项）"
-		],
-		"_(1 secret redacted)_::_(%n secrets redacted)_": [
-			"（已遮蔽 1 个机密）",
-			"（已遮蔽 %n 个机密）"
-		],
-		"_(1 unresolved ref)_::_(%n unresolved refs)_": [
-			"（1 个引用未解析）",
-			"（%n 个引用未解析）"
-		],
-		"_+%n more_::_+%n more_": [
-			"再 +%n 项"
-		],
-		"_1 reference unresolved — see the groups below._::_%n references unresolved — see the groups below._": [
-			"1 个引用未能解析——请查看下方分组。",
-			"%n 个引用未能解析——请查看下方分组。"
-		],
-		"_1 row needs a value on this instance_::_%n rows need a value on this instance_": [
-			"1 行需要在此实例上填写值",
-			"%n 行需要在此实例上填写值"
-		],
-		"_1 row skipped._::_%n rows skipped._": [
-			"已跳过 1 行。",
-			"已跳过 %n 行。"
-		],
-		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
-			"当前窗口仅显示前 %n 个工单——请缩小筛选范围。"
-		],
-		"_Warning: 1 row will be permanently deleted, then the file data is loaded._::_Warning: %n rows will be permanently deleted, then the file data is loaded._": [
-			"警告：1 行将被永久删除，然后加载文件数据。",
-			"警告：%n 行将被永久删除，然后加载文件数据。"
-		],
-		"add and update; nothing is deleted": "添加并更新；不删除任何内容",
-		"applied": "已应用",
-		"e.g. Mon–Fri 08:00–12:00": "例如 周一至周五 08:00–12:00",
-		"failed": "失败",
-		"kept as-is": "保持原样",
-		"make identical to the file; prod-only rows are deleted": "与文件完全一致；仅生产端存在的行将被删除",
-		"over limit": "超出上限",
-		"removed from the list": "已从列表移除",
-		"set it on this instance": "在此实例上设置",
-		"the companion apps": "配套应用",
-		"the mobile companion app": "移动端配套应用",
-		"undo via snapshot": "通过快照撤销",
-		"will be skipped": "将被跳过",
 		"{a}, {b} and {c}": "{a}、{b} 和 {c}",
 		"{customer} — {equipment}, {type}": "{customer} — {equipment}，{type}",
 		"{from}–{to} of {total}": "{from}–{to} / {total}",
 		"{label} (required)": "{label}（必填）",
 		"{name} (deactivated)": "{name}（已停用）",
-		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}”仍有 {children}。删除客户将永久移除全部。"
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}”仍有 {children}。删除客户将永久移除全部。",
+		"1 setting": "1 项设置",
+		"%n settings": "%n 项设置",
+		"1 row": "1 行",
+		"%n rows": "%n 行",
+		"_1 row_::_%n rows_": [
+			"%n 行"
+		],
+		"_1 setting_::_%n settings_": [
+			"%n 项设置"
+		],
+		"This will update %1$s and %2$s — nothing is deleted.": "这将更新 %1$s 和 %2$s——不会删除任何内容。",
+		"Import applied. %1$s and %2$s written.": "导入已应用。已写入 %1$s 和 %2$s。"
 	}
 }
