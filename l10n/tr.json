@@ -1,5 +1,5 @@
 {
-	"pluralForm": "nplurals=2; plural=(n != 1);",
+	"pluralForm": "nplurals=1; plural=0;",
 	"translations": {
 		"#": "#",
 		"%1$d of %2$d device slots in use.": "%2$d cihaz yuvasından %1$d tanesi kullanımda.",
