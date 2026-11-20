@@ -933,6 +933,7 @@ OC.L10N.register(
 	"Other" : "Inny",
 	"Other (free text)" : "Inne (tekst bezpłatny)",
 	"Other defect code" : "Kod pozostałych wad",
+	"Other work order" : "Inne zlecenie",
 	"Outside job dates" : "Poza datami zlecenia",
 	"Over capacity" : "Przekroczony czas pracy",
 	"Over capacity on assign" : "Przekroczenie czasu pracy przy przydziale",

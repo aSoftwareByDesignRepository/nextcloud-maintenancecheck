@@ -933,6 +933,7 @@ OC.L10N.register(
 	"Other" : "Annat",
 	"Other (free text)" : "Övrig (fri text)",
 	"Other defect code" : "Övriga felkoder",
+	"Other work order" : "Annan arbetsorder",
 	"Outside job dates" : "Utanför jobb-datum",
 	"Over capacity" : "Över kapacitet",
 	"Over capacity on assign" : "Över kapacitet på uppdrag",

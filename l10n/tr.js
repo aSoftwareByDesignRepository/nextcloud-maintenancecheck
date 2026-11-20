@@ -933,6 +933,7 @@ OC.L10N.register(
 	"Other" : "Diğer",
 	"Other (free text)" : "Diğer (serbest metin)",
 	"Other defect code" : "Diğer kusur kodu",
+	"Other work order" : "Diğer iş emri",
 	"Outside job dates" : "İş tarihlerinin dışında",
 	"Over capacity" : "Kapasite aşımı",
 	"Over capacity on assign" : "Atamada kapasite aşımı",

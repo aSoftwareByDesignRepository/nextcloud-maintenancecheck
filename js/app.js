@@ -185,6 +185,21 @@
 	}
 
 	/**
+	 * Work-order kind enum (WorkOrder::KIND_*) → localized label. The raw wire
+	 * value must never render; unknown/empty kinds get the generic title,
+	 * never a wrong-sense label (untranslated_enum_label_en_residue).
+	 */
+	function workOrderKindLabel(kind) {
+		switch (kind) {
+			case 'preventive': return tr('Preventive work order');
+			case 'corrective': return tr('Corrective work order');
+			case 'inspection': return tr('Inspection work order');
+			case 'other': return tr('Other work order');
+			default: return tr('Work order');
+		}
+	}
+
+	/**
 	 * A4 status / bucket badge: text label + one non-colour cue (icon OR dot).
 	 * Bachus: never stack dot + icon — that is visual noise for toddlers and auditors.
 	 */
@@ -334,6 +349,7 @@
 		statusMeta: statusMeta,
 		bucketMeta: bucketMeta,
 		exceptionReasonMeta: exceptionReasonMeta,
+		workOrderKindLabel: workOrderKindLabel,
 		intervalLabel: intervalLabel,
 		statusBadge: statusBadge,
 		displayMaintTypeName: displayMaintTypeName,
@@ -2355,9 +2371,7 @@
 					label: tr('Work'),
 					render: function (row) {
 						if (row.rowKind === 'workOrder') {
-							var kindLabel = row.kind === 'inspection'
-								? tr('Inspection work order')
-								: (row.kind === 'corrective' ? tr('Corrective work order') : tr('Preventive work order'));
+							var kindLabel = workOrderKindLabel(row.kind);
 							var sub = kindLabel;
 							if (row.equipmentLabel) {
 								sub = row.equipmentLabel + ' — ' + kindLabel;
@@ -6623,6 +6637,7 @@
 			statusBadge: statusBadge,
 			svgIcon: svgIcon,
 			exceptionReasonMeta: exceptionReasonMeta,
+			workOrderKindLabel: workOrderKindLabel,
 			tableOrCards: tableOrCards,
 			tableStack: tableStack,
 			catalogNameCell: catalogNameCell,

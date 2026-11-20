@@ -123,6 +123,7 @@
 			var renderPagination = dom.renderPagination;
 			var statusMeta = dom.statusMeta;
 			var statusBadge = dom.statusBadge;
+			var workOrderKindLabel = dom.workOrderKindLabel;
 			var toast = dom.toast;
 			var announce = dom.announce || function () {};
 			var attachUserPicker = dom.attachUserPicker;
@@ -476,7 +477,7 @@
 							label: tr('Work order'),
 							render: function (wo) {
 								var href = pageUrl('workOrders') + '/' + wo.id;
-								var subParts = [wo.customerName || '', wo.equipmentLabel || '', wo.kind || ''].filter(Boolean);
+								var subParts = [wo.customerName || '', wo.equipmentLabel || '', workOrderKindLabel(wo.kind)].filter(Boolean);
 								if (wo.dueOn) {
 									subParts.push(tr('Due {date}', { date: fmt(wo.dueOn) }));
 								}

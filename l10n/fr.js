@@ -933,6 +933,7 @@ OC.L10N.register(
 	"Other" : "Autre",
 	"Other (free text)" : "Autre (texte libre)",
 	"Other defect code" : "Autre code de défaut",
+	"Other work order" : "Autre ordre de travail",
 	"Outside job dates" : "Hors des dates du travail",
 	"Over capacity" : "Surcapacité",
 	"Over capacity on assign" : "Surcapacité sur affectation",
