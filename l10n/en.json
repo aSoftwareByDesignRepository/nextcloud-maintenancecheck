@@ -3,6 +3,8 @@
 		"#": "#",
 		"%1$d of %2$d device slots in use.": "%1$d of %2$d device slots in use.",
 		"%1$d of %2$d seats assigned": "%1$d of %2$d seats assigned",
+		"%n rows": "%n rows",
+		"%n settings": "%n settings",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:": "%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:": "%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:": "%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:",
@@ -10,6 +12,8 @@
 		"(opens in a new tab)": "(opens in a new tab)",
 		"(unknown — skipped)": "(unknown — skipped)",
 		"+{n} more": "+{n} more",
+		"1 row": "1 row",
+		"1 setting": "1 setting",
 		"1. Add a customer": "1. Add a customer",
 		"1. Add a maintenance plan": "1. Add a maintenance plan",
 		"1. Check master data": "1. Check master data",
@@ -132,6 +136,14 @@
 		"_1 row skipped._::_%n rows skipped._": [
 			"1 row skipped.",
 			"%n rows skipped."
+		],
+		"_1 row_::_%n rows_": [
+			"1 row",
+			"%n rows"
+		],
+		"_1 setting_::_%n settings_": [
+			"1 setting",
+			"%n settings"
 		],
 		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
 			"Showing the first %n job in this window — narrow the filters.",
@@ -624,6 +636,7 @@
 		"How your team refers to this unit, e.g. “Boiler cellar left”.": "How your team refers to this unit, e.g. “Boiler cellar left”.",
 		"If you believe this is a mistake, contact your MaintenanceCheck administrator.": "If you believe this is a mistake, contact your MaintenanceCheck administrator.",
 		"Import": "Import",
+		"Import applied. %1$s and %2$s written.": "Import applied. %1$s and %2$s written.",
 		"Import applied. %d settings and %d rows written.": "Import applied. %d settings and %d rows written.",
 		"Import configuration": "Import configuration",
 		"Import CSV": "Import CSV",
@@ -1426,6 +1439,7 @@
 		"This visit already has an open work order.": "This visit already has an open work order.",
 		"This visit was already closed.": "This visit was already closed.",
 		"This week": "This week",
+		"This will update %1$s and %2$s — nothing is deleted.": "This will update %1$s and %2$s — nothing is deleted.",
 		"This will update %d settings and %d rows — nothing is deleted.": "This will update %d settings and %d rows — nothing is deleted.",
 		"This work order is already part of a tour.": "This work order is already part of a tour.",
 		"Threshold": "Threshold",
@@ -1578,20 +1592,6 @@
 		"{from}–{to} of {total}": "{from}–{to} of {total}",
 		"{label} (required)": "{label} (required)",
 		"{name} (deactivated)": "{name} (deactivated)",
-		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}” still has {children}. Deleting the customer removes all of it permanently.",
-		"1 setting": "1 setting",
-		"%n settings": "%n settings",
-		"1 row": "1 row",
-		"%n rows": "%n rows",
-		"_1 row_::_%n rows_": [
-			"1 row",
-			"%n rows"
-		],
-		"_1 setting_::_%n settings_": [
-			"1 setting",
-			"%n settings"
-		],
-		"This will update %1$s and %2$s — nothing is deleted.": "This will update %1$s and %2$s — nothing is deleted.",
-		"Import applied. %1$s and %2$s written.": "Import applied. %1$s and %2$s written."
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}” still has {children}. Deleting the customer removes all of it permanently."
 	}
 }
