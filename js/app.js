@@ -16,26 +16,33 @@
 	var APP = 'maintenancecheck';
 
 	function tr(text, vars) {
+		var out;
 		if (typeof window !== 'undefined' && typeof window.t === 'function') {
-			return window.t(APP, text, vars);
+			out = window.t(APP, text, vars);
+		} else {
+			// Node test environment: substitute placeholders only.
+			out = text;
+			if (vars) {
+				Object.keys(vars).forEach(function (k) {
+					out = out.replace('{' + k + '}', String(vars[k]));
+				});
+			}
 		}
-		// Node test environment: substitute placeholders only.
-		var out = text;
-		if (vars) {
-			Object.keys(vars).forEach(function (k) {
-				out = out.replace('{' + k + '}', String(vars[k]));
-			});
-		}
-		return out;
+		// Catalog values carry vsprintf '%%' escapes for the PHP side;
+		// window.t returns them verbatim — collapse for the DOM.
+		return String(out).replace(/%%/g, '%');
 	}
 
 	function tn(singular, plural, count) {
 		var n = typeof count === 'number' ? count : parseInt(String(count), 10) || 0;
+		var out;
 		if (typeof window !== 'undefined' && typeof window.n === 'function') {
-			return window.n(APP, singular, plural, n);
+			out = window.n(APP, singular, plural, n);
+		} else {
+			// Node test environment: English-style two-form fallback.
+			out = String(n === 1 ? singular : plural).replace(/%n/g, String(n));
 		}
-		// Node test environment: English-style two-form fallback.
-		return String(n === 1 ? singular : plural).replace(/%n/g, String(n));
+		return String(out).replace(/%%/g, '%');
 	}
 
 	// ── Pure date/interval helpers (mirror of IntervalCalculator, S2) ──

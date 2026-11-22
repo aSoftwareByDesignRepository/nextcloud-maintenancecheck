@@ -4,6 +4,8 @@
 		"#": "#",
 		"%1$d of %2$d device slots in use.": "已使用 %2$d 个设备名额中的 %1$d 个。",
 		"%1$d of %2$d seats assigned": "已指派 %2$d 个席位中的 %1$d 个",
+		"%n rows": "%n 行",
+		"%n settings": "%n 项设置",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:": "%s 在您的 Nextcloud 上保持免费（AGPL）。欢迎在 GitHub 提交缺陷报告和建议——这是自由开源的关怀。如果您的组织需要可开票的帮助或官方移动端许可证，请选择下方选项：",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:": "%s 在您的 Nextcloud 上保持免费（AGPL）。欢迎在 GitHub 提交缺陷报告和建议——这是自由开源的关怀。如果您的组织需要可开票的帮助，请选择下方选项：",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:": "%s 在您的 Nextcloud 上保持免费（AGPL）。欢迎在 GitHub 提交缺陷和建议。需要可开票的帮助——部署、工时包或委托开发——或官方移动应用：",
@@ -11,6 +13,8 @@
 		"(opens in a new tab)": "（在新标签页中打开）",
 		"(unknown — skipped)": "（未知——已跳过）",
 		"+{n} more": "+{n} 更多",
+		"1 row": "1 行",
+		"1 setting": "1 项设置",
 		"1. Add a customer": "1. 添加客户",
 		"1. Add a maintenance plan": "1. 添加保养计划",
 		"1. Check master data": "1. 检查主数据",
@@ -115,6 +119,12 @@
 		],
 		"_1 row skipped._::_%n rows skipped._": [
 			"已跳过 %n 行。"
+		],
+		"_1 row_::_%n rows_": [
+			"%n 行"
+		],
+		"_1 setting_::_%n settings_": [
+			"%n 项设置"
 		],
 		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
 			"当前窗口仅显示前 %n 个工单——请缩小筛选范围。"
@@ -605,6 +615,7 @@
 		"How your team refers to this unit, e.g. “Boiler cellar left”.": "您的团队对此设备的称呼，例如“地下室左侧锅炉”。",
 		"If you believe this is a mistake, contact your MaintenanceCheck administrator.": "如果您认为这是误操作，请联系您的 MaintenanceCheck 管理员。",
 		"Import": "导入",
+		"Import applied. %1$s and %2$s written.": "导入已应用。已写入 %1$s 和 %2$s。",
 		"Import applied. %d settings and %d rows written.": "导入已应用。已写入 %d 项设置和 %d 行。",
 		"Import configuration": "导入配置",
 		"Import CSV": "导入 CSV",
@@ -889,7 +900,7 @@
 		"Notifications": "通知",
 		"Number or title": "编号或标题",
 		"Off": "关",
-		"Off duty": "下班",
+		"Off duty": "未上班",
 		"Off, warn in the UI, or automatically open a corrective work order.": "关闭、在界面警告，或自动开维修工单。",
 		"Off, warn, or required when closing a corrective job.": "关闭、警告，或关闭维修工单时必填。",
 		"Office": "办公室",
@@ -1407,6 +1418,7 @@
 		"This visit already has an open work order.": "此巡检已有未结工单。",
 		"This visit was already closed.": "此巡检已关闭。",
 		"This week": "本周",
+		"This will update %1$s and %2$s — nothing is deleted.": "这将更新 %1$s 和 %2$s——不会删除任何内容。",
 		"This will update %d settings and %d rows — nothing is deleted.": "这将更新 %d 项设置和 %d 行数据——不会删除任何内容。",
 		"This work order is already part of a tour.": "此工单已在一条巡线中。",
 		"Threshold": "阈值",
@@ -1559,18 +1571,6 @@
 		"{from}–{to} of {total}": "{from}–{to} / {total}",
 		"{label} (required)": "{label}（必填）",
 		"{name} (deactivated)": "{name}（已停用）",
-		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}”仍有 {children}。删除客户将永久移除全部。",
-		"1 setting": "1 项设置",
-		"%n settings": "%n 项设置",
-		"1 row": "1 行",
-		"%n rows": "%n 行",
-		"_1 row_::_%n rows_": [
-			"%n 行"
-		],
-		"_1 setting_::_%n settings_": [
-			"%n 项设置"
-		],
-		"This will update %1$s and %2$s — nothing is deleted.": "这将更新 %1$s 和 %2$s——不会删除任何内容。",
-		"Import applied. %1$s and %2$s written.": "导入已应用。已写入 %1$s 和 %2$s。"
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}”仍有 {children}。删除客户将永久移除全部。"
 	}
 }

@@ -27,17 +27,25 @@ final class DesignSystemTokensContractTest extends TestCase
 			'--mn-space-8:',
 			'--mn-radius-sm:',
 			'--mn-fs-2xl:',
-			'--mn-print-surface:',
-			'--mn-signature-ink:',
+			'--mn-qr-canvas:',
 			'--mn-scrim:',
 			'--mn-shadow-lg:',
-			'--mn-signature-surface:',
 			'--mn-overlay-top:',
 			'--mn-danger-fill:',
 			'--mn-danger-on-fill:',
 			'--mn-danger-ink:',
 		] as $token) {
 			$this->assertStringContainsString($token, $css, $token);
+		}
+		// Print/signature aliases retired from the synced pack; declared
+		// app-locally in legacy-bridge.css (loaded right after tokens.css).
+		$bridge = (string)file_get_contents($this->root . '/css/common/legacy-bridge.css');
+		foreach ([
+			'--mn-print-surface:',
+			'--mn-signature-ink:',
+			'--mn-signature-surface:',
+		] as $token) {
+			$this->assertStringContainsString($token, $css . $bridge, $token);
 		}
 	}
 

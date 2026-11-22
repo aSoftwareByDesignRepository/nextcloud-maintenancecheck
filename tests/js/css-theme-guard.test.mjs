@@ -22,7 +22,8 @@ const cssRoot = join(appRoot, 'css')
 
 /** Custom-property definitions that may carry raw colour values. */
 const RAW_COLOR_PROPERTY_ALLOWLIST = new Set([
-	'--mn-print-surface', // QR/print stickers stay light for scanners in all themes
+	'--mn-qr-canvas', // QR/print stickers stay light for scanners in all themes (canonical token)
+	'--mn-print-surface', // legacy alias of --mn-qr-canvas (legacy-bridge.css)
 	'--mn-signature-ink', // Signature pad stroke must stay opaque on canvas (not theme text)
 ])
 

@@ -18,9 +18,9 @@ test('tokens define mn-danger-fill / on-fill / ink from element-error', () => {
 	const raw = readFileSync(join(root, 'css/common/tokens.css'), 'utf8')
 	const css = stripComments(raw)
 	assert.match(css, /--mn-danger-fill:\s*var\(\s*--color-element-error/)
-	assert.match(css, /--mn-danger-on-fill:\s*var\(\s*--color-primary-text/)
+	assert.match(css, /--mn-danger-on-fill:\s*var\(\s*--color-primary-element-text/)
 	assert.match(css, /--mn-danger-ink:\s*var\(\s*--color-error-text/)
-	assert.match(raw, /Never put white/)
+	assert.match(raw, /never put on-fill text on that/i)
 })
 
 test('shell + app danger buttons use mn-danger-fill, not color-error', () => {
@@ -44,7 +44,7 @@ test('dialog overlay danger override beats NC button.button pale cascade', () =>
 
 test('dark themes darken mn-danger-fill for white on-fill AA', () => {
 	const raw = readFileSync(join(root, 'css/common/tokens.css'), 'utf8')
-	assert.match(raw, /body\[data-theme-dark\][\s\S]{0,80}body\[data-theme-dark-highcontrast\]\s*\{[^}]*--mn-danger-fill:\s*color-mix\([^;]*--color-main-background\)/s)
+	assert.match(raw, /body\[data-theme-dark\][\s\S]{0,220}body\[data-theme-dark-highcontrast\][^{]*\{[^}]*--mn-danger-fill:\s*color-mix\([^;]*--color-main-background\)/s)
 })
 
 test('cancel-visit confirm still uses mn-btn--danger variant', () => {

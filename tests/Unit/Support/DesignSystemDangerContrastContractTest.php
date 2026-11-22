@@ -26,12 +26,19 @@ final class DesignSystemDangerContrastContractTest extends TestCase
 		$css = (string)file_get_contents($this->root . '/css/common/tokens.css');
 		foreach ([
 			'--mn-danger-fill:',
-			'--mn-danger-fill-hover:',
 			'--mn-danger-on-fill:',
 			'--mn-danger-ink:',
-			'--mn-danger-border:',
 		] as $needle) {
 			$this->assertStringContainsString($needle, $css, $needle);
+		}
+		// Hover/border aliases were retired from the synced pack and are
+		// declared app-locally in legacy-bridge.css — assert them on the union.
+		$bridge = (string)file_get_contents($this->root . '/css/common/legacy-bridge.css');
+		foreach ([
+			'--mn-danger-fill-hover:',
+			'--mn-danger-border:',
+		] as $needle) {
+			$this->assertStringContainsString($needle, $css . $bridge, $needle);
 		}
 		$this->assertMatchesRegularExpression(
 			'/--mn-danger-fill:\s*var\(\s*--color-element-error\b/',
@@ -42,7 +49,7 @@ final class DesignSystemDangerContrastContractTest extends TestCase
 			'/--mn-danger-fill:\s*var\(\s*--color-error\b(?!-)/',
 			$css,
 		);
-		$this->assertStringContainsString('Never put white', $css);
+		$this->assertStringContainsString('never put on-fill text on that', $css);
 	}
 
 	/**
@@ -132,7 +139,7 @@ final class DesignSystemDangerContrastContractTest extends TestCase
 	{
 		$tokens = (string)file_get_contents($this->root . '/css/common/tokens.css');
 		$this->assertStringContainsString('--color-element-error', $tokens);
-		$this->assertStringContainsString('Never put white', $tokens);
+		$this->assertStringContainsString('never put on-fill text on that', $tokens);
 		$this->assertStringContainsString('pale', strtolower($tokens));
 	}
 
@@ -140,7 +147,7 @@ final class DesignSystemDangerContrastContractTest extends TestCase
 	{
 		$css = (string)file_get_contents($this->root . '/css/common/tokens.css');
 		$this->assertMatchesRegularExpression(
-			'/body\[data-theme-dark\][\s\S]{0,80}body\[data-theme-dark-highcontrast\]\s*\{[^}]*--mn-danger-fill:\s*color-mix\([^;]*--color-main-background\)/s',
+			'/body\[data-theme-dark\][\s\S]{0,220}body\[data-theme-dark-highcontrast\][^{]*\{[^}]*--mn-danger-fill:\s*color-mix\([^;]*--color-main-background\)/s',
 			$css,
 			'Dark themes must mix --mn-danger-fill toward main-background for white on-fill AA',
 		);

@@ -3,6 +3,8 @@
 		"#": "#",
 		"%1$d of %2$d device slots in use.": "%1$d de %2$d espaços para dispositivos em uso.",
 		"%1$d of %2$d seats assigned": "%1$d de %2$d vagas atribuídas",
+		"%n rows": "%n linhas",
+		"%n settings": "%n configurações",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice — or official mobile licenses — choose an option below:": "%s permanece grátis (AGPL) no seu Nextcloud. Relatórios de bugs e ideias sobre GitHub são bem-vindos - isso é atendimento gratuito de código aberto. Se sua organização precisar de ajuda reservável em uma fatura — ou licenças móveis oficiais — escolha uma opção abaixo:",
 		"%s stays free (AGPL) on your Nextcloud. Bug reports and ideas on GitHub stay welcome — that is free open-source care. If your organisation needs bookable help on an invoice, choose an option below:": "%s permanece grátis (AGPL) no seu Nextcloud. Relatórios de bugs e ideias sobre GitHub são bem-vindos - isso é atendimento gratuito de código aberto. Se sua organização precisar de ajuda reservável em uma fatura, escolha uma opção abaixo:",
 		"%s stays free (AGPL) on your Nextcloud. GitHub issues for bugs and ideas remain welcome. For bookable help on an invoice — setup, hour packs, commissioned work — or the official mobile app:": "%s permanece grátis (AGPL) no seu Nextcloud. Problemas do GitHub para bugs e ideias continuam bem-vindos. Para ajuda reservável em uma fatura – configuração, pacotes de horas, trabalho comissionado – ou no aplicativo móvel oficial:",
@@ -10,6 +12,8 @@
 		"(opens in a new tab)": "(abre em uma nova aba)",
 		"(unknown — skipped)": "(desconhecido — ignorado)",
 		"+{n} more": "+{n} mais",
+		"1 row": "1 linha",
+		"1 setting": "1 configuração",
 		"1. Add a customer": "1. Adicione um cliente",
 		"1. Add a maintenance plan": "1. Adicione um plano de manutenção",
 		"1. Check master data": "1. Verifique os dados mestre",
@@ -132,6 +136,14 @@
 		"_1 row skipped._::_%n rows skipped._": [
 			"1 linha ignorada.",
 			"%n linhas ignoradas."
+		],
+		"_1 row_::_%n rows_": [
+			"1 linha",
+			"%n linhas"
+		],
+		"_1 setting_::_%n settings_": [
+			"1 configuração",
+			"%n configurações"
 		],
 		"_Showing the first %n job in this window — narrow the filters._::_Showing the first %n jobs in this window — narrow the filters._": [
 			"A mostrar o primeiro %n trabalho nesta janela — restrinja os filtros.",
@@ -624,6 +636,7 @@
 		"How your team refers to this unit, e.g. “Boiler cellar left”.": "Como sua equipe se refere a esta unidade, por ex. “Caixa da caldeira à esquerda”.",
 		"If you believe this is a mistake, contact your MaintenanceCheck administrator.": "Se isso for considerado um erro, entre em contato com o administrador do MaintenanceCheck.",
 		"Import": "Importar",
+		"Import applied. %1$s and %2$s written.": "Importação aplicada. %1$s e %2$s gravadas.",
 		"Import applied. %d settings and %d rows written.": "Importação aplicada. %d configurações e %d linhas gravadas.",
 		"Import configuration": "Importar configuração",
 		"Import CSV": "Importar CSV",
@@ -908,7 +921,7 @@
 		"Notifications": "Notificações",
 		"Number or title": "Número ou título",
 		"Off": "Desligado",
-		"Off duty": "Fora de serviço",
+		"Off duty": "Não está de plantão",
 		"Off, warn in the UI, or automatically open a corrective work order.": "Desligado, avisar na interface ou abrir automaticamente uma ordem de serviço corretiva.",
 		"Off, warn, or required when closing a corrective job.": "Desligado, avisar ou obrigatório ao encerrar um serviço corretivo.",
 		"Office": "Escritório",
@@ -1426,6 +1439,7 @@
 		"This visit already has an open work order.": "Esta visita já tem uma ordem de serviço aberta.",
 		"This visit was already closed.": "Esta visita já estava encerrada.",
 		"This week": "Essa semana",
+		"This will update %1$s and %2$s — nothing is deleted.": "Isso atualizará %1$s e %2$s — nada será excluído.",
 		"This will update %d settings and %d rows — nothing is deleted.": "Isso atualizará %d configurações e %d linhas — nada será excluído.",
 		"This work order is already part of a tour.": "Esta ordem de serviço já faz parte de uma rota.",
 		"Threshold": "Limite",
@@ -1578,20 +1592,6 @@
 		"{from}–{to} of {total}": "{from}–{to} de {total}",
 		"{label} (required)": "{label} (obrigatório)",
 		"{name} (deactivated)": "{name} (desativado)",
-		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}” ainda conta com {children}. Excluir o cliente remove tudo permanentemente.",
-		"1 setting": "1 configuração",
-		"%n settings": "%n configurações",
-		"1 row": "1 linha",
-		"%n rows": "%n linhas",
-		"_1 row_::_%n rows_": [
-			"1 linha",
-			"%n linhas"
-		],
-		"_1 setting_::_%n settings_": [
-			"1 configuração",
-			"%n configurações"
-		],
-		"This will update %1$s and %2$s — nothing is deleted.": "Isso atualizará %1$s e %2$s — nada será excluído.",
-		"Import applied. %1$s and %2$s written.": "Importação aplicada. %1$s e %2$s gravadas."
+		"“{name}” still has {children}. Deleting the customer removes all of it permanently.": "“{name}” ainda conta com {children}. Excluir o cliente remove tudo permanentemente."
 	}
 }

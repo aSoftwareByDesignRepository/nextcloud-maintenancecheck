@@ -109,4 +109,29 @@ body {
 	/* --mn-* aliases referenced as fallbacks in shell-chrome / notification-surfaces */
 	--mn-bg: var(--color-main-background);
 	--mn-bg-stripe: var(--color-background-dark);
+
+	/*
+	 * Semantic aliases retired from the synced tokens.css @72ab313 but still
+	 * consumed by pack sheets + app.css + work-order-pages.js (signature ink).
+	 * Declared app-locally here — never edit the synced pack. Values mirror
+	 * the last-shipped definitions verbatim so computed colours are unchanged.
+	 */
+	--mn-warning-ink: var(--color-warning-text, var(--color-element-warning, #664700));
+	--mn-warning-border: var(--color-element-warning, var(--color-warning-text, #bf7900));
+	--mn-success-ink: var(--color-success-text, var(--color-element-success, #005416));
+	--mn-success-border: var(--color-border-success, var(--color-element-success, #099f05));
+	--mn-danger-border: var(--color-border-error, var(--color-element-error, #c90000));
+	--mn-danger-fill-hover: color-mix(in srgb, var(--color-element-error, #c90000) 82%, var(--color-main-text));
+	--mn-hover-fill: color-mix(in srgb, var(--color-main-text) 15%, transparent);
+	/* QR/print + signature pads stay light for scanners/ink in every theme */
+	--mn-print-surface: var(--mn-qr-canvas, #fff);
+	--mn-signature-surface: var(--mn-qr-canvas, #fff);
+	--mn-signature-ink: #111;
+}
+
+/* Dark-theme parity with the retired tokens.css overrides. */
+body[data-theme-dark],
+body[data-theme-dark-highcontrast] {
+	--mn-danger-border: var(--color-element-error, #ff5050);
+	--mn-danger-fill-hover: color-mix(in srgb, var(--color-element-error, #ff5050) 64%, var(--color-main-background));
 }
