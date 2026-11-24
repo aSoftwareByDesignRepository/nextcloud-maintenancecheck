@@ -62,6 +62,17 @@
 #content.app-maintenancecheck .maintenancecheck-app {
 	position: relative;
 }
+/* Shape-B bridge for the synced GRID app-layout pack (check-shell css/app-layout.css):
+   the pack places DIRECT children of #content on grid tracks (nav | content), but this
+   app's shell keeps a single #maintenancecheck-app wrapper child — required by
+   js/common/mobile-nav.js restoreDomOrder, which re-inserts #app-navigation and the
+   backdrop into the wrapper. Without a span the wrapper auto-places into the 280px
+   first track ≥1024 and #app-content collapses to 0. Span all tracks; the interior
+   layout stays the pack's own #maintenancecheck-app descendant flex arm (nav 280/240 | content
+   flex-basis:0%). Do NOT move the nav out of the wrapper or fork the pack file. */
+#content.app-maintenancecheck > #maintenancecheck-app {
+	grid-column: 1 / -1;
+}
 
 /* Buttons — AZ components.css touch targets (WCAG 2.5.5) */
 #content.app-maintenancecheck .mn-btn,

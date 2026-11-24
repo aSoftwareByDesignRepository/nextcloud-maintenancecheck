@@ -1,4 +1,4 @@
-/* Auto-adapted from arbeitszeitcheck/css/common/app-layout.css for MaintenanceCheck shell parity. Do not invent divergent layout rules here. */
+/* Auto-adapted from arbeitszeitcheck/css/common/app-layout.css for the Check-family shell. Do not invent divergent layout rules here. */
 /**
  * App layout and section styling for MaintenanceCheck
  * Clear sections, simple UX, WCAG 2.1 AA friendly.
@@ -12,27 +12,74 @@
  */
 
 /* ===== FULL VIEWPORT LAYOUT (100% WIDTH, BELOW HEADER, SCROLLABLE) ===== */
-/* Override Nextcloud theming. Nextcloud #header is 50px; #content needs margin-top to sit below it.
-   We set --body-container-margin: 0 for full width but preserve margin-top for header clearance. */
-
+/*
+ * Red-team: Nextcloud core sets `#app-content { flex-basis: 100vw }`. Combined with a
+ * 280px sidebar in a flex row, that can wrap the main pane onto the NEXT ROW —
+ * visually “main content below the navbar”. Skip-link / hidden h1 siblings worsen it.
+ *
+ * Fix: CSS Grid with EXPLICIT placement of nav + content on one row. Beat core
+ * flex-basis. Keep a11y siblings absolutely positioned so they never consume a track.
+ */
 #content.app-maintenancecheck {
   --body-container-margin: 0;
   --body-container-radius: 0;
+  --mn-nav-width: 280px;
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid !important;
+  /* <1024: one track — in-page Menu + mobile-nav.css owns the drawer (AZC#33) */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   align-items: stretch;
-  justify-content: flex-start;
+  justify-items: stretch;
   margin: 0 !important;
-  /* Use the Nextcloud header-height variable (set on body by NC core).
-     Fall back to 50px which is the conventional height on NC 25-32. */
   margin-top: var(--header-height, 50px) !important;
   padding: 0 !important;
   overflow: hidden;
   text-align: left;
-  /* Contain flex children; scrolling happens in #app-content */
+  height: calc(100dvh - var(--header-height, 50px)) !important;
+  max-height: calc(100dvh - var(--header-height, 50px)) !important;
+  box-sizing: border-box;
+}
+
+/* A11y nodes must not occupy grid tracks (would push content below the sidebar). */
+#content.app-maintenancecheck > h1#page-heading-level-1,
+#content.app-maintenancecheck > .skip-link,
+#content.app-maintenancecheck > a.mn-skip-link--nav {
+  position: absolute !important;
+  grid-column: unset !important;
+  grid-row: unset !important;
+}
+
+/* Mobile/tablet: nav is off-canvas (in-page Menu); content fills the only track */
+#content.app-maintenancecheck > #app-navigation.mn-nav {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: stretch;
+  justify-self: stretch;
+}
+
+#content.app-maintenancecheck > #app-content {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: stretch;
+  justify-self: stretch;
+}
+
+/* ≥1024px: NC desktop shell — sidebar | main side-by-side (sacred desktop layout) */
+@media (min-width: 1024px) {
+  #content.app-maintenancecheck {
+    grid-template-columns: var(--mn-nav-width) minmax(0, 1fr);
+  }
+
+  #content.app-maintenancecheck > #app-navigation.mn-nav {
+    grid-column: 1;
+  }
+
+  #content.app-maintenancecheck > #app-content {
+    grid-column: 2;
+  }
 }
 
 /* ===== APP WRAPPER: FILL #content, ENABLE SCROLL IN CHILDREN ===== */
@@ -57,36 +104,33 @@
   }
 
   #content.app-maintenancecheck #app-navigation {
-    flex: 0 0 280px;
-    width: 280px;
-    min-width: 280px;
-    max-width: 280px;
+    flex: 0 0 var(--mn-nav-width, 280px);
+    width: var(--mn-nav-width, 280px);
+    min-width: var(--mn-nav-width, 280px);
+    max-width: var(--mn-nav-width, 280px);
     align-self: stretch;
   }
 
   #content.app-maintenancecheck #app-content {
-    flex: 1 1 0;
+    flex: 1 1 0%;
+    flex-basis: 0% !important; /* beat NC core flex-basis: 100vw */
     min-width: 0;
-    width: auto;
-    max-width: none;
+    width: auto !important;
+    max-width: none !important;
     text-align: left;
   }
 }
 
 /* ===== APP-CONTENT & WRAPPER (100% WIDTH, SCROLLABLE) ===== */
-/* Content area fills remaining space; scrolls when content overflows.
-   min-height: 0 is critical for flex children to allow overflow/scroll. */
-
 #content.app-maintenancecheck #app-content {
-  /* Use Nextcloud theme variable directly — theme vars are on body [data-theme-X], not :root */
   background: var(--color-main-background);
   color: var(--color-main-text);
-  flex: 1 1 0;
+  flex: 1 1 0%;
+  flex-basis: 0% !important;
   min-height: 0;
-  /* Allow flex child to shrink; enables overflow-y: auto */
   min-width: 0;
-  width: 100%;
-  max-width: 100%;
+  width: auto !important;
+  max-width: none !important;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -123,7 +167,7 @@
 }
 
 .breadcrumb a {
-  color: var(--maintenancecheck-color-primary);
+  color: var(--mn-accent-ink, var(--maintenancecheck-color-primary));
   text-decoration: none;
   padding: var(--space-1) 0;
   border-radius: var(--radius-base);
@@ -208,7 +252,7 @@
   margin-bottom: 0;
   padding: var(--space-8) var(--space-8);
   border-radius: var(--radius-2xl);
-  border: 1px solid var(--maintenancecheck-color-border);
+  border: 1px solid var(--mn-border-strong, var(--maintenancecheck-color-border));
   background-color: var(--maintenancecheck-color-background-elevated);
   box-shadow: var(--shadow-sm);
   position: relative;
@@ -322,7 +366,7 @@
   margin-bottom: var(--space-4);
   padding: var(--space-5);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--maintenancecheck-color-border);
+  border: 1px solid var(--mn-border-strong, var(--maintenancecheck-color-border));
   background-color: var(--maintenancecheck-color-background-elevated);
   box-shadow: var(--shadow-sm);
   color: var(--color-main-text);
@@ -376,78 +420,130 @@
   margin-right: auto;
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE (mobile-first base; enhance ≥769px) ===== */
 
-@media (max-width: 768.98px) {
-  #app-content-wrapper {
-    padding:
-      calc(var(--space-4) + env(safe-area-inset-top, 0px))
-      calc(var(--space-4) + env(safe-area-inset-right, 0px))
-      calc(var(--space-12) + env(safe-area-inset-bottom, 0px))
-      calc(var(--space-4) + env(safe-area-inset-left, 0px));
-  }
+/* <769: compact section cards / stacked headers (tablet band starts at 768 NC) */
+#app-content-wrapper>.section {
+  padding: var(--space-5);
+  margin-bottom: var(--space-8);
+  border-radius: var(--radius-xl);
+}
 
+#app-content-wrapper>.section::before {
+  top: var(--space-4);
+  bottom: var(--space-4);
+  width: 4px;
+}
+
+.page-header-section {
+  margin-bottom: var(--space-5);
+  padding: var(--space-3) 0;
+}
+
+.page-header-section .header-content {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+}
+
+.page-header-section .header-actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.page-header-section .header-actions .btn {
+  width: 100%;
+  justify-content: center;
+  min-height: 46px;
+}
+
+#app-content-wrapper .section-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+#app-content-wrapper .section__title {
+  font-size: var(--maintenancecheck-font-size-lg);
+  line-height: 1.35;
+}
+
+#app-content-wrapper .section .btn {
+  border-radius: var(--radius-base);
+}
+
+.settings-container {
+  gap: var(--space-5);
+}
+
+.setting-item {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.info-box {
+  padding: var(--space-3) var(--space-4);
+}
+
+/* ≥769px: restore roomier section chrome (desktop ≥1024 stays pixel-identical) */
+@media (min-width: 769px) {
   #app-content-wrapper>.section {
-    padding: var(--space-5);
-    margin-bottom: var(--space-8);
-    border-radius: var(--radius-xl);
+    padding: var(--space-8) var(--space-8);
+    margin-bottom: 0;
+    border-radius: var(--radius-2xl);
   }
 
   #app-content-wrapper>.section::before {
-    top: var(--space-4);
-    bottom: var(--space-4);
-    width: 4px;
+    top: var(--space-5);
+    bottom: var(--space-5);
+    width: 5px;
   }
 
   .page-header-section {
-    margin-bottom: var(--space-5);
-    padding: var(--space-3) 0;
+    margin-bottom: var(--space-10);
+    padding: var(--space-8) 0;
   }
 
   .page-header-section .header-content {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-3);
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-8);
   }
 
   .page-header-section .header-actions {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
   }
 
   .page-header-section .header-actions .btn {
-    width: 100%;
-    justify-content: center;
-    min-height: 46px;
+    width: auto;
+    min-height: unset;
   }
 
   #app-content-wrapper .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-3);
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
   }
 
   #app-content-wrapper .section__title {
-    font-size: var(--maintenancecheck-font-size-lg);
-    line-height: 1.35;
-  }
-
-  #app-content-wrapper .section .btn {
-    border-radius: var(--radius-base);
+    font-size: var(--maintenancecheck-font-size-xl);
+    line-height: var(--maintenancecheck-line-height-tight);
   }
 
   .settings-container {
-    gap: var(--space-5);
+    gap: var(--space-6);
   }
 
   .setting-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-1);
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-2);
   }
 
   .info-box {
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-4) var(--space-5);
   }
 }
 
@@ -467,7 +563,7 @@
   width: 100%;
 }
 
-/* Settings sections are mn-card blocks with the shared header/body
+/* Settings sections are dc-card blocks with the shared header/body
    pattern (css/app.css .mn-card__*) — no divider/padding decoration here. */
 
 .setting-item {
@@ -498,7 +594,7 @@
 .info-box {
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-lg);
-  border: 2px solid var(--maintenancecheck-color-border);
+  border: 2px solid var(--mn-border-strong, var(--maintenancecheck-color-border));
   background-color: var(--maintenancecheck-color-background-secondary);
   color: var(--maintenancecheck-color-text);
   line-height: var(--maintenancecheck-line-height-relaxed);
