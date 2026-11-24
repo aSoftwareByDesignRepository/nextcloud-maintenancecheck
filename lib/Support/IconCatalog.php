@@ -6,7 +6,7 @@ namespace OCA\MaintenanceCheck\Support;
 
 /**
  * Inline SVG icon catalogue for MaintenanceCheck templates (Check-family
- * convention, README §2a / MobilityCheck pattern).
+ * convention, README §2a / the mobility app pattern).
  *
  * Lucide-style 24x24 stroke icons inheriting `currentColor` so they recolour
  * with any Nextcloud theme. Output is static markup with no user data and
