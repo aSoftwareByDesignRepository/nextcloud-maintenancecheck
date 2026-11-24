@@ -734,7 +734,7 @@ OC.L10N.register(
 	"N\/A note required" : "Notiz für n. z. erforderlich",
 	"Name" : "Name",
 	"Named seat for the official mobile app." : "Namentlicher Platz für die offizielle Mobile-App.",
-	"Named seats for the official apps — a software licence on invoice." : "Namensgebundene Sitze für die offiziellen Apps — Softwarelizenz mit Rechnung.",
+	"Named seats for the official apps — a software licence on invoice." : "Namentliche Plätze für die offiziellen Apps — eine Softwarelizenz auf Rechnung.",
 	"Narrow the list" : "Liste eingrenzen",
 	"Narrow visits by status, due date, or ownership." : "Besuche nach Status, Fälligkeit oder Zuständigkeit eingrenzen.",
 	"Needs owner" : "Ohne Verantwortlichen",
