@@ -1,0 +1,11 @@
+{
+	"mn-app--denied": "state modifier on #app-content; .mn-denied block paints the denied surface",
+	"mn-cal-day-list__item": "structural <li> wrapper; .mn-cal-day-list__link paints the row card",
+	"mn-dispatch-hint": "sr-only keyboard hint on the dispatch board; e2e anchor (tests/e2e/uj-journeys.spec.js)",
+	"mn-filter-field--switch": "layout marker for a switch-bearing filter field; alignment via .mn-filter-field__label--spacer + .mn-switch",
+	"mn-id-directory": "idListEditor field wrapper marker; .mn-field + .mn-user-picker__wrap carry the layout",
+	"mn-scope-strip__badge": "BEM element marker in the scope strip; .mn-badge recipe paints it",
+	"mn-search__input": "search input marker in filter panels; .mn-input + .mn-filter-field__control carry the styling",
+	"mn-user-picker__input": "combobox input hook consumed by e2e (calendar.spec.js, open-dialogs-inventory.spec.js); .mn-input paints the chrome",
+	"mn-wo-checklist__body": "structural body container; .mn-checklist / .mn-wo-evidence children self-space"
+}

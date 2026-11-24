@@ -54,7 +54,7 @@ $partial = __DIR__ . '/settings/' . $sectionId . '.php';
 		<?php if (is_readable($partial)) {
 			include $partial;
 		} else { ?>
-			<div class="mn-banner mn-banner--warn" role="alert"><?php p($l->t('This settings page is not available.')); ?></div>
+			<div class="mn-callout mn-callout--warning" role="alert"><?php p($l->t('This settings page is not available.')); ?></div>
 		<?php } ?>
 	</div>
 <?php endif; ?>

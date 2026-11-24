@@ -404,6 +404,22 @@ textarea.mn-input {
 	grid-column: 1 / -1;
 }
 
+/* Repeated record rows inside an auto-fit form grid (defect rows in the
+   work-item dialog, procedure items in the procedure editor) — each row is
+   itself a full form grid, so it must span every column and carry a visible
+   separator from the row above. */
+.mn-form-grid > .mn-defect-row,
+.mn-form-grid > .mn-procedure-item {
+	grid-column: 1 / -1;
+	border-top: 1px solid var(--mn-border, var(--color-border));
+	padding-top: var(--mn-space-4, 16px);
+}
+.mn-form-grid > .mn-defect-row:first-child,
+.mn-form-grid > .mn-procedure-item:first-child {
+	border-top: 0;
+	padding-top: 0;
+}
+
 .mn-switch {
 	display: inline-flex;
 	align-items: center;
@@ -1740,6 +1756,12 @@ textarea.mn-input {
 	row-gap: 0;
 }
 
+/* Import preview lists whole groups of rows — give it more room than the
+   default dialog cap. App-owned rule (transfer.css is a synced pack file). */
+dialog.mn-dialog.mn-transfer-report {
+	max-width: min(52rem, calc(100vw - 2rem));
+}
+
 .mn-dialog .mn-user-picker,
 .mn-dialog .mn-field {
 	max-width: none;
@@ -2950,6 +2972,48 @@ body > .mn-dialog-overlay > .mn-dialog {
 	flex-direction: column;
 	gap: var(--mn-space-2, 8px);
 }
+.mn-wo-evidence__signature {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mn-space-2, 8px);
+	margin-top: var(--mn-space-3, 12px);
+}
+.mn-wo-evidence__signature .mn-field {
+	margin-bottom: 0;
+}
+.mn-wo-procedure {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--mn-space-2, 8px);
+}
+.mn-wo-procedure > p {
+	margin: 0;
+}
+.mn-wo-comments {
+	display: flex;
+	flex-direction: column;
+	max-height: 20rem;
+	overflow-y: auto;
+}
+.mn-wo-comments > p {
+	margin: 0;
+}
+.mn-comment {
+	padding: var(--mn-space-2, 8px) 0;
+	border-bottom: 1px solid var(--mn-border, var(--color-border));
+}
+.mn-comment:last-child {
+	border-bottom: 0;
+}
+.mn-comment__meta {
+	margin: 0 0 var(--mn-space-1, 4px);
+	font-size: var(--mn-fs-sm, 0.875rem);
+}
+.mn-comment__body {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
 
 /* Detail tip: one quiet line, not a second essay */
 #mn-wo-detail-quickstart.mn-quickstart-card {
@@ -3564,6 +3628,13 @@ textarea {
 }
 .mn-cal-day-list__link:hover {
 	background: var(--mn-hover-fill);
+}
+.mn-cal-day-list__title {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 .mn-cal-week {
 	display: flex;
