@@ -535,7 +535,7 @@
 
 
 /* ===== AZ mid-desktop nav width (match arbeitszeitcheck responsive.css) ===== */
-@media (min-width: 1024px) and (max-width: 1280px) {
+@media (min-width: 1024px) and (max-width: 1279.98px) {
   #content.app-maintenancecheck #app-navigation {
     width: 240px;
     min-width: 240px;
