@@ -201,7 +201,7 @@ OC.L10N.register(
 	"Assign visit" : "Tilldela besök",
 	"Assigned" : "Tilldelad",
 	"Assigned %1$d, skipped %2$d, failed %3$d." : "%1$d tilldelade, %2$d överhoppade, %3$d misslyckade.",
-	"Assigned mobile seats" : "Tilldelade mobila säten",
+	"Assigned mobile seats" : "Tilldelade mobila platser",
 	"Assigned to" : "Tilldelad",
 	"Assigned to {user}" : "Tilldelat till {user}",
 	"Assignment removed." : "Tilldelning bort.",
