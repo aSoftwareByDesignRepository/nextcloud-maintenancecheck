@@ -57,7 +57,15 @@ final class AzcShellParityContractTest extends TestCase
 	{
 		$layout = (string)file_get_contents($this->root . '/css/common/app-layout.css');
 		$this->assertStringContainsString('#content.app-maintenancecheck', $layout);
-		$this->assertMatchesRegularExpression('/flex:\s*0 0 280px/', $layout);
+		// Donor shape (check-shell app-layout.css): the nav track is a fixed arm
+		// pinned to the --mn-nav-width token with a 280px fallback. Assert the
+		// tokenized form so future donor re-syncs do not stale this contract.
+		$this->assertStringContainsString('--mn-nav-width: 280px', $layout);
+		$this->assertMatchesRegularExpression(
+			'/flex:\s*0 0 var\(--mn-nav-width,\s*280px\)/',
+			$layout,
+			'nav must pin to flex: 0 0 var(--mn-nav-width, 280px)'
+		);
 	}
 
 	public function testNoPillRadiiRemainInAppCss(): void
@@ -250,8 +258,14 @@ final class AzcShellParityContractTest extends TestCase
 	public function testLayoutCssPinsMidDesktopNavWidthLikeAzc(): void
 	{
 		$layout = (string)file_get_contents($this->root . '/css/common/app-layout.css');
-		$this->assertStringContainsString('max-width: 1280px', $layout);
-		$this->assertMatchesRegularExpression('/flex:\s*0 0 240px/', $layout);
+		// Donor band (AZC responsive.css parity): 1024–<1280 collapses the nav
+		// to a fixed 240px track. Pin the band header and the 240px arm inside
+		// it so donor re-syncs keep this contract meaningful.
+		$this->assertMatchesRegularExpression(
+			'/@media\s*\(min-width:\s*1024px\)\s*and\s*\(max-width:\s*1279\.98px\)\s*\{[^@]*#app-navigation\s*\{[^}]*width:\s*240px[^}]*flex:\s*0 0 240px/s',
+			$layout,
+			'mid-desktop band (1024–1279.98px) must pin #app-navigation to a fixed 240px track'
+		);
 	}
 
 	public function testShellHasNoArtificalContentMaxWidth(): void
