@@ -1,0 +1,623 @@
+{
+  "schemaVersion": 1,
+  "appId": "maintenancecheck",
+  "agentExposure": "declared",
+  "tools": [
+    {
+      "name": "mn_list_due",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#due",
+      "method": "GET",
+      "path": "/mobile/v1/due",
+      "scope": "maintenancecheck:visits:read",
+      "label": "Due visits",
+      "description": "List due maintenance visits for the token user."
+    },
+    {
+      "name": "mn_get_calendar",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#calendar",
+      "method": "GET",
+      "path": "/mobile/v1/calendar",
+      "scope": "maintenancecheck:calendar:read",
+      "label": "Calendar",
+      "description": "Calendar feed of planned visits and work."
+    },
+    {
+      "name": "mn_get_equipment_by_qr",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#equipmentByQr",
+      "method": "GET",
+      "path": "/mobile/v1/equipment/by-qr/{token}",
+      "scope": "maintenancecheck:equipment:read",
+      "label": "Equipment by QR",
+      "description": "Resolve an equipment QR token to the equipment record.",
+      "params": {
+        "token": {
+          "type": "string",
+          "required": true,
+          "description": "Path parameter — QR payload printed on the equipment."
+        }
+      }
+    },
+    {
+      "name": "mn_get_equipment",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#equipment",
+      "method": "GET",
+      "path": "/mobile/v1/equipment/{id}",
+      "scope": "maintenancecheck:equipment:read",
+      "label": "Equipment detail",
+      "description": "Read one equipment record.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_list_visits",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#visits",
+      "method": "GET",
+      "path": "/mobile/v1/visits",
+      "scope": "maintenancecheck:visits:read",
+      "label": "List visits",
+      "description": "List maintenance visits."
+    },
+    {
+      "name": "mn_get_visit",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#visit",
+      "method": "GET",
+      "path": "/mobile/v1/visits/{id}",
+      "scope": "maintenancecheck:visits:read",
+      "label": "Visit detail",
+      "description": "Read one maintenance visit.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_list_customers",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#customers",
+      "method": "GET",
+      "path": "/mobile/v1/customers",
+      "scope": "maintenancecheck:customers:read",
+      "label": "List customers",
+      "description": "List customers, optionally filtered.",
+      "params": {
+        "q": {
+          "type": "string",
+          "required": false
+        },
+        "limit": {
+          "type": "integer",
+          "required": false
+        },
+        "offset": {
+          "type": "integer",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "mn_list_work_orders",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#workOrders",
+      "method": "GET",
+      "path": "/mobile/v1/work-orders",
+      "scope": "maintenancecheck:work_orders:read",
+      "label": "List work orders",
+      "description": "List work orders, optionally filtered.",
+      "params": {
+        "status": {
+          "type": "string",
+          "required": false
+        },
+        "open": {
+          "type": "integer",
+          "required": false,
+          "description": "1 = only open work orders (default), 0 = all."
+        },
+        "mine": {
+          "type": "integer",
+          "required": false,
+          "description": "1 = only work orders assigned to the token user (default)."
+        },
+        "limit": {
+          "type": "integer",
+          "required": false
+        },
+        "offset": {
+          "type": "integer",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "mn_get_work_order",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#workOrder",
+      "method": "GET",
+      "path": "/mobile/v1/work-orders/{id}",
+      "scope": "maintenancecheck:work_orders:read",
+      "label": "Work order detail",
+      "description": "Read one work order.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_list_work_order_photos",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#workOrderPhotos",
+      "method": "GET",
+      "path": "/mobile/v1/work-orders/{id}/photos",
+      "scope": "maintenancecheck:work_orders:read",
+      "label": "Work order photos",
+      "description": "List photos attached to a work order.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_get_work_order_kit",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#workOrderKit",
+      "method": "GET",
+      "path": "/mobile/v1/work-orders/{id}/kit",
+      "scope": "maintenancecheck:work_orders:read",
+      "label": "Work order kit",
+      "description": "Material kit lines for a work order.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_download_servicebericht",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#servicebericht",
+      "method": "GET",
+      "path": "/mobile/v1/work-orders/{id}/pdf/servicebericht",
+      "scope": "maintenancecheck:work_orders:read",
+      "label": "Service report PDF",
+      "description": "Download the service report PDF for a work order.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_download_inspection_evidence",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#inspectionEvidence",
+      "method": "GET",
+      "path": "/mobile/v1/work-orders/{id}/pdf/inspection-evidence",
+      "scope": "maintenancecheck:work_orders:read",
+      "label": "Inspection evidence PDF",
+      "description": "Download the inspection evidence PDF for a work order.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_list_equipment_obligations",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#equipmentObligations",
+      "method": "GET",
+      "path": "/mobile/v1/equipment/{equipmentId}/obligations",
+      "scope": "maintenancecheck:equipment:read",
+      "label": "Equipment obligations",
+      "description": "Inspection/maintenance obligations for one equipment.",
+      "params": {
+        "equipmentId": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_get_today_tour",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#tourToday",
+      "method": "GET",
+      "path": "/mobile/v1/tours/today",
+      "scope": "maintenancecheck:tours:read",
+      "label": "Today's tour",
+      "description": "The token user's tour for today."
+    },
+    {
+      "name": "mn_list_equipment_meters",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#equipmentMeters",
+      "method": "GET",
+      "path": "/mobile/v1/equipment/{equipmentId}/meters",
+      "scope": "maintenancecheck:equipment:read",
+      "label": "Equipment meters",
+      "description": "Meters and readings for one equipment.",
+      "params": {
+        "equipmentId": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_list_work_order_comments",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#workOrderComments",
+      "method": "GET",
+      "path": "/mobile/v1/work-orders/{id}/comments",
+      "scope": "maintenancecheck:work_orders:read",
+      "label": "Work order comments",
+      "description": "List comments on a work order.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_list_equipment_docs",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#equipmentDocs",
+      "method": "GET",
+      "path": "/mobile/v1/equipment/{equipmentId}/docs",
+      "scope": "maintenancecheck:equipment:read",
+      "label": "Equipment documents",
+      "description": "List documents attached to an equipment record.",
+      "params": {
+        "equipmentId": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_download_equip_doc",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#downloadEquipDoc",
+      "method": "GET",
+      "path": "/mobile/v1/equip-docs/{id}/download",
+      "scope": "maintenancecheck:equipment:read",
+      "label": "Download equipment document",
+      "description": "Download one equipment document.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_list_failure_codes",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#failureCodes",
+      "method": "GET",
+      "path": "/mobile/v1/failure-codes",
+      "scope": "maintenancecheck:meta:read",
+      "label": "Failure codes",
+      "description": "Failure-code catalogue for reports."
+    },
+    {
+      "name": "mn_list_exceptions",
+      "kind": "read",
+      "riskClass": 0,
+      "route": "mobile#exceptions",
+      "method": "GET",
+      "path": "/mobile/v1/exceptions",
+      "scope": "maintenancecheck:exceptions:read",
+      "label": "Exceptions board",
+      "description": "Open exceptions needing attention."
+    },
+    {
+      "name": "mn_complete_visit",
+      "kind": "write",
+      "riskClass": 2,
+      "confirm": "required",
+      "route": "mobile#complete",
+      "method": "POST",
+      "path": "/mobile/v1/visits/{id}/complete",
+      "idempotency": "natural",
+      "scope": "maintenancecheck:visits:write",
+      "label": "Complete visit",
+      "description": "Mark a visit complete (state transition — confirm required).",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        },
+        "notes": {
+          "type": "string",
+          "required": false
+        },
+        "closingReading": {
+          "type": "number",
+          "required": false,
+          "description": "Closing meter reading."
+        }
+      }
+    },
+    {
+      "name": "mn_skip_visit",
+      "kind": "write",
+      "riskClass": 2,
+      "confirm": "required",
+      "route": "mobile#skip",
+      "method": "POST",
+      "path": "/mobile/v1/visits/{id}/skip",
+      "idempotency": "natural",
+      "scope": "maintenancecheck:visits:write",
+      "label": "Skip visit",
+      "description": "Skip a visit with a reason (state transition — confirm required).",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        },
+        "reason": {
+          "type": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "mn_open_work_order",
+      "kind": "write",
+      "riskClass": 1,
+      "route": "mobile#createWorkOrderFromVisit",
+      "method": "POST",
+      "path": "/mobile/v1/visits/{visitId}/work-orders",
+      "idempotency": "natural",
+      "scope": "maintenancecheck:work_orders:write",
+      "label": "Open work order",
+      "description": "Create or reopen the inspection work order for a visit (idempotent by design).",
+      "params": {
+        "visitId": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        },
+        "procedureId": {
+          "type": "integer",
+          "required": false
+        },
+        "obligationId": {
+          "type": "integer",
+          "required": false
+        },
+        "primaryUserId": {
+          "type": "string",
+          "required": false
+        },
+        "helperUids": {
+          "type": "array",
+          "required": false
+        },
+        "estimatedMinutes": {
+          "type": "integer",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "mn_transition_work_order",
+      "kind": "write",
+      "riskClass": 2,
+      "confirm": "required",
+      "route": "mobile#workOrderTransition",
+      "method": "POST",
+      "path": "/mobile/v1/work-orders/{id}/transition",
+      "idempotency": "natural",
+      "scope": "maintenancecheck:work_orders:write",
+      "label": "Transition work order",
+      "description": "Move a work order along its status workflow (state transition — confirm required).",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        },
+        "status": {
+          "type": "string",
+          "required": true
+        },
+        "closingReading": {
+          "type": "number",
+          "required": false
+        },
+        "laborMinutes": {
+          "type": "integer",
+          "required": false
+        },
+        "procedureSkipped": {
+          "type": "boolean",
+          "required": false
+        },
+        "procedureSkipReason": {
+          "type": "string",
+          "required": false
+        },
+        "notes": {
+          "type": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "mn_update_work_order_checklist",
+      "kind": "write",
+      "riskClass": 2,
+      "confirm": "required",
+      "route": "mobile#workOrderChecklist",
+      "method": "PUT",
+      "path": "/mobile/v1/work-orders/{id}/checklist/{itemCode}",
+      "idempotency": "natural",
+      "scope": "maintenancecheck:work_orders:write",
+      "label": "Set checklist result",
+      "description": "Record a checklist item result on a work order (state transition — confirm required).",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        },
+        "itemCode": {
+          "type": "string",
+          "required": true,
+          "description": "Path parameter."
+        },
+        "result": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "mn_pack_kit_line",
+      "kind": "write",
+      "riskClass": 1,
+      "route": "mobile#workOrderPackLine",
+      "method": "POST",
+      "path": "/mobile/v1/work-orders/{id}/kit/lines/{lineId}/pack",
+      "idempotency": "natural",
+      "scope": "maintenancecheck:work_orders:write",
+      "label": "Pack kit line",
+      "description": "Mark a material kit line as packed.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        },
+        "lineId": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        }
+      }
+    },
+    {
+      "name": "mn_add_meter_reading",
+      "kind": "write",
+      "riskClass": 1,
+      "route": "mobile#addMeterReading",
+      "method": "POST",
+      "path": "/mobile/v1/meters/{id}/readings",
+      "idempotency": "clientRequestId",
+      "scope": "maintenancecheck:meters:write",
+      "label": "Add meter reading",
+      "description": "Record a meter reading.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter (meter id)."
+        },
+        "value": {
+          "type": "number",
+          "required": true
+        },
+        "note": {
+          "type": "string",
+          "required": false
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "required": false,
+          "description": "Companion outbox key — safe replay."
+        }
+      }
+    },
+    {
+      "name": "mn_add_work_order_comment",
+      "kind": "write",
+      "riskClass": 1,
+      "route": "mobile#workOrderAddComment",
+      "method": "POST",
+      "path": "/mobile/v1/work-orders/{id}/comments",
+      "idempotency": "clientRequestId",
+      "scope": "maintenancecheck:work_orders:write",
+      "label": "Add comment",
+      "description": "Add a comment to a work order.",
+      "params": {
+        "id": {
+          "type": "integer",
+          "required": true,
+          "description": "Path parameter."
+        },
+        "body": {
+          "type": "string",
+          "required": true
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "required": false,
+          "description": "Companion outbox key — safe replay."
+        }
+      }
+    }
+  ],
+  "deny": [
+    "mobile#bootstrap",
+    "mobile#widgetSnapshot",
+    "mobile#workOrderAddPhoto",
+    "mobile#workOrderSignature",
+    "mobile#inspectionEvidenceAlias"
+  ]
+}

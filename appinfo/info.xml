@@ -368,6 +368,7 @@ Vi forbedrer denne appen med bruk i praksis. Feilrapporter, friksjon og idéer h
 		<install>
 			<step>OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema</step>
 			<step>OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks</step>
+			<step>OCA\MaintenanceCheck\Repair\EnsureAgentTables</step>
 		</install>
 		<pre-migration>
 			<step>OCA\MaintenanceCheck\Repair\BackupBeforeUpdate</step>
@@ -376,9 +377,11 @@ Vi forbedrer denne appen med bruk i praksis. Feilrapporter, friksjon og idéer h
 		<post-migration>
 			<step>OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema</step>
 			<step>OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks</step>
+			<step>OCA\MaintenanceCheck\Repair\EnsureAgentTables</step>
 		</post-migration>
 		<uninstall>
 			<step>OCA\MaintenanceCheck\Repair\UninstallDropTables</step>
+			<step>OCA\MaintenanceCheck\Repair\UninstallAgentTables</step>
 		</uninstall>
 	</repair-steps>
 

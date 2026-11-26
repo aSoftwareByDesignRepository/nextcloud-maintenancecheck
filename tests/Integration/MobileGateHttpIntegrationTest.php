@@ -153,6 +153,7 @@ final class MobileGateHttpIntegrationTest extends IntegrationTestCase
 			\OC::$server->get(\OCA\MaintenanceCheck\Service\InspectionObligationService::class),
 			\OC::$server->get(\OCA\MaintenanceCheck\Service\CalendarService::class),
 			\OC::$server->get(IUserManager::class),
+			\OC::$server->get(\OCA\MaintenanceCheck\Agent\AgentContext::class),
 		);
 	}
 

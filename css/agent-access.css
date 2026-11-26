@@ -1,0 +1,239 @@
+/* "AI access (MCP)" section — pack styles.
+ * Token scales only (design-system mandate): spacing/type/radii come from
+ * the app's mn-token block; colors are NC --color-* vars + color-mix.
+ * Mobile-first: token list renders as labelled cards, becoming a real
+ * table at ≥768px.
+ */
+
+.mn-agent {
+	margin-bottom: var(--mn-space-6, 32px);
+}
+
+.mn-agent-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--mn-space-3, 12px);
+	padding: var(--mn-space-5, 24px);
+	border: 1px dashed var(--color-border-maxcontrast, var(--mn-border));
+	border-radius: var(--mn-radius-md, 8px);
+	background: color-mix(in srgb, var(--color-main-background) 96%, var(--color-primary-element));
+}
+.mn-agent-empty__text {
+	margin: 0;
+	color: var(--color-text-maxcontrast, var(--mn-muted));
+}
+
+/* Token table — cards by default (mobile), real table ≥768px. */
+.mn-agent-tablewrap { overflow: visible; }
+.mn-agent-table { width: 100%; border-collapse: collapse; }
+.mn-agent-table thead {
+	position: absolute;
+	width: 1px; height: 1px;
+	margin: -1px; padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap; border: 0;
+}
+.mn-agent-table,
+.mn-agent-table tbody,
+.mn-agent-table tr,
+.mn-agent-table td { display: block; width: 100%; }
+.mn-agent-table tbody tr {
+	display: grid;
+	gap: var(--mn-space-1, 4px);
+	padding: var(--mn-space-3, 12px) var(--mn-space-4, 16px);
+	margin-bottom: var(--mn-space-3, 12px);
+	border: 1px solid var(--color-border-dark, var(--mn-border));
+	border-radius: var(--mn-radius-md, 8px);
+	background: var(--color-main-background, var(--mn-bg-card));
+}
+.mn-agent-table td { border: 0; padding: 0; }
+.mn-agent-table td[data-cell]::before {
+	content: attr(data-cell);
+	display: block;
+	font-size: var(--mn-fs-xs, 0.75rem);
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--color-text-maxcontrast, var(--mn-muted));
+	margin-bottom: 2px;
+}
+.mn-agent-table .mn-row-actions {
+	display: flex;
+	gap: var(--mn-space-2, 8px);
+	flex-wrap: wrap;
+	padding-top: var(--mn-space-2, 8px);
+}
+.mn-agent-row--inactive .mn-agent-label,
+.mn-agent-row--inactive .mn-agent-owner {
+	opacity: 0.6;
+}
+
+@media (min-width: 768px) {
+	.mn-agent-table thead {
+		position: static;
+		width: auto; height: auto;
+		margin: 0;
+		overflow: visible;
+		clip: auto;
+		white-space: normal;
+	}
+	.mn-agent-table { display: table; }
+	.mn-agent-table thead { display: table-header-group; }
+	.mn-agent-table tbody { display: table-row-group; }
+	.mn-agent-table tr { display: table-row; }
+	.mn-agent-table tbody tr {
+		display: table-row;
+		padding: 0;
+		margin-bottom: 0;
+		border: 0;
+		border-bottom: 1px solid var(--color-border-dark, var(--mn-border));
+		border-radius: 0;
+		background: transparent;
+	}
+	.mn-agent-table td,
+	.mn-agent-table th {
+		display: table-cell;
+		padding: var(--mn-space-2, 8px) var(--mn-space-3, 12px);
+		vertical-align: top;
+		text-align: left;
+	}
+	.mn-agent-table td[data-cell]::before { content: none; }
+	.mn-agent-table .mn-row-actions { justify-content: flex-end; padding-top: var(--mn-space-2, 8px); }
+}
+
+.mn-agent-label { font-weight: 600; margin-right: var(--mn-space-2, 8px); }
+.mn-agent-owner {
+	margin-left: var(--mn-space-2, 8px);
+	font-size: var(--mn-fs-xs, 0.75rem);
+	color: var(--color-text-maxcontrast, var(--mn-muted));
+}
+.mn-agent-scopes {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: var(--mn-space-1, 4px);
+}
+.mn-agent-never {
+	color: var(--color-text-maxcontrast, var(--mn-muted));
+	font-style: italic;
+}
+
+/* Badge fallback — apps whose shell lacks a pill+dot badge get the recipe
+ * locally so scope badges never render as bare text (no color-only state). */
+.mn-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--mn-space-1, 4px);
+	padding: 1px var(--mn-space-2, 8px);
+	margin: 0 var(--mn-space-1, 4px) var(--mn-space-1, 4px) 0;
+	border-radius: 999px;
+	font-size: var(--mn-fs-xs, 0.75rem);
+	font-weight: 600;
+	line-height: 1.6;
+	border: 1px solid transparent;
+}
+.mn-badge::before {
+	content: '';
+	width: 6px; height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+	flex-shrink: 0;
+}
+.mn-badge--neutral {
+	color: var(--color-text-maxcontrast);
+	background: color-mix(in srgb, var(--color-main-background) 85%, var(--color-text-maxcontrast));
+	border-color: color-mix(in srgb, var(--color-main-background) 70%, var(--color-text-maxcontrast));
+}
+.mn-badge--info {
+	color: var(--color-primary-element-text);
+	background: var(--color-primary-element);
+}
+
+/* Scope chips (custom preset) — multi-select per design-system chips recipe. */
+.mn-agent-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mn-space-2, 8px);
+}
+.mn-agent-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--mn-space-1, 4px);
+	padding: var(--mn-space-1, 4px) var(--mn-space-3, 12px);
+	border: 1px solid var(--color-border-dark, var(--mn-border));
+	border-radius: 999px;
+	cursor: pointer;
+	font-size: var(--mn-fs-s, 0.875rem);
+	min-height: 44px;
+	background: var(--color-main-background);
+}
+.mn-agent-chip:has(:checked) {
+	border-color: var(--color-primary-element);
+	background: color-mix(in srgb, var(--color-main-background) 88%, var(--color-primary-element));
+}
+.mn-agent-chip input { accent-color: var(--color-primary-element); }
+.mn-agent-chip:focus-within {
+	outline: 2px solid var(--color-primary-element);
+	outline-offset: 2px;
+}
+
+/* One-time secret + config block */
+.mn-agent-secret-dialog { max-width: min(92vw, 560px); }
+.mn-agent-config {
+	width: 100%;
+	font-family: var(--mn-font-mono, monospace);
+	font-size: var(--mn-fs-s, 0.8125rem);
+	padding: var(--mn-space-2, 8px);
+	border: 1px solid var(--color-border-dark, var(--mn-border));
+	border-radius: var(--mn-radius-md, 8px);
+	background: color-mix(in srgb, var(--color-main-background) 94%, var(--color-text-maxcontrast));
+	color: var(--color-main-text);
+	resize: vertical;
+}
+#mn-agent-secret {
+	font-family: var(--mn-font-mono, monospace);
+}
+
+.mn-agent-actions {
+	margin-top: var(--mn-space-3, 12px);
+}
+
+.mn-agent-selfmint {
+	margin-top: var(--mn-space-5, 24px);
+}
+.mn-checkbox-label {
+	display: flex;
+	align-items: center;
+	gap: var(--mn-space-2, 8px);
+	min-height: 44px;
+	cursor: pointer;
+}
+
+.mn-visually-hidden {
+	position: absolute;
+	width: 1px; height: 1px;
+	margin: -1px; padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mn-agent *,
+	.mn-agent *::before,
+	.mn-agent *::after {
+		transition: none !important;
+		animation: none !important;
+	}
+}
+
+@media (forced-colors: active) {
+	.mn-badge,
+	.mn-agent-chip {
+		border: 1px solid CanvasText;
+	}
+	.mn-badge::before {
+		background: CanvasText;
+	}
+}

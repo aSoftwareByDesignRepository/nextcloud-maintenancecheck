@@ -40,6 +40,7 @@ class PageController extends Controller
 		private readonly EquipmentService $equipment,
 		private readonly \OCA\MaintenanceCheck\ConfigTransfer\TransferReceiptStore $transferReceipts,
 		private readonly LicenseService $license,
+		private readonly \OCA\MaintenanceCheck\Agent\AgentSettingsPayload $agentSettings,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -165,6 +166,8 @@ class PageController extends Controller
 			array_merge($this->settingsPageParams(), $section === 'license' ? [
 				'licenseStatus' => $this->license->status(),
 				'licenseSeatsList' => $this->license->listSeats('200', '0'),
+			] : [], $section === 'agent' ? [
+				'agentAccess' => $this->agentSettings->payload($this->access->currentUserId()),
 			] : [], [
 				'pageId' => 'settings-' . $section,
 				'settingsSection' => $section,
@@ -267,6 +270,10 @@ class PageController extends Controller
 			Util::addStyle(Application::APP_ID, 'common/transfer');
 			Util::addScript(Application::APP_ID, 'transfer-bridge');
 			Util::addScript(Application::APP_ID, 'transfer');
+		}
+		if ($pageId === 'settings-agent') {
+			Util::addStyle(Application::APP_ID, 'agent-access');
+			Util::addScript(Application::APP_ID, 'agent-access');
 		}
 
 		$uid = $this->access->currentUserId();

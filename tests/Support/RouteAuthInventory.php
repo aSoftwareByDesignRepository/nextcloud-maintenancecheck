@@ -41,6 +41,7 @@ final class RouteAuthInventory
 		'l2_read', 'l2_p3', 'l2_mine_or_office', 'l2_corrective_or_office',
 		'l2_own_or_office', 'office', 'office_or_self', 'execute', 'app_admin',
 		'mobile_bootstrap', 'mobile_read', 'mobile_n5', 'mobile_read_self',
+		'agent',
 	];
 
 	/**
@@ -213,6 +214,16 @@ final class RouteAuthInventory
 			'mobile#failureCodes' => 'mobile_read',
 			'mobile#exceptions' => 'mobile_read_self',
 			'mobile#widgetSnapshot' => 'mobile_read',
+			// AgentAuthMiddleware gates these: the manifest is readable by
+			// agent token or session; token administration is session+CSRF
+			// with the pack's own canAdminister check.
+			'agent_manifest#show' => 'agent',
+			'agent_token#index' => 'agent',
+			'agent_token#mint' => 'agent',
+			'agent_token#audit' => 'agent',
+			'agent_token#updatePolicy' => 'agent',
+			'agent_token#revoke' => 'agent',
+			'agent_token#rotate' => 'agent',
 			'ops#kpi' => 'office',
 			'ops#kpiCsv' => 'office',
 			'ops#exceptions' => 'office',
@@ -270,6 +281,8 @@ final class RouteAuthInventory
 			'equip_doc' => EquipDocController::class,
 			'inspection_obligation' => InspectionObligationController::class,
 			'transfer_api' => TransferApiController::class,
+			'agent_manifest' => \OCA\MaintenanceCheck\Controller\AgentManifestController::class,
+			'agent_token' => \OCA\MaintenanceCheck\Controller\AgentTokenController::class,
 			default => throw new \InvalidArgumentException('Unknown controller prefix: ' . $prefix),
 		};
 	}

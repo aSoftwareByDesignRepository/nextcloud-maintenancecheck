@@ -230,5 +230,16 @@ return [
 		['name' => 'work_order#addComment', 'url' => '/api/work-orders/{id}/comments', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 
 		['name' => 'mobile#widgetSnapshot', 'url' => '/api/widget-snapshot', 'verb' => 'GET'],
+
+		// ── Agent (AI/MCP) surface. The manifest is readable by any valid
+		// agent token OR a session user; token administration is session+CSRF
+		// only — AgentAuthMiddleware denies agent credentials on these paths.
+		['name' => 'agent_manifest#show', 'url' => '/agent/v1/manifest', 'verb' => 'GET'],
+		['name' => 'agent_token#index', 'url' => '/agent/v1/tokens', 'verb' => 'GET'],
+		['name' => 'agent_token#mint', 'url' => '/agent/v1/tokens', 'verb' => 'POST'],
+		['name' => 'agent_token#audit', 'url' => '/agent/v1/audit', 'verb' => 'GET'],
+		['name' => 'agent_token#updatePolicy', 'url' => '/agent/v1/policy', 'verb' => 'POST'],
+		['name' => 'agent_token#revoke', 'url' => '/agent/v1/tokens/{id}/revoke', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
+		['name' => 'agent_token#rotate', 'url' => '/agent/v1/tokens/{id}/rotate', 'verb' => 'POST', 'requirements' => ['id' => '\\d+']],
 	],
 ];

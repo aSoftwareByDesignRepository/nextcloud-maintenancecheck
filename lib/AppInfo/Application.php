@@ -51,6 +51,8 @@ use OCA\MaintenanceCheck\Db\EquipmentClassMapper;
 use OCA\MaintenanceCheck\Db\InspectionDefectMapper;
 use OCA\MaintenanceCheck\Db\InspectionObligationMapper;
 use OCA\MaintenanceCheck\Middleware\AppAccessMiddleware;
+use OCA\MaintenanceCheck\Repair\EnsureAgentTables;
+use OCA\MaintenanceCheck\Repair\UninstallAgentTables;
 use OCA\MaintenanceCheck\Repair\EnsureMaintenanceCheckSchema;
 use OCA\MaintenanceCheck\Repair\SeedBuiltinProcedurePacks;
 use OCA\MaintenanceCheck\Repair\UninstallDropTables;
@@ -845,6 +847,50 @@ class Application extends App implements IBootstrap
 			);
 		});
 		$context->registerMiddleware(AppAccessMiddleware::class);
+
+		// _shared/agent-auth pack — scoped AI-agent tokens (suite MCP contract)
+		$context->registerService(\OCA\MaintenanceCheck\Agent\AgentManifest::class, function ($c) {
+			return new \OCA\MaintenanceCheck\Agent\AgentManifest(
+				'maintenancecheck',
+				\dirname(__DIR__, 2) . '/appinfo/agent-manifest.json'
+			);
+		});
+		$context->registerService(\OCA\MaintenanceCheck\Agent\AgentSeatGate::class, function ($c) {
+			return new \OCA\MaintenanceCheck\Agent\MaintenanceCheckAgentSeatGate(
+				$c->get(MobileGateService::class)
+			);
+		});
+		$context->registerService(\OCA\MaintenanceCheck\Agent\AgentAccessGate::class, function ($c) {
+			return new \OCA\MaintenanceCheck\Agent\MaintenanceCheckAgentAccessGate(
+				$c->get(\OCA\MaintenanceCheck\Service\AccessControlService::class),
+				$c->get(\OCP\IGroupManager::class)
+			);
+		});
+		$context->registerService(\OCA\MaintenanceCheck\Middleware\AgentAuthMiddleware::class, function ($c) {
+			return new \OCA\MaintenanceCheck\Middleware\AgentAuthMiddleware(
+				$c->get(\OCP\IRequest::class),
+				$c->get(\OCA\MaintenanceCheck\Agent\AgentContext::class),
+				$c->get(\OCA\MaintenanceCheck\Agent\AgentTokenService::class),
+				$c->get(\OCA\MaintenanceCheck\Agent\AgentManifest::class),
+				$c->get(\OCA\MaintenanceCheck\Agent\AgentSeatGate::class),
+				$c->get(\OCA\MaintenanceCheck\Agent\AgentAuditMapper::class),
+				$c->get(LoggerInterface::class),
+				'maintenancecheck'
+			);
+		});
+		$context->registerMiddleware(\OCA\MaintenanceCheck\Middleware\AgentAuthMiddleware::class);
+
+		$context->registerService(EnsureAgentTables::class, function ($c): EnsureAgentTables {
+			return new EnsureAgentTables(
+				$c->get(\OCP\IDBConnection::class),
+			);
+		});
+		$context->registerService(UninstallAgentTables::class, function ($c): UninstallAgentTables {
+			return new UninstallAgentTables(
+				$c->get(\OCP\IDBConnection::class),
+			);
+		});
+		$context->registerEventListener(UserDeletedEvent::class, \OCA\MaintenanceCheck\Listener\AgentUserDeletedListener::class);
 	}
 
 	public function boot(IBootContext $context): void

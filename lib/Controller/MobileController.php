@@ -33,6 +33,7 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 
 /**
  * Mobile API v1 (SPEC §9 + COMPANION §9.2). Rungs 1–2 of the gate are enforced
@@ -67,6 +68,7 @@ class MobileController extends Controller
 		private readonly \OCA\MaintenanceCheck\Service\InspectionObligationService $obligations,
 		private readonly \OCA\MaintenanceCheck\Service\CalendarService $calendarService,
 		private readonly IUserManager $userManager,
+		private readonly \OCA\MaintenanceCheck\Agent\AgentContext $agentContext,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 	}
@@ -75,16 +77,17 @@ class MobileController extends Controller
 	#[NoCSRFRequired]
 	public function bootstrap(): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$displayName = $this->userSession->getUser()?->getDisplayName() ?? $uid;
 		return new JSONResponse($this->gate->bootstrapPayload($uid, $displayName, $this->access->isOffice($uid)));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function due(?string $mine = null, ?string $kind = null, ?string $filter = null): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->visits->due(
 			$uid,
@@ -99,9 +102,10 @@ class MobileController extends Controller
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function calendar(?string $from = null, ?string $to = null): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->calendarService->events($uid, [
 			'from' => $from,
@@ -111,24 +115,27 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function equipment(int $id): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->equipment->mobileSummary($id));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function equipmentByQr(string $token): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->equipment->resolveByQr($token));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function visits(
 		?string $from = null,
 		?string $to = null,
@@ -140,7 +147,7 @@ class MobileController extends Controller
 		?string $limit = null,
 		?string $offset = null,
 	): JSONResponse {
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->visits->list($uid, [
 			'from' => $from,
@@ -157,38 +164,42 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function visit(int $id): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->visits->get($uid, $id));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function complete(int $id): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->visits->complete($uid, $id, $this->jsonBody()));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function skip(int $id): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->visits->skip($uid, $id, $this->jsonBody()));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function customers(?string $q = null, ?string $limit = null, ?string $offset = null): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->customers->list($q, $limit, $offset));
 	}
@@ -197,6 +208,7 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function workOrders(
 		?string $status = null,
 		?string $open = null,
@@ -204,7 +216,7 @@ class MobileController extends Controller
 		?string $limit = null,
 		?string $offset = null,
 	): JSONResponse {
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->workOrders->list($uid, [
 			'status' => $status,
@@ -221,10 +233,11 @@ class MobileController extends Controller
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function createWorkOrderFromVisit(int $visitId): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$created = $this->workOrders->openOrCreateFromVisit($uid, $visitId, $this->jsonBody());
 		return new JSONResponse($created, Http::STATUS_CREATED);
@@ -232,19 +245,21 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function workOrder(int $id): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->workOrders->get($id, $uid));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function workOrderTransition(int $id): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->workOrders->transition(
 			$uid,
@@ -256,19 +271,21 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function workOrderChecklist(int $id, string $itemCode): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->checklist->setResult($uid, $id, $itemCode, $this->jsonBody()));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function workOrderPhotos(int $id): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse(['ok' => true, 'data' => $this->evidence->listPhotos($id, $uid)]);
 	}
@@ -278,7 +295,7 @@ class MobileController extends Controller
 	public function workOrderAddPhoto(int $id): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$content = $this->readUploadedBinary();
 		$name = $this->request->getUploadedFile('file')['name']
@@ -291,9 +308,10 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function workOrderKit(int $id): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$this->workOrders->get($id, $uid);
 		$kit = $this->kits->kitFor($id);
@@ -302,10 +320,11 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function workOrderPackLine(int $id, int $lineId): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->kits->packLine($uid, $id, $lineId, $this->jsonBody()));
 	}
@@ -315,7 +334,7 @@ class MobileController extends Controller
 	public function workOrderSignature(int $id): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$body = $this->jsonBody();
 		$raw = $body['imageBase64'] ?? null;
@@ -336,9 +355,10 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function servicebericht(int $id): DataDownloadResponse|JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$this->workOrders->get($id, $uid);
 		$pdf = $this->pdf->servicebericht($id);
@@ -347,9 +367,10 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function inspectionEvidence(int $id): DataDownloadResponse|JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$this->workOrders->get($id, $uid);
 		$pdf = $this->pdf->inspectionEvidence($id);
@@ -366,9 +387,10 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function equipmentObligations(int $equipmentId): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse([
 			'ok' => true,
@@ -380,28 +402,31 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function tourToday(?string $date = null): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->tours->todayForTech($uid, $date));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function equipmentMeters(int $equipmentId): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->meters->listForEquipment($equipmentId));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function addMeterReading(int $id): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->meters->addReading($uid, $id, $this->jsonBody()), Http::STATUS_CREATED);
 	}
@@ -413,6 +438,12 @@ class MobileController extends Controller
 	 */
 	private function assertSafeMutationChannel(): void
 	{
+		// Agent credentials are validated end-to-end by AgentAuthMiddleware
+		// (resolve + scope + confirm gate + mutation budget) — no session,
+		// no CSRF surface exists to protect.
+		if ($this->agentContext->isArmed()) {
+			return;
+		}
 		if ($this->request->passesCSRFCheck()) {
 			return;
 		}
@@ -421,6 +452,19 @@ class MobileController extends Controller
 		}
 
 		throw new PermissionDeniedException();
+	}
+
+	/**
+	 * Resolve the acting uid. Scoped agent token: the middleware armed a
+	 * request-scoped principal — no session, no setUser(). Fall through to
+	 * the session-backed accessor.
+	 */
+	private function uid(): string
+	{
+		if ($this->agentContext->isArmed()) {
+			return (string)$this->agentContext->uid();
+		}
+		return $this->access->currentUserId();
 	}
 
 	/**
@@ -476,9 +520,10 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function workOrderComments(int $id): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$this->workOrders->get($id, $uid);
 		return new JSONResponse($this->comments->list($id));
@@ -486,10 +531,11 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function workOrderAddComment(int $id): JSONResponse
 	{
 		$this->assertSafeMutationChannel();
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$isOffice = $this->access->isOffice($uid);
 		return new JSONResponse(
@@ -500,18 +546,20 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function equipmentDocs(int $equipmentId): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->equipDocs->listForEquipment($equipmentId));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function downloadEquipDoc(int $id): DataDownloadResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$file = $this->equipDocs->readFileForDownload($uid, $id);
 		return new DataDownloadResponse($file['content'], $file['name'], $file['mime']);
@@ -519,18 +567,20 @@ class MobileController extends Controller
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function failureCodes(): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		return new JSONResponse($this->failureCodes->list(null, null, true));
 	}
 
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
+	#[PublicPage]
 	public function exceptions(?string $filter = null, ?string $limit = null, ?string $offset = null, ?string $mine = null): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$this->gate->assertGatePassed($uid);
 		$assignee = $mine === '0' && $this->access->isOffice($uid) ? null : $uid;
 		return new JSONResponse($this->exceptions->list($limit, $offset, $filter, $assignee));
@@ -566,7 +616,7 @@ class MobileController extends Controller
 	#[NoCSRFRequired]
 	public function widgetSnapshot(): JSONResponse
 	{
-		$uid = $this->access->currentUserId();
+		$uid = $this->uid();
 		$cache = \OCP\Server::get(\OCP\ICacheFactory::class)->createDistributed('maintenancecheck_wsnap');
 		$key = 'snap:' . $uid;
 		if (($hit = $cache->get($key)) !== null) {

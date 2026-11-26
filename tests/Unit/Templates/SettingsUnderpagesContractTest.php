@@ -25,7 +25,7 @@ final class SettingsUnderpagesContractTest extends TestCase
 	{
 		$ids = SettingsSections::ids();
 		$this->assertSame(
-			['access', 'roles', 'inventory', 'policies', 'capacity', 'license', 'transfer', 'support'],
+			['access', 'roles', 'inventory', 'policies', 'capacity', 'license', 'transfer', 'support', 'agent'],
 			$ids
 		);
 		$this->assertSame('access', SettingsSections::DEFAULT);
@@ -106,6 +106,12 @@ final class SettingsUnderpagesContractTest extends TestCase
 				$this->assertStringContainsString('mn-card', $synced);
 				$this->assertStringContainsString('mn-transfer-export-form', $synced);
 				$this->assertStringContainsString('mn-transfer-import-form', $synced);
+			} elseif ($id === 'agent') {
+				// Synced agent-auth partial — thin dispatcher include, the
+				// pack ships its own JS/CSS.
+				$this->assertStringContainsString('parts/settings/agent.php', $html, 'agent must include the synced partial');
+				$syncedAgent = (string)file_get_contents($this->root . '/templates/parts/settings/agent.php');
+				$this->assertStringContainsString('agentAccess', $syncedAgent);
 			} else {
 				$this->assertStringContainsString('support-us-section.php', $html, 'support must include Support & us');
 				$supportUs = (string)file_get_contents($this->root . '/templates/parts/support-us-section.php');

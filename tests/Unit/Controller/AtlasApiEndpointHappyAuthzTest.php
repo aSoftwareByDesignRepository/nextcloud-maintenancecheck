@@ -530,6 +530,13 @@ final class AtlasApiEndpointHappyAuthzTest extends TestCase
 			return $gm;
 		}
 
+		if ($typeName === \OCA\MaintenanceCheck\Agent\AgentContext::class) {
+			// final class — request-scoped principal bag, safe to instantiate.
+			$ctx = new \OCA\MaintenanceCheck\Agent\AgentContext();
+			$this->byType[$key] = $ctx;
+			return $ctx;
+		}
+
 		// Binary / PDF download payloads must include string content.
 		if (str_ends_with($typeName, '\\EquipDocService')
 			|| str_ends_with($typeName, '\\WoEvidenceService')

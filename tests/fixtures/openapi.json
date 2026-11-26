@@ -44,6 +44,235 @@
                 }
             }
         },
+        "/agent/v1/audit": {
+            "get": {
+                "operationId": "agent_token#audit",
+                "summary": "agent_token#audit",
+                "x-mn-gate": "agent",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML page",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No Nextcloud session (login redirect or 401)"
+                    },
+                    "403": {
+                        "description": "Authenticated but not allowed for this gate"
+                    }
+                }
+            }
+        },
+        "/agent/v1/manifest": {
+            "get": {
+                "operationId": "agent_manifest#show",
+                "summary": "agent_manifest#show",
+                "x-mn-gate": "agent",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML page",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No Nextcloud session (login redirect or 401)"
+                    },
+                    "403": {
+                        "description": "Authenticated but not allowed for this gate"
+                    }
+                }
+            }
+        },
+        "/agent/v1/policy": {
+            "post": {
+                "operationId": "agent_token#updatePolicy",
+                "summary": "agent_token#updatePolicy",
+                "x-mn-gate": "agent",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML page",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No Nextcloud session (login redirect or 401)"
+                    },
+                    "403": {
+                        "description": "Authenticated but not allowed for this gate"
+                    }
+                }
+            }
+        },
+        "/agent/v1/tokens": {
+            "get": {
+                "operationId": "agent_token#index",
+                "summary": "agent_token#index",
+                "x-mn-gate": "agent",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML page",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No Nextcloud session (login redirect or 401)"
+                    },
+                    "403": {
+                        "description": "Authenticated but not allowed for this gate"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "agent_token#mint",
+                "summary": "agent_token#mint",
+                "x-mn-gate": "agent",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML page",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No Nextcloud session (login redirect or 401)"
+                    },
+                    "403": {
+                        "description": "Authenticated but not allowed for this gate"
+                    }
+                }
+            }
+        },
+        "/agent/v1/tokens/{id}/revoke": {
+            "post": {
+                "operationId": "agent_token#revoke",
+                "summary": "agent_token#revoke",
+                "x-mn-gate": "agent",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML page",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No Nextcloud session (login redirect or 401)"
+                    },
+                    "403": {
+                        "description": "Authenticated but not allowed for this gate"
+                    }
+                }
+            }
+        },
+        "/agent/v1/tokens/{id}/rotate": {
+            "post": {
+                "operationId": "agent_token#rotate",
+                "summary": "agent_token#rotate",
+                "x-mn-gate": "agent",
+                "security": [
+                    {
+                        "nextcloud_session": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HTML page",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No Nextcloud session (login redirect or 401)"
+                    },
+                    "403": {
+                        "description": "Authenticated but not allowed for this gate"
+                    }
+                }
+            }
+        },
         "/api/admin/transfer/apply": {
             "post": {
                 "operationId": "transfer_api#apply",

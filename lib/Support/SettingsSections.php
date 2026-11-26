@@ -37,6 +37,7 @@ final class SettingsSections
 			'license',
 			'transfer',
 			'support',
+			'agent',
 		];
 	}
 
@@ -105,6 +106,13 @@ final class SettingsSections
 				'title' => $l->t('Support us'),
 				'hint' => $l->t('Sponsoring, bookable help, and how to keep development going.'),
 				'icon' => 'heart',
+				'hasJsHost' => false,
+			],
+			[
+				'id' => 'agent',
+				'title' => $l->t('AI access (MCP)'),
+				'hint' => $l->t('Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces.'),
+				'icon' => 'key',
 				'hasJsHost' => false,
 			],
 		];

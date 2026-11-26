@@ -61,6 +61,7 @@ final class MobileControllerCsrfTest extends TestCase
 			$this->createMock(InspectionObligationService::class),
 			$this->createMock(CalendarService::class),
 			$users,
+			new \OCA\MaintenanceCheck\Agent\AgentContext(),
 		);
 		$method = new ReflectionMethod(MobileController::class, 'assertSafeMutationChannel');
 		$method->invoke($controller);
