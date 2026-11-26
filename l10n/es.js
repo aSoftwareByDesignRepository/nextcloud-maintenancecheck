@@ -871,7 +871,7 @@ OC.L10N.register(
 	"Office users" : "Usuarios de oficina",
 	"Office vs technicians" : "Oficina y técnicos",
 	"Official mobile & terminal licenses" : "Licencias oficiales de móvil y terminal",
-	"OK" : "OK",
+	"OK" : "Aceptar",
 	"OK — a longer passphrase is safer." : "Correcto — una frase de contraseña más larga es más segura.",
 	"On a calendar interval" : "En un intervalo de calendario",
 	"On duty" : "De servicio",

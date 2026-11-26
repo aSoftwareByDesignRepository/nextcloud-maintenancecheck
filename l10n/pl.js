@@ -1255,7 +1255,7 @@ OC.L10N.register(
 	"Stock sync" : "Synchronizacja zasobów",
 	"Stock sync is off" : "Synchronizacja zapasów wyłączona",
 	"Stock sync: {status}" : "Synchronizacja: {status}",
-	"Stop" : "Stop",
+	"Stop" : "Przystanek",
 	"Stop added." : "Przestań dodawać.",
 	"Stop removed." : "Zatrzymaj się.",
 	"Stop-by-stop day plans" : "Plany dzienne przystanek po przystanku",
