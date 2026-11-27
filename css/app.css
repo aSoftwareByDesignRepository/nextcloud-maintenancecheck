@@ -2500,7 +2500,7 @@ dialog.mn-dialog.mn-transfer-report {
 	border: 0;
 }
 
-@media (max-width: 768.98px) {
+@media (max-width: 767.98px) {
 	.mn-support-us__options {
 		grid-template-columns: 1fr;
 	}
