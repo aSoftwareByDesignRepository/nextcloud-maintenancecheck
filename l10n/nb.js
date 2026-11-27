@@ -1577,6 +1577,22 @@ OC.L10N.register(
 	"Token rotated." : "Token rotert.",
 	"Users can now create their own AI tokens." : "Brukere kan nå opprette egne AI-tokens.",
 	"AI access" : "AI-tilgang",
-	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "Utsted og administrer avgrensede tokens for AI-agenter (MCP). Hvert token er begrenset til verktøyene som er erklært i app-manifestet — leseverktøy og små skrivinger, aldri administratorflater."
+	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "Utsted og administrer avgrensede tokens for AI-agenter (MCP). Hvert token er begrenset til verktøyene som er erklært i app-manifestet — leseverktøy og små skrivinger, aldri administratorflater.",
+	"Endpoint" : "Endepunkt",
+	"Events" : "Hendelser",
+	"Last delivery" : "Siste levering",
+	"State" : "Tilstand",
+	"Webhook endpoints" : "Webhook-endepunkter",
+	"Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time." : "AI-assistenten din kan registrere endepunkter som mottar et signert varsel hver gang den endrer noe her. De tilhører deg — test eller tilbakekall dem når som helst.",
+	"All events" : "Alle hendelser",
+	"Could not queue the test." : "Kunne ikke sette testen i kø.",
+	"Disabled" : "Deaktivert",
+	"Endpoint revoked." : "Endepunkt tilbakekalt.",
+	"Endpoints could not be loaded." : "Endepunktene kunne ikke lastes.",
+	"No webhook endpoints yet." : "Ingen webhook-endepunkter ennå.",
+	"Pending events are dropped — your AI can register a new endpoint any time." : "Ventende hendelser forkastes — AI-en din kan registrere et nytt endepunkt når som helst.",
+	"Stop notifications to" : "Stopp varsler til",
+	"Test" : "Test",
+	"Test notification queued — check your endpoint." : "Testvarsel i kø — sjekk endepunktet ditt."
 	}
 );

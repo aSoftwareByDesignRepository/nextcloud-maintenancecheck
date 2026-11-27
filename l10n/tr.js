@@ -1577,6 +1577,22 @@ OC.L10N.register(
 	"Token rotated." : "Token yenilendi.",
 	"Users can now create their own AI tokens." : "Kullanıcılar artık kendi AI token’larını oluşturabilir.",
 	"AI access" : "AI erişimi",
-	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "AI ajanları (MCP) için kapsamı sınırlı token’lar verin ve yönetin. Her token, uygulama manifestosunda belirtilen araçlarla sınırlıdır — okuma araçları ve küçük yazmalar, asla yönetici yüzeyleri."
+	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "AI ajanları (MCP) için kapsamı sınırlı token’lar verin ve yönetin. Her token, uygulama manifestosunda belirtilen araçlarla sınırlıdır — okuma araçları ve küçük yazmalar, asla yönetici yüzeyleri.",
+	"Endpoint" : "Uç nokta",
+	"Events" : "Olaylar",
+	"Last delivery" : "Son teslimat",
+	"State" : "Durum",
+	"Webhook endpoints" : "Webhook uç noktaları",
+	"Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time." : "Yapay zekâ asistanınız, burada bir şeyi değiştirdiğinde imzalı bildirim alan uç noktalar kaydedebilir. Bunlar size aittir — istediğiniz zaman test edin veya iptal edin.",
+	"All events" : "Tüm olaylar",
+	"Could not queue the test." : "Test kuyruğa alınamadı.",
+	"Disabled" : "Devre dışı",
+	"Endpoint revoked." : "Uç nokta iptal edildi.",
+	"Endpoints could not be loaded." : "Uç noktalar yüklenemedi.",
+	"No webhook endpoints yet." : "Henüz webhook uç noktası yok.",
+	"Pending events are dropped — your AI can register a new endpoint any time." : "Bekleyen olaylar atılır — yapay zekânız istediği zaman yeni bir uç nokta kaydedebilir.",
+	"Stop notifications to" : "Bildirimleri durdur:",
+	"Test" : "Test",
+	"Test notification queued — check your endpoint." : "Test bildirimi kuyruğa alındı — uç noktanızı kontrol edin."
 	}
 );

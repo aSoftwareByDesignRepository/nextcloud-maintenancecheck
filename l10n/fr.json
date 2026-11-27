@@ -1642,6 +1642,22 @@
 		"Token rotated.": "Jeton renouvelé.",
 		"Users can now create their own AI tokens.": "Les utilisateurs peuvent désormais créer leurs propres jetons IA.",
 		"AI access": "Accès IA",
-		"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces.": "Émets et gère des jetons à portée limitée pour les agents IA (MCP). Chaque jeton est limité aux outils déclarés dans le manifeste de l’app — outils de lecture et petites écritures, jamais de surfaces d’administration."
+		"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces.": "Émets et gère des jetons à portée limitée pour les agents IA (MCP). Chaque jeton est limité aux outils déclarés dans le manifeste de l’app — outils de lecture et petites écritures, jamais de surfaces d’administration.",
+		"Endpoint": "Point de terminaison",
+		"Events": "Événements",
+		"Last delivery": "Dernière remise",
+		"State": "État",
+		"Webhook endpoints": "Points de terminaison webhook",
+		"Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time.": "Votre assistant IA peut enregistrer des points de terminaison qui reçoivent une notification signée chaque fois qu’il modifie quelque chose ici. Ils vous appartiennent — testez-les ou révoquez-les à tout moment.",
+		"All events": "Tous les événements",
+		"Could not queue the test.": "Impossible de mettre le test en file.",
+		"Disabled": "Désactivé",
+		"Endpoint revoked.": "Point de terminaison révoqué.",
+		"Endpoints could not be loaded.": "Les points de terminaison n’ont pas pu être chargés.",
+		"No webhook endpoints yet.": "Pas encore de points de terminaison webhook.",
+		"Pending events are dropped — your AI can register a new endpoint any time.": "Les événements en attente sont abandonnés — votre IA peut enregistrer un nouveau point de terminaison à tout moment.",
+		"Stop notifications to": "Arrêter les notifications vers",
+		"Test": "Tester",
+		"Test notification queued — check your endpoint.": "Notification de test mise en file — vérifiez votre point de terminaison."
 	}
 }

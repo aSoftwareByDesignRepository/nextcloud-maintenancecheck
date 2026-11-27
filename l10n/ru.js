@@ -1577,6 +1577,22 @@ OC.L10N.register(
 	"Token rotated." : "Токен обновлён.",
 	"Users can now create their own AI tokens." : "Теперь пользователи могут создавать собственные ИИ-токены.",
 	"AI access" : "Доступ ИИ",
-	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "Выпускайте и управляйте токенами ограниченной области действия для ИИ-агентов (MCP). Каждый токен ограничен инструментами, объявленными в манифесте приложения — инструменты чтения и небольшие записи, никогда административные поверхности."
+	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "Выпускайте и управляйте токенами ограниченной области действия для ИИ-агентов (MCP). Каждый токен ограничен инструментами, объявленными в манифесте приложения — инструменты чтения и небольшие записи, никогда административные поверхности.",
+	"Endpoint" : "Конечная точка",
+	"Events" : "События",
+	"Last delivery" : "Последняя доставка",
+	"State" : "Состояние",
+	"Webhook endpoints" : "Конечные точки вебхуков",
+	"Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time." : "Ваш ИИ-ассистент может регистрировать конечные точки, которые получают подписанное уведомление всякий раз, когда он что-то здесь меняет. Они принадлежат вам — проверяйте или отзывайте их в любое время.",
+	"All events" : "Все события",
+	"Could not queue the test." : "Не удалось поставить тест в очередь.",
+	"Disabled" : "Отключено",
+	"Endpoint revoked." : "Конечная точка отозвана.",
+	"Endpoints could not be loaded." : "Не удалось загрузить конечные точки.",
+	"No webhook endpoints yet." : "Пока нет конечных точек вебхуков.",
+	"Pending events are dropped — your AI can register a new endpoint any time." : "Ожидающие события удаляются — ваш ИИ может зарегистрировать новую конечную точку в любое время.",
+	"Stop notifications to" : "Остановить уведомления для",
+	"Test" : "Тест",
+	"Test notification queued — check your endpoint." : "Тестовое уведомление поставлено в очередь — проверьте вашу конечную точку."
 	}
 );

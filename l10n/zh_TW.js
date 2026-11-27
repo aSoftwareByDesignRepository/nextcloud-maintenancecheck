@@ -1577,6 +1577,22 @@ OC.L10N.register(
 	"Token rotated." : "權杖已輪替。",
 	"Users can now create their own AI tokens." : "使用者現在可以建立自己的 AI 權杖。",
 	"AI access" : "AI 存取",
-	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "為 AI 代理（MCP）簽發和管理限定範圍的權杖。每個權杖僅限使用應用程式清單中宣告的工具 — 讀取工具和小型寫入，絕不包括管理介面。"
+	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "為 AI 代理（MCP）簽發和管理限定範圍的權杖。每個權杖僅限使用應用程式清單中宣告的工具 — 讀取工具和小型寫入，絕不包括管理介面。",
+	"Endpoint" : "端點",
+	"Events" : "事件",
+	"Last delivery" : "上次送達",
+	"State" : "狀態",
+	"Webhook endpoints" : "Webhook 端點",
+	"Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time." : "你的 AI 助理可以註冊端點，每當它在此變更內容時，這些端點都會收到簽章通知。它們屬於你——可以隨時測試或撤銷。",
+	"All events" : "所有事件",
+	"Could not queue the test." : "無法將測試加入佇列。",
+	"Disabled" : "已停用",
+	"Endpoint revoked." : "端點已撤銷。",
+	"Endpoints could not be loaded." : "無法載入端點。",
+	"No webhook endpoints yet." : "尚未有 Webhook 端點。",
+	"Pending events are dropped — your AI can register a new endpoint any time." : "待處理的事件將被捨棄——你的 AI 可以隨時註冊新端點。",
+	"Stop notifications to" : "停止向以下位址傳送通知：",
+	"Test" : "測試",
+	"Test notification queued — check your endpoint." : "測試通知已排入佇列——請檢查你的端點。"
 	}
 );

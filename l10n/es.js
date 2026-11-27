@@ -1577,6 +1577,22 @@ OC.L10N.register(
 	"Token rotated." : "Token rotado.",
 	"Users can now create their own AI tokens." : "Los usuarios ya pueden crear sus propios tokens de IA.",
 	"AI access" : "Acceso de IA",
-	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "Emite y gestione tokens de alcance limitado para agentes de IA (MCP). Cada token está limitado a las herramientas declaradas en el manifiesto de la app — herramientas de lectura y pequeñas escrituras, nunca superficies de administración."
+	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "Emite y gestione tokens de alcance limitado para agentes de IA (MCP). Cada token está limitado a las herramientas declaradas en el manifiesto de la app — herramientas de lectura y pequeñas escrituras, nunca superficies de administración.",
+	"Endpoint" : "Endpoint",
+	"Events" : "Eventos",
+	"Last delivery" : "Última entrega",
+	"State" : "Estado",
+	"Webhook endpoints" : "Endpoints de webhook",
+	"Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time." : "Su asistente de IA puede registrar endpoints que reciben una notificación firmada cada vez que cambia algo aquí. Le pertenecen — pruébelos o revóquelos en cualquier momento.",
+	"All events" : "Todos los eventos",
+	"Could not queue the test." : "No se pudo poner la prueba en cola.",
+	"Disabled" : "Deshabilitado",
+	"Endpoint revoked." : "Endpoint revocado.",
+	"Endpoints could not be loaded." : "No se pudieron cargar los endpoints.",
+	"No webhook endpoints yet." : "Aún no hay endpoints de webhook.",
+	"Pending events are dropped — your AI can register a new endpoint any time." : "Los eventos pendientes se descartan — su IA puede registrar un nuevo endpoint en cualquier momento.",
+	"Stop notifications to" : "Detener las notificaciones a",
+	"Test" : "Probar",
+	"Test notification queued — check your endpoint." : "Notificación de prueba en cola — compruebe su endpoint."
 	}
 );
