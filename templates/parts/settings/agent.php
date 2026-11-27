@@ -118,7 +118,7 @@ $mn_tokens = is_array($mn_state['tokens']) ? $mn_state['tokens'] : [];
 	<dialog id="mn-agent-mint-dialog" class="mn-dialog mn-agent-mint-dialog" aria-labelledby="mn-agent-mint-h">
 		<div class="mn-dialog__body">
 			<h3 id="mn-agent-mint-h"><?php p($l->t('Connect your AI')); ?></h3>
-			<form id="mn-agent-mint-form" novalidate>
+			<form id="mn-agent-mint-form" class="mn-form-stack" novalidate>
 				<div class="mn-form-row">
 					<label for="mn-agent-label"><?php p($l->t('Label')); ?></label>
 					<input type="text" id="mn-agent-label" name="label" maxlength="190" required autocomplete="off" placeholder="<?php p($l->t('Claude on my laptop')); ?>">
