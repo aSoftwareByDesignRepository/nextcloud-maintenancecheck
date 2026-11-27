@@ -875,7 +875,8 @@ class Application extends App implements IBootstrap
 				$c->get(\OCA\MaintenanceCheck\Agent\AgentSeatGate::class),
 				$c->get(\OCA\MaintenanceCheck\Agent\AgentAuditMapper::class),
 				$c->get(LoggerInterface::class),
-				'maintenancecheck'
+				'maintenancecheck',
+				$c->query(\OCA\MaintenanceCheck\Agent\AgentWebhookDispatcher::class)
 			);
 		});
 		$context->registerMiddleware(\OCA\MaintenanceCheck\Middleware\AgentAuthMiddleware::class);
