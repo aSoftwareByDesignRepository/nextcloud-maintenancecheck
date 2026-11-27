@@ -63,8 +63,7 @@ $mn_tokens = is_array($mn_state['tokens']) ? $mn_state['tokens'] : [];
 			<tbody id="mn-agent-tbody">
 				<?php foreach ($mn_tokens as $mn_tok): ?>
 				<tr data-token-id="<?php p((string)($mn_tok['id'] ?? '')); ?>" data-token-label="<?php p((string)($mn_tok['label'] ?? '')); ?>"<?php if (($mn_tok['state'] ?? '') !== 'active'): ?> class="mn-agent-row--inactive"<?php endif; ?>>
-					<td data-cell="<?php p($l->t('Label')); ?>">
-						<span class="mn-agent-label"><?php p((string)($mn_tok['label'] ?? '')); ?></span>
+					<td data-cell="<?php p($l->t('Label')); ?>" class="mn-agent-label-cell"><span class="mn-agent-labelcell"><span class="mn-agent-label" title="<?php p((string)($mn_tok['label'] ?? '')); ?>"><?php p((string)($mn_tok['label'] ?? '')); ?></span>
 						<?php if (($mn_tok['state'] ?? '') === 'revoked'): ?>
 							<span class="mn-badge mn-badge--neutral"><?php p($l->t('Revoked')); ?></span>
 						<?php elseif (($mn_tok['state'] ?? '') === 'expired'): ?>
@@ -74,9 +73,8 @@ $mn_tokens = is_array($mn_state['tokens']) ? $mn_state['tokens'] : [];
 						<?php endif; ?>
 						<?php if ($mn_state['isAdmin'] && ($mn_tok['userId'] ?? '') !== ''): ?>
 							<span class="mn-agent-owner"><?php p((string)$mn_tok['userId']); ?></span>
-						<?php endif; ?>
-					</td>
-					<td data-cell="<?php p($l->t('Scopes')); ?>">
+						<?php endif; ?></span></td>
+					<td data-cell="<?php p($l->t('Scopes')); ?>" class="mn-agent-scopes-cell">
 						<span class="mn-agent-scopes">
 						<?php foreach (($mn_tok['scopes'] ?? []) as $mn_scope): ?>
 							<span class="mn-badge mn-badge--neutral mn-agent-scope" title="<?php p((string)$mn_scope); ?>"><?php p((string)($mn_state['scopeLabels'][$mn_scope] ?? $mn_scope)); ?></span>
@@ -103,6 +101,25 @@ $mn_tokens = is_array($mn_state['tokens']) ? $mn_state['tokens'] : [];
 		<?php endif; ?>
 	</div>
 	<?php endif; ?>
+
+	<div class="mn-agent-webhooks" id="mn-agent-webhooks">
+		<h3 class="mn-agent-sub-h" id="mn-agent-webhooks-h"><?php p($l->t('Webhook endpoints')); ?></h3>
+		<p class="mn-form-row__hint"><?php p($l->t('Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time.')); ?></p>
+		<div class="mn-table-wrap mn-agent-tablewrap" tabindex="0" role="region" aria-labelledby="mn-agent-webhooks-h">
+			<table class="mn-table mn-table--cards mn-agent-table" id="mn-agent-webhook-table">
+				<thead>
+					<tr>
+						<th scope="col"><?php p($l->t('Endpoint')); ?></th>
+						<th scope="col"><?php p($l->t('Events')); ?></th>
+						<th scope="col"><?php p($l->t('State')); ?></th>
+						<th scope="col"><?php p($l->t('Last delivery')); ?></th>
+						<th scope="col"><span class="mn-visually-hidden"><?php p($l->t('Actions')); ?></span></th>
+					</tr>
+				</thead>
+				<tbody id="mn-agent-webhook-tbody"></tbody>
+			</table>
+		</div>
+	</div>
 
 	<?php if ($mn_state['isAdmin']): ?>
 	<div class="mn-form-row mn-agent-selfmint">

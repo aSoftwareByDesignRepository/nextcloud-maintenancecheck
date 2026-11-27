@@ -1577,6 +1577,12 @@ OC.L10N.register(
 	"Token rotated." : "Token rotiert.",
 	"Users can now create their own AI tokens." : "Benutzer können jetzt eigene KI-Token erstellen.",
 	"AI access" : "KI-Zugriff",
-	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "Erstelle und verwalte eingeschränkte Token für KI-Agenten (MCP). Jedes Token ist auf die im App-Manifest deklarierten Werkzeuge beschränkt — Lesewerkzeuge und kleine Schreibvorgänge, nie Admin-Oberflächen."
+	"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces." : "Erstelle und verwalte eingeschränkte Token für KI-Agenten (MCP). Jedes Token ist auf die im App-Manifest deklarierten Werkzeuge beschränkt — Lesewerkzeuge und kleine Schreibvorgänge, nie Admin-Oberflächen.",
+	"Endpoint" : "Endpunkt",
+	"Events" : "Ereignisse",
+	"Last delivery" : "Letzte Zustellung",
+	"State" : "Status",
+	"Webhook endpoints" : "Webhook-Endpunkte",
+	"Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time." : "Ihr KI-Assistent kann Endpunkte registrieren, die eine signierte Benachrichtigung erhalten, wenn er hier etwas ändert. Sie gehören Ihnen — testen oder widerrufen Sie sie jederzeit."
 	}
 );

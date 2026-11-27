@@ -1642,6 +1642,12 @@
 		"Token rotated.": "Token rotated.",
 		"Users can now create their own AI tokens.": "Users can now create their own AI tokens.",
 		"AI access": "AI access",
-		"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces.": "Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces."
+		"Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces.": "Issue and manage scoped tokens for AI agents (MCP). Each token is limited to the tools declared in the app manifest — read tools and small writes, never admin surfaces.",
+		"Endpoint": "Endpoint",
+		"Events": "Events",
+		"Last delivery": "Last delivery",
+		"State": "State",
+		"Webhook endpoints": "Webhook endpoints",
+		"Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time.": "Your AI assistant can register endpoints that receive a signed notification whenever it changes something here. They belong to you — test or revoke them any time."
 	}
 }
